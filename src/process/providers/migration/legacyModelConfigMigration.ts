@@ -49,7 +49,7 @@
  *    row already represents a connection the user established once; we trust
  *    it and let the next `refresh` action re-enrich the catalog naturally.
  *  - It does NOT delete the legacy `model.config`. Other UI surfaces (Gemini
- *    /WCore selectors, `AcpModelSelector`, edit modals) still read it.
+ *    selectors, `AcpModelSelector`, edit modals) still read it.
  */
 
 import type { IProvider } from '@/common/config/storage';

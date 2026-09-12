@@ -5,13 +5,13 @@
  *
  * DEFECT A - the Knowledge panel presented the model's own search queries as
  * "Sources". The workbench classifier matched a regex over `name + detail`, and
- * the wcore adapter puts the tool INVOCATION into `detail`, so a ToolSearch call
+ * the tool-group adapter puts the tool INVOCATION into `detail`, so a ToolSearch call
  * whose argument string is `{"query":"web search ... sources ..."}` was filed
  * under Knowledge > Sources. The classifier was reading the question and filing
  * it as the answer.
  *
  * Every fixture below is driven through the real shipped pipeline
- * (`adaptWCoreMessages` -> `projectExecution` -> `deriveWorkbenchProjections`)
+ * (`adaptGeminiMessages` -> `projectExecution` -> `deriveWorkbenchProjections`)
  * so the assertions are about production behaviour, not a hand-authored
  * snapshot that no adapter can emit.
  */
@@ -19,7 +19,6 @@
 import {
   adaptAcpMessages,
   adaptGeminiMessages,
-  adaptWCoreMessages,
   projectExecution,
   selectCurrentExecutionMessages,
   type ExecutionEvent,
@@ -41,7 +40,7 @@ const seed: ExecutionSeed = {
 
 type ToolCall = Readonly<{ callId: string; name: string; description: string }>;
 
-/** One real wcore `tool_group` turn, exactly as the DB stores it. */
+/** One real `tool_group` turn, exactly as the DB stores it. */
 const toolGroupTurn = (calls: readonly ToolCall[]): TMessage[] =>
   [
     {
@@ -54,7 +53,7 @@ const toolGroupTurn = (calls: readonly ToolCall[]): TMessage[] =>
   ] as unknown as TMessage[];
 
 const projectToolCalls = (calls: readonly ToolCall[]) => {
-  const events = adaptWCoreMessages(toolGroupTurn(calls), { identity, observedAt: now });
+  const events = adaptGeminiMessages(toolGroupTurn(calls), { identity, observedAt: now });
   return projectExecution(seed, events, { now });
 };
 
@@ -306,7 +305,7 @@ describe('workbench attribution - a tool CALL is an action, never knowledge', ()
 
 /**
  * DEFECT B - the structured classifier above reads `activity.name`, which is
- * identity for WCore (a registry tool name) but FREE TEXT for ACP: the ACP
+ * identity for Gemini (a registry tool name) but FREE TEXT for ACP: the ACP
  * adapter puts `update.title` - a sentence the agent writes - in `name`, and
  * the typed protocol enum `update.kind` ('read' | 'edit' | 'execute') was
  * thrown away into `detail`. Result: a Claude Code / Codex turn that ran a
@@ -407,7 +406,7 @@ describe('workbench attribution - ACP classifies on the protocol kind, not the a
     expect(facetLabels(projections, 'changes')).toEqual([]);
   });
 
-  it('leaves Gemini unchanged - it delegates to the WCore adapter and uses real tool names', () => {
+  it('classifies Gemini by real tool names', () => {
     const geminiMessages = [
       {
         id: 'tools-g',

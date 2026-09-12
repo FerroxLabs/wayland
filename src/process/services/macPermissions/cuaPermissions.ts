@@ -11,7 +11,7 @@
  * Accessibility (to move the cursor / synthesize input). This module DETECTS
  * those grants and deep-links the exact System Settings panes - it deliberately
  * uses the NON-prompting query APIs so it never triggers an OS permission
- * dialog. The engine (wayland-core #114) owns the actual prompt
+ * dialog. The engine owns the actual prompt
  * (CGRequestScreenCaptureAccess / AXIsProcessTrustedWithOptions), so detect-here
  * + prompt-there never double-fires.
  *

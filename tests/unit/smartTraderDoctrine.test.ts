@@ -110,10 +110,10 @@ describe('C2/B6+B7 - the persona never sends anyone somewhere that does not exis
 
   it('gives a way to LOAD every skill it names', () => {
     // REPOINTED, not relaxed. This asserted that every named skill came with a
-    // `.wayland-core/skills/<name>` path, because "read that skill" with no path
-    // is what sent the model to the tool registry (B7). Measured live on
-    // wayland-core v0.13.9, that path turned out to be the NEXT failure: the
-    // engine's reader is absolute-only and answers
+    // `.wayland/skills/<name>` path, because "read that skill" with no path
+    // is what sent the model to the tool registry (B7). Measured live on the
+    // retired Core engine, that path turned out to be the NEXT failure: its
+    // reader was absolute-only and answered
     // `Refused to read ...: path must be absolute`, which is indistinguishable
     // from a missing file. Smart Trader read that refusal and told the user a
     // correctly installed, correctly enabled pack was "not present in this
@@ -138,7 +138,7 @@ describe('C2/B6+B7 - the persona never sends anyone somewhere that does not exis
     // dropping it entirely is what made a model stage a skill under /tmp, write a
     // file at the destination and then `cd` into it.
     expect(flowing).toMatch(/every skill also has a real directory in your workspace/i);
-    expect(flowing).toMatch(/\.wayland-core\/skills\/<skill>\//);
+    expect(flowing).toMatch(/\.wayland\/skills\/<skill>\//);
   });
 });
 

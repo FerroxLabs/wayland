@@ -32,7 +32,6 @@ import { registerWecomChannelRoutes } from './wecomChannelRoutes';
 import { registerStorageRoutes } from './storageRoutes';
 import { registerProviderKeyRoutes } from './providerKeyRoutes';
 import { registerProjectKnowledgeDraftRoutes } from './projectKnowledgeDraftRoutes';
-import { registerToolKeyRoutes } from './toolKeyRoutes';
 import { registerMcpConfigRoutes } from './mcpConfigRoutes';
 import { registerChannelConfigRoutes } from './channelConfigRoutes';
 import { registerConstitutionRoutes } from './constitutionRoutes';
@@ -738,11 +737,6 @@ export function registerApiRoutes(app: Express): void {
   // W1.C): IPC action stays denied; HTTP is the headless path. Returns
   // { draft, error? } only — never echoes file paths or content.
   registerProjectKnowledgeDraftRoutes(app, validateApiAccess);
-
-  // Tool / service API-key entry from a remote WebUI client
-  // (remote-secure-config W1.B): write-only CONFIG-WRITE routes, return
-  // { hasKey } only (Brave, Tavily, Exa, ElevenLabs, FAL, Hugging Face, ...).
-  registerToolKeyRoutes(app, validateApiAccess);
 
   // The rest of the CONFIG-WRITE surface from a remote WebUI client
   // (remote-secure-config W3 + W4a). All write-only, requireSecureConfigWrite,

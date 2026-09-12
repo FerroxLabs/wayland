@@ -103,7 +103,7 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
   it('ensures + enforces the project workspace, persists it, and evicts the idle cached task', async () => {
     const repo = makeRepo();
     const convs = {
-      getConversation: vi.fn(async () => ({ id: 'c1', extra: { workspace: '/tmp/wcore-temp-1' } })),
+      getConversation: vi.fn(async () => ({ id: 'c1', extra: { workspace: '/tmp/acp-temp-1' } })),
       updateConversation: vi.fn(async () => {}),
     };
     // An open-but-idle chat: the cached task exists and is finished, so evicting
@@ -130,7 +130,7 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
   it('does NOT evict an actively-streaming (running) task, but still persists the re-home', async () => {
     const repo = makeRepo();
     const convs = {
-      getConversation: vi.fn(async () => ({ id: 'c3', extra: { workspace: '/tmp/wcore-temp-9' } })),
+      getConversation: vi.fn(async () => ({ id: 'c3', extra: { workspace: '/tmp/acp-temp-9' } })),
       updateConversation: vi.fn(async () => {}),
     };
     // Chat assigned mid-turn: evicting would kill the in-flight stream, so skip it.

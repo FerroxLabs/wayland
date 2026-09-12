@@ -905,7 +905,7 @@ describe('the camelCase label list mirrors the snake one exactly', () => {
  * The PEM rule is the ONLY multi-line rule in the bank, and every consumer that
  * scrubs a single line at a time is therefore blind to it - which is precisely
  * how a private key reached the log file and the feedback bundle. That defect was
- * fixed in the wcore stderr READER, by holding a block whole, and NOT in this
+ * fixed in the engine stderr READER, by holding a block whole, and NOT in this
  * array. A second multi-line rule added here would re-open the same hole for
  * whatever shape it matches, silently, because no line-at-a-time caller would
  * change and no existing test would fail.

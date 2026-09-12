@@ -5,7 +5,7 @@
  *
  * Residual coverage (#10) for the Concierge capabilities manifest + diag seed.
  *
- * conciergeManagerWiring.test.ts proves the WCore leg behaviorally; this file
+ * This file
  * pins the two remaining native assemblers (Gemini, ACP) and the initStorage
  * diag-seed with STRUCTURAL guards. The Concierge headliner already shipped one
  * silent regression where a clean merge reverted wiring without failing any

@@ -27,7 +27,6 @@ const mockUseCommandQueueEnabled = vi.fn(() => true);
 let mockConversationStatus: 'idle' | 'running' = 'idle';
 let mockAcpRunning = false;
 let mockGeminiRunning = false;
-let mockWCoreRunning = false;
 const mockUseConversationCommandQueue = vi.fn(() => ({
   items: [] as QueueItem[],
   isPaused: false,
@@ -306,18 +305,6 @@ vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiMessage', () =>
   })),
 }));
 
-vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreMessage', () => ({
-  useWCoreMessage: vi.fn(() => ({
-    thought: { subject: '', description: '' },
-    running: mockWCoreRunning,
-    hasHydratedRunningState: true,
-    tokenUsage: 0,
-    setActiveMsgId: vi.fn(),
-    setWaitingResponse: vi.fn(),
-    resetState: vi.fn(),
-  })),
-}));
-
 vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiQuotaFallback', () => ({
   useGeminiQuotaFallback: vi.fn(() => ({
     handleGeminiError: vi.fn(),
@@ -395,15 +382,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
-import WCoreSendBox from '@/renderer/pages/conversation/platforms/wcore/WCoreSendBox';
-import { useWCoreMessage } from '@/renderer/pages/conversation/platforms/wcore/useWCoreMessage';
-import {
-  CHAT_CONTINUE_EVENT,
-  CHAT_RETRY_EVENT,
-  CONTINUE_DIRECTIVE,
-} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 import GeminiSendBox from '@/renderer/pages/conversation/platforms/gemini/GeminiSendBox';
-import NanobotSendBox from '@/renderer/pages/conversation/platforms/nanobot/NanobotSendBox';
 import OpenClawSendBox from '@/renderer/pages/conversation/platforms/openclaw/OpenClawSendBox';
 import RemoteSendBox from '@/renderer/pages/conversation/platforms/remote/RemoteSendBox';
 
@@ -421,7 +400,6 @@ describe('platform send box queue integration', () => {
     mockConversationStatus = 'idle';
     mockAcpRunning = false;
     mockGeminiRunning = false;
-    mockWCoreRunning = false;
 
     mockShouldEnqueueConversationCommand.mockReturnValue(false);
     mockUseCommandQueueEnabled.mockReturnValue(true);
@@ -492,17 +470,6 @@ describe('platform send box queue integration', () => {
         }}
       />,
     ],
-    [
-      'wcore',
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />,
-    ],
-    ['nanobot', <NanobotSendBox conversation_id='conv-nanobot' />],
     ['remote', <RemoteSendBox conversation_id='conv-remote' />],
     ['openclaw', <OpenClawSendBox conversation_id='conv-openclaw' />],
   ])('renders queue panel above the processing indicator for %s', (_name, element) => {
@@ -558,30 +525,6 @@ describe('platform send box queue integration', () => {
       (payload: { input: string; conversation_id: string }) => {
         expect(payload.input).toContain('queued command');
         expect(payload.conversation_id).toBe('conv-gemini');
-      },
-    ],
-    [
-      'wcore',
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />,
-      mockConversationSendInvoke,
-      (payload: { input: string; conversation_id: string }) => {
-        expect(payload.input).toContain('queued command');
-        expect(payload.conversation_id).toBe('conv-wcore');
-      },
-    ],
-    [
-      'nanobot',
-      <NanobotSendBox conversation_id='conv-nanobot' />,
-      mockConversationSendInvoke,
-      (payload: { input: string; conversation_id: string }) => {
-        expect(payload.input).toContain('queued command');
-        expect(payload.conversation_id).toBe('conv-nanobot');
       },
     ],
     [
@@ -674,27 +617,15 @@ describe('platform send box queue integration', () => {
         }}
       />,
     ],
-    [
-      'wcore',
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />,
-    ],
-    ['nanobot', <NanobotSendBox conversation_id='conv-nanobot' />],
     ['openclaw', <OpenClawSendBox conversation_id='conv-openclaw' />],
   ])('enqueues commands for %s when the current turn is still busy', async (_name, element) => {
     mockShouldEnqueueConversationCommand.mockReturnValue(true);
-    // The turn must ACTUALLY be busy. Without these four lines the test name is a
-    // lie: `isBusy` is false in every send box, so WCore's mid-turn refusal never
+    // The turn must ACTUALLY be busy. Without these three lines the test name is a
+    // lie: `isBusy` is false in every send box, so the mid-turn refusal never
     // fires and this stayed green through the whole life of the bug.
     mockConversationStatus = 'running';
     mockAcpRunning = true;
     mockGeminiRunning = true;
-    mockWCoreRunning = true;
 
     render(element);
 
@@ -711,32 +642,6 @@ describe('platform send box queue integration', () => {
 
   // T-B1b: a mid-turn send must carry the STAGED ATTACHMENTS into the queued
   // command, not just the words. A text-only fix would silently eat the photo.
-  it('carries the staged attachments into a wcore command queued mid-turn', async () => {
-    mockShouldEnqueueConversationCommand.mockReturnValue(true);
-    mockWCoreRunning = true;
-    mockDraftData.uploadFile = ['C:/workspace/uploads/photo.png'];
-
-    render(
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'trigger-send' }));
-
-    await waitFor(() => {
-      expect(queueSpies.enqueue).toHaveBeenCalledWith({
-        input: 'queued command',
-        files: ['C:/workspace/uploads/photo.png'],
-      });
-    });
-    expect(mockArcoWarning).not.toHaveBeenCalledWith('messages.conversationInProgress');
-  });
-
   it.each([
     ['acp', <AcpSendBox conversation_id='conv-acp' backend='claude' />],
     [
@@ -753,7 +658,6 @@ describe('platform send box queue integration', () => {
         }}
       />,
     ],
-    ['nanobot', <NanobotSendBox conversation_id='conv-nanobot' />],
     ['openclaw', <OpenClawSendBox conversation_id='conv-openclaw' />],
   ])('resets active execution after stop for %s', async (_name, element) => {
     render(element);
@@ -791,149 +695,9 @@ describe('platform send box queue integration', () => {
     });
   });
 
-  // #457 True Continue: the Continue action resumes the live turn by sending a
-  // continuation DIRECTIVE into the SAME conversation - it must NOT re-send the
-  // original prompt (that restarts the task and loses in-progress work).
-  it('wcore Continue sends the continuation directive, not the original prompt', async () => {
-    const ORIGINAL_PROMPT = 'Refactor the entire auth module and write tests';
-    render(
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />
-    );
-
-    window.dispatchEvent(new CustomEvent(CHAT_CONTINUE_EVENT, { detail: { conversationId: 'conv-wcore' } }));
-
-    await waitFor(() => {
-      expect(mockConversationSendInvoke).toHaveBeenCalledTimes(1);
-    });
-
-    const payload = mockConversationSendInvoke.mock.calls[0]?.[0] as { input: string; conversation_id: string };
-    expect(payload.input).toBe(CONTINUE_DIRECTIVE);
-    expect(payload.input).not.toBe(ORIGINAL_PROMPT);
-    expect(payload.conversation_id).toBe('conv-wcore');
-  });
-
-  it('wcore Continue is scoped by conversation id (ignores events for other tabs)', async () => {
-    render(
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />
-    );
-
-    window.dispatchEvent(new CustomEvent(CHAT_CONTINUE_EVENT, { detail: { conversationId: 'some-other-conv' } }));
-
-    // Give any (incorrect) async dispatch a chance to fire.
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(mockConversationSendInvoke).not.toHaveBeenCalled();
-  });
-
-  it('wcore Retry still re-sends the original prompt (unchanged behavior)', async () => {
-    const ORIGINAL_PROMPT = 'do the thing again';
-    render(
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />
-    );
-
-    window.dispatchEvent(
-      new CustomEvent(CHAT_RETRY_EVENT, { detail: { conversationId: 'conv-wcore', text: ORIGINAL_PROMPT } })
-    );
-
-    await waitFor(() => {
-      expect(mockConversationSendInvoke).toHaveBeenCalledTimes(1);
-    });
-    const payload = mockConversationSendInvoke.mock.calls[0]?.[0] as { input: string };
-    expect(payload.input).toBe(ORIGINAL_PROMPT);
-  });
-
-  // A Constitution the app cannot unlock kills every turn during bootstrap. The
-  // main process now classifies it; this is the half that turns that
-  // classification into the recovery card instead of a raw dead-end bubble.
-  const renderWCoreAndTakeTurnErrorHandler = () => {
-    render(
-      <WCoreSendBox
-        conversation_id='conv-wcore'
-        modelSelection={{
-          currentModel: { useModel: 'wcore-1' },
-          getDisplayModelName: (modelId: string) => modelId,
-        }}
-      />
-    );
-    const options = vi.mocked(useWCoreMessage).mock.calls.at(-1)?.[1] as
-      | { onError?: (message: Record<string, unknown>) => void }
-      | undefined;
-    const onError = options?.onError;
-    if (!onError) throw new Error('WCoreSendBox no longer wires a turn-error handler');
-    return onError;
-  };
-
-  it('routes a locked-Constitution turn failure to the recovery card', () => {
-    const onError = renderWCoreAndTakeTurnErrorHandler();
-
-    onError({
-      type: 'error',
-      conversation_id: 'conv-wcore',
-      msg_id: 'msg-locked',
-      data: 'Agent failed to start: The Constitution revision authority on this machine could not be unlocked.',
-      code: 'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
-    });
-
-    expect(mockEmitterEmit).toHaveBeenCalledWith(
-      'wcore.constitution.locked.card',
-      expect.objectContaining({
-        conversation_id: 'conv-wcore',
-        rawError: expect.stringContaining('could not be unlocked'),
-      })
-    );
-  });
-
   // The failure's prose is a crypto error the desktop does not author and can
   // change under it. Classification must come from the structured code, and it
   // must win over the message-substring classifiers that share this handler.
-  it('routes by code even when the failure prose looks like an auth failure', () => {
-    const onError = renderWCoreAndTakeTurnErrorHandler();
-
-    onError({
-      type: 'error',
-      conversation_id: 'conv-wcore',
-      msg_id: 'msg-locked-2',
-      data: 'Agent failed to start: unauthorized while decrypting the ciphertext provided to safeStorage',
-      code: 'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
-    });
-
-    const events = mockEmitterEmit.mock.calls.map(([name]) => name);
-    expect(events).toContain('wcore.constitution.locked.card');
-    expect(events).not.toContain('wcore.auth.failed.card');
-  });
-
-  it('leaves an uncoded auth failure on the auth card, not the Constitution card', () => {
-    const onError = renderWCoreAndTakeTurnErrorHandler();
-
-    onError({
-      type: 'error',
-      conversation_id: 'conv-wcore',
-      msg_id: 'msg-auth',
-      data: 'Agent failed to start: unauthorized',
-    });
-
-    const events = mockEmitterEmit.mock.calls.map(([name]) => name);
-    expect(events).toContain('wcore.auth.failed.card');
-    expect(events).not.toContain('wcore.constitution.locked.card');
-  });
-
   it('blocks OpenClaw dispatch when runtime validation fails', async () => {
     mockOpenClawRuntimeInvoke.mockResolvedValue({
       success: true,

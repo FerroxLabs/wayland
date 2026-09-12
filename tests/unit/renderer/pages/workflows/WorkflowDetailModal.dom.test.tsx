@@ -86,7 +86,7 @@ import WorkflowDetailModal from '@renderer/pages/workflows/WorkflowDetailModal';
 // --- Fixtures -----------------------------------------------------------
 
 const CLAUDE_AGENT = { backend: 'claude', name: 'Claude Code', cliPath: '/usr/bin/claude' };
-const WCORE_AGENT = { backend: 'wcore', name: 'Wayland Core' };
+const FUIGO_AGENT = { backend: 'fuigo', name: 'Fuigo' };
 
 const makeEntry = (overrides: Partial<SkillIndexEntry> = {}): SkillIndexEntry =>
   ({
@@ -156,7 +156,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
           },
         });
       }
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') {
         return Promise.resolve([
           {
@@ -211,17 +211,15 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
 
     render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
 
-    await waitFor(() =>
-      expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy()
-    );
+    await waitFor(() => expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy());
   });
 
   it('defaults picker to guid.lastSelectedAgent from ConfigStorage', async () => {
-    mockFetchDetectedAgents.mockResolvedValue([CLAUDE_AGENT, WCORE_AGENT]);
+    mockFetchDetectedAgents.mockResolvedValue([CLAUDE_AGENT, FUIGO_AGENT]);
     mockConfigStorageGet.mockImplementation((key: string) => {
-      if (key === 'guid.lastSelectedAgent') return Promise.resolve('wcore');
+      if (key === 'guid.lastSelectedAgent') return Promise.resolve('fuigo');
       if (key === 'acp.cachedModels') return Promise.resolve({});
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') return Promise.resolve([]);
       return Promise.resolve(null);
     });
@@ -229,9 +227,9 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
 
     await waitFor(() => expect(screen.getByTestId('workflow-backend-select')).toBeTruthy());
-    // The value 'wcore' should be reflected (Arco Select renders the option label)
+    // The value 'fuigo' should be reflected (Arco Select renders the option label)
     const select = screen.getByTestId('workflow-backend-select');
-    expect(select.textContent).toContain('Wayland Core');
+    expect(select.textContent).toContain('Fuigo');
   });
 
   it('launches and invokes ipcBridge.workflow.start with full launch target', async () => {
@@ -261,7 +259,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     expect(callArg).toHaveProperty('agentName');
     expect(callArg).toHaveProperty('customAgentId');
     expect(callArg).toHaveProperty('presetAssistantId');
-    expect(callArg).toHaveProperty('sessionMode');
+    expect(callArg.sessionMode).toBe('acceptEdits'); // A global Autopilot preference is not workflow consent.
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/conversation/conv_new', {
@@ -335,26 +333,26 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/conversation/conv_new', expect.any(Object));
   });
 
-  // --- #198: WCore model carries provider identity into launch ------------
+  // --- #198: engine model carries provider identity into launch ------------
 
-  it('resolves the real provider for a WCore model instead of a synthetic fallback (#198)', async () => {
+  it('resolves the real provider for an engine model instead of a synthetic fallback (#198)', async () => {
     // Repro: Wayland Core picker is empty in the ACP cache (user hasn't opened
-    // a WCore chat), so the model list comes from the curated registry, which
-    // carries a registry providerId ('openai') - NOT the backend key ('wcore').
+    // a Fuigo chat), so the model list comes from the curated registry, which
+    // carries a registry providerId ('openai') - NOT the backend key ('fuigo').
     // The bug: buildLaunchTarget matched providers by `platform === backend`,
-    // which never matched for wcore, so it built a synthetic 'wcore-fallback'
+    // which never matched for the engine, so it built a synthetic 'fuigo-fallback'
     // provider that the send box later rejected as "No model selected".
-    mockFetchDetectedAgents.mockResolvedValue([WCORE_AGENT]);
+    mockFetchDetectedAgents.mockResolvedValue([FUIGO_AGENT]);
     mockCuratedForAgent.mockResolvedValue([{ id: 'gpt-5.5', displayName: 'GPT-5.5', providerId: 'openai' }]);
     mockConfigStorageGet.mockImplementation((key: string) => {
       if (key === 'guid.lastSelectedAgent') return Promise.resolve(null);
-      // No wcore entry -> picker falls back to the curated registry list.
+      // No fuigo entry -> picker falls back to the curated registry list.
       if (key === 'acp.cachedModels') return Promise.resolve({});
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') {
         // The real connected provider: opaque legacy id, platform 'openai',
         // and the model in its catalog. Its id is NOT 'openai' and its platform
-        // is NOT 'wcore', so only providerId/membership resolution finds it.
+        // is NOT 'fuigo', so only providerId/membership resolution finds it.
         return Promise.resolve([
           {
             id: 'openai-7f3a',
@@ -387,8 +385,8 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     expect(callArg.model.apiKey).toBe('sk-real');
     expect(callArg.model.useModel).toBe('gpt-5.5');
     // Guard against the regression specifically.
-    expect(callArg.model.id).not.toBe('wcore-fallback');
-    expect(callArg.model.platform).not.toBe('wcore');
+    expect(callArg.model.id).not.toBe('fuigo-fallback');
+    expect(callArg.model.platform).not.toBe('fuigo');
   });
 
   // --- Resume probe tests (Audit B HIGH-2) --------------------------------

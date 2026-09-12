@@ -10,7 +10,6 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
-import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
@@ -278,19 +277,54 @@ async function persistStrippedTurnText(
 
     const { getDatabase } = await import('@process/services/database/export');
     const db = await getDatabase();
+    const segmented = db.getMessagesByMsgId(conversationId, msgId, 'text', 'left');
+    const rows = segmented.success ? (segmented.data ?? []) : [];
+    if (rows.some((candidate) => candidate.segment_id)) {
+      const originals = rows.map(extractTextFromMessage);
+      if (originals.join('') !== extractTextFromMessage(original)) return;
+      const distributed = distributeCleanedTextAcrossSegments(originals, cleaned);
+      if (!distributed) return;
+
+      const replacements: Array<{ row: TMessage; content: string }> = [];
+      for (let index = 0; index < rows.length; index += 1) {
+        const row = rows[index];
+        const segmentContent = distributed[index];
+        if (segmentContent === originals[index]) continue;
+        const updated = {
+          ...row,
+          content: { ...(row.content as Record<string, unknown>), content: segmentContent },
+        } as TMessage;
+        const written = db.updateMessage(row.id, updated);
+        if (written && written.success === false) return;
+        replacements.push({ row: updated, content: segmentContent });
+      }
+
+      for (const replacement of replacements) {
+        ipcBridge.conversation.responseStream.emit({
+          type: 'content_replace',
+          conversation_id: conversationId,
+          msg_id: msgId,
+          segment_id: replacement.row.segment_id,
+          ingest_order: replacement.row.ingest_order,
+          data: { content: replacement.content },
+        });
+      }
+      return;
+    }
+
     const existing = db.getMessageByMsgId(conversationId, msgId, 'text');
     if (!existing.success || !existing.data) return;
     const row = existing.data;
 
     // Only ever overwrite the ASSISTANT's row.
     //
-    // A msg_id names the TURN, not a message: WCore stamps the same one on the
+    // A msg_id names the TURN, not a message: an engine may stamp the same one on the
     // user's right-side prompt AND the left-side reply. getMessageByMsgId filters
     // on conversation + msg_id + type and takes the newest, with no `position`
     // clause — so if the assistant row is not on disk at this instant, the only
     // matching text row is the USER'S PROMPT, and we would replace what they
     // typed with the model's answer. That is unrecoverable, and this repo has
-    // shipped exactly that bug once before (the wcore reply overwriting the user's
+    // shipped exactly that bug once before (the engine reply overwriting the user's
     // message). Cheap guard, permanent damage if it is missing.
     if (row.position !== 'left') return;
 
@@ -313,6 +347,36 @@ async function persistStrippedTurnText(
   } catch {
     // best-effort
   }
+}
+
+/**
+ * Project a cleaned turn back onto the transcript segments that contributed its
+ * characters. The middleware cleaners only delete markup/extra whitespace; if
+ * a future cleaner rewrites text, fail closed instead of moving content across
+ * tool boundaries.
+ */
+export function distributeCleanedTextAcrossSegments(originals: string[], cleaned: string): string[] | null {
+  if (originals.length === 0) return cleaned === '' ? [] : null;
+  const sentinels = originals.slice(1).map((_, index) => `\u{F0000}WAYLAND_SEGMENT_${index}\u{F0001}`);
+  if (sentinels.some((sentinel) => originals.some((part) => part.includes(sentinel)) || cleaned.includes(sentinel))) {
+    return null;
+  }
+  const decorated = originals.map((part, index) => (index === 0 ? part : `${sentinels[index - 1]}${part}`)).join('');
+  let cleanedDecorated = decorated;
+  if (hasThinkTags(cleanedDecorated)) cleanedDecorated = stripThinkTags(cleanedDecorated);
+  if (hasCronCommands(cleanedDecorated)) cleanedDecorated = stripCronCommands(cleanedDecorated);
+  if (hasConciergeProposals(cleanedDecorated)) cleanedDecorated = stripConciergeProposals(cleanedDecorated);
+
+  const distributed: string[] = [];
+  let remainder = cleanedDecorated;
+  for (const sentinel of sentinels) {
+    const boundary = remainder.indexOf(sentinel);
+    if (boundary < 0) return null;
+    distributed.push(remainder.slice(0, boundary));
+    remainder = remainder.slice(boundary + sentinel.length);
+  }
+  distributed.push(remainder);
+  return distributed.join('') === cleaned ? distributed : null;
 }
 
 /**
@@ -358,12 +422,28 @@ async function handleConciergeProposals(
 /**
  * Handle detected cron commands
  */
+/**
+ * Lazy-import to break the cycle cronServiceSingleton -> workerTaskManagerSingleton
+ * -> AcpAgentManager -> MessageMiddleware -> cronServiceSingleton. The singleton
+ * constructs `new WorkerTaskManagerJobExecutor(workerTaskManager, ...)` at module
+ * level, so whenever this file is reached before cronServiceSingleton (the order
+ * the bundle took once the Core managers were gone) that read hits the TDZ and
+ * the main process fails to boot ("Cannot access 'workerTaskManager' before
+ * initialization"). Every use here is inside an async handler, so deferring the
+ * import costs nothing.
+ */
+async function getCronService() {
+  const mod = await import('@process/services/cron/cronServiceSingleton');
+  return mod.cronService;
+}
+
 async function handleCronCommands(
   conversationId: string,
   agentType: AgentBackend,
   commands: CronCommand[]
 ): Promise<string[]> {
   const responses: string[] = [];
+  const cronService = await getCronService();
 
   for (const cmd of commands) {
     try {

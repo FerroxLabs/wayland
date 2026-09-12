@@ -43,7 +43,7 @@ test.describe('Team Sidebar - routing + typed-delete', () => {
           slotId: '',
           conversationId: '',
           role: 'leader',
-          agentType: 'wayland-core',
+          agentType: 'fuigo',
           agentName: 'Leader',
           conversationType: 'acp',
           status: 'pending',

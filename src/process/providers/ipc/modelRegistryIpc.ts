@@ -75,10 +75,6 @@ import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/pr
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
 import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
-// The providers Wayland Nano's vendored catalog table knows - the canonical set
-// its spawn payload is built from. Imported (never re-listed) so the picker and
-// `WAYLAND_NANO_PROVIDERS` cannot drift apart. Pure module: no fs, no Electron.
-import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 import { emitModelRegistryChanged } from '../modelRegistryEvents';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
 import {
@@ -1252,13 +1248,12 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
     async curatedForAgent({ agentKey }): Promise<CuratedModel[]> {
       try {
-        // `gemini` is included here because its backend is AionCLI, a
-        // multi-provider fork that can run any connected provider (not just
-        // Google) - so it unions every provider exactly like wcore. Vendor
+        // `gemini` is here because its backend is AionCLI, a multi-provider
+        // fork that can run any connected provider (not just Google). Vendor
         // locked CLIs (claude, codex) stay scoped in the branch below.
-        if (agentKey === 'wcore' || agentKey === 'gemini') {
-          // wcore proxies every connected provider - union their curated text
-          // models. The Curator already drops non-text kinds. Dedup by
+        if (agentKey === 'gemini') {
+          // Union every connected provider's curated text models. The Curator
+          // already drops non-text kinds. Dedup by
           // `(providerId, id)`: a model id can legitimately appear under
           // multiple providers, but the SAME provider must not contribute a
           // duplicate id. The first connected provider that supplies a given
@@ -1276,45 +1271,6 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             }
           }
           return all;
-        }
-
-        // #1002 + #1039 - two lanes fixed this arm independently; this is the
-        // union of the strictly stronger half of each, not a pick between them.
-        //
-        // Nano is multi-provider, but NOT over the same set as wcore. Every Nano
-        // spawn is handed `WAYLAND_NANO_PROVIDERS` listing each CONNECTED
-        // provider in `NANO_KNOWN_PROVIDER_IDS` (AcpAgentManager.buildWnanoProvidersEnv),
-        // and `buildWaylandNanoProvidersPayload` drops anything outside that set
-        // before Nano sees it. Without an arm here `curatedForAgent('wnano')`
-        // returned [], so the picker offered Flux Auto and nothing else while
-        // Nano was told it could run every one of those providers' models.
-        //
-        // From #1039: ids are namespaced `<provider>:<model>` so the pick names a
-        // provider unambiguously all the way to the spawn env - the user can SEE
-        // and CHANGE which provider Nano is about to spend before the first turn.
-        // Flux ids stay bare: Nano owns the live Flux catalog and routes those
-        // unprefixed.
-        //
-        // From #1002: membership is `state === 'connected'`, NOT mere presence in
-        // the registry. `listRegistryProviders` returns every row whatever its
-        // state, so presence alone would offer a model from a DISCONNECTED
-        // provider - a model that cannot answer. This mirrors the spawn builder's
-        // own filter, so picker and spawn agree.
-        if (agentKey === 'wnano') {
-          const advertised: CuratedModel[] = [];
-          const seenForNano = new Set<string>();
-          for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
-            if (repo.getRegistryProvider(providerId)?.state !== 'connected') continue;
-            for (const model of curatedWithCustom(providerId)) {
-              const namespaced =
-                providerId === FLUX_PROVIDER_ID ? model : { ...model, id: `${providerId}:${model.id}` };
-              const dedupKey = `${namespaced.providerId}\u0000${namespaced.id}`;
-              if (seenForNano.has(dedupKey)) continue;
-              seenForNano.add(dedupKey);
-              advertised.push(namespaced);
-            }
-          }
-          return advertised;
         }
 
         // Synthesize a provider's curated catalog from the persisted registry
@@ -1435,8 +1391,7 @@ function toTestCreds(
 
 /**
  * Map a new-registry `ProviderId` to the legacy `IProvider.platform` string
- * the main-process dispatch (`wcore/envBuilder.ts` `mapProvider()`,
- * `GeminiAgentManager`, ACP managers) recognizes. Mirrors what the deleted
+ * the main-process dispatch (`GeminiAgentManager`, ACP managers) recognizes. Mirrors what the deleted
  * Wave 3A `legacyModelConfigBridge` did - kept here so chat-start can keep
  * speaking the dispatcher's protocol without revising every consumer.
  */
@@ -1862,7 +1817,7 @@ export function mergeResolvedRegistryBinding<T extends TProviderWithModel>(model
     // A canonical v2 row is only a handle into the encrypted registry. When
     // that authoritative lookup misses, disconnects, or cannot decrypt, every
     // credential-bearing legacy mirror must be discarded. Keeping a stale
-    // Bedrock block here would let both WCore and Gemini reconstruct AWS spawn
+    // Bedrock block here would let Gemini reconstruct AWS spawn
     // credentials even though the registry explicitly failed closed.
     const { bedrockConfig: _staleBedrockConfig, ...nonSecretBinding } = model;
     return { ...nonSecretBinding, apiKey: '', baseUrl: '' } as T;
@@ -2081,7 +2036,7 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.detectKeys.provider(() => h.detectKeys());
   // Wave 3 Fix 13 - wrap connect/rekey/disconnect with a v2 write-through
   // bridge into `model.config` so legacy consumers
-  // (WCoreModelSelector / GeminiModelSelector / AcpModelSelector /
+  // (GeminiModelSelector / AcpModelSelector /
   // EditModeModal / AddPlatformModal) still see new connections until they
   // are refactored. The bridge is a no-op for cloud + CLI-only providers.
   ipcBridge.modelRegistry.connect.provider((payload) =>
@@ -2099,7 +2054,7 @@ export async function initModelRegistryIpc(): Promise<void> {
     // #538/#539: a toggle writes only the registry override. Propagate it to the
     // legacy `model.config` bridge row (mirror) and revalidate open pickers -
     // exactly what refresh/rekey already do. Without this the legacy store the
-    // new-chat default resolver and the in-conversation WCore picker both read
+    // new-chat default resolver and the in-conversation picker both read
     // stays stale: a disabled model still surfaces as default/selected (#538),
     // and a freshly-enabled local model never appears so its click is swallowed
     // and it's dropped after a turn (#539).

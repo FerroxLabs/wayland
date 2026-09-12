@@ -2495,6 +2495,159 @@ const migration_v57: IMigration = {
 };
 
 /**
+ * Migration v57 -> v58: durable transcript segment identity and admission order.
+ *
+ * created_at is millisecond-resolution and records persistence time. Debounced
+ * text can therefore receive a later timestamp than a tool frame it preceded,
+ * while timestamp ties have no deterministic SQL order. Existing rows are
+ * assigned a stable per-conversation fallback by (created_at, id); this cannot
+ * reconstruct historical wire order, but it preserves every row and makes all
+ * subsequent reads deterministic. New rows receive their ordinal at admission.
+ */
+const migration_v58: IMigration = {
+  version: 58,
+  name: 'Add durable transcript segment identity and ingest order',
+  up: (db) => {
+    const cols = new Set((db.pragma('table_info(messages)') as Array<{ name: string }>).map((c) => c.name));
+    if (!cols.has('ingest_order')) {
+      db.exec('ALTER TABLE messages ADD COLUMN ingest_order INTEGER');
+    }
+    if (!cols.has('segment_id')) {
+      db.exec('ALTER TABLE messages ADD COLUMN segment_id TEXT');
+    }
+    db.exec(`
+      WITH ranked AS (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                 PARTITION BY conversation_id
+                 ORDER BY created_at ASC, id ASC
+               ) - 1 AS ordinal
+        FROM messages
+      )
+      UPDATE messages
+      SET ingest_order = (
+        SELECT ordinal FROM ranked WHERE ranked.id = messages.id
+      )
+      WHERE ingest_order IS NULL;
+    `);
+    db.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_conversation_ingest ON messages(conversation_id, ingest_order)'
+    );
+    console.log('[Migration v58] Added deterministic transcript ingest order');
+  },
+  down: (_db) => {
+    // Additive safety metadata is retained. Older readers select named columns
+    // and safely ignore both the column and index.
+    console.log('[Migration v58] No-op rollback (ingest order is additive)');
+  },
+};
+
+/**
+ * Migration v58 -> v59: Fuigo cutover - move every Core conversation and
+ * scheduled job onto the bundled Fuigo engine.
+ *
+ * Wayland Core (`conversations.type = 'wcore'`) is replaced by Fuigo, an ACP
+ * backend. A Core conversation becomes an ordinary ACP conversation whose
+ * `extra.backend` is `fuigo`; the persona it carried on `extra.presetRules`
+ * (the key Core read) is copied onto `extra.presetContext` (the key the ACP
+ * path reads) when that key is absent, so an assistant keeps its personality
+ * across the cutover. Same for scheduled jobs: `cron_jobs.agent_type` and
+ * `agent_config.backend` move from `wcore` to `fuigo` (the executor maps
+ * `fuigo` to an `acp` conversation).
+ *
+ *   - conversations.type:                  'wcore' -> 'acp'
+ *   - conversations.extra.backend (JSON):  -> 'fuigo' on every migrated row
+ *   - conversations.extra.presetContext:   <- extra.presetRules when absent
+ *   - cron_jobs.agent_type:                'wcore' -> 'fuigo'
+ *   - cron_jobs.agent_config.backend:      'wcore' -> 'fuigo'
+ *   - conversations.extra.sessionMode and cron_jobs.agent_config.mode on the
+ *     migrated rows: Core's vocabulary -> Fuigo's (Claude Code's):
+ *     'auto_edit' -> 'acceptEdits', 'yolo' | 'force' -> 'bypassPermissions'.
+ *     Left as-is, a migrated Autopilot routine would fail
+ *     `isExplicitUnattendedFullAuto` and hold on its first tool call, and the
+ *     engine would reject the unknown mode id on session/set_mode.
+ *
+ * Follows v30 (aionrs -> wcore) for the json_set rewrites. The conversation
+ * statement runs as ONE update so no row can end up `acp` without a backend:
+ * `json_set` on a row whose `extra` is not valid JSON would throw and roll the
+ * transaction back, so `json_valid` guards it and such a row is left as-is.
+ *
+ * Idempotent: every WHERE filters on the legacy value; a re-run changes zero
+ * rows. No down(): a Core conversation cannot be reconstructed once its
+ * manager is gone, and an `acp`/`fuigo` row is readable by the runtime.
+ */
+const migration_v59: IMigration = {
+  version: 59,
+  name: "Fuigo cutover: 'wcore' conversations -> acp/fuigo, cron agent_type 'wcore' -> 'fuigo'",
+  up: (db) => {
+    // A database opened straight from a pre-cutover fixture may carry only the
+    // tables its owner created (a v57 transcript fixture has `messages` alone);
+    // the rewrites below are no-ops on a table that does not exist yet, so skip
+    // them rather than fail the whole upgrade.
+    const hasTable = (name: string): boolean =>
+      // `get` is `undefined` on better-sqlite3/node:sqlite and `null` on bun:sqlite for no row.
+      db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) != null;
+    const zero = { changes: 0 };
+    const r1 = !hasTable('conversations')
+      ? zero
+      : db
+          .prepare(
+            "UPDATE conversations SET type = 'acp', extra = json_set(" +
+              "  CASE WHEN json_extract(extra, '$.presetContext') IS NULL AND json_extract(extra, '$.presetRules') IS NOT NULL" +
+              "       THEN json_set(extra, '$.presetContext', json_extract(extra, '$.presetRules'))" +
+              '       ELSE extra END,' +
+              "  '$.backend', 'fuigo') " +
+              "WHERE type = 'wcore' AND extra IS NOT NULL AND json_valid(extra)"
+          )
+          .run();
+    const hasCronJobs = hasTable('cron_jobs');
+    const r2 = hasCronJobs
+      ? db.prepare("UPDATE cron_jobs SET agent_type = 'fuigo' WHERE agent_type = 'wcore'").run()
+      : zero;
+    const r3 = !hasCronJobs
+      ? zero
+      : db
+          .prepare(
+            "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.backend', 'fuigo') " +
+              "WHERE agent_config IS NOT NULL AND json_valid(agent_config) AND json_extract(agent_config, '$.backend') = 'wcore'"
+          )
+          .run();
+    // Only a Core row can carry these values under backend 'fuigo', so filtering
+    // on the legacy value alone keeps this idempotent and leaves native Fuigo
+    // rows untouched.
+    const r4 = !hasTable('conversations')
+      ? zero
+      : db
+          .prepare(
+            "UPDATE conversations SET extra = json_set(extra, '$.sessionMode', " +
+              "  CASE json_extract(extra, '$.sessionMode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+              "WHERE type = 'acp' AND extra IS NOT NULL AND json_valid(extra) " +
+              "  AND json_extract(extra, '$.backend') = 'fuigo' " +
+              "  AND json_extract(extra, '$.sessionMode') IN ('auto_edit', 'yolo', 'force')"
+          )
+          .run();
+    const r5 = !hasCronJobs
+      ? zero
+      : db
+          .prepare(
+            "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.mode', " +
+              "  CASE json_extract(agent_config, '$.mode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+              "WHERE agent_type = 'fuigo' AND agent_config IS NOT NULL AND json_valid(agent_config) " +
+              "  AND json_extract(agent_config, '$.mode') IN ('auto_edit', 'yolo', 'force')"
+          )
+          .run();
+    console.log(
+      `[Migration v59] Fuigo cutover: conversations wcore->acp/fuigo=${r1.changes}, ` +
+        `cron_jobs.agent_type=${r2.changes}, cron_jobs.agent_config.backend=${r3.changes}, ` +
+        `sessionMode remapped=${r4.changes}, cron mode remapped=${r5.changes}`
+    );
+  },
+  down: (_db) => {
+    console.log('[Migration v59] No rollback - Core conversations cannot be reconstructed once migrated');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2508,7 +2661,8 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53, migration_v54, migration_v55, migration_v56, migration_v57,
+  migration_v53, migration_v54, migration_v55, migration_v56, migration_v57, migration_v58,
+  migration_v59,
 ];
 
 /**

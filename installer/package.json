@@ -24,13 +24,11 @@
   },
   "files": [
     "bin/",
-    "scripts/postinstall.mjs",
     "payload/",
     "README.md"
   ],
   "type": "module",
   "scripts": {
-    "postinstall": "node scripts/postinstall.mjs",
     "build": "node scripts/build-payload.mjs"
   },
   "engines": {

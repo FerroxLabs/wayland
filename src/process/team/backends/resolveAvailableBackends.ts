@@ -2,25 +2,25 @@
  * Backend-availability filter.
  *
  * Pure functions that turn a detected-CLI list into the set of backends the UI
- * (or a process-side spawner) is allowed to offer. Always includes
- * `wayland-core` as a fallback so spawn flows can never produce an empty
+ * (or a process-side spawner) is allowed to offer. Always includes the bundled
+ * `fuigo` engine as a fallback so spawn flows can never produce an empty
  * candidate list.
  *
  * No React, no IPC, no filesystem - safe to import from `src/process/**` and
  * from renderer hooks alike.
  */
 
-export type BackendId = 'claude' | 'gemini' | 'codex' | 'copilot' | 'wayland-core' | string;
+export type BackendId = 'claude' | 'gemini' | 'codex' | 'copilot' | 'fuigo' | string;
 
-/** Returns CLIs detected to be installed, ∪ wayland-core fallback. */
+/** Returns CLIs detected to be installed, ∪ the bundled fuigo fallback. */
 export function resolveAvailableBackends(detected: BackendId[]): BackendId[] {
-  const set = new Set<BackendId>([...detected, 'wayland-core']);
+  const set = new Set<BackendId>([...detected, 'fuigo']);
   return Array.from(set);
 }
 
-/** Picks the recommended backend; falls back to wayland-core if the preset's backend is not detected. */
+/** Picks the recommended backend; falls back to fuigo if the preset's backend is not detected. */
 export function recommendBackend(detected: BackendId[], presetAgentType?: string): BackendId {
   const available = resolveAvailableBackends(detected);
   if (presetAgentType && available.includes(presetAgentType)) return presetAgentType;
-  return 'wayland-core';
+  return 'fuigo';
 }

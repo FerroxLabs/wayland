@@ -77,26 +77,15 @@ jobs:
             fi
           fi
 
-          # 3. The engine tag is read from the bundle authority, and every asset the
-          #    acceptance assembler demands must actually exist upstream.
-          core_tag="$(node -p "require('./scripts/prepareWaylandCore').DEFAULT_WCORE_VERSION")"
-          if [[ ! "$core_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-            note "engine pin is not a release tag: '$core_tag'"
-          else
-            available="$(gh release view "$core_tag" --repo FerroxLabs/wayland-core --json assets --jq '.assets[].name' 2>/dev/null || true)"
-            if [[ -z "$available" ]]; then
-              note "wayland-core $core_tag has no downloadable release"
-            else
-              while read -r asset; do
-                [[ -z "$asset" ]] && continue
-                grep -qxF "$asset" <<<"$available" || note "wayland-core $core_tag is missing $asset"
-              done < <(node -e "
-                const p=require('./scripts/prepareWaylandCore');
-                const m=require('./scripts/release-acceptance/verifyHardeningMatrix');
-                for (const t of m.TARGETS) { const [pl,ar]=t.split('-'); console.log(p.getAssetName(pl,ar,p.DEFAULT_WCORE_VERSION)); }
-              ")
-            fi
-          fi
+          # 3. The bundled engine is pinned to an exact npm release with sha512
+          #    integrity in scripts/fuigo/authority.json; every packaged target
+          #    must have a pin, or verify-packaged-resources fails after the build.
+          node -e "
+            const a=require('./scripts/fuigo/authority.json');
+            const m=require('./scripts/release-acceptance/verifyHardeningMatrix');
+            if (!/^\d+\.\d+\.\d+/.test(String(a.version))) { console.error('engine pin is not a release version: ' + a.version); process.exit(1); }
+            for (const t of m.TARGETS) { if (!a.platforms || !a.platforms[t]) { console.error('fuigo ' + a.version + ' has no pin for ' + t); process.exit(1); } }
+          " || note "fuigo bundle authority is incomplete"
 
           if [[ "$failed" -ne 0 ]]; then
             echo "Preflight refused the release. Nothing was built." >&2
@@ -702,27 +691,6 @@ jobs:
         with:
           path: canonical-artifacts
 
-      # The engine tag is READ from the bundle authority, never re-typed.
-      # assembleCanonicalRawAcceptance.js derives the asset names it demands from
-      # prepareWaylandCore.DEFAULT_WCORE_VERSION, so a literal tag here goes stale
-      # the moment the pin moves and nothing downloaded can ever match it - which
-      # is exactly what a hard-coded v0.12.25 did once the pin reached v0.13.0.
-      - name: Download exact pinned Wayland Core publisher artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          core_tag="$(node -p "require('./scripts/prepareWaylandCore').DEFAULT_WCORE_VERSION")"
-          [[ "$core_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]] || {
-            echo "refusing to download an unpinned engine tag: '$core_tag'" >&2
-            exit 1
-          }
-          mkdir -p "canonical-artifacts/wayland-core-$core_tag"
-          gh release download "$core_tag" \
-            --repo FerroxLabs/wayland-core \
-            --dir "canonical-artifacts/wayland-core-$core_tag" \
-            --pattern "wayland-core-$core_tag-*"
-
       - name: Assemble complete raw acceptance source
         run: |
           node scripts/release-acceptance/assembleCanonicalRawAcceptance.js \
@@ -834,6 +802,10 @@ jobs:
   # plus the whole acceptance matrix on every dev push.
   publish-release:
     name: Publish Release (both gates passed)
+    # Hold this incident release for real Mac/SeanDesktop report acceptance.
+    # Approve only after testing these exact draft installers; never rebuild
+    # or replace accepted artifacts between that test and publication.
+    environment: ${{ github.ref == 'refs/tags/v0.12.18' && 'masterclass-0.12.18' || github.ref == 'refs/tags/v0.12.17' && 'masterclass-0.12.17' || 'release' }}
     runs-on: ubuntu-latest
     needs: [release-smoke-gate, release-smoke-gate-windows, final-release-acceptance]
     if: |

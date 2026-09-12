@@ -6,7 +6,6 @@ import type { McpServer } from '@agentclientprotocol/sdk';
 import type { ClientFactory } from '@process/acp/infra/IAcpClient';
 import { IdleReclaimer } from '@process/acp/runtime/IdleReclaimer';
 import { AcpSession } from '@process/acp/session/AcpSession';
-import { McpConfig } from '@process/acp/session/McpConfig';
 import type {
   AgentConfig,
   ConfigOption,
@@ -19,7 +18,6 @@ import type {
 // TODO(ACP Discovery): Re-enable when acp_session persistence is restored.
 // import type { IAcpSessionRepository } from '@process/services/database/IAcpSessionRepository';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability';
-import { ProcessConfig } from '@process/utils/initStorage';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 import { randomUUID } from 'node:crypto';
 import type { McpSessionBackend } from '@/common/mcp/sessionReceipt';
@@ -73,18 +71,7 @@ export class AcpRuntime {
     if (this.sessions.has(convId)) return;
     // Shallow-clone to avoid mutating the caller's object (e.g., MCP servers would
     // duplicate on retries if we pushed into the original arrays).
-    const config = {
-      ...agentConfig,
-      waylandNanoActivation: agentConfig.waylandNanoActivation,
-      waylandNanoMode:
-        agentConfig.agentBackend === 'wnano'
-          ? (agentConfig.waylandNanoMode ?? (agentConfig.waylandNanoActivation ? 'authenticated' : 'nonpersistent'))
-          : undefined,
-      resumeSessionId:
-        agentConfig.agentBackend === 'wnano' && !agentConfig.waylandNanoActivation
-          ? undefined
-          : agentConfig.resumeSessionId,
-    };
+    const config = { ...agentConfig };
 
     // Inject team-guide MCP server for solo agents (not in team mode) so the
     // agent has the aion_create_team tool available.
@@ -107,18 +94,10 @@ export class AcpRuntime {
       }
     }
 
-    // Load user-configured (builtin) MCP servers from settings, filtered by
-    // cached agent MCP capabilities.
-
+    // Load and refresh storage-backed connectors now, but project them only
+    // after SessionLifecycle receives the live initialize capabilities.
     const rawMcpServers = await loadRuntimeMcpServers();
     if (rawMcpServers.length > 0) {
-      const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
-      const rawCaps = cachedInit?.[config.agentBackend]?.capabilities?.mcpCapabilities;
-      // ACP HTTP/SSE declarations are legal only when the initialized agent
-      // advertises those transports. Do not force capability flags: incapable
-      // agents need the broker's future remote-to-stdio relay or an explicit
-      // unsupported result, never a declaration they may silently discard.
-      const caps = McpConfig.resolveCapabilities(rawCaps);
       // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
       // a live token instead of the stale one baked into the agent's CLI/engine
       // config at sync time (the cause of "401 invalid token" / a connector that
@@ -136,19 +115,18 @@ export class AcpRuntime {
       // projection mints current-session receipt truth rather than trusting a
       // stored connected/selected declaration.
       const backend: McpSessionBackend = config.agentBackend === 'codex' ? 'codex-native' : 'acp';
-      const userServers = McpConfig.fromStorageConfig(freshened, {
-        publication: {
-          generation: randomUUID(),
-          conversationId: convId,
-          backend,
-          sessionKey: createMcpSessionDigestKey(),
+      config.mcpStorageSource = {
+        servers: freshened,
+        request: {
+          publication: {
+            generation: randomUUID(),
+            conversationId: convId,
+            backend,
+            sessionKey: createMcpSessionDigestKey(),
+          },
+          activeServerIds: config.activeMcpServers,
         },
-        capabilities: caps,
-        activeServerIds: config.activeMcpServers,
-      });
-      if (userServers.length > 0) {
-        config.mcpServers = [...(config.mcpServers || []), ...userServers];
-      }
+      };
     }
 
     const callbacks = this.buildCallbacks(convId);
@@ -278,6 +256,15 @@ export class AcpRuntime {
 
   private buildCallbacks(convId: string): SessionCallbacks {
     return {
+      onMcpProjection: (projection) => {
+        for (const omission of projection.omissions) {
+          this.onSignalEvent(convId, {
+            type: 'error',
+            message: `MCP connector ${omission.server.name} was not offered: ${omission.reason}`,
+            recoverable: true,
+          });
+        }
+      },
       onMessage: (message) => {
         this.touchActivity(convId);
         this.onStreamEvent(convId, message);

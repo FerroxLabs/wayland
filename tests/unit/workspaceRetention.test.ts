@@ -123,8 +123,8 @@ function completeReferencedReport() {
     complete: false,
     entries: [
       {
-        path: '/managed/work/wcore-temp-1736900000000',
-        canonicalPath: '/managed/work/wcore-temp-1736900000000',
+        path: '/managed/work/acp-temp-1736900000000',
+        canonicalPath: '/managed/work/acp-temp-1736900000000',
         evidence,
         decision: classifyManagedWorkspaceRetention(evidence),
         references: [{ source: 'conversation', id: 'chat-1' }],
@@ -187,8 +187,8 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
     const report = completeReferencedReport();
     const evidence = emptyShell();
     report.entries[0] = {
-      path: '/managed/work/wcore-temp-1736900000000',
-      canonicalPath: '/managed/work/wcore-temp-1736900000000',
+      path: '/managed/work/acp-temp-1736900000000',
+      canonicalPath: '/managed/work/acp-temp-1736900000000',
       evidence,
       decision: classifyManagedWorkspaceRetention(evidence),
       references: [],
@@ -199,10 +199,10 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
   });
 
   it.each([
-    ['/etc/wcore-temp-1736900000000', 'outside the declared root'],
-    ['/managed/work/../wcore-temp-1736900000000', 'contains a traversal segment'],
+    ['/etc/acp-temp-1736900000000', 'outside the declared root'],
+    ['/managed/work/../acp-temp-1736900000000', 'contains a traversal segment'],
     ['/managed/work/not-managed', 'does not match the managed workspace grammar'],
-    ['relative/wcore-temp-1736900000000', 'is not absolute'],
+    ['relative/acp-temp-1736900000000', 'is not absolute'],
   ])('rejects an entry path that %s (%s)', (entryPath) => {
     const report = completeReferencedReport();
     report.entries[0].path = entryPath;
@@ -211,7 +211,7 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
 
   it('rejects a canonical entry outside the canonical managed root', () => {
     const report = completeReferencedReport();
-    report.entries[0].canonicalPath = '/private/tmp/wcore-temp-1736900000000';
+    report.entries[0].canonicalPath = '/private/tmp/acp-temp-1736900000000';
     expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
   });
 
@@ -226,8 +226,8 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
     const report = completeReferencedReport();
     report.root = 'C:\\Wayland\\workspaces';
     report.canonicalRoot = 'C:\\Wayland\\workspaces';
-    report.entries[0].path = 'C:\\Wayland\\workspaces\\wcore-temp-1736900000000';
-    report.entries[0].canonicalPath = 'C:\\Wayland\\workspaces\\wcore-temp-1736900000000';
+    report.entries[0].path = 'C:\\Wayland\\workspaces\\acp-temp-1736900000000';
+    report.entries[0].canonicalPath = 'C:\\Wayland\\workspaces\\acp-temp-1736900000000';
     expect(parseManagedWorkspaceInventoryReport(report)).not.toBeNull();
   });
 

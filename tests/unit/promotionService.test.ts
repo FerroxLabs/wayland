@@ -104,11 +104,11 @@ beforeEach(async () => {
     target: { payload: { kind: 'message', text: 'brief' }, executionMode: 'existing' },
     metadata: {
       conversationId: CURRENT,
-      agentType: 'wcore',
+      agentType: 'fuigo',
       createdBy: 'agent',
       createdAt: 1,
       updatedAt: 1,
-      agentConfig: { backend: 'wcore', name: 'Morning Brief' },
+      agentConfig: { backend: 'fuigo', name: 'Morning Brief' },
     },
     state: { runCount: 2, retryCount: 0, maxRetries: 3 },
   });
@@ -116,8 +116,8 @@ beforeEach(async () => {
 
 describe('the promotion offer', () => {
   it('reports what would be copied and which earlier runs were found', async () => {
-    const current = await workspace(`wcore-temp-${1700000000001}`, 'today.md', '# today');
-    const earlier = await workspace(`wcore-temp-${1700000000002}`, 'yesterday.md', '# yesterday');
+    const current = await workspace(`acp-temp-${1700000000001}`, 'today.md', '# today');
+    const earlier = await workspace(`acp-temp-${1700000000002}`, 'yesterday.md', '# yesterday');
     state.conversations.set(CURRENT, { id: CURRENT, createTime: 1, extra: { workspace: current, cronJobId: JOB } });
     state.conversations.set(EARLIER, { id: EARLIER, createTime: 1, extra: { workspace: earlier, cronJobId: JOB } });
 
@@ -137,9 +137,9 @@ describe('the promotion offer', () => {
 
 describe('accepting the offer', () => {
   it('imports only files from conversations the job actually owns', async () => {
-    const current = await workspace(`wcore-temp-${1700000000003}`, 'today.md', '# today');
-    const earlier = await workspace(`wcore-temp-${1700000000004}`, 'yesterday.md', '# yesterday');
-    const foreign = await workspace(`wcore-temp-${1700000000005}`, 'private.md', 'someone else');
+    const current = await workspace(`acp-temp-${1700000000003}`, 'today.md', '# today');
+    const earlier = await workspace(`acp-temp-${1700000000004}`, 'yesterday.md', '# yesterday');
+    const foreign = await workspace(`acp-temp-${1700000000005}`, 'private.md', 'someone else');
     state.conversations.set(CURRENT, { id: CURRENT, createTime: 1, extra: { workspace: current, cronJobId: JOB } });
     state.conversations.set(EARLIER, { id: EARLIER, createTime: 1, extra: { workspace: earlier, cronJobId: JOB } });
     // Belongs to a DIFFERENT job. The renderer can name it; main must not honour it.
@@ -203,8 +203,8 @@ describe('accepting the offer', () => {
  */
 describe('H3 the renderer cannot aim the import with a path', () => {
   async function twoRuns(seed: number): Promise<{ current: string; earlier: string }> {
-    const current = await workspace(`wcore-temp-${seed}`, 'today.md', '# today');
-    const earlier = await workspace(`wcore-temp-${seed + 1}`, 'yesterday.md', '# yesterday');
+    const current = await workspace(`acp-temp-${seed}`, 'today.md', '# today');
+    const earlier = await workspace(`acp-temp-${seed + 1}`, 'yesterday.md', '# yesterday');
     state.conversations.set(CURRENT, { id: CURRENT, createTime: 1, extra: { workspace: current, cronJobId: JOB } });
     state.conversations.set(EARLIER, { id: EARLIER, createTime: 1, extra: { workspace: earlier, cronJobId: JOB } });
     return { current, earlier };

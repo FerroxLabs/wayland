@@ -157,46 +157,6 @@ describe('createConversationParams', () => {
     expect(params.model.platform).toBe('gemini-with-google-auth');
   });
 
-  it('resolves wcore model from enabled provider', async () => {
-    configGet.mockResolvedValue([
-      {
-        id: 'provider-1',
-        platform: 'openai',
-        name: 'Provider',
-        baseUrl: 'https://example.com',
-        apiKey: 'token',
-        model: ['gpt-4.1'],
-        enabled: true,
-      },
-    ]);
-
-    const params = await buildCliAgentParams(
-      {
-        backend: 'wcore',
-        name: 'Wayland Core Agent',
-      },
-      '/tmp/workspace'
-    );
-
-    expect(params.type).toBe('wcore');
-    expect(params.model.id).toBe('provider-1');
-    expect(params.model.useModel).toBe('gpt-4.1');
-  });
-
-  it('throws error for wcore if no provider configured', async () => {
-    configGet.mockResolvedValue([]);
-
-    await expect(
-      buildCliAgentParams(
-        {
-          backend: 'wcore',
-          name: 'Wayland Core Agent',
-        },
-        '/tmp/workspace'
-      )
-    ).rejects.toThrow('No model provider configured');
-  });
-
   it('sets empty model for ACP backend in buildCliAgentParams', async () => {
     const params = await buildCliAgentParams(
       {
@@ -307,13 +267,6 @@ describe('createConversationParams', () => {
     expect(params.extra.currentModelId).toBeUndefined();
   });
 
-  it('throws error for wcore if no enabled provider', async () => {
-    configGet.mockResolvedValue([{ id: 'p1', enabled: false, model: ['m1'] }]);
-    await expect(buildCliAgentParams({ backend: 'wcore', name: 'Agent' }, '/tmp')).rejects.toThrow(
-      'No enabled model provider for Wayland Core'
-    );
-  });
-
   it('throws error for gemini if no enabled provider', async () => {
     configGet.mockResolvedValue([{ id: 'p1', enabled: false, model: ['m1'] }]);
     // Note: buildCliAgentParams for gemini uses resolveGeminiModel which catches the error
@@ -324,7 +277,6 @@ describe('createConversationParams', () => {
   it('maps various backends correctly', async () => {
     const backends = [
       { input: 'openclaw', expected: 'openclaw-gateway' },
-      { input: 'nanobot', expected: 'nanobot' },
       { input: 'remote', expected: 'remote' },
       { input: 'custom', expected: 'acp' },
     ];
@@ -333,24 +285,6 @@ describe('createConversationParams', () => {
       const params = await buildCliAgentParams({ backend: input, name: 'Agent' }, '/tmp');
       expect(params.type).toBe(expected);
     }
-  });
-
-  it('falls back to first model if none enabled for wcore', async () => {
-    configGet.mockResolvedValue([
-      {
-        id: 'p1',
-        platform: 'openai',
-        name: 'P1',
-        baseUrl: 'b1',
-        apiKey: 'k1',
-        model: ['m1', 'm2'],
-        enabled: true,
-        modelEnabled: { m1: false, m2: false },
-      },
-    ]);
-
-    const params = await buildCliAgentParams({ backend: 'wcore', name: 'A' }, '/tmp');
-    expect(params.model.useModel).toBe('m1');
   });
 
   it('handles missing cliPath for acp backend', async () => {
@@ -366,91 +300,5 @@ describe('createConversationParams', () => {
       'en'
     );
     expect(params.extra.backend).toBe('claude');
-  });
-
-  /**
-   * The two keys are not interchangeable, and wcore only ever reads one of them.
-   *
-   * `ConversationServiceImpl.injectProjectKnowledge` states the rule outright -
-   * "gemini + wcore read presetRules; acp reads presetContext" - and the read
-   * side agrees: `WCoreManager` passes `mergedData.presetRules` and nothing
-   * else, while `createWCoreAgent` persists a whitelist that has no
-   * `presetContext` key at all. So rules written to `presetContext` for a wcore
-   * assistant are dropped at creation and can never reach the engine.
-   *
-   * It fails silently and looks fine: `presetAssistantId` IS persisted, so the
-   * Constitution, the capabilities manifest and the assistant's NAME all still
-   * load. Only the persona goes missing - which is how Concierge could announce
-   * itself as Concierge and still answer like a bare coding agent.
-   */
-  it('gives a wcore preset assistant its rules under presetRules, the key wcore reads', async () => {
-    loadPresetAssistantResources.mockResolvedValue({
-      rules: 'concierge persona',
-      skills: '',
-      enabledSkills: ['concierge'],
-    });
-    configGet.mockResolvedValue([
-      {
-        id: 'p1',
-        platform: 'openai',
-        name: 'P1',
-        baseUrl: 'b1',
-        apiKey: 'k1',
-        model: ['m1'],
-        enabled: true,
-      },
-    ]);
-
-    const params = await buildPresetAssistantParams(
-      {
-        backend: 'wcore',
-        name: 'Concierge',
-        customAgentId: 'builtin-concierge',
-        isPreset: true,
-        presetAgentType: 'wcore',
-      },
-      '/tmp/workspace',
-      'en'
-    );
-
-    expect(params.type).toBe('wcore');
-    expect(params.extra.presetRules).toBe('concierge persona');
-  });
-
-  /**
-   * `buildCliAgentParams` calls `getDefaultWCoreModel()` for wcore; its sibling
-   * `buildPresetAssistantParams` used `{} as TProviderWithModel` - a cast that
-   * asserts a shape the value does not have. A preset assistant is exactly the
-   * case where the user picked the assistant and never picked a model, so the
-   * empty object is what the conversation is created with.
-   */
-  it('gives a wcore preset assistant a real model rather than an empty object', async () => {
-    loadPresetAssistantResources.mockResolvedValue({ rules: 'r', skills: '', enabledSkills: [] });
-    configGet.mockResolvedValue([
-      {
-        id: 'p1',
-        platform: 'openai',
-        name: 'P1',
-        baseUrl: 'b1',
-        apiKey: 'k1',
-        model: ['m1', 'm2'],
-        enabled: true,
-      },
-    ]);
-
-    const params = await buildPresetAssistantParams(
-      {
-        backend: 'wcore',
-        name: 'Concierge',
-        customAgentId: 'builtin-concierge',
-        isPreset: true,
-        presetAgentType: 'wcore',
-      },
-      '/tmp/workspace',
-      'en'
-    );
-
-    expect(params.model.useModel).toBe('m1');
-    expect(params.model.id).toBe('p1');
   });
 });

@@ -4,6 +4,14 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.12.16] - 2026-09-07
+
+### Fixed
+
+- Preserve the first chat message while recovery state loads, without sending it twice.
+- Keep newer turn activity when delayed status responses arrive after navigation, so completed turns stay idle and active turns stay busy.
+- Bundle TVControl **2.4.7** and provision it for sandboxed collector scripts, including the temporary directory confirmed by the engine.
+
 ## [0.12.2] - 2026-08-19
 
 Two bugs that made a fully configured install look broken, and the engine everyone is already running.

@@ -219,6 +219,41 @@ describe('SkillImport.importGit', () => {
 // ---------------------------------------------------------------------------
 
 describe('SkillImport.importZip', () => {
+  it('finishes a ZIP import when the semantic scan stalls and retains the script hold', async () => {
+    vi.useFakeTimers();
+    try {
+      const io = makeFakeIo({
+        unzip: vi.fn(async () => [
+          { path: 'SKILL.md', isSymlink: false, data: Buffer.from('# Report\nRead a report.') },
+          { path: 'report.py', isSymlink: false, data: Buffer.from('print("report")') },
+        ]),
+        readdir: vi.fn(async () => ['SKILL.md', 'report.py']),
+      });
+      const stalledScan = vi.fn(() => new Promise<Array<{ findings: [] }>>(() => {}));
+      const importer = new SkillImport(io, undefined, stalledScan, () => TEST_SKILLS_DIR);
+      let settled = false;
+      const pending = importer.importZip('/uploads/report.zip').then((result) => {
+        settled = true;
+        return result;
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(stalledScan).toHaveBeenCalledOnce();
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(settled).toBe(true);
+      const result = await pending;
+      expect(result.imported).toHaveLength(1);
+      expect(result.imported[0]).toMatchObject({
+        registered: false,
+        heldFor: 'scripts',
+        report: { llmScanned: false },
+      });
+      expect(io.rmdir).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('rejects a zip entry whose path escapes the extraction dir (zip-slip)', async () => {
     const slipEntry: ZipEntry = {
       path: '../../../etc/passwd',

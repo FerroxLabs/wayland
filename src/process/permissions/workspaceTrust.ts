@@ -14,8 +14,8 @@
  *   - persisted in ProcessConfig (`workspace.trustLevel`), so it survives an app
  *     restart, mirroring the #672 `ApprovalPersistence` pattern; and
  *   - mirrored in a process-global in-memory Map so the SYNCHRONOUS approval
- *     gates (AcpAgentManager / GeminiAgentManager / WCoreManager /
- *     OpenClawAgentManager, all main-process) can read the current level without
+ *     gates (AcpAgentManager / GeminiAgentManager / OpenClawAgentManager,
+ *     all main-process) can read the current level without
  *     awaiting a disk read on every tool call.
  *
  * Coherence: the managers and this store all run in the MAIN process (the task

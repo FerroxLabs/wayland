@@ -11,8 +11,8 @@
  * occurrences are not at the start of a path.
  *
  * `smart-trader.md` carries workspace-relative paths like
- * `.wayland-core/skills/tvcontrol-setup/SKILL.md`. The unanchored rewrite seeded
- * `.wayland-core//Users/<user>/.wayland-config/skills/...` onto real machines. The same file
+ * `.wayland/skills/tvcontrol-setup/SKILL.md`. The unanchored rewrite seeded
+ * `.wayland//Users/<user>/.wayland-config/skills/...` onto real machines. The same file
  * then tells the model that a failed lookup means the skill is not in the workspace, so
  * Smart Trader reports its own bundled skills as missing instead of reading them.
  *
@@ -80,30 +80,30 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
     expect(starOffice, 'star-office-helper rule file must resolve on disk').toBeTruthy();
   });
 
-  it('leaves smart-trader`s workspace-relative .wayland-core/skills path intact', () => {
+  it('leaves smart-trader`s workspace-relative .wayland/skills path intact', () => {
     // Precondition on the INPUT, so a resource edit cannot make this pass vacuously.
     //
-    // REPOINTED from `.wayland-core/skills/tvcontrol-setup` to the generic form.
-    // The persona no longer names a per-skill READ path: on wayland-core v0.13.9
-    // the engine's reader is absolute-only and refuses a workspace-relative one,
+    // REPOINTED from `.wayland/skills/tvcontrol-setup` to the generic form.
+    // The persona no longer names a per-skill READ path: the retired Core engine's
+    // reader was absolute-only and refused a workspace-relative one,
     // and that refusal reads as a missing file. Skills are now loaded by name
     // with the `Skill` tool. The workspace-relative form still ships for the
-    // SHELL - `cd .wayland-core/skills/<skill>` - which is exactly the string
+    // SHELL - `cd .wayland/skills/<skill>` - which is exactly the string
     // this transform must leave alone, so the invariant under test is unchanged.
-    expect(smartTrader!.before).toContain('.wayland-core/skills/<skill>');
+    expect(smartTrader!.before).toContain('.wayland/skills/<skill>');
     expect(smartTrader!.before).not.toContain('//');
 
-    expect(smartTrader!.after).toContain('.wayland-core/skills/<skill>');
+    expect(smartTrader!.after).toContain('.wayland/skills/<skill>');
     // The exact shape that shipped: an absolute path spliced into the middle of a
     // relative one, which is always recognisable by the doubled separator.
     expect(smartTrader!.after).not.toContain('//');
-    expect(smartTrader!.after).not.toContain(`.wayland-core/${USER_SKILLS_DIR}`);
+    expect(smartTrader!.after).not.toContain(`.wayland/${USER_SKILLS_DIR}`);
     // STRENGTHENED, not relaxed. This used to iterate lines starting with `cd `, which the
     // file no longer contains now that the opener ships no scripts - so the loop would have
     // passed over zero lines and asserted nothing. It now iterates the thing the transform
-    // actually operates on, every `.wayland-core/skills/` occurrence, with a count guard so it
+    // actually operates on, every `.wayland/skills/` occurrence, with a count guard so it
     // can never go vacuous again.
-    const workspaceSkillRefs = smartTrader!.after.split('\n').filter((l) => l.includes('.wayland-core/skills/'));
+    const workspaceSkillRefs = smartTrader!.after.split('\n').filter((l) => l.includes('.wayland/skills/'));
     expect(workspaceSkillRefs.length, 'fixture must still exercise the mid-string case').toBeGreaterThan(0);
     for (const line of workspaceSkillRefs) {
       expect(line, `workspace-relative skill path must stay relative: ${line}`).not.toContain(USER_SKILLS_DIR);

@@ -10,7 +10,7 @@ import { lstat, readdir } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
-import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
+import { legacyCoreDefaultProfileRoot, legacyCoreNamedProfilesRoot } from './legacyCoreRoots';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
 import { sealRecoveryBytesToBuffer } from './recoverySealing';
@@ -83,8 +83,8 @@ export function resolveProductionRecoveryRoots(home = homedir()): {
   constitutionRoot: string;
 } {
   return {
-    defaultCoreRoot: nativeConfigDir(),
-    namedCoreRoot: profilesRoot(),
+    defaultCoreRoot: legacyCoreDefaultProfileRoot(),
+    namedCoreRoot: legacyCoreNamedProfilesRoot(),
     constitutionRoot: path.join(home, '.wayland'),
   };
 }

@@ -18,7 +18,8 @@
   },
   "launchError": "Échec du lancement du workflow : {{msg}}",
   "picker": {
-    "noAgent": "Aucun backend sélectionné"
+    "noAgent": "Aucun backend sélectionné",
+    "approvalForNewRun": "Approbation des nouvelles exécutions"
   },
   "import": {
     "placeholder": "Le câblage d'import arrive bientôt : dossier / URL git / SKILL.md avec type:workflow détecté automatiquement via le frontmatter, analysé par Skill Guard et enregistré comme source:imported."
@@ -37,8 +38,5 @@
   },
   "whatHappens": "Au lancement",
   "bodyFallback": "L'agent charge ce workflow comme première directive et vous guide étape par étape. Vous pouvez interrompre ou changer de direction à tout moment.",
-  "noDescription": "Aucune description fournie.",
-  "launch": {
-    "placeholder": "Le câblage de lancement est en cours. Bientôt, vous choisirez un moteur (Wayland Core / Gemini / Claude / Codex), et le workflow se chargera comme première directive de l'agent dans une nouvelle conversation."
-  }
+  "noDescription": "Aucune description fournie."
 }

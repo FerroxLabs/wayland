@@ -8,7 +8,7 @@
  *      project's persistent workspace (scope 3: no drift to a temp dir).
  *
  * The agent-writes-a-file acceptance (file lands in the dir + renders in Files)
- * needs a live wcore turn and is covered by the in-app manual verify; this spec
+ * needs a live engine turn and is covered by the in-app manual verify; this spec
  * pins the deterministic, turn-free guarantees so a regression can't slip past CI.
  */
 import { existsSync, rmSync } from 'fs';
@@ -56,7 +56,7 @@ test.describe('Project: persistent workspace (#455)', () => {
       page,
       'create-conversation',
       {
-        type: 'wcore',
+        type: 'acp',
         model: {
           id: 'e2e-455',
           platform: 'openai',

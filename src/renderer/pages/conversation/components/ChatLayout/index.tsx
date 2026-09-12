@@ -22,7 +22,7 @@ import { useWorkspaceCollapse } from '@/renderer/pages/conversation/hooks/useWor
 import { PreviewPanel, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
 import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
-import { NON_ACP_BACKEND_DISPLAY_NAMES, resolveRuntimeName } from './runtimeName';
+import { resolveRuntimeName } from './runtimeName';
 import classNames from 'classnames';
 import { isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
@@ -214,7 +214,6 @@ const ChatLayout: React.FC<{
     agentName ||
     (backend === 'custom' && customAgents?.[0]?.name) ||
     ACP_BACKENDS_ALL[backend as keyof typeof ACP_BACKENDS_ALL]?.name ||
-    (backend ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] : undefined) ||
     backend;
 
   // Friendly runtime name for the header pill (#909). Resolves to a friendly

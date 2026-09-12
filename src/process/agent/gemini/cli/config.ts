@@ -25,6 +25,7 @@ import { defaultStdioMcpCwds } from './mcpServerCwd';
 import type { Settings } from './settings';
 import { annotateActiveExtensions } from './extension';
 import { getCurrentGeminiAgent } from '../index';
+import { CHANNEL_CONVERSATIONAL_POLICY, type AgentExecutionPolicy } from '@process/task/agentTypes';
 
 // Simple console logger for now - replace with actual logger if available
 const logger = {
@@ -79,6 +80,7 @@ export interface LoadCliConfigOptions {
   skillsDir?: string;
   /** Enabled skills list for filtering loaded skills */
   enabledSkills?: string[];
+  executionPolicy?: AgentExecutionPolicy;
 }
 
 export async function loadCliConfig({
@@ -93,7 +95,9 @@ export async function loadCliConfig({
   mcpServers,
   skillsDir,
   enabledSkills,
+  executionPolicy,
 }: LoadCliConfigOptions): Promise<Config> {
+  const isRestrictedChannel = executionPolicy === CHANNEL_CONVERSATIONAL_POLICY;
   const argv: Partial<CliArgs> = {
     yolo: yoloMode,
   };
@@ -151,7 +155,9 @@ export async function loadCliConfig({
     skills: builtinSkills,
   };
 
-  const allExtensions = annotateActiveExtensions([builtinSkillsExtension, ...extensions], argv.extensions || []);
+  const allExtensions = isRestrictedChannel
+    ? []
+    : annotateActiveExtensions([builtinSkillsExtension, ...extensions], argv.extensions || []);
   const activeExtensions = allExtensions.filter((ext) => ext.isActive);
   // Handle OpenAI API key from command line
   if (argv.openaiApiKey) {
@@ -196,7 +202,7 @@ export async function loadCliConfig({
     settings.memoryDiscoveryMaxDirs
   );
 
-  let mcpServersConfig = mergeMcpServers(settings, activeExtensions, mcpServers);
+  let mcpServersConfig = isRestrictedChannel ? {} : mergeMcpServers(settings, activeExtensions, mcpServers);
 
   // #755: stdio MCP servers spawned by aioncli-core must never inherit this
   // process's cwd (app.asar.unpacked in packaged forked workers). Default
@@ -206,7 +212,9 @@ export async function loadCliConfig({
   // Use conversation-level tool config
   const toolConfig = conversationToolConfig.getConfig();
 
-  const excludeTools = mergeExcludeTools(settings, activeExtensions).concat(toolConfig.excludeTools);
+  const excludeTools = isRestrictedChannel
+    ? []
+    : mergeExcludeTools(settings, activeExtensions).concat(toolConfig.excludeTools);
   const blockedMcpServers: Array<{ name: string; extensionName: string }> = [];
 
   if (!argv.allowedMcpServerNames) {
@@ -270,11 +278,11 @@ export async function loadCliConfig({
     debugMode,
     question: argv.promptInteractive || argv.prompt || '',
     // fullContext parameter was removed in aioncli-core v0.18.4
-    coreTools: settings.coreTools || undefined,
+    coreTools: isRestrictedChannel ? [] : settings.coreTools || undefined,
     excludeTools,
-    toolDiscoveryCommand: settings.toolDiscoveryCommand,
-    toolCallCommand: settings.toolCallCommand,
-    mcpServerCommand: settings.mcpServerCommand,
+    toolDiscoveryCommand: isRestrictedChannel ? undefined : settings.toolDiscoveryCommand,
+    toolCallCommand: isRestrictedChannel ? undefined : settings.toolCallCommand,
+    mcpServerCommand: isRestrictedChannel ? undefined : settings.mcpServerCommand,
     mcpServers: mcpServersConfig,
     userMemory: memoryContent,
     geminiMdFileCount: fileCount,
@@ -306,6 +314,23 @@ export async function loadCliConfig({
     model: resolvedModel || DEFAULT_GEMINI_MODEL,
     // Use extensionLoader instead of deprecated extensionContextFilePaths and extensions parameters
     extensionLoader,
+    extensionsEnabled: !isRestrictedChannel,
+    mcpEnabled: !isRestrictedChannel,
+    enableHooks: !isRestrictedChannel,
+    enableHooksUI: !isRestrictedChannel,
+    hooks: isRestrictedChannel ? {} : undefined,
+    projectHooks: isRestrictedChannel ? {} : undefined,
+    enableAgents: false,
+    agents: isRestrictedChannel
+      ? {
+          overrides: {
+            codebase_investigator: { enabled: false },
+            cli_help: { enabled: false },
+          },
+        }
+      : undefined,
+    useWriteTodos: isRestrictedChannel ? false : undefined,
+    adminSkillsEnabled: !isRestrictedChannel,
     maxSessionTurns: settings.maxSessionTurns ?? -1,
     listExtensions: argv.listExtensions || false,
     noBrowser: !!process.env.NO_BROWSER,

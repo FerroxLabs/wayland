@@ -7,9 +7,9 @@ const norm = (p: string) => p.replace(/\\/g, '/');
 const { mkdirCalls, copyCalls, statResults, lstatResults, existsSyncResults, readdirResults, resetAll } = vi.hoisted(
   () => {
     const dirs: string[] = [];
-    // Skills are COPIED into the workspace, not symlinked: wayland-core's
-    // SandboxedFs canonicalizes before its containment check and refuses a
-    // symlink that resolves outside the root, which is where our skills live.
+    // Skills are COPIED into the workspace, not symlinked: a sandboxed engine
+    // canonicalizes before its containment check and refuses a symlink that
+    // resolves outside the root, which is where our skills live.
     const links: Array<{ source: string; target: string }> = [];
     const stats: Record<string, boolean> = {};
     const lstats: Record<string, boolean> = {};
@@ -98,7 +98,7 @@ describe('initAgent - skill support', () => {
 
   describe('hasNativeSkillSupport', () => {
     it('should return true for all backends with verified native skill dirs', () => {
-      // Includes both ACP backends and non-ACP agents (gemini, wcore) with native skill support
+      // Includes both ACP backends and non-ACP agents (gemini) with native skill support
       const supported = [
         'claude',
         'codebuddy',
@@ -110,8 +110,8 @@ describe('initAgent - skill support', () => {
         'vibe',
         'cursor',
         'gemini',
-        'wcore',
         'opencode',
+        'fuigo',
       ];
       for (const backend of supported) {
         expect(hasNativeSkillSupport(backend)).toBe(true);
@@ -119,7 +119,7 @@ describe('initAgent - skill support', () => {
     });
 
     it('should return false for backends without native skill support', () => {
-      const unsupported = ['auggie', 'copilot', 'nanobot', 'qoder'];
+      const unsupported = ['auggie', 'copilot', 'qoder'];
       for (const backend of unsupported) {
         expect(hasNativeSkillSupport(backend)).toBe(false);
       }
@@ -137,6 +137,16 @@ describe('initAgent - skill support', () => {
   });
 
   describe('setupAssistantWorkspace', () => {
+    it('copies Fuigo skills to the bounded prompt-readable workspace directory', async () => {
+      statResults['/mock/user/skills/tide-example'] = true;
+      await setupAssistantWorkspace('/tmp/workspace', { backend: 'fuigo', enabledSkills: ['tide-example'] });
+      expect(copyCalls).toContainEqual({
+        source: '/mock/user/skills/tide-example',
+        target: '/tmp/workspace/.wayland/skills/tide-example',
+      });
+      expect(hasNativeSkillSupport('fuigo')).toBe(true);
+    });
+
     it('should create skills dir even when enabledSkills is empty', async () => {
       await setupAssistantWorkspace('/tmp/workspace', {
         backend: 'claude',
@@ -203,20 +213,18 @@ describe('initAgent - skill support', () => {
       expect(copyCalls[0].target).toBe('/tmp/workspace/.codebuddy/skills/morph-ppt');
     });
 
-    it('should place the skill in .wayland-core/skills for wcore backend', async () => {
+    it('should place the skill in .wayland/skills for the fuigo backend', async () => {
       statResults['/mock/user/skills/officecli-docx'] = true;
 
       await setupAssistantWorkspace('/tmp/workspace', {
-        agentType: 'wcore',
+        backend: 'fuigo',
         enabledSkills: ['officecli-docx'],
       });
 
-      // wcore is a non-ACP agent but still supports native skill discovery.
-      // The engine looks in `.wayland-core/skills/` (wcore-skills/src/paths.rs);
-      // the 'wcore' agentType key maps to that path in NON_ACP_SKILLS_DIRS.
-      expect(mkdirCalls).toContain('/tmp/workspace/.wayland-core/skills');
+      // The bundled Fuigo engine discovers project skills in `.wayland/skills/`.
+      expect(mkdirCalls).toContain('/tmp/workspace/.wayland/skills');
       expect(copyCalls).toHaveLength(1);
-      expect(copyCalls[0].target).toBe('/tmp/workspace/.wayland-core/skills/officecli-docx');
+      expect(copyCalls[0].target).toBe('/tmp/workspace/.wayland/skills/officecli-docx');
     });
 
     it('should place the skill in .factory/skills for droid backend', async () => {
@@ -236,7 +244,7 @@ describe('initAgent - skill support', () => {
      * but the reason it existed is not, so the guard becomes the stronger claim:
      * the skill is materialised INSIDE the workspace, with no link to follow.
      *
-     * That is what wayland-core's sandbox requires. Its containment check
+     * That is what a sandboxed engine requires. Its containment check
      * canonicalizes first and refuses any path resolving outside the root, so a
      * link pointing back at the config directory made every file in the skill
      * unreadable to the agent.

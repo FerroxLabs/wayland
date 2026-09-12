@@ -34,11 +34,9 @@
   "whatHappens": "When you launch this",
   "bodyFallback": "The agent loads this workflow as its first directive and walks you through it step by step. You can interrupt or change direction at any point.",
   "noDescription": "No description provided.",
-  "launch": {
-    "placeholder": "Launch wiring is in flight. Soon you will pick an engine (Wayland Core / Gemini / Claude / Codex), and the workflow will load as the agent's first directive in a fresh chat."
-  },
   "launchError": "Не вдалося запустити робочий процес: {{msg}}",
   "picker": {
-    "noAgent": "Бекенд не вибрано"
+    "noAgent": "Бекенд не вибрано",
+    "approvalForNewRun": "Підтвердження для нових запусків"
   }
 }

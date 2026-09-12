@@ -93,43 +93,74 @@ type CuratedRule = {
  * provider pointed at OpenRouter / OpenAI gets the right family.
  */
 /**
- * The recommended, default Flux image option ("Flux Image"). Not a literal arm
- * id - `executeFluxImageGen` translates it to a model-less request with a
- * quality category so Flux picks a strong arm per request (contract §3.2/§3.3).
- * Contains "image" so it survives {@link isImageModelName} in the picker.
+ * The recommended, default Flux image option: GPT Image 2.5 at standard
+ * quality. A literal customer alias the `/v1/images/generations` `model` field
+ * accepts (live 200, 2026-09-12). Contains "image" so it survives
+ * {@link isImageModelName} in the picker.
  */
-export const FLUX_RECOMMENDED_IMAGE_ID = 'flux-image';
+export const FLUX_RECOMMENDED_IMAGE_ID = 'flux-image-gpt25';
 
 /**
- * FluxRouter image options the picker offers. `flux-image` (recommended) leads;
- * the rest are the exact concrete `model` arm ids the `/v1/images/generations`
- * endpoint accepts (capabilities contract §3.3), best-first, for power users who
- * want to pin one. Every id passes {@link isImageModelName}.
+ * FluxRouter image options the picker offers, best-first. Every id is a
+ * customer-facing `flux-image-*` alias from Flux's `/v1/models` - the ONLY form
+ * a customer key may send: the proxy's internal arm names (`gpt-image-high`,
+ * `nano-banana-pro-2k`, ...) answer 403 permission_error. `flux-image` is
+ * Flux's own default alias, re-pointable server-side without a Wayland
+ * release. Every id passes {@link isImageModelName}.
  */
 export const FLUX_IMAGE_ARMS = [
   FLUX_RECOMMENDED_IMAGE_ID,
-  'gpt-image-high',
-  'nano-banana-pro-4k',
-  'nano-banana-pro-2k',
-  'gpt-image-high-xl',
-  'nano-banana',
-  'gpt-image-med',
-  'flux-image-together-flux',
+  'flux-image-gpt25-high',
+  'flux-image-gpt25-xl',
+  'flux-image-gpt25-max',
+  'flux-image-gpt25-low',
+  'flux-image-gpt25-sunburst',
+  'flux-image',
+  'flux-image-nano-banana-pro-4k',
+  'flux-image-nano-banana-pro',
+  'flux-image-nano-banana-2',
+  'flux-image-gpt-high',
+  'flux-image-gpt-xl',
+  'flux-image-gpt',
+  'flux-image-nano-banana',
+  'flux-image-fast',
 ] as const;
 
-/** What Flux defaults to when it becomes the connected image backend: "Flux Image". */
+/** What Flux defaults to when it becomes the connected image backend: GPT Image 2.5. */
 export const FLUX_DEFAULT_IMAGE_ARM: string = FLUX_RECOMMENDED_IMAGE_ID;
+
+/**
+ * Picker ids shipped before 2026-09-12 were the proxy's internal arm names,
+ * which customer keys are not permitted to send (403). Boot remaps a pinned
+ * legacy id to its customer alias (`remapLegacyFluxImageArm`).
+ */
+export const LEGACY_FLUX_IMAGE_ARMS: Record<string, string> = {
+  'gpt-image-high': 'flux-image-gpt-high',
+  'gpt-image-high-xl': 'flux-image-gpt-xl',
+  'gpt-image-med': 'flux-image-gpt',
+  'nano-banana-pro-4k': 'flux-image-nano-banana-pro-4k',
+  'nano-banana-pro-2k': 'flux-image-nano-banana-pro',
+  'nano-banana': 'flux-image-nano-banana',
+  'flux-image-together-flux': 'flux-image-fast',
+};
 
 /** Friendly, scannable labels for the Flux options (proper-noun model names, not chrome). */
 const FLUX_IMAGE_ARM_LABELS: Record<string, string> = {
-  [FLUX_RECOMMENDED_IMAGE_ID]: 'Flux Image',
-  'gpt-image-high': 'GPT Image (High)',
-  'gpt-image-high-xl': 'GPT Image (High XL)',
-  'gpt-image-med': 'GPT Image (Medium)',
-  'nano-banana': 'Nano Banana',
-  'nano-banana-pro-2k': 'Nano Banana Pro 2K',
-  'nano-banana-pro-4k': 'Nano Banana Pro 4K',
-  'flux-image-together-flux': 'Together FLUX (Fastest)',
+  [FLUX_RECOMMENDED_IMAGE_ID]: 'GPT Image 2.5',
+  'flux-image-gpt25-high': 'GPT Image 2.5 (High)',
+  'flux-image-gpt25-xl': 'GPT Image 2.5 (High XL)',
+  'flux-image-gpt25-max': 'GPT Image 2.5 (Max)',
+  'flux-image-gpt25-low': 'GPT Image 2.5 (Low)',
+  'flux-image-gpt25-sunburst': 'GPT Image 2.5 Sunburst',
+  'flux-image': 'Flux Image (Auto)',
+  'flux-image-nano-banana-pro-4k': 'Nano Banana Pro 4K',
+  'flux-image-nano-banana-pro': 'Nano Banana Pro',
+  'flux-image-nano-banana-2': 'Nano Banana 2',
+  'flux-image-gpt-high': 'GPT Image (High)',
+  'flux-image-gpt-xl': 'GPT Image (High XL)',
+  'flux-image-gpt': 'GPT Image (Medium)',
+  'flux-image-nano-banana': 'Nano Banana',
+  'flux-image-fast': 'Flux Image (Fast)',
 };
 
 /**

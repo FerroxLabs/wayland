@@ -88,7 +88,7 @@ void prefetchCachedModels();
 
 /**
  * Whether this backend can route through Flux. `getFluxCompat` returns 'env' or
- * 'setup' for Flux-capable backends (and covers wcore/gemini), 'vendor' for
+ * 'setup' for Flux-capable backends (and covers gemini), 'vendor' for
  * backends locked to their own service, and undefined when unclassified.
  */
 function isFluxCapableBackend(backend: string | undefined): boolean {

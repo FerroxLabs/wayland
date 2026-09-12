@@ -31,9 +31,10 @@
  * simply refused everything would fail the control half.
  *
  * THE CHAT PATH IS NEVER SPELLED OUT BY THIS TEST. It is read back from
- * `buildEngineSpawnEnv`, the production resolver the engine spawn actually
- * uses, so a resolver that stopped producing it would fail here rather than be
- * papered over by a fixture that agreed with the old shape.
+ * `resolveOutputDir`, the production resolver the turn-end sweep and the
+ * scheduled-run executor actually use, so a resolver that stopped producing it
+ * would fail here rather than be papered over by a fixture that agreed with the
+ * old shape.
  */
 
 import { promises as fs } from 'fs';
@@ -41,7 +42,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { listArtifactSummaries } from '@process/services/artifacts/artifactActions';
 import { CHAT_NAMESPACE, readArtifactLedger, registerArtifacts } from '@process/services/artifacts/artifactLedger';
 import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
@@ -55,10 +56,9 @@ let root = '';
 let workspace = '';
 let ledgerPath = '';
 
-/** The chat output directory as the PRODUCTION spawn resolver decides it. */
+/** The chat output directory as the PRODUCTION resolver decides it. */
 function chatOutputDir(conversationId: string): string {
-  const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, conversationId });
-  return env.WAYLAND_OUTPUT_DIR;
+  return resolveOutputDir(workspace, undefined, conversationId);
 }
 
 /** Write a file where the resolver said, then register it through the real ledger. */
@@ -107,16 +107,12 @@ describe('T1 - chat output lives in a namespace reserved against series', () => 
     expect(resolved).toBe(path.join(workspace, 'artifacts', CHAT_NAMESPACE, CONVERSATION));
     // The control from the same resolver: without a conversation nothing has
     // changed, so this is not "any path at all".
-    expect(buildEngineSpawnEnv({ providerEnv: {}, workspace }).WAYLAND_OUTPUT_DIR).toBe(
-      path.join(workspace, 'artifacts')
-    );
+    expect(resolveOutputDir(workspace)).toBe(path.join(workspace, 'artifacts'));
   });
 
   it('keeps a run staging directory winning over the chat namespace', () => {
     const staging = path.join(workspace, 'artifacts', CONTROL_SERIES, '.staging', 'r1');
-    const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, conversationId: CONVERSATION, outputDir: staging });
-
-    expect(env.WAYLAND_OUTPUT_DIR).toBe(staging);
+    expect(resolveOutputDir(workspace, staging, CONVERSATION)).toBe(staging);
   });
 
   it('stays inside the workspace when the conversation id is not a usable path segment', () => {

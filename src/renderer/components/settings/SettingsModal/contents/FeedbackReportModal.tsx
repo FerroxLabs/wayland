@@ -9,15 +9,37 @@
 import { Info, Plus } from 'lucide-react';
 import ModalWrapper from '@renderer/components/base/ModalWrapper';
 import { FEEDBACK_MODULES } from './feedbackModules';
-import { Input, Select, Message, Upload } from '@arco-design/web-react';
+import { Button, Input, Select, Message, Upload } from '@arco-design/web-react';
 import type { UploadItem } from '@arco-design/web-react/es/Upload';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { copyText } from '@renderer/utils/ui/clipboard';
 
 const DESCRIPTION_MAX_LENGTH = 2000;
 const MAX_SCREENSHOTS = 3;
 const ACCEPTED_IMAGE_TYPES = '.png,.jpg,.jpeg,.gif';
 const SUMMARY_PREVIEW_LENGTH = 60;
+const SUBMISSION_DEADLINE_MS = 15_000;
+
+class FeedbackUnavailableError extends Error {}
+class FeedbackDeadlineError extends Error {}
+class FeedbackAttemptSupersededError extends Error {}
+
+const withDeadline = async <T,>(operation: () => Promise<T>, deadlineMs: number): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation(),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new FeedbackDeadlineError('Feedback operation timed out')), deadlineMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+};
+
+type FeedbackDisposition = 'unavailable' | 'unconfirmed' | 'error' | 'timeout' | null;
 
 type ScreenshotBuffer = {
   name: string;
@@ -50,16 +72,21 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
   const [description, setDescription] = useState('');
   const [screenshots, setScreenshots] = useState<UploadItem[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [disposition, setDisposition] = useState<FeedbackDisposition>(null);
+  const attemptSequenceRef = useRef(0);
+  const activeAttemptRef = useRef<number | null>(null);
 
   const resetForm = useCallback(() => {
     setModule(undefined);
     setDescription('');
     setScreenshots([]);
-    setError('');
+    setDisposition(null);
   }, []);
 
   const handleCancel = useCallback(() => {
+    attemptSequenceRef.current += 1;
+    activeAttemptRef.current = null;
+    setSubmitting(false);
     resetForm();
     onCancel();
   }, [onCancel, resetForm]);
@@ -67,104 +94,142 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
   const selectedModule = FEEDBACK_MODULES.find((item) => item.tag === module);
 
   const handleSubmit = useCallback(async () => {
-    if (!module || !description.trim()) {
+    if (!visible || !module || !description.trim() || activeAttemptRef.current !== null) {
       return;
     }
 
-    setError('');
+    const attempt = ++attemptSequenceRef.current;
+    activeAttemptRef.current = attempt;
+    setDisposition(null);
     setSubmitting(true);
+    const requireActiveAttempt = () => {
+      if (activeAttemptRef.current !== attempt) {
+        throw new FeedbackAttemptSupersededError('Feedback attempt no longer owns submission');
+      }
+    };
 
     try {
-      // Collect logs via IPC (graceful fallback)
-      let logData: { filename: string; data: number[] } | null = null;
-      try {
-        const electronAPI = window.electronAPI;
-        if (electronAPI?.collectFeedbackLogs) {
-          logData = await electronAPI.collectFeedbackLogs();
+      await withDeadline(async () => {
+        const Sentry = await import('@sentry/electron/renderer');
+        requireActiveAttempt();
+        const client = Sentry.getClient();
+        if (!client || !Sentry.isInitialized() || !Sentry.isEnabled()) {
+          throw new FeedbackUnavailableError('Feedback transport is not initialized');
         }
-      } catch {
-        // Non-blocking: continue without logs
-      }
 
-      // Read screenshot files as ArrayBuffer
-      const screenshotBuffers = (
-        await Promise.all(
-          screenshots.map(async (item) => {
-            if (!item.originFile) {
-              return null;
-            }
+        // Collect logs only after an initialized transport is present. When
+        // reporting is disabled, no local diagnostics or screenshots are read.
+        let logData: { filename: string; data: number[] } | null = null;
+        try {
+          const electronAPI = window.electronAPI;
+          if (electronAPI?.collectFeedbackLogs) {
+            logData = await electronAPI.collectFeedbackLogs();
+          }
+        } catch {
+          // Non-blocking: continue without logs
+        }
+        requireActiveAttempt();
 
-            const buffer = await item.originFile.arrayBuffer();
-            const ext = item.originFile.name.split('.').pop() || 'png';
-            return {
-              name: item.originFile.name,
-              data: new Uint8Array(buffer),
-              type: item.originFile.type || `image/${ext}`,
-            };
-          })
-        )
-      ).filter((item): item is ScreenshotBuffer => item !== null);
+        const screenshotBuffers = (
+          await Promise.all(
+            screenshots.map(async (item) => {
+              if (!item.originFile) return null;
+              const buffer = await item.originFile.arrayBuffer();
+              const ext = item.originFile.name.split('.').pop() || 'png';
+              return {
+                name: item.originFile.name,
+                data: new Uint8Array(buffer),
+                type: item.originFile.type || `image/${ext}`,
+              };
+            })
+          )
+        ).filter((item): item is ScreenshotBuffer => item !== null);
+        requireActiveAttempt();
 
-      // Submit via Sentry
-      // Use hint.attachments instead of scope.addAttachment to avoid
-      // @sentry/electron's ScopeToMain normalize() corrupting Uint8Array binary data.
-      const Sentry = await import('@sentry/electron/renderer');
+        // Use hint.attachments instead of scope.addAttachment to avoid
+        // @sentry/electron's ScopeToMain normalize() corrupting Uint8Array data.
+        const attachments: Array<{ filename: string; data: Uint8Array; contentType: string }> = [];
 
-      const attachments: Array<{ filename: string; data: Uint8Array; contentType: string }> = [];
+        if (logData) {
+          attachments.push({
+            filename: logData.filename,
+            data: new Uint8Array(logData.data),
+            contentType: 'application/gzip',
+          });
+        }
 
-      if (logData) {
-        attachments.push({
-          filename: logData.filename,
-          data: new Uint8Array(logData.data),
-          contentType: 'application/gzip',
+        screenshotBuffers.forEach((screenshot, index) => {
+          attachments.push({
+            filename: `screenshot-${index + 1}-${screenshot.name}`,
+            data: screenshot.data,
+            contentType: screenshot.type,
+          });
         });
-      }
 
-      screenshotBuffers.forEach((screenshot, index) => {
-        attachments.push({
-          filename: `screenshot-${index + 1}-${screenshot.name}`,
-          data: screenshot.data,
-          contentType: screenshot.type,
-        });
-      });
+        const normalizedDescription = description.trim().replace(/\s+/g, ' ');
+        const summaryPreview =
+          normalizedDescription.length > SUMMARY_PREVIEW_LENGTH
+            ? `${normalizedDescription.slice(0, SUMMARY_PREVIEW_LENGTH).trimEnd()}...`
+            : normalizedDescription;
+        const eventSummary = `${t(selectedModule?.i18nKey ?? 'settings.bugReportModuleOther')}: ${summaryPreview}`;
 
-      const normalizedDescription = description.trim().replace(/\s+/g, ' ');
-      const summaryPreview =
-        normalizedDescription.length > SUMMARY_PREVIEW_LENGTH
-          ? `${normalizedDescription.slice(0, SUMMARY_PREVIEW_LENGTH).trimEnd()}...`
-          : normalizedDescription;
-      const eventSummary = `${t(selectedModule?.i18nKey ?? 'settings.bugReportModuleOther')}: ${summaryPreview}`;
+        requireActiveAttempt();
+        Sentry.withScope((scope) => {
+          scope.setTag('type', 'user-feedback');
+          scope.setTag('module', module);
 
-      Sentry.withScope((scope) => {
-        scope.setTag('type', 'user-feedback');
-        scope.setTag('module', module);
-
-        Sentry.captureEvent(
-          {
-            level: 'info',
-            message: eventSummary,
-            extra: {
-              description: normalizedDescription,
+          Sentry.captureEvent(
+            {
+              level: 'info',
+              message: eventSummary,
+              extra: {
+                description: normalizedDescription,
+              },
             },
-          },
-          { attachments }
-        );
-      });
+            { attachments }
+          );
+        });
 
-      Message.success(t('settings.bugReportSuccess'));
-      resetForm();
-      onCancel();
-    } catch {
-      setError(t('settings.bugReportError'));
+        // Flush only proves the renderer handed the envelope to local Electron
+        // IPC. The installed transport returns local status 200 without a server
+        // receipt, so even a successful flush remains delivery-unconfirmed.
+        await client.flush(5_000);
+      }, SUBMISSION_DEADLINE_MS);
+
+      if (activeAttemptRef.current === attempt) setDisposition('unconfirmed');
+    } catch (error) {
+      if (activeAttemptRef.current !== attempt) return;
+      if (error instanceof FeedbackUnavailableError) setDisposition('unavailable');
+      else if (error instanceof FeedbackDeadlineError) setDisposition('timeout');
+      else setDisposition('error');
     } finally {
-      setSubmitting(false);
+      if (activeAttemptRef.current === attempt) {
+        activeAttemptRef.current = null;
+        setSubmitting(false);
+      }
     }
-  }, [module, description, screenshots, t, onCancel, resetForm, selectedModule]);
+  }, [module, description, screenshots, t, selectedModule, visible]);
+
+  const handleCopyReport = useCallback(async () => {
+    if (!module || !description.trim()) return;
+    const report = [
+      `${t('settings.bugReportModuleLabel')}: ${t(selectedModule?.i18nKey ?? 'settings.bugReportModuleOther')}`,
+      `${t('settings.bugReportDescriptionLabel')}: ${description.trim()}`,
+      t('settings.bugReportCopyAttachments'),
+    ].join('\n\n');
+    try {
+      await copyText(report);
+      Message.success(t('settings.bugReportCopySuccess'));
+    } catch {
+      setDisposition('error');
+      Message.error(t('settings.bugReportCopyError'));
+    }
+  }, [description, module, selectedModule, t]);
 
   const isFormValid = module !== undefined && description.trim().length > 0;
 
   const appendScreenshotFiles = useCallback((files: File[]) => {
-    setError('');
+    setDisposition(null);
     setScreenshots((current) => {
       const merged = [...current];
       const seen = new Set(current.map(getUploadItemKey));
@@ -201,7 +266,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
   }, []);
 
   const handleScreenshotChange = useCallback((fileList: UploadItem[]) => {
-    setError('');
+    setDisposition(null);
     // Deduplicate by file name + size, then mark as 'done' to hide progress indicators
     const seen = new Set<string>();
     const deduped = fileList.filter((f) => {
@@ -215,6 +280,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
 
   const handlePaste = useCallback(
     (event: ClipboardEvent) => {
+      if (submitting) return;
       const files = Array.from(event.clipboardData?.files ?? []).filter((file) => file.type.startsWith('image/'));
       if (files.length === 0) {
         return;
@@ -224,7 +290,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
       event.stopPropagation();
       appendScreenshotFiles(files);
     },
-    [appendScreenshotFiles]
+    [appendScreenshotFiles, submitting]
   );
 
   useEffect(() => {
@@ -237,6 +303,17 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
       document.removeEventListener('paste', handlePaste);
     };
   }, [handlePaste, visible]);
+
+  useEffect(() => {
+    if (visible) return;
+    attemptSequenceRef.current += 1;
+    activeAttemptRef.current = null;
+    setSubmitting(false);
+  }, [visible]);
+
+  const dispositionText = disposition
+    ? t(`settings.bugReport${disposition[0].toUpperCase()}${disposition.slice(1)}`)
+    : '';
 
   return (
     <ModalWrapper
@@ -269,9 +346,10 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
             <Select
               placeholder={t('settings.bugReportModulePlaceholder')}
               value={module}
+              disabled={submitting}
               onChange={(val) => {
                 setModule(val);
-                setError('');
+                setDisposition(null);
               }}
             >
               {FEEDBACK_MODULES.map((m) => (
@@ -293,9 +371,10 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
             <Input.TextArea
               placeholder={t('settings.bugReportDescriptionPlaceholder')}
               value={description}
+              disabled={submitting}
               onChange={(val) => {
                 setDescription(val);
-                setError('');
+                setDisposition(null);
               }}
               maxLength={DESCRIPTION_MAX_LENGTH}
               showWordLimit
@@ -312,6 +391,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
               multiple
               accept={ACCEPTED_IMAGE_TYPES}
               autoUpload={false}
+              disabled={submitting}
               fileList={screenshots}
               onChange={handleScreenshotChange}
               limit={MAX_SCREENSHOTS}
@@ -341,9 +421,17 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
             </div>
           </div>
 
-          {error ? (
-            <div className='px-12px py-8px bg-red-50 dark:bg-red-900/20 rd-8px text-13px text-red-500 b-1px b-solid b-red-200 dark:b-red-800'>
-              {error}
+          {disposition ? (
+            <div
+              role='status'
+              data-testid={`feedback-report-${disposition}`}
+              className='flex flex-col items-start gap-8px px-12px py-10px bg-fill-1 rd-8px text-13px text-t-secondary b-1px b-solid b-border-1'
+            >
+              <span>{dispositionText}</span>
+              <span className='text-12px text-t-tertiary'>{t('settings.bugReportCopyAttachments')}</span>
+              <Button size='small' onClick={handleCopyReport}>
+                {t('settings.bugReportCopy')}
+              </Button>
             </div>
           ) : null}
         </div>

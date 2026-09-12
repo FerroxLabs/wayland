@@ -1,0 +1,41 @@
+{
+  "version": "1.0.16",
+  "platforms": {
+    "darwin-arm64": {
+      "url": "https://registry.npmjs.org/@fuigo/darwin-arm64/-/darwin-arm64-1.0.16.tgz",
+      "integrity": "sha512-IuI+4RalKWIhd5KGvYOt/Wgoaig55cDO1DAWbCR7YLWwA1zW5JK7FewBlFYL5EZMWsoOxuRQxM001DSLpm785w==",
+      "archiveSha256": "61ff011dd6638a7e24fec114b5bf5db8edac101046036cf76725c267e8bab9ee",
+      "binarySha256": "0db743099591cd15d218cd32426e210fcd491b11cea12974d273fefaf20bac65"
+    },
+    "darwin-x64": {
+      "url": "https://registry.npmjs.org/@fuigo/darwin-x64/-/darwin-x64-1.0.16.tgz",
+      "integrity": "sha512-RqAkH3AkbvGUSlIjTf5i51uD0WZOxqUoA4CsS6rYOONlEVjdOl4gua5r5T6VMhw7OnqF8f4HbpB7w/SncpcvnQ==",
+      "archiveSha256": "620cfc15cfe1a30815ff386da0f2d2391076b3cf38bbb130eba65d6279e10d1e",
+      "binarySha256": "188a23952062cd637bf8ad9a4196a1a3efd1e59f63d9f008e0551a4ac7dfb4db"
+    },
+    "linux-arm64": {
+      "url": "https://registry.npmjs.org/@fuigo/linux-arm64/-/linux-arm64-1.0.16.tgz",
+      "integrity": "sha512-JdNtb8YJ/LmBZIsHKKfE2pI3FAdQ2ehcbKMIZQu4lkjjAj9wcAqr+MRjdGqbfehz23jA6js72jRkrXqSzTEvCA==",
+      "archiveSha256": "daa8082315d071ddb01eeabe9433cd61a1e7a1b7a870ba634e36d678fcb54b68",
+      "binarySha256": "0ae2457ff08a43d8fefdd976a4c843956168f151cb4116a05aeb18396294a7a5"
+    },
+    "linux-x64": {
+      "url": "https://registry.npmjs.org/@fuigo/linux-x64/-/linux-x64-1.0.16.tgz",
+      "integrity": "sha512-L3lKWjs6NbKR8LzLWsYs72VsabaDLa4cZ68dc+w0VOwlc/hDf6YDrQueFanz8U+uUQFVLRtbG2Mu/5Aqx9TBgQ==",
+      "archiveSha256": "ae8588babab881c47f736b0604a76f918f7d5aba6f211f23bf84eddaaf330c7d",
+      "binarySha256": "1142b0b5a3818f2a2e314d0c03efe9f4429d25e7ec71922227eb7dcd1b59b581"
+    },
+    "win32-arm64": {
+      "url": "https://registry.npmjs.org/@fuigo/win32-arm64/-/win32-arm64-1.0.16.tgz",
+      "integrity": "sha512-S4eOfCkHm4bTztagCpNlBzG2vRoxzhCgamY8lyzm8LVutSaq46YPTJphQ9ncCKtv7hwAz2rnMKw/BdIYZueoqg==",
+      "archiveSha256": "0513825e94504f6f89f5adb1ea47816abd10045b8b556f43584bc7940b9c0495",
+      "binarySha256": "d91b8afb882973ea190742b2e8eca527db4279b0071a385830981e97766846b6"
+    },
+    "win32-x64": {
+      "url": "https://registry.npmjs.org/@fuigo/win32-x64/-/win32-x64-1.0.16.tgz",
+      "integrity": "sha512-DnGzmDY0DazkFN7V97tqUbFOQRPL6CtSVAU+kBEPzDech6Fpe2LKy3jUmRJQxYbkUhOnmnCgscNH/2jQHFUZhQ==",
+      "archiveSha256": "c74eb10772f37df30db2b1c90ff33ca88611f3b4504f29c68e1904c6c670bfd2",
+      "binarySha256": "416c5a418e554c0519a4505789f21d26b2adc9ea01b93555218cba71a22da7a3"
+    }
+  }
+}

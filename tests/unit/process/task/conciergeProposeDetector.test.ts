@@ -46,13 +46,13 @@ describe('detectConciergeProposals', () => {
   it('parses set_default_model and rejects an unknown engine', () => {
     const ok = detectConciergeProposals(
       block(
-        'kind: set_default_model\nengine: wcore\nmodel_id: anthropic/claude-opus-4-8\nuse_model: claude-opus-4-8\nlabel: Claude Opus 4.8'
+        'kind: set_default_model\nengine: fuigo\nmodel_id: anthropic/claude-opus-4-8\nuse_model: claude-opus-4-8\nlabel: Claude Opus 4.8'
       )
     );
     expect(ok).toEqual([
       {
         kind: 'set_default_model',
-        engine: 'wcore',
+        engine: 'fuigo',
         modelId: 'anthropic/claude-opus-4-8',
         useModel: 'claude-opus-4-8',
         label: 'Claude Opus 4.8',
@@ -62,6 +62,21 @@ describe('detectConciergeProposals', () => {
       block('kind: set_default_model\nengine: openrouter\nmodel_id: x\nuse_model: y\nlabel: z')
     );
     expect(bad).toEqual([]);
+    const retired = detectConciergeProposals(
+      block('kind: set_default_model\nengine: wcore\nmodel_id: x\nuse_model: y\nlabel: z')
+    );
+    expect(retired).toEqual([]);
+  });
+
+  // Fuigo cutover: the bundled engine is `fuigo`, and Concierge must be able to
+  // propose a default model for it (the Core pin stays accepted for old chats).
+  it('parses set_default_model for the fuigo engine', () => {
+    const out = detectConciergeProposals(
+      block('kind: set_default_model\nengine: fuigo\nmodel_id: flux/auto\nuse_model: flux-auto\nlabel: Flux Auto')
+    );
+    expect(out).toEqual([
+      { kind: 'set_default_model', engine: 'fuigo', modelId: 'flux/auto', useModel: 'flux-auto', label: 'Flux Auto' },
+    ]);
   });
 
   it('parses add_mcp (args space-split, env KEY=val pairs)', () => {

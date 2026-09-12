@@ -787,7 +787,8 @@ export class SkillImport {
     }));
 
     // Only the untrusted import/user path passes llm:true with a real llmCall.
-    const reports = await SkillGuard.scan(inputs, { llm: true, llmCall: this.llmCall });
+    // A stalled provider must not leave the import dialog waiting indefinitely.
+    const reports = await SkillGuard.scan(inputs, { llm: true, llmCall: this.llmCall, llmTimeoutMs: 30_000 });
 
     const imported: ImportedSkillResult[] = [];
     const quarantined: string[] = [];

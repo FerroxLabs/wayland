@@ -19,7 +19,7 @@
  *    current prose to edit it. This is NOT a §0 violation - §0 forbids reading a
  *    SECRET back; nothing here is keyed credential material.
  *
- * Gates (the providerKeyRoutes / toolKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` (per-route rate limit) + `validateApiAccess` (token auth),
  *    wired as route middleware here.
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verb.

@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 /**
  * A PIN WRITTEN AFTER RESOLUTION MUST STILL WIN, WITH NO CATALOG CHANGE.
  *
- * Onboarding writes `wcore.defaultModel` after the composer has already
+ * Onboarding writes `gemini.defaultModel` after the composer has already
  * resolved and locked. The previous fix announced that by revalidating
  * `model.config.welcome` — but that key holds the PROVIDER CATALOG, which a pin
  * write does not touch. SWR refetches, finds the data deep-equal, keeps the
@@ -99,7 +99,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 const renderSelection = () =>
   renderHook(
     () => {
-      const selection = useGuidModelSelection('wcore');
+      const selection = useGuidModelSelection('gemini');
       const { mutate } = useSWRConfig();
       return { selection, mutate };
     },
@@ -120,7 +120,7 @@ describe('useGuidModelSelection — a pin that lands after resolution', () => {
 
     // Onboarding's pin lands a beat later. The catalog is UNTOUCHED - this is
     // the exact condition the old announce could not signal.
-    store.set('wcore.defaultModel', { id: 'flux-router', useModel: 'flux-reasoning' });
+    store.set('gemini.defaultModel', { id: 'flux-router', useModel: 'flux-reasoning' });
     await result.current.mutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY);
 
     await waitFor(() => expect(result.current.selection.currentModel?.useModel).toBe('flux-reasoning'));
@@ -136,7 +136,7 @@ describe('useGuidModelSelection — a pin that lands after resolution', () => {
     await waitFor(() => expect(result.current.selection.currentModel?.useModel).toBe('flux-fast'));
 
     // A stale pin now arriving must NOT throw the user's own pick away.
-    store.set('wcore.defaultModel', { id: 'flux-router', useModel: 'flux-reasoning' });
+    store.set('gemini.defaultModel', { id: 'flux-router', useModel: 'flux-reasoning' });
     await result.current.mutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY);
     await new Promise((r) => setTimeout(r, 60));
 

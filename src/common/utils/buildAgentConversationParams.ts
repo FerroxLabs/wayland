@@ -34,24 +34,33 @@ export type BuildAgentConversationInput = {
   extra?: Partial<ICreateConversationParams['extra']>;
 };
 
+/**
+ * The ACP backend a launcher-facing backend id actually spawns.
+ *
+ * Teams emit the first-party engine under the retired engine's literal id, and
+ * vendored agent-profile specialists carry no real backend and leak their
+ * preset type `agent-profile`. Both mean the bundled Fuigo engine, which is an
+ * ordinary ACP backend. Every other id is already the backend it names.
+ */
+export function resolveAcpBackendAlias(backend: string): string {
+  switch (backend) {
+    case 'wayland-core':
+    case 'wcore':
+    case 'wnano':
+    case 'agent-profile':
+      return 'fuigo';
+    default:
+      return backend;
+  }
+}
+
 export function getConversationTypeForBackend(backend: string): ICreateConversationParams['type'] {
   switch (backend) {
     case 'gemini':
       return 'gemini';
-    case 'wcore':
-    // Teams emit the WCore engine under the literal `wayland-core` (the rest of
-    // the app uses `wcore`); vendored agent-profile specialists carry no real
-    // backend and leak their preset type `agent-profile`. Both are the WCore
-    // engine, not an ACP CLI, so route them to the wcore manager instead of
-    // letting them fall through to `acp` and die with "No CLI path for backend".
-    case 'wayland-core':
-    case 'agent-profile':
-      return 'wcore';
     case 'openclaw-gateway':
     case 'openclaw':
       return 'openclaw-gateway';
-    case 'nanobot':
-      return 'nanobot';
     case 'remote':
       return 'remote';
     default:
@@ -104,32 +113,19 @@ export function buildAgentConversationParams(input: BuildAgentConversationInput)
     // Which key carries the rules is not cosmetic - each backend reads exactly
     // one of them and never looks at the other.
     // `ConversationServiceImpl.injectProjectKnowledge` states the rule outright:
-    // gemini + wcore read `presetRules`, acp reads `presetContext`.
-    //
-    // wcore used to fall into the else-branch with the ACP backends, and its
-    // rules were then dropped twice over: `createWCoreAgent` persists a
-    // whitelist of extra keys that has no `presetContext` in it, and
-    // `WCoreManager` only ever reads `presetRules`. So every wcore preset
-    // assistant created through here - the conversation "+" menu, and wcore
-    // team specialists - ran with no persona at all.
-    //
-    // It failed silently and looked healthy, because `presetAssistantId` IS
-    // persisted: the Constitution, the capabilities manifest and the
-    // assistant's own NAME all still loaded. Only the personality went missing,
-    // so Concierge introduced itself as Concierge and then answered like the
-    // bare coding agent underneath it.
-    if (type === 'gemini' || type === 'wcore') {
+    // gemini reads `presetRules`, acp reads `presetContext`.
+    if (type === 'gemini') {
       extra.presetRules = presetResources?.rules;
     } else {
       extra.presetContext = presetResources?.rules;
       if (type === 'acp') {
-        extra.backend = effectivePresetType as AcpBackend;
+        extra.backend = resolveAcpBackendAlias(effectivePresetType) as AcpBackend;
       }
     }
   } else if (type === 'remote') {
     extra.remoteAgentId = customAgentId;
   } else if (type === 'acp' || type === 'openclaw-gateway') {
-    extra.backend = backend as AcpBackendAll;
+    extra.backend = resolveAcpBackendAlias(backend) as AcpBackendAll;
     extra.agentName = agentName || name;
     if (cliPath) extra.cliPath = cliPath;
     if (customAgentId) {

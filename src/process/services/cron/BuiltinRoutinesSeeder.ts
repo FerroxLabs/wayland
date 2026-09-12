@@ -28,14 +28,15 @@ import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { logger } from '@office-ai/platform';
+import { getDefaultUnattendedMode } from '@/common/types/agentModes';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import { getBuiltinSkillsCopyDir } from '@process/utils/initStorage';
 import type { CronService } from './CronService';
 import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
-/** Backend used for seeded routines. wcore is the bundled Wayland Core engine, always present. */
-export const ROUTINE_BACKEND: AgentBackend = 'wcore';
+/** Backend used for seeded routines. fuigo is the bundled engine, always present. */
+export const ROUTINE_BACKEND: AgentBackend = 'fuigo';
 
 /**
  * Tag written into agentConfig.configOptions so routine crons are identifiable.
@@ -166,11 +167,10 @@ export function routinePromptHeader(workflow: string): string {
  * THE SENTENCE THAT SENT EVERY SCHEDULED RUN AT AN ENVIRONMENT VARIABLE IT
  * CANNOT SEE.
  *
- * `WAYLAND_OUTPUT_DIR` is set on the ENGINE process, and the engine runs every
- * Bash tool call through a fixed 19-name env allowlist that does not include
- * it - proven by executing `wayland-core sandbox exec` on both the shipped
- * v0.13.3 and the pinned v0.13.4, which printed an empty value for it while
- * `WAYLAND_HOME` came back populated as the known-positive control. So a run
+ * `WAYLAND_OUTPUT_DIR` was set on the ENGINE process, and the retired engine
+ * ran every Bash tool call through a fixed env allowlist that did not include
+ * it - proven by executing its sandbox on two pinned builds, which printed an
+ * empty value for it while a control variable came back populated. So a run
  * following this sentence resolved an empty variable, wrote to its fallback,
  * staged nothing, and settled as `no-output`.
  *
@@ -375,7 +375,7 @@ export async function seedBuiltinRoutines(cronService: CronService): Promise<voi
     const agentConfig: NonNullable<CronJob['metadata']['agentConfig']> = {
       backend: ROUTINE_BACKEND,
       name: routine.name,
-      mode: 'bypassPermissions',
+      mode: getDefaultUnattendedMode(ROUTINE_BACKEND),
       configOptions: { kind: ROUTINE_KIND, routineId: routine.id, artifactSeries: seriesForRoutine(routine) },
     };
 

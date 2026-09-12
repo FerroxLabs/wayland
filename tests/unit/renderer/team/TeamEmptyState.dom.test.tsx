@@ -6,10 +6,6 @@ import type { TChatConversation } from '@/common/config/storage';
 
 const mockUpdateLocalImage = vi.fn();
 
-vi.mock('@/renderer/hooks/context/ConversationContext', () => ({
-  ConversationProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-}));
-
 vi.mock('@renderer/components/layout/FlexFullContainer', () => ({
   __esModule: true,
   default: ({ children }: { children?: React.ReactNode }) => <div data-testid='flex-full-container'>{children}</div>,

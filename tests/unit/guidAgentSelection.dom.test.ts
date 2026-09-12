@@ -180,10 +180,6 @@ function setupMocks(overrides?: {
         return geminiConfig;
       case 'gemini.defaultModel':
         return null;
-      case 'wcore.config':
-        return null;
-      case 'wcore.defaultModel':
-        return null;
       default:
         return null;
     }
@@ -319,11 +315,11 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
     expect(result.current.currentAcpCachedModelInfo?.currentModelId).toBe('claude-sonnet-4-5-20250514');
   });
 
-  it('built-in Wayland Nano uses its own backend key for model cache lookup', async () => {
-    setupMocks({ cachedModels: { wnano: CLAUDE_CACHED_MODEL } });
+  it('the bundled Fuigo engine uses its own backend key for model cache lookup', async () => {
+    setupMocks({ cachedModels: { fuigo: CLAUDE_CACHED_MODEL } });
     ipcMock.getAvailableAgents.mockResolvedValue({
       success: true,
-      data: [...AVAILABLE_AGENTS, { backend: 'wnano', name: 'Wayland Nano' }],
+      data: [...AVAILABLE_AGENTS, { backend: 'fuigo', name: 'Fuigo' }],
     });
 
     const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
@@ -332,17 +328,17 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
       expect(result.current.availableAgents).toBeDefined();
     });
 
-    // Select the built-in wnano backend directly from the pill bar (non-preset)
+    // Select the bundled fuigo backend directly from the pill bar (non-preset)
     act(() => {
-      result.current.setSelectedAgentKey('wnano');
+      result.current.setSelectedAgentKey('fuigo');
     });
 
     await waitFor(() => {
       expect(result.current.isPresetAgent).toBe(false);
-      expect(result.current.selectedAgent).toBe('wnano');
+      expect(result.current.selectedAgent).toBe('fuigo');
     });
 
-    // Should look up acpCachedModels['wnano']
+    // Should look up acpCachedModels['fuigo']
     expect(result.current.currentAcpCachedModelInfo).not.toBeNull();
     expect(result.current.currentAcpCachedModelInfo?.currentModelId).toBe('claude-sonnet-4-5-20250514');
   });
@@ -395,8 +391,6 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
         case 'acp.config':
         case 'gemini.config':
         case 'gemini.defaultModel':
-        case 'wcore.config':
-        case 'wcore.defaultModel':
           return null;
         default:
           return null;
@@ -561,7 +555,7 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
         result.current.selectPresetAssistant({ id: 'word-creator' });
       });
 
-      // wcore is not 'remote', and customAgentId is present → custom:<id>.
+      // fuigo is not 'remote', and customAgentId is present → custom:<id>.
       expect(result.current.selectedAgentKey).toBe('custom:word-creator');
     });
   });

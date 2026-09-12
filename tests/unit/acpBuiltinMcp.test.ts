@@ -155,7 +155,7 @@ describe('ACP built-in MCP session config', () => {
       {
         // A known-broken (disconnected) non-builtin: excluded under the uniform
         // predicate. (An enabled non-builtin with `status: undefined` is now
-        // INJECTED - covered by wcoreUserMcpInjection.test.ts - so this fixture
+        // INJECTED - covered by the ACP session-injection tests - so this fixture
         // uses a failure status to stay a negative case here.)
         id: 'external-server',
         name: 'chrome-devtools',
@@ -341,9 +341,6 @@ const mockUnrelatedMcpAgents = (emptyDetect: () => Promise<IMcpServer[]>) => {
   }));
   vi.doMock('../../src/process/services/mcpServices/agents/CodexMcpAgent', () => ({
     CodexMcpAgent: makeAgentClass(emptyDetect),
-  }));
-  vi.doMock('../../src/process/services/mcpServices/agents/WCoreMcpAgent', () => ({
-    WCoreMcpAgent: makeAgentClass(emptyDetect),
   }));
 };
 

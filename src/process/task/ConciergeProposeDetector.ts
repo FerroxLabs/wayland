@@ -76,7 +76,7 @@ function parseProposalBody(body: string): ConciergeProposal | null {
       const modelId = field(body, 'model_id');
       const useModel = field(body, 'use_model');
       const label = field(body, 'label');
-      if ((engine !== 'wcore' && engine !== 'gemini') || !modelId || !useModel || !label) return null;
+      if ((engine !== 'fuigo' && engine !== 'gemini') || !modelId || !useModel || !label) return null;
       return { kind, engine, modelId, useModel, label };
     }
     case 'add_mcp': {

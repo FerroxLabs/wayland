@@ -305,15 +305,6 @@ export const handleSessionNew: ActionHandler = async (context) => {
         channelChatId,
         extra: conversationExtra,
       });
-    } else if (backend === 'wcore') {
-      newConversation = await conversationServiceSingleton.createConversation({
-        type: 'wcore',
-        model,
-        source,
-        name,
-        channelChatId,
-        extra: conversationExtra,
-      });
     } else if (backend === 'codex') {
       newConversation = await conversationServiceSingleton.createConversation({
         type: 'acp',

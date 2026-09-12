@@ -12,11 +12,12 @@ import type { AcpBackend, AcpBackendAll } from '@/common/types/acpTypes';
 import { getSkillsDirsForBackend, hasNativeSkillSupport } from '@/common/types/acpTypes';
 import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
 import { uuid } from '@/common/utils';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import tideCompatibility from '@process/resources/skills/tvcontrol-setup/tideCompatibility.json';
 
 // Re-export for backward compatibility (tests mock this path)
 export { hasNativeSkillSupport };
-import { existsSync } from 'fs';
+import { existsSync, type Stats } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, getAutoSkillsDir, getSystemDir, ProcessConfig } from './initStorage';
@@ -49,6 +50,54 @@ export type WorkspaceSkillEntry = {
   name: string;
   security?: { verdict: string };
 };
+
+/** Repair only unchanged stock TC-TIDE files in a contained workspace copy. */
+export async function repairStagedTideSkill(workspace: string, skillDir: string): Promise<void> {
+  if (path.basename(skillDir) !== 'tide-morning-brief') return;
+  const root = await fs.realpath(workspace);
+  const relative = path.relative(path.resolve(workspace), path.resolve(skillDir));
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return;
+  skillDir = path.join(root, relative);
+  let current = root;
+  for (const part of relative.split(path.sep)) {
+    current = path.join(current, part);
+    const stat = await fs.lstat(current);
+    if (stat.isSymbolicLink() || !stat.isDirectory()) return;
+  }
+  const replacements: Array<{ file: string; content: string }> = [];
+  for (const patch of tideCompatibility.files) {
+    const file = path.join(skillDir, patch.path);
+    // The patch paths are bundled constants, but descendants still belong to users.
+    let descendant = skillDir;
+    for (const part of patch.path.split('/')) {
+      descendant = path.join(descendant, part);
+      const stat = await fs.lstat(descendant).catch((error: NodeJS.ErrnoException): Stats | null => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (!stat || stat.isSymbolicLink()) return;
+    }
+    const source = await fs.readFile(file, 'utf8');
+    const digest = createHash('sha256').update(source).digest('hex');
+    if (digest === patch.resultSha256) continue;
+    if (digest !== patch.sourceSha256) return; // Preserve customized packs as a whole.
+    const lines = source.split('\n');
+    for (const edit of [...patch.edits].reverse()) lines.splice(edit.start, edit.deleteCount, ...edit.lines);
+    const content = lines.join('\n');
+    if (createHash('sha256').update(content).digest('hex') !== patch.resultSha256)
+      throw new Error('TC-TIDE compatibility patch integrity mismatch');
+    replacements.push({ file, content });
+  }
+  for (const { file, content } of replacements) {
+    const temporary = `${file}.${randomUUID()}.tmp`;
+    try {
+      await fs.writeFile(temporary, content, { flag: 'wx' });
+      await fs.rename(temporary, file);
+    } finally {
+      await fs.rm(temporary, { force: true });
+    }
+  }
+}
 
 /**
  * Set up native workspace structure for assistant (skill symlinks only)
@@ -140,11 +189,11 @@ export async function setupAssistantWorkspace(
     /**
      * Put a skill inside the workspace by COPYING it, never by symlinking.
      *
-     * wayland-core runs the agent against a `SandboxedFs` rooted at the
+     * A sandboxed engine runs the agent against a filesystem rooted at the
      * workspace, and its containment check canonicalizes a path before
-     * comparing (`crates/wcore-tools/src/vfs.rs`) precisely so that "a symlink
-     * planted inside the sandbox that points outside is detected and refused".
-     * That is deliberate hardening, not a bug.
+     * comparing precisely so that "a symlink planted inside the sandbox that
+     * points outside is detected and refused". That is deliberate hardening,
+     * not a bug.
      *
      * Our skills live in the app's config directory, which is outside every
      * workspace, so a symlinked skill resolved to a path the sandbox refuses:
@@ -168,14 +217,17 @@ export async function setupAssistantWorkspace(
         console.warn(`[setupAssistantWorkspace] ${label} directory not found: ${sourceSkillDir}`);
         return;
       }
+      let present = false;
       try {
         await fs.lstat(targetSkillDir);
-        return; // already present - leave it alone
+        present = true;
       } catch {
         // not there yet, fall through and copy
       }
       try {
-        await copyDirectoryRecursively(sourceSkillDir, targetSkillDir, { overwrite: false });
+        if (!present) await copyDirectoryRecursively(sourceSkillDir, targetSkillDir, { overwrite: false });
+        await repairStagedTideSkill(workspace, targetSkillDir);
+        if (present) return; // Existing customized files remain untouched.
         console.log(`[setupAssistantWorkspace] Copied ${label}: ${sourceSkillDir} -> ${targetSkillDir}`);
       } catch (error) {
         console.warn(`[setupAssistantWorkspace] Failed to copy ${label} ${sourceSkillDir}:`, error);
@@ -246,7 +298,7 @@ export async function setupAssistantWorkspace(
  * (`workspaceChecks.ts:151`) and the concierge diagnostics server
  * (`conciergeDiagServer.ts:1020`) both treat `false` as the app's own
  * authoritative "this is a temporary folder" and would WARN the user that a
- * folder in their Documents is temporary, and `createWCoreAgent` would blank
+ * folder in their Documents is temporary, and the conversation creators blank
  * the conversation's `desc`. Skill placement must not be bought with a lie
  * about what the folder is.
  */
@@ -417,15 +469,24 @@ export const createAcpAgent = async (options: ICreateConversationParams): Promis
   );
 
   // Set up skill symlinks for temp + project workspaces (native discovery).
-  await setupWorkspaceSkills(workspace, customWorkspace, !!extra.projectId, {
-    backend: extra.backend,
-    enabledSkills: extra.enabledSkills,
-    extraSkillPaths: extra.extraSkillPaths,
-    excludeBuiltinSkills: extra.excludeBuiltinSkills,
-  });
+  // An app-created durable task folder (a scheduled routine's workspace) is
+  // set up too - see `setupWorkspaceSkills` for why that is a separate signal.
+  await setupWorkspaceSkills(
+    workspace,
+    customWorkspace,
+    !!extra.projectId,
+    {
+      backend: extra.backend,
+      enabledSkills: extra.enabledSkills,
+      extraSkillPaths: extra.extraSkillPaths,
+      excludeBuiltinSkills: extra.excludeBuiltinSkills,
+    },
+    extra.appCreatedWorkspace === true
+  );
 
   return {
     type: 'acp',
+    desc: customWorkspace ? workspace : '',
     extra: {
       workspace: workspace,
       customWorkspace,
@@ -462,38 +523,6 @@ export const createAcpAgent = async (options: ICreateConversationParams): Promis
   };
 };
 
-export const createNanobotAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
-  const { extra } = options;
-  const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
-    `nanobot-temp-${Date.now()}`,
-    extra.workspace,
-    extra.defaultFiles,
-    extra.customWorkspace
-  );
-
-  // Set up skill symlinks for temp + project workspaces
-  await setupWorkspaceSkills(workspace, customWorkspace, !!extra.projectId, {
-    agentType: 'nanobot',
-    enabledSkills: extra.enabledSkills,
-    extraSkillPaths: extra.extraSkillPaths,
-    excludeBuiltinSkills: extra.excludeBuiltinSkills,
-  });
-
-  return {
-    type: 'nanobot',
-    extra: {
-      workspace: workspace,
-      customWorkspace,
-      enabledSkills: extra.enabledSkills,
-      presetAssistantId: extra.presetAssistantId,
-    },
-    createTime: Date.now(),
-    modifyTime: Date.now(),
-    name: workspace,
-    id: uuid(),
-  };
-};
-
 export const createRemoteAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
   const { extra } = options;
   const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
@@ -518,53 +547,6 @@ export const createRemoteAgent = async (options: ICreateConversationParams): Pro
       enabledSkills: extra.enabledSkills,
       presetAssistantId: extra.presetAssistantId,
     },
-    createTime: Date.now(),
-    modifyTime: Date.now(),
-    name: workspace,
-    id: uuid(),
-  };
-};
-
-export const createWCoreAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
-  const { extra } = options;
-  const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
-    `wcore-temp-${Date.now()}`,
-    extra.workspace,
-    extra.defaultFiles,
-    extra.customWorkspace
-  );
-
-  // Set up skill symlinks for native discovery by wayland-core.
-  // The engine looks in `.wayland-core/skills/` (engine paths.rs:46);
-  // the 'wcore' agentType key is mapped to that directory in NON_ACP_SKILLS_DIRS
-  // so the symlinks land where the engine reads. Project workspaces (#455) get
-  // them too — with a managed .gitignore — so project chats can resolve skills.
-  await setupWorkspaceSkills(
-    workspace,
-    customWorkspace,
-    !!extra.projectId,
-    {
-      agentType: 'wcore',
-      enabledSkills: extra.enabledSkills,
-      extraSkillPaths: extra.extraSkillPaths,
-      excludeBuiltinSkills: extra.excludeBuiltinSkills,
-    },
-    extra.appCreatedWorkspace === true
-  );
-
-  return {
-    // 'wcore' is the canonical conversation type.
-    type: 'wcore',
-    model: options.model,
-    extra: {
-      workspace,
-      customWorkspace,
-      presetRules: extra.presetRules,
-      enabledSkills: extra.enabledSkills,
-      presetAssistantId: extra.presetAssistantId,
-      sessionMode: extra.sessionMode,
-    },
-    desc: customWorkspace ? workspace : '',
     createTime: Date.now(),
     modifyTime: Date.now(),
     name: workspace,

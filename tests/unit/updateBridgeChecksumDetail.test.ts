@@ -14,7 +14,7 @@
  *
  * The surfaced string is now routed through `redactCommandSecrets` - the same
  * scrubber the landed half of #853 uses on surfaced engine failures
- * (WCoreManager) - because the failure text carries renderer-supplied names.
+ * (the agent manager) - because the failure text carries renderer-supplied names.
  *
  * Drives the real `update.download` provider over a stubbed `fetch` and reads
  * the terminal progress event the UI actually renders. i18n is served from the

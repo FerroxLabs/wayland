@@ -128,12 +128,17 @@ extraResources:
     to: app.png
   - from: resources/bundled-bun
     to: bundled-bun
-  # wayland-core engine binary (pre-compiled per platform/arch)
-  - from: resources/bundled-wayland-core
-    to: bundled-wayland-core
-  # Wayland Nano first-party agent binary (pre-compiled per platform/arch)
-  - from: resources/bundled-wayland-nano
-    to: bundled-wayland-nano
+  # Frozen TVControl dependency tree. Dedicated node_modules matcher prevents
+  # electron-builder's automatic production-dependency filtering of nested roots.
+  - from: resources/bundled-tvcontrol/node_modules
+    to: bundled-tvcontrol/node_modules
+    filter:
+      - '**/*'
+  # Fuigo engine (pre-compiled per platform/arch, staged from npm with pinned digests)
+  - from: resources/bundled-fuigo
+    to: bundled-fuigo
+    filter:
+      - '**/*'
   # Native anchored Constitution filesystem helper. The exact target helper
   # and adjacent manifest are staged from source before the ASAR is compiled;
   # the independently generated authority is compiled into main-process code.
@@ -229,11 +234,11 @@ win:
   # rewrites a binary, which destroys the exact upstream bytes that
   # scripts/verify-packaged-resources.js checks against their pinned release
   # digests - the 0.12.0 Windows builds failed on precisely that, with
-  # bundled-wayland-core, bundled-wayland-nano, bundled-officecli, bundled-bun
-  # and whatsapp-bridge all reported as invalid after signing.
+  # bundled-officecli, bundled-bun and whatsapp-bridge all reported as invalid
+  # after signing.
   #
   # Signing them is also wrong on its own terms: an Authenticode signature says
-  # Ferrox Labs produced this binary, and bun, OfficeCLI, Core and Nano are not
+  # Ferrox Labs produced this binary, and bun, OfficeCLI and Fuigo are not
   # ours to vouch for. We pin and verify their published bytes instead. macOS has
   # always done this through mac.signIgnore above; Windows has no path filter, so
   # the same exclusions are expressed as negative signExts patterns, which
@@ -252,10 +257,8 @@ win:
     - '!\bundled-bun\win32-arm64\bun.exe'
     - '!\bundled-officecli\win32-x64\officecli.exe'
     - '!\bundled-officecli\win32-arm64\officecli.exe'
-    - '!\bundled-wayland-core\win32-x64\wayland-core.exe'
-    - '!\bundled-wayland-core\win32-arm64\wayland-core.exe'
-    - '!\bundled-wayland-nano\win32-x64\wayland-nano.exe'
-    - '!\bundled-wayland-nano\win32-arm64\wayland-nano.exe'
+    - '!\bundled-fuigo\win32-x64\fuigo.exe'
+    - '!\bundled-fuigo\win32-arm64\fuigo.exe'
     - '!\whatsapp-bridge\node_modules\.bin\browsers.exe'
     - '!\whatsapp-bridge\node_modules\.bin\crc32.exe'
     - '!\whatsapp-bridge\node_modules\.bin\escodegen.exe'
@@ -338,8 +341,8 @@ mac:
   entitlements: entitlements.plist
   entitlementsInherit: entitlements.plist
   # Preserve the exact independently pinned nested executable bytes. OfficeCLI
-  # is already Developer ID signed by its publisher. The released wayland-core
-  # and wayland-nano binaries are linker-signed. Re-signing any of them with
+  # is already Developer ID signed by its publisher. The released Fuigo binary
+  # is linker-signed. Re-signing any of them with
   # Electron helper entitlements changes its pinned digest and grants a much
   # broader authority surface than the standalone tool was built with; the
   # post-package gate rechecks the exact bytes from Contents/Resources.
@@ -348,8 +351,7 @@ mac:
     - '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\.node|\.dylib)$'
     - '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\.bare$'
     - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
-    - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
-    - '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'
+    - '/Contents/Resources/bundled-fuigo/[^/]+/fuigo$'
     - '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'
   # #466: Computer-Use uses Screen Recording (screenshots) + Apple Events (to
   # control other apps). NSAppleEventsUsageDescription IS an Apple-honored TCC

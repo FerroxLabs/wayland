@@ -106,7 +106,7 @@ describe('voiceSynthBridge', () => {
    *
    * `ProcessConfig` reads the same backing file directly in-process, which is
    * the same fix already applied for the doctor MCP check (#273) and for
-   * channel-triggered WCore turns. Pin the seam, or the next edit restores a
+   * channel-triggered engine turns. Pin the seam, or the next edit restores a
    * hang that no `.catch` and no timeout mitigation can undo.
    */
   it('reads config in-process and never round-trips to the renderer-bridged store', async () => {

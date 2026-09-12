@@ -65,4 +65,22 @@ describe('initSchema', () => {
     expect(() => initSchema(driver)).not.toThrow();
     expect(driver.exec).toHaveBeenCalled();
   });
+
+  it('does not create the ingest-order index before an older messages table is migrated', () => {
+    driver.pragma.mockImplementation((sql: string) => (sql === 'table_info(messages)' ? [] : undefined));
+
+    initSchema(driver);
+
+    expect(driver.exec).not.toHaveBeenCalledWith(expect.stringContaining('idx_messages_conversation_ingest'));
+  });
+
+  it('creates the ingest-order index for a fresh schema that already has the column', () => {
+    driver.pragma.mockImplementation((sql: string) =>
+      sql === 'table_info(messages)' ? [{ name: 'ingest_order' }] : undefined
+    );
+
+    initSchema(driver);
+
+    expect(driver.exec).toHaveBeenCalledWith(expect.stringContaining('idx_messages_conversation_ingest'));
+  });
 });

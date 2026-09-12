@@ -400,7 +400,6 @@
     "title": "{{backend}} не может войти здесь",
     "subscriptionExplainer": "Поставщик блокирует вход по подписке внутри сторонних инструментов, подобных этому. Чтобы продолжить использовать {{backend}} здесь, направьте его через Flux Router, добавьте API-ключ поставщика или войдите напрямую в CLI.",
     "genericExplainer": "Не удалось аутентифицировать {{backend}}. Направьте его через Flux Router, добавьте API-ключ поставщика или войдите в CLI, чтобы это исправить.",
-    "wcoreExplainer": "Не удалось аутентифицировать Wayland Core. Поставщик инференса отклонил API-ключ (401). В отличие от Claude Code, у Wayland Core нет входа по подписке в качестве запасного варианта, поэтому добавьте рабочий ключ поставщика или направьте его через Flux Router.",
     "flux": {
       "label": "Направить через Flux",
       "sublabel": "Умная маршрутизация выбирает подходящую модель для каждой задачи. Начните бесплатно с кредитом в 1 $, затем платите по мере использования или выберите тариф.",
@@ -420,33 +419,6 @@
     },
     "dismiss": "Закрыть",
     "recommended": "(рекомендуется)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -512,45 +484,9 @@
       "body": "{{title}} остановлено с ошибкой. {{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Файл настроек Wayland Core нужно исправить",
-    "explainer": "Движок не смог прочитать свой файл настроек, поэтому агент не запускается. Ничего не изменено — ваши провайдеры, ключи и настройки по-прежнему на месте.",
-    "dismiss": "Закрыть",
-    "details": "Технические подробности",
-    "checking": "Проверяем файл настроек…",
-    "location": "Проблема в строке {{line}}, столбце {{column}}.",
-    "noProblem": "Файл настроек теперь читается без ошибок. Отправьте сообщение ещё раз.",
-    "unreadable": "Wayland не смог прочитать файл настроек. Причина: {{reason}}",
-    "repair": {
-      "label": "Исправить строку {{line}} за меня",
-      "sublabel": "Сначала создаёт резервную копию файла, затем добавляет пропущенный перенос строки. Больше ничего не меняется.",
-      "action": "Исправить",
-      "unavailable": "Проблему в строке {{line}} нужно посмотреть человеку — Wayland не будет угадывать. Откройте файл ниже или начните заново с настройками по умолчанию.",
-      "notTextUnavailable": "Wayland не станет перезаписывать файл, который не может прочитать в точности, поэтому автоматического исправления здесь нет. Откройте файл ниже или начните заново с настройками по умолчанию."
-    },
-    "reveal": {
-      "label": "Показать файл",
-      "sublabel": "Откроет папку с этим файлом, чтобы вам не пришлось искать путь.",
-      "action": "Показать"
-    },
-    "regenerate": {
-      "label": "Начать заново с настройками по умолчанию",
-      "sublabel": "Крайняя мера. Сначала делается резервная копия текущего файла, затем он удаляется, чтобы движок создал новый.",
-      "action": "Начать заново",
-      "confirmTitle": "Начать заново с настройками по умолчанию?",
-      "confirmBody": "Это удалит файл настроек движка. Вы потеряете список провайдеров, сохранённые в нём ключи API, а также настройки памяти и навыков, и их придётся настроить заново.\n\nСначала рядом с оригиналом сохраняется резервная копия с отметкой времени. Если проверить её не удастся, ничего удалено не будет.",
-      "confirmAction": "Сохранить копию и начать заново"
-    },
-    "result": {
-      "repaired": "Исправлено. Резервная копия оригинала сохранена как {{name}}.",
-      "regenerated": "Готово. Ваши прежние настройки сохранены как {{name}}.",
-      "backupFailed": "Wayland не смог создать проверенную резервную копию, поэтому ничего не изменено. Причина: {{reason}}",
-      "writeFailed": "Не удалось завершить изменение. Причина: {{reason}}",
-      "writeFailedWithBackup": "Не удалось завершить изменение. Причина: {{reason}} Ничего не потеряно: ваши исходные настройки лежат в {{name}}.",
-      "notARegularFile": "Этот файл настроек является ссылкой на другой файл, поэтому Wayland не будет его заменять. Нажмите «Показать файл» и отредактируйте его там, где он действительно находится.",
-      "revealFailed": "Wayland не смог открыть папку. Причина: {{reason}}"
-    },
-    "notText": "Wayland не может прочитать этот файл как текст — часть его байтов не является корректным UTF-8, который требуется формату настроек. Ничего не изменено."
+  "turnRecovery": {
+    "outcomeUnknown": "Результат неизвестен",
+    "lastRecordedAction": "Последнее записанное действие: {{action}}"
   },
   "artifactCard": {
     "title": "Сохранено в вашем рабочем пространстве",

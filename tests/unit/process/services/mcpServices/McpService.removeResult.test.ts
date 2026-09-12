@@ -7,7 +7,7 @@
  * in its top-level `success`. Previously it returned `success: true`
  * unconditionally, so a per-agent removal that failed (captured in results[]
  * with success:false) was hidden and the renderer reported "deleted" while the
- * server stayed in that agent's CLI config (Claude/Codex/wcore drift).
+ * server stayed in that agent's CLI config (Claude/Codex drift).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

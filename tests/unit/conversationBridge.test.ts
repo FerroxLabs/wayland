@@ -325,7 +325,7 @@ describe('conversationBridge', () => {
 
     it('rebuilds stale MCP session authority in production without a preview gate', async () => {
       const task = {
-        type: 'wcore',
+        type: 'acp',
         workspace: '/ws',
         sendMessage: vi.fn(async () => {}),
       };
@@ -336,7 +336,7 @@ describe('conversationBridge', () => {
       const svc = makeService({
         getConversation: vi.fn(async () => ({
           ...makeConversation('c-quarantined', '/ws'),
-          type: 'wcore',
+          type: 'acp',
           extra: { workspace: '/ws', mcpRuntimeFingerprint: 'stale' },
         })),
       });
@@ -364,11 +364,11 @@ describe('conversationBridge', () => {
         releaseKill = resolve;
       });
       const replacement = {
-        type: 'wcore',
+        type: 'acp',
         workspace: '/ws',
         sendMessage: vi.fn(async () => {}),
       };
-      const oldTask = { type: 'wcore' };
+      const oldTask = { type: 'acp' };
       const getOrBuildTask = vi.fn(async () => replacement);
       const tm = makeTaskManager({
         getTask: vi.fn(() => oldTask as never),
@@ -378,7 +378,7 @@ describe('conversationBridge', () => {
       const svc = makeService({
         getConversation: vi.fn(async () => ({
           ...makeConversation('c-mcp', '/ws'),
-          type: 'wcore',
+          type: 'acp',
           extra: { workspace: '/ws', mcpRuntimeFingerprint: 'mcp-v1-stale-all' },
         })),
       });

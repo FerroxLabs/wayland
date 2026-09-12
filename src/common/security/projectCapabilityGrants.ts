@@ -18,11 +18,11 @@
  *   channel, schedule, Cloud.
  *
  * IMPORTANT — where enforcement actually lands. The browser/network egress gate
- * is owned by the bundled wayland-core engine, which today ships with no safe
- * localhost exception (see SecurityPane). This module is the desktop-side
- * decision + the shape passed to Core via the desktop contract; it decides
- * whether to REQUEST the exception for a given call. End-to-end localhost egress
- * only works once Core honors the scoped grant. Until then this resolver still
+ * is owned by the bundled engine, which today ships with no safe localhost
+ * exception. This module is the desktop-side decision + the shape passed to
+ * the engine; it decides whether to REQUEST the exception for a given call.
+ * End-to-end localhost egress only works once the engine honors the scoped
+ * grant. Until then this resolver still
  * runs and still fails closed — it can only ever narrow, never widen, the
  * engine's own block. The one Core hook needed: accept a per-request
  * `project_localhost_grant` token on the browser tool call and permit loopback

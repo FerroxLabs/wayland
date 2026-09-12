@@ -339,13 +339,13 @@ Order matters when a skill ships scripts. Pin the destination first, then change
 
 ```bash
 OUT="<deliverables_dir>"; mkdir -p "$OUT"
-cd .wayland-core/skills/<skill>
+cd .wayland/skills/<skill>
 node scripts/<script>.mjs --json "$OUT"/brief.json
 ```
 
 If you `cd` into a skill directory first and resolve the
 output path afterwards, a bare `artifacts/market` lands under
-`.wayland-core/skills/<skill>/artifacts/market` — a dot directory the Workbench file scanners skip,
+`.wayland/skills/<skill>/artifacts/market` — a dot directory the Workbench file scanners skip,
 so the user's file exists and is invisible. **Pin the output directory BEFORE the `cd`.**
 
 **NEVER ANNOUNCE THAT SOMETHING IS UNAVAILABLE BECAUSE A TOOL SEARCH MISSED IT.**
@@ -370,7 +370,7 @@ workspace-relative one, and that refusal looks exactly like a missing file, so a
 concludes the skill is not installed and abandons work it could have done.
 
 To RUN a skill's scripts, use the shell. **Every skill also has a real directory in your workspace,
-at `.wayland-core/skills/<skill>/`, holding its scripts and data.** Work there, in place. Do not
+at `.wayland/skills/<skill>/`, holding its scripts and data.** Work there, in place. Do not
 copy a skill somewhere else to run it, and never stage it under `/tmp` — the sandbox and the
 command floor are scoped to the workspace, and a copy is how a run ends up `cd`-ing into a path it
 just wrote a file to. The relative path is correct for the shell because the shell's working

@@ -1,5 +1,7 @@
 # Wayland Desktop Adaptive Cockpit Build Plan
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Status: superseded by `MASTER-BUILD-PLAN.md`; retained for design-history context only
 Prepared: 2026-07-15
 Desktop baseline: Wayland Desktop `0.11.18`
@@ -27,7 +29,7 @@ Confidence: high that the architecture and product can be built; medium-high on 
 Why it is buildable:
 
 - Desktop already has the hard services: conversations, Projects, workspace panels, previews, artifacts, agents, models, permissions, schedules, Teams, workflows, memory, cost capture, activity normalization, and Core process management.
-- The existing WCore conversation already has a resizable observability panel and normalized nested activity. It is a foundation for the execution spine and workbench, not a throwaway.
+- The existing engine conversation already has a resizable observability panel and normalized nested activity. It is a foundation for the execution spine and workbench, not a throwaway.
 - Projects already have the right product definition: a group of chats with shared knowledge and an optional filesystem workspace.
 - Core's wire protocol is additive and capability-advertised, which supports gradual host adoption.
 
@@ -43,7 +45,7 @@ What this plan does not promise:
 ### Strong foundations to preserve
 
 - Provider-agnostic agent and model selection.
-- Wayland Core as the bundled always-available engine, without making it the only agent.
+- Fuigo as the bundled always-available engine, without making it the only agent.
 - Projects as organizational context, not an execution lock.
 - Per-conversation workspace, preview, terminal, files, and changes.
 - Heterogeneous Desktop Teams that can combine Core, Codex, Claude, Gemini, and other ACP agents.
@@ -71,7 +73,7 @@ Both shells consume the existing authoritative layers:
 - `ConfigStorage` and main-process config
 - conversation and Project services
 - agent registry and task managers
-- WCore process adapter
+- Bundled engine (Fuigo, ACP) process adapter
 - ACP/Gemini/Codex adapters
 - workspace trust and approval services
 - scheduler, Teams, workflow sessions, memory, cost, and channels
@@ -164,7 +166,7 @@ Deliverables:
 - Pin a Core integration baseline instead of coding against a dirty moving checkout.
 - Add the shell preference and reversible route-level preview.
 - Define normalized execution types and reducer boundaries.
-- Add protocol fixtures generated or exported from `wcore-protocol`; stop relying only on a hand-maintained TypeScript union.
+- Add protocol fixtures generated or exported from the engine's ACP schema; stop relying only on a hand-maintained TypeScript union.
 - Establish a Desktop/Core compatibility matrix covering bundled, previous, and current Core versions.
 - Add empty Cockpit shell routes using shared services; no duplicate persistence.
 
@@ -198,7 +200,7 @@ Estimate: 2–3 weeks.
 
 Deliverables:
 
-- Shared conversation frame across WCore and other supported agents.
+- Shared conversation frame across the bundled engine and other supported agents.
 - Compact, always-legible agent/model/scope/policy bar.
 - Execution spine built from normalized activity rather than message-card heuristics.
 - Unified approval/waiting/error/resume presentation.
@@ -345,7 +347,7 @@ The first implementation packet should be deliberately narrow:
 2. Cockpit navigation skeleton using existing canonical routes.
 3. Cockpit new-chat/home composition using existing Guid selection hooks.
 4. Shared execution view-model types plus protocol fixtures for `ready`, `execution_policy`, `stream_*`, tool lifecycle, approval, cost, sub-agent/workflow lifecycle, and receipt.
-5. One real WCore chat inside the Cockpit conversation frame with identity bar, composer, and read-only execution spine.
+5. One real bundled-engine chat inside the Cockpit conversation frame with identity bar, composer, and read-only execution spine.
 6. E2E proof that the same conversation opens and continues correctly in both shells.
 
 That packet validates the migration architecture before substantial visual surface area is committed.

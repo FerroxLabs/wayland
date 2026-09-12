@@ -7,7 +7,13 @@
 import { describe, it, expect } from 'vitest';
 import { checkProviderConnectivity, checkModelRegistrySanity } from '@process/doctor/checks/providerChecks';
 import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from '@process/doctor/checks/engineChecks';
+import {
+  checkEngineReachable,
+  checkEngineRouting,
+  checkEngineContractPin,
+  fuigoContractPinProbe,
+  fuigoEngineDetection,
+} from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import {
@@ -15,7 +21,7 @@ import {
   checkWorkspaceConfigured,
   isTempWorkspacePath,
 } from '@process/doctor/checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from '@process/doctor/checks/configChecks';
+import { checkSecretStorage, checkConfigPaths } from '@process/doctor/checks/configChecks';
 import { checkAppArchitecture } from '@process/doctor/checks/platformChecks';
 import type { RegistryProvider, RegistryCredsResult } from '@process/providers/storage/ProviderRepository';
 import type { ProviderId } from '@process/providers/types';
@@ -211,7 +217,7 @@ describe('checkEngineReachable', () => {
   });
 
   it('warns when the binary exists but reports no version', async () => {
-    const result = await checkEngineReachable(() => ({ available: true, path: '/x/wayland-core' }));
+    const result = await checkEngineReachable(() => ({ available: true, path: '/x/fuigo' }));
     expect(result.status).toBe('warn');
   });
 
@@ -219,6 +225,24 @@ describe('checkEngineReachable', () => {
     const result = await checkEngineReachable(() => ({ available: true, version: 'v0.10.0', path: '/x' }));
     expect(result.status).toBe('pass');
     expect(result.detail).toContain('v0.10.0');
+  });
+
+  // Fuigo cutover: the subject is the verified bundle receipt, not a Core
+  // binary on PATH. A resolved bundle is reachable at the receipt's version; a
+  // null resolution is a hard fail with nothing to fall back to.
+  it('reports the Fuigo bundle receipt as the reachable engine', async () => {
+    const detect = () => fuigoEngineDetection({ path: '/app/bundled-fuigo/darwin-arm64/fuigo', version: '1.0.13' });
+    expect(detect()).toEqual({ available: true, version: '1.0.13', path: '/app/bundled-fuigo/darwin-arm64/fuigo' });
+    const result = await checkEngineReachable(detect);
+    expect(result.status).toBe('pass');
+    expect(result.detail).toBe('Fuigo engine 1.0.13 is reachable.');
+  });
+
+  it('fails when no verified Fuigo bundle resolves', async () => {
+    expect(fuigoEngineDetection(null)).toEqual({ available: false });
+    const result = await checkEngineReachable(() => fuigoEngineDetection(null));
+    expect(result.status).toBe('fail');
+    expect(result.detail).toContain('Fuigo');
   });
 });
 
@@ -229,16 +253,16 @@ describe('checkEngineContractPin', () => {
 
   it('fails when the engine advertises a DIFFERENT contract digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => OTHER },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => OTHER },
       PIN
     );
     expect(result.status).toBe('fail');
-    expect(result.remediation).toContain('/x/wayland-core');
+    expect(result.remediation).toContain('/x/fuigo');
   });
 
   it('passes when the engine advertises the pinned digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => PIN },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => PIN },
       PIN
     );
     expect(result.status).toBe('pass');
@@ -255,7 +279,7 @@ describe('checkEngineContractPin', () => {
    */
   it('passes a legacy engine that advertises no contract at all', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => null },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => null },
       PIN
     );
     expect(result.status).toBe('pass');
@@ -273,7 +297,7 @@ describe('checkEngineContractPin', () => {
   it('warns when the binary cannot be read', async () => {
     const result = await checkEngineContractPin(
       {
-        binaryPath: () => '/x/wayland-core',
+        binaryPath: () => '/x/fuigo',
         advertisedSchemaDigest: async () => {
           throw new Error('EACCES: permission denied');
         },
@@ -282,6 +306,26 @@ describe('checkEngineContractPin', () => {
     );
     expect(result.status).toBe('warn');
     expect(result.detail).toContain('EACCES');
+  });
+});
+
+describe('checkEngineContractPin against the Fuigo bundle receipt', () => {
+  const bundle = { path: '/app/bundled-fuigo/darwin-arm64/fuigo', version: '1.0.13' };
+
+  it('passes when the staged bundle version matches the authority pin', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(bundle), '1.0.13');
+    expect(result.status).toBe('pass');
+  });
+
+  it('fails when the staged bundle is a different version from the pin', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(bundle), '1.0.14');
+    expect(result.status).toBe('fail');
+    expect(result.remediation).toContain(bundle.path);
+  });
+
+  it('warns rather than failing when no bundle resolved (reachability already fails)', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(null), '1.0.13');
+    expect(result.status).toBe('warn');
   });
 });
 
@@ -613,11 +657,11 @@ describe('checkConfigPaths', () => {
   it('passes and reports both the app and engine config directories', async () => {
     const result = await checkConfigPaths({
       appConfigDir: () => '/Users/x/Wayland/config',
-      engineConfigDir: () => '/Users/x/Library/Application Support/wayland-core',
+      engineConfigDir: () => '/Users/x/Library/Application Support/Wayland/fuigo',
     });
     expect(result.status).toBe('pass');
     expect(result.detail).toContain('/Users/x/Wayland/config');
-    expect(result.detail).toContain('wayland-core');
+    expect(result.detail).toContain('Wayland/fuigo');
   });
 });
 
@@ -631,25 +675,6 @@ describe('checkSecretStorage', () => {
     const result = await checkSecretStorage(() => false);
     expect(result.status).toBe('warn');
     expect(result.remediation).toBeDefined();
-  });
-});
-
-describe('checkEngineConfigIntegrity', () => {
-  it('passes when the config parses', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'ok', existed: true }));
-    expect(result.status).toBe('pass');
-  });
-
-  it('passes (fresh install) when the config is absent', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'ok', existed: false }));
-    expect(result.status).toBe('pass');
-    expect(result.detail.toLowerCase()).toContain('fresh install');
-  });
-
-  it('fails when the config is corrupt', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'corrupt', message: 'bad toml at line 3' }));
-    expect(result.status).toBe('fail');
-    expect(result.detail).toContain('bad toml');
   });
 });
 

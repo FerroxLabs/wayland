@@ -19,7 +19,7 @@
  * session left open on an unlocked device cannot silently rename the admin
  * account without re-proving the password.
  *
- * Gates (the providerKeyRoutes / toolKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` (per-route rate limit) + `validateApiAccess` (token auth),
  *    wired as route middleware here.
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verb.

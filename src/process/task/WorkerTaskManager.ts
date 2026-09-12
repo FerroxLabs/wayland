@@ -28,6 +28,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     authorityId: string;
     workspace?: string;
     task: IAgentManager;
+    executionPolicy?: BuildConversationOptions['executionPolicy'];
     lifecycle: 'running' | 'terminating';
     termination?: Promise<void>;
   }> = [];
@@ -78,7 +79,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     const now = Date.now();
     const idleTasks = this.taskList.filter(
       (item) =>
-        (item.task.type === 'acp' || item.task.type === 'wcore') &&
+        item.task.type === 'acp' &&
         item.task.status === 'finished' &&
         !cronBusyGuard.isProcessing(item.id) &&
         now - item.task.lastActivityAt > timeoutMs
@@ -96,13 +97,26 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   async getOrBuildTask(id: string, options?: BuildConversationOptions): Promise<IAgentManager> {
+    this.assertLaunchActive(id, options?.launchSignal);
+    this.assertConversationOpen(id);
+    await this.awaitPendingTerminations(id);
+    this.assertLaunchActive(id, options?.launchSignal);
     this.assertConversationOpen(id);
     if (!options?.skipCache) {
-      const existing = this.getTask(id);
-      if (existing) return existing;
+      const existing = this.taskList.find((item) => item.id === id && item.lifecycle === 'running');
+      if (existing && existing.executionPolicy === options?.executionPolicy) return existing.task;
+      if (existing) {
+        // A restricted channel worker and an ordinary interactive worker must
+        // never be reused across their policy boundary. Stop the old authority
+        // completely before publishing its replacement; failure leaves the old
+        // terminating lease authoritative and this call fails closed.
+        await this.kill(id);
+        this.assertLaunchActive(id, options?.launchSignal);
+      }
     }
 
     const conversation = await this.repo.getConversation(id);
+    this.assertLaunchActive(id, options?.launchSignal);
     if (conversation) {
       // #30 NO-DRIFT: a project chat must spawn in its project workspace. Correct
       // any row that drifted off it (pre-0.9.7 chats stuck in a temp dir, rows
@@ -123,6 +137,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       // is inherent to backends that take their system-rules channel once at
       // process start, and is not something this seam can change.
       const refreshed = await refreshProjectKnowledge(conversation.extra as Record<string, unknown> | undefined);
+      this.assertLaunchActive(id, options?.launchSignal);
       if (corrected || refreshed) {
         try {
           await this.repo.updateConversation(conversation.id, { extra: conversation.extra });
@@ -133,6 +148,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       // The repository lookup and project reconciliation both yield. Re-check
       // the terminal gate immediately before the synchronous factory seam so a
       // concurrent conversation removal cannot spawn an untracked successor.
+      this.assertLaunchActive(id, options?.launchSignal);
       this.assertConversationOpen(id);
       return this._buildAndCache(conversation, options);
     }
@@ -142,11 +158,11 @@ export class WorkerTaskManager implements IWorkerTaskManager {
 
   private _buildAndCache(conversation: TChatConversation, options?: BuildConversationOptions): IAgentManager {
     const task = this.factory.create(conversation, options);
-    this.addTask(conversation.id, task);
+    this.addTask(conversation.id, task, options?.executionPolicy);
     return task;
   }
 
-  addTask(id: string, task: IAgentManager): void {
+  addTask(id: string, task: IAgentManager, executionPolicy?: BuildConversationOptions['executionPolicy']): void {
     if (this.conversationShutdowns.has(id)) {
       // Callers that already constructed a task before observing the gate must
       // not orphan it. Publish a terminating lease so the removal barrier sees
@@ -157,6 +173,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
         authorityId: `active-process-${this.nextAuthorityId}`,
         workspace: task.workspace,
         task,
+        executionPolicy,
         lifecycle: 'running' as const,
       };
       this.taskList.push(refusedLease);
@@ -181,8 +198,24 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       authorityId: `active-process-${this.nextAuthorityId}`,
       workspace: task.workspace,
       task,
+      executionPolicy,
       lifecycle: 'running',
     });
+  }
+
+  private async awaitPendingTerminations(id: string): Promise<void> {
+    const terminating = this.taskList.filter((lease) => lease.id === id && lease.lifecycle === 'terminating');
+    const pending = terminating
+      .map((lease) => lease.termination)
+      .filter((termination): termination is Promise<void> => termination !== undefined);
+    if (pending.length !== terminating.length) {
+      throw new Error(`Conversation task termination is incomplete: ${id}`);
+    }
+    if (pending.length > 0) await Promise.all(pending);
+  }
+
+  private assertLaunchActive(id: string, signal?: AbortSignal): void {
+    if (signal?.aborted) throw new Error(`Conversation task launch cancelled: ${id}`);
   }
 
   kill(id: string, reason?: AgentKillReason): Promise<void> {
@@ -194,6 +227,12 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     return Promise.all(
       leases.map((lease) => this.beginTermination(lease, lease.lifecycle === 'running' ? reason : undefined))
     ).then((): void => undefined);
+  }
+
+  killTask(id: string, task: IAgentManager, reason?: AgentKillReason): Promise<void> {
+    const lease = this.taskList.find((item) => item.id === id && item.task === task);
+    if (!lease) return Promise.resolve();
+    return this.beginTermination(lease, lease.lifecycle === 'running' ? reason : undefined);
   }
 
   async withConversationShutdown<TPrepared, TResult>(

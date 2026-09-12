@@ -24,7 +24,6 @@ import { GeminiMcpAgent } from './agents/GeminiMcpAgent';
 import { WaylandMcpAgent } from './agents/WaylandMcpAgent';
 import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
-import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type {
   IMcpProtocol,
   DetectedMcpServer,
@@ -162,7 +161,6 @@ export class McpService {
       ['wayland', new WaylandMcpAgent()], // Wayland local @office-ai/aioncli-core
       ['codex', new CodexMcpAgent()],
       ['opencode', new OpencodeMcpAgent()],
-      ['wcore', new WCoreMcpAgent()], // Wayland Core (Rust binary, TOML config)
     ]);
   }
 
@@ -578,7 +576,7 @@ export class McpService {
       // S12: mirror the sync path (syncMcpToAgents) - a per-agent removal that
       // failed is captured in results[] with success:false, but returning a
       // hardcoded `success: true` hid it, so the renderer reported "deleted"
-      // while the server stayed in that agent's CLI config (Claude/Codex/wcore
+      // while the server stayed in that agent's CLI config (Claude/Codex
       // drift). Reflect overall success from the per-agent results.
       //
       // Shares mcpAgentOperationSucceeded with the sync path. This path was

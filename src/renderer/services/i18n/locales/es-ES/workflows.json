@@ -18,7 +18,8 @@
   },
   "launchError": "No se pudo lanzar el flujo de trabajo: {{msg}}",
   "picker": {
-    "noAgent": "Ningún backend seleccionado"
+    "noAgent": "Ningún backend seleccionado",
+    "approvalForNewRun": "Aprobación para nuevas ejecuciones"
   },
   "import": {
     "placeholder": "El sistema de importación llega pronto: carpeta / URL de git / SKILL.md con type:workflow detectado automáticamente mediante frontmatter, analizado por Skill Guard y registrado como source:imported."
@@ -37,8 +38,5 @@
   },
   "whatHappens": "Cuando lances esto",
   "bodyFallback": "El agente carga este flujo de trabajo como su primera directiva y te guía paso a paso. Puedes interrumpirlo o cambiar de rumbo en cualquier momento.",
-  "noDescription": "No se proporcionó ninguna descripción.",
-  "launch": {
-    "placeholder": "El sistema de lanzamiento está en desarrollo. Pronto podrás elegir un motor (Wayland Core / Gemini / Claude / Codex) y el flujo de trabajo se cargará como la primera directiva del agente en un chat nuevo."
-  }
+  "noDescription": "No se proporcionó ninguna descripción."
 }

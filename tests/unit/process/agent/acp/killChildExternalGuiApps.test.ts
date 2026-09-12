@@ -16,7 +16,7 @@ const TV = '/Applications/TradingView.app/Contents/MacOS/TradingView';
 // engine 100 -> mcp server 200 -> TradingView 300 -> its helpers 301/302
 //            -> ordinary tool subprocess 201 -> grandchild 202
 const TABLE = [
-  '  100     1 /path/to/wayland-core',
+  '  100     1 /path/to/fuigo',
   '  200   100 /usr/bin/node',
   `  300   200 ${TV}`,
   `  301   300 ${TV} Helper (Renderer)`,
@@ -72,7 +72,7 @@ describe('the exemption is macOS-only, and Linux inertness is deliberate', () =>
     // This asserts the GAP so CI is not blind to it. When Linux identity moves
     // to readlink /proc/<pid>/exe, this test should fail and be rewritten -- that
     // is the point of it.
-    const linuxTable = ['100 4 wayland-core', '200 100 node', '300 200 TradingView', '301 300 TradingView'].join('\n');
+    const linuxTable = ['100 4 fuigo', '200 100 node', '300 200 TradingView', '301 300 TradingView'].join('\n');
     expect(_collectDescendantPidsFromPsTable(linuxTable, 100)).toEqual([200, 300, 301]);
   });
 });

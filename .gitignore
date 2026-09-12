@@ -39,6 +39,7 @@ jspm_packages/
 
 # Lock files for other package managers (project uses bun.lock)
 package-lock.json
+!scripts/tvcontrol/package-lock.json
 yarn.lock
 
 # TypeScript v1 declaration files
@@ -209,8 +210,10 @@ lint-results.txt
 docs/superpowers/
 resources/bundled-bun
 resources/bundled-wayland-core
+resources/bundled-fuigo
 resources/bundled-wayland-nano
 resources/bundled-officecli
+resources/bundled-tvcontrol
 resources/bundled-constitution-fs
 resources/hub
 resources/voice-models

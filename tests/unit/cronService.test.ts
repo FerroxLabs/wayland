@@ -683,7 +683,7 @@ describe('CronService', () => {
       schedule: { kind: 'cron' as const, expr: '* * * * *', description: 'every minute' },
       prompt: 'check outbox',
       conversationId: '',
-      agentType: 'wcore' as const,
+      agentType: 'fuigo' as const,
       createdBy: 'user' as const,
       executionMode: 'new_conversation' as const,
     });

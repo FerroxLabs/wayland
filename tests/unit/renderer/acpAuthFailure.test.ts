@@ -26,7 +26,7 @@ describe('looksLikeAuthFailure', () => {
   // #629 - engine-start credential failures must classify as auth failures so the
   // recovery card shows instead of a raw stderr bubble (the post-top-up dead-end).
   it.each([
-    'Agent failed to start: wcore exited with code 1 during init: Error: No API key found',
+    'Agent failed to start: fuigo exited with code 1 during init: Error: No API key found',
     'No API key found',
     'MissingApiKey: provider requires a key',
     'API key not found for provider',
@@ -68,27 +68,13 @@ describe('classifyAcpAuthFailure', () => {
     expect(classifyAcpAuthFailure('claude', 'network timeout while reading file')).toBeNull();
   });
 
-  it('classifies an engine-start "No API key found" failure for wcore into the recovery remedy (#629)', () => {
+  it('classifies an engine-start "No API key found" failure into the recovery remedy (#629)', () => {
     const remedy = classifyAcpAuthFailure(
-      'wcore',
-      'Agent failed to start: wcore exited with code 1 during init: Error: No API key found'
+      'fuigo',
+      'Agent failed to start: fuigo exited with code 1 during init: Error: No API key found'
     );
     expect(remedy).not.toBeNull();
-    expect(remedy?.backendLabel).toBe('Wayland Core');
-    // The two remedies #629 requires: reconnect Flux + add any provider key.
-    expect(remedy?.fluxRoutable).toBe(true);
-    expect(remedy?.genericProviderKey).toBe(true);
-  });
-
-  it('classifies wcore as flux-routable, no CLI login, with a tailored explainer', () => {
-    const remedy = classifyAcpAuthFailure('wcore', 'API error 401: invalid x-api-key');
-    expect(remedy).not.toBeNull();
-    expect(remedy?.backendLabel).toBe('Wayland Core');
-    expect(remedy?.fluxRoutable).toBe(true);
-    // No CLI login and no subscription fallback for the engine.
-    expect(remedy?.cliLoginCmd).toBeUndefined();
-    expect(remedy?.subscriptionOAuthBlocked).toBe(false);
-    expect(remedy?.explainerKey).toBe('conversation.acpAuthFailure.wcoreExplainer');
+    expect(remedy?.backend).toBe('fuigo');
   });
 });
 
@@ -108,21 +94,18 @@ describe('getAcpAuthRemedy', () => {
     expect(remedy.cliLoginCmd).toBe('hermes login');
   });
 
-  it('applies runtime overrides (wcore names the failing provider)', () => {
-    const remedy = getAcpAuthRemedy('wcore', { providerKeyLabel: 'Anthropic' });
-    expect(remedy.backendLabel).toBe('Wayland Core');
+  it('applies runtime overrides (names the failing provider)', () => {
+    const remedy = getAcpAuthRemedy('qwen', { providerKeyLabel: 'Anthropic' });
+    expect(remedy.backendLabel).toBe('Qwen Code');
     expect(remedy.providerKeyLabel).toBe('Anthropic');
-    expect(remedy.cliLoginCmd).toBeUndefined();
   });
 
-  it('marks wcore as genericProviderKey (any provider key, not vendor-locked)', () => {
-    // Wayland Core routes any provider, so the add-key remedy must read generically.
-    expect(getAcpAuthRemedy('wcore').genericProviderKey).toBe(true);
+  it('leaves genericProviderKey unset for vendor-locked backends', () => {
     expect(getAcpAuthRemedy('claude').genericProviderKey).toBeUndefined();
   });
 
   it('suppresses the Flux action when the backend is already flux-routed', () => {
-    expect(getAcpAuthRemedy('wcore', { fluxAlreadyRouted: true }).fluxRoutable).toBe(false);
-    expect(getAcpAuthRemedy('wcore', { fluxAlreadyRouted: false }).fluxRoutable).toBe(true);
+    expect(getAcpAuthRemedy('qwen', { fluxAlreadyRouted: true }).fluxRoutable).toBe(false);
+    expect(getAcpAuthRemedy('qwen', { fluxAlreadyRouted: false }).fluxRoutable).toBe(true);
   });
 });

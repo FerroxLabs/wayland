@@ -108,13 +108,13 @@ describe('activityTree.addOrUpdateNode', () => {
 });
 
 /**
- * K-03 - a wcore turn could never reach a terminal lifecycle.
+ * K-03 - an engine turn could never reach a terminal lifecycle.
  *
- * `stream_end` became an IResponseMessage `finish`, which WCoreManager skips
+ * `stream_end` became an IResponseMessage `finish`, which the manager skips
  * from transformMessage, so NOTHING durable ever said the turn ended. The only
  * other completion signal - the activity card's `status` - is pinned 'running'
  * by construction: `rollUpStatus` calls a zero-node card 'running', and the only
- * node constructor wcore actually reaches in production (`tool_chunk`) mints
+ * node constructor the engine stream actually reaches (`tool_chunk`) mints
  * nodes as 'running' that nothing ever terminalizes.
  *
  * Every card below is built ONLY through the real constructors
@@ -144,7 +144,7 @@ describe('activityTree turn end (K-03)', () => {
   it('terminalizes a tool_chunk-born node that nothing else ever completes', () => {
     // Defect 2: `tool_chunk` synthesizes a running node and the ActivityEvent
     // variant that could complete it ({kind:'tool',phase}) has NO production
-    // constructor in the wcore pipeline - it exists only in tests.
+    // constructor in the engine pipeline - it exists only in tests.
     const live = addOrUpdateNode(base(), { kind: 'tool_chunk', callId: 'c1', name: 'Bash', chunk: 'out', ts: 10 });
     expect(live.nodes[0].status).toBe('running');
     expect(live.status).toBe('running');
@@ -191,7 +191,7 @@ describe('activityTree.mergeActivityContent turn end (K-03)', () => {
   });
 
   it('stays settled when session_cost lands after the turn ended', () => {
-    // WCoreManager force-forwards `session_cost` AFTER the stream finishes,
+    // The manager force-forwards `session_cost` AFTER the stream finishes,
     // stamped with the last turn's msg_id. Without a sticky verdict that
     // zero-node merge rolls the card straight back to 'running'.
     let acc = mergeActivityContent(base(), delta({ kind: 'turn_end', outcome: 'done', ts: 5 }));

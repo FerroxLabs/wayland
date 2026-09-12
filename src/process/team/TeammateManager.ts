@@ -24,6 +24,7 @@ import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@proces
 // when sandboxed imported agents request file ops.
 import type { TTeam } from './types';
 import { registerTeamConversation, unregisterTeamConversation } from './sandbox/acpTeamContextRegistry';
+import { withReconciledClaims } from './artifactClaims';
 
 type TeammateManagerParams = {
   teamId: string;
@@ -1055,7 +1056,8 @@ export class TeammateManager extends EventEmitter {
       const leadAgent = this.agents.find((a) => a.role === 'leader');
       if (leadAgent && leadAgent.slotId !== agent.slotId) {
         const excerpt = await this.readLastAssistantExcerpt(agent.conversationId);
-        const content = excerpt ? `Turn completed\n\n${excerpt}` : 'Turn completed';
+        const reconciledExcerpt = excerpt ? await withReconciledClaims(excerpt, this.teamWorkspace) : null;
+        const content = reconciledExcerpt ? `Turn completed\n\n${reconciledExcerpt}` : 'Turn completed';
         await this.mailbox.write({
           teamId: this.teamId,
           toAgentId: leadAgent.slotId,

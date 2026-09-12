@@ -67,6 +67,7 @@ import {
   type McpSessionExpectedServer,
   type McpSessionState,
 } from '@/common/mcp/sessionReceipt';
+import { CHANNEL_CONVERSATIONAL_POLICY, type AgentExecutionPolicy } from './agentTypes';
 
 // Gemini agent manager class
 export type UiMcpServerConfig = {
@@ -223,6 +224,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     enabledSkills?: string[];
     /** Yolo mode: auto-approve all tool calls */
     yoloMode?: boolean;
+    executionPolicy?: AgentExecutionPolicy;
   },
   string
 > {
@@ -323,6 +325,7 @@ export class GeminiAgentManager extends BaseAgentManager<
   };
   /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
   private activeMcpServers?: string[];
+  private readonly executionPolicy?: AgentExecutionPolicy;
 
   constructor(
     data: {
@@ -337,6 +340,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       enabledSkills?: string[];
       /** Force yolo mode (for cron jobs) */
       yoloMode?: boolean;
+      executionPolicy?: AgentExecutionPolicy;
       /** Persisted session mode for resume support */
       sessionMode?: string;
       /** Team MCP server stdio config injected by TeamSessionService */
@@ -369,6 +373,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     this.excludeBuiltinSkills = data.excludeBuiltinSkills;
     this.presetAssistantId = data.presetAssistantId;
     this.forceYoloMode = data.yoloMode;
+    this.executionPolicy = data.executionPolicy;
     this.currentMode = data.sessionMode || 'default';
     this.webSearchEngine = data.webSearchEngine;
     this.teamMcpStdioConfig = data.teamMcpStdioConfig;
@@ -437,7 +442,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         const conversation = result.data;
         db.updateConversation(this.conversation_id, {
           extra: { ...conversation.extra, mcpSessionState: snapshot },
-        } as Partial<typeof conversation>);
+        } as unknown as Partial<typeof conversation>);
       })
       .catch((error) => mainWarn('[GeminiAgentManager]', 'failed to persist MCP session state', error));
   }
@@ -527,16 +532,21 @@ export class GeminiAgentManager extends BaseAgentManager<
         // Skills are symlinked into .gemini/skills/ and discovered natively by SkillManager
         // No prompt injection needed -> native mechanisms handle everything
 
-        // Merge builtin skill names into enabledSkills for the worker's skill discovery
-        // Merge builtin skill names into enabledSkills so the worker's SkillManager can find them
-        const skillManager = AcpSkillManager.getInstance(this.enabledSkills);
-        await skillManager.discoverSkills(this.enabledSkills);
-        const excludeSet = new Set(this.excludeBuiltinSkills ?? []);
-        const builtinSkillNames = skillManager
-          .getBuiltinSkillsIndex()
-          .map((s) => s.name)
-          .filter((name) => !excludeSet.has(name));
-        const allEnabledSkills = [...new Set([...builtinSkillNames, ...(this.enabledSkills || [])])];
+        const isRestrictedChannel = this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY;
+
+        // A channel worker is intentionally conversational only. Do not even
+        // discover skills whose prompts may advertise unavailable execution.
+        let allEnabledSkills: string[] = [];
+        if (!isRestrictedChannel) {
+          const skillManager = AcpSkillManager.getInstance(this.enabledSkills);
+          await skillManager.discoverSkills(this.enabledSkills);
+          const excludeSet = new Set(this.excludeBuiltinSkills ?? []);
+          const builtinSkillNames = skillManager
+            .getBuiltinSkillsIndex()
+            .map((s) => s.name)
+            .filter((name) => !excludeSet.has(name));
+          allEnabledSkills = [...new Set([...builtinSkillNames, ...(this.enabledSkills || [])])];
+        }
 
         // Determine yoloMode from legacy config (SecurityModalContent)
         const legacyYoloMode = this.forceYoloMode ?? config?.yoloMode ?? false;
@@ -546,7 +556,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         if (legacyYoloMode && this.currentMode !== 'yolo') {
           void this.clearLegacyYoloConfig();
         }
-        const effectiveYoloMode = this.forceYoloMode ?? this.currentMode === 'yolo';
+        const effectiveYoloMode = isRestrictedChannel ? false : (this.forceYoloMode ?? this.currentMode === 'yolo');
 
         // Build the full system prompt: presetRules + skills index + the
         // `wayland_search_skills` MCP advert + (when solo) the team-guide
@@ -556,19 +566,21 @@ export class GeminiAgentManager extends BaseAgentManager<
         // behaviour for fresh installs. Byte-identical turn-to-turn for
         // prompt-cache stability. (H2: GeminiAgentManager advertise the
         // second channel of the two-channel skill architecture.)
-        const systemInstructions = await buildSystemInstructionsWithSkillsIndex({
-          conversationId: this.conversation_id,
-          presetContext: this.presetRules,
-          enabledSkills: this.enabledSkills,
-          excludeBuiltinSkills: this.excludeBuiltinSkills,
-          enableTeamGuide: !this.teamMcpStdioConfig,
-          backend: 'gemini',
-          presetAssistantId: this.presetAssistantId,
-          capabilitiesManifest: await resolveCapabilitiesManifest({
-            presetAssistantId: this.presetAssistantId,
-            agentKey: 'gemini',
-          }),
-        });
+        const systemInstructions = isRestrictedChannel
+          ? undefined
+          : await buildSystemInstructionsWithSkillsIndex({
+              conversationId: this.conversation_id,
+              presetContext: this.presetRules,
+              enabledSkills: this.enabledSkills,
+              excludeBuiltinSkills: this.excludeBuiltinSkills,
+              enableTeamGuide: !this.teamMcpStdioConfig,
+              backend: 'gemini',
+              presetAssistantId: this.presetAssistantId,
+              capabilitiesManifest: await resolveCapabilitiesManifest({
+                presetAssistantId: this.presetAssistantId,
+                agentKey: 'gemini',
+              }),
+            });
         const effectivePresetRules = systemInstructions ?? this.presetRules;
 
         return this.start({
@@ -583,17 +595,27 @@ export class GeminiAgentManager extends BaseAgentManager<
           // Keep for backward compatibility with existing conversations
           presetRules: effectivePresetRules,
           contextContent: this.contextContent,
-          skillsDir: getSkillsDir(),
+          skillsDir: isRestrictedChannel ? undefined : getSkillsDir(),
           // Enabled skills list (including builtins) for worker's SkillManager
           enabledSkills: allEnabledSkills,
           // Yolo mode: derived from currentMode, not directly from legacy config
           yoloMode: effectiveYoloMode,
+          executionPolicy: this.executionPolicy,
         });
       })
       .then(async () => {
         await this.injectHistoryFromDatabase();
         await this.acceptGeminiMcpRegistry();
+        await this.assertChannelToolRegistry();
       });
+  }
+
+  private async assertChannelToolRegistry(): Promise<void> {
+    if (this.executionPolicy !== CHANNEL_CONVERSATIONAL_POLICY) return;
+    const tools = ((await this.postMessagePromise('tools.registry', {})) as string[] | undefined) ?? [];
+    if (tools.length > 0) {
+      throw new Error(`Restricted channel policy exposed tools: ${tools.join(', ')}`);
+    }
   }
 
   /**
@@ -610,6 +632,11 @@ export class GeminiAgentManager extends BaseAgentManager<
   }
 
   private async getMcpServers(): Promise<Record<string, UiMcpServerConfig>> {
+    if (this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY) {
+      this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint([], []);
+      this.beginMcpSession([]);
+      return {};
+    }
     try {
       const allServers = await loadRuntimeMcpServers();
 
@@ -827,7 +854,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     // winner for THIS turn. Augment a copy for sending; the stored user message
     // (added above) keeps the clean original. Skipped for hidden turns.
     let sendData = data;
-    if (!data.hidden) {
+    if (!data.hidden && this.executionPolicy !== CHANNEL_CONVERSATIONAL_POLICY) {
       try {
         // Skills the user added to this chat from the composer - inject once.
         const pending = await consumePendingSessionSkills(this.conversation_id);
@@ -864,6 +891,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       })
       .then(async () => {
         await this.acceptGeminiMcpRegistry();
+        await this.assertChannelToolRegistry();
         return super.sendMessage(sendData);
       })
       .finally(() => {
@@ -877,6 +905,7 @@ export class GeminiAgentManager extends BaseAgentManager<
    * This ensures deleted/disabled MCP servers are no longer callable.
    */
   private async refreshWorkerIfMcpChanged(): Promise<void> {
+    if (this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY) return;
     if (!isMcpSessionTruthPreviewEnabled()) return;
     try {
       const mcpServers = await loadRuntimeMcpServers();
@@ -988,30 +1017,15 @@ export class GeminiAgentManager extends BaseAgentManager<
         break;
       case 'question':
         {
-          // #504: AskUserQuestion is a wcore engine tool, so Gemini does not
-          // emit it; this arm exists for confirmationDetails-union
-          // exhaustiveness. Surface the question + a plain proceed/cancel.
+          // #504: Gemini does not emit an AskUserQuestion prompt; this arm
+          // exists for confirmationDetails-union exhaustiveness. Surface the
+          // question + a plain proceed/cancel.
           question = confirmationDetails.question;
           description = confirmationDetails.header ?? '';
           options.push(
             { label: t('messages.confirmation.yesAllowOnce'), value: ToolConfirmationOutcome.ProceedOnce },
             { label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel }
           );
-        }
-        break;
-      case 'path_boundary':
-        {
-          // #1099: a filesystem-boundary escalation is a wcore engine
-          // classification, so Gemini never emits one; this arm exists for
-          // confirmationDetails-union exhaustiveness, like `question` above.
-          // Explicit rather than fall-through: `default` below IS the mcp case,
-          // and an unhandled boundary would be labelled an MCP tool prompt and
-          // offered proceed_once / proceed_always — the vocabulary a folder
-          // grant must never speak. No options: this surface cannot express a
-          // folder grant, and the dedicated card (PathBoundaryConfirmCard) is
-          // the only place that can.
-          question = confirmationDetails.title;
-          description = confirmationDetails.target;
         }
         break;
       default: {
@@ -1077,6 +1091,18 @@ export class GeminiAgentManager extends BaseAgentManager<
     });
   }
 
+  private denyChannelConfirmation(callId: string): void {
+    if (!this.claimConfirmCallId(callId)) return;
+    void this.postMessagePromise(callId, ToolConfirmationOutcome.Cancel, {
+      timeoutMs: CONFIRM_ROUND_TRIP_TIMEOUT_MS,
+    }).catch((error) => {
+      console.warn(
+        `[GeminiAgentManager] channel denial for callId=${callId} was not delivered:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    });
+  }
+
   /**
    * Check if a confirmation should be auto-approved based on current mode.
    * Returns true if auto-approved (caller should skip UI), false otherwise.
@@ -1086,6 +1112,10 @@ export class GeminiAgentManager extends BaseAgentManager<
     console.debug(
       `[GeminiAgentManager] tryAutoApprove: currentMode=${this.currentMode}, confirmationType=${type}, callId=${content.callId}`
     );
+    if (this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY) {
+      this.denyChannelConfirmation(content.callId);
+      return true;
+    }
     if (this.currentMode === 'yolo') {
       // yolo: auto-approve ALL operations
       console.debug(`[GeminiAgentManager] YOLO auto-approving ${type}: callId=${content.callId}`);
@@ -1114,7 +1144,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     }
     // #671: a trusted-edits workspace auto-approves edits while still
     // prompting on exec/network. Unlike the autoEdit MODE above, trust does NOT
-    // auto-approve the 'info' catch-all: on Gemini/WCore 'info' is an
+    // auto-approve the 'info' catch-all: on Gemini 'info' is an
     // engine-assigned bucket that can include network/URL-fetch confirmations,
     // so a persisted always-on posture must stay stricter than the user-chosen
     // mode and only auto-approve concrete file edits. Persisted per-workspace.

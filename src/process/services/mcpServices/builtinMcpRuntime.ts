@@ -50,6 +50,7 @@ import { isBuiltinCoreMcpArg, isOwnBuiltinWaylandMcpScript } from '@process/reso
 import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
 import { resolveJsRuntime, type ResolvedJsRuntime } from '@process/utils/jsRuntime';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
+import { isBundledTvControlDeclaration, resolveUserTvControlEntry } from './bundledTvControl';
 
 /** A spawnable stdio tuple. `env` is ADDITIVE runtime env, not the server's own. */
 export interface McpStdioSpawnTuple {
@@ -60,6 +61,7 @@ export interface McpStdioSpawnTuple {
 }
 
 export interface BuiltinMcpRuntimeDeps {
+  tvControlEntry?: () => string;
   resolveRuntime?: () => ResolvedJsRuntime;
   scriptPath?: (name: string) => string;
   platform?: NodeJS.Platform;
@@ -115,6 +117,16 @@ export function resolveBuiltinMcpRuntimeSpawn(
   args: readonly string[] = [],
   deps: BuiltinMcpRuntimeDeps = {}
 ): McpStdioSpawnTuple | null {
+  if (isBundledTvControlDeclaration(command, args, deps.libraryEntryId)) {
+    // A complete dev build must exercise the same TVControl runtime as the
+    // package. Electron-as-Node adds env that some CLI publishers cannot retain.
+    const runtime = deps.resolveRuntime ? deps.resolveRuntime() : resolveJsRuntime({ preferBundled: true });
+    return {
+      command: runtime.command,
+      args: [(deps.tvControlEntry ?? resolveUserTvControlEntry)()],
+      env: { ...runtime.env },
+    };
+  }
   if (command !== 'node') return null;
   const rawArgs = [...args];
   const first = rawArgs[0];

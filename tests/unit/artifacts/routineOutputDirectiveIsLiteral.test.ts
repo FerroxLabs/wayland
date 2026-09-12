@@ -10,7 +10,7 @@
  * `WAYLAND_OUTPUT_DIR` is set on the ENGINE process, and the engine runs every
  * Bash tool call through a fixed 19-name env allowlist that does not contain it
  * (proven by execution on both the shipped v0.13.3 and the pinned v0.13.4:
- * `wayland-core sandbox exec` prints an empty value for it while `WAYLAND_HOME`
+ * the retired Core sandbox printed an empty value for it while `WAYLAND_HOME`
  * comes back populated as the known-positive control). So the shipped skill's
  * `OUT="${WAYLAND_OUTPUT_DIR:-$PWD/<output_dir>}"` ALWAYS took the `$PWD`
  * fallback, the brief landed outside the staging directory, `collectStagedPaths`
@@ -108,7 +108,7 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const conversationStore = new Map<string, any>();
 const createConversationMock = vi.fn(async (params: any) => {
   const id = `conv-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/acp-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -159,12 +159,10 @@ import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitte
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
 import { seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
-import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
 import { listRuns, readLatest } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
-import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
+import { activeRunOutputDir, clearRunOutputDirs, resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { readdirSync } from 'fs';
-import { buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import {
   ROUTINE_OUTPUT_DIR_SENTENCE,
   LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
@@ -214,13 +212,13 @@ function makeService(jobs: CronJob[]): CronService {
   );
 }
 
-/** What the stand-in agent does once the run's engine channels exist. */
-type Agent = (channels: { env: Record<string, string>; directive: string }, workspace: string) => Promise<void>;
+/** What the stand-in agent does once the run's deliverables directory exists. */
+type Agent = (channels: { outputDir: string }, workspace: string) => Promise<void>;
 
 /**
- * Mirrors `WCoreAgent.start` exactly: ONE `resolveOutputDir` call feeds BOTH the
- * spawn env and the `--system-prompt` directive. Deriving it twice is the defect
- * this file exists to prevent, so the harness must not do it either.
+ * ONE `resolveOutputDir` call feeds the agent's deliverables directory.
+ * Deriving it twice is the defect this file exists to prevent, so the harness
+ * must not do it either.
  */
 function makeHarness(workspace: string, onSpawn?: () => void) {
   const guard = new CronBusyGuard();
@@ -228,19 +226,18 @@ function makeHarness(workspace: string, onSpawn?: () => void) {
   const sent: string[] = [];
 
   const buildTask = (conversationId: string) => ({
-    type: 'wcore',
+    type: 'acp',
     workspace,
     sendMessage: vi.fn(async (payload: { content?: string }) => {
       sent.push(payload?.content ?? '');
       const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
-      const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, outputDir: activeRunOutputDir(conversationId) });
-      await agent({ env, directive: buildOutputDirective(engineOutputDir) }, workspace);
+      await agent({ outputDir: engineOutputDir }, workspace);
     }),
   });
   const taskManager = {
     getTask: vi.fn(() => undefined),
     getOrBuildTask: vi.fn(async (conversationId: string) => {
-      // The real spawn seam. `WCoreAgent.start` reads the run's output
+      // The real spawn seam. The engine spawn reads the run's output
       // directory HERE, so anything that can close or supersede the run's cell
       // in flight does it in this window.
       onSpawn?.();
@@ -305,13 +302,6 @@ function stagingDirBlock(): string {
     throw new Error('the morning-report SKILL.md no longer contains a staging-directory block');
   }
   return block;
-}
-
-/** The absolute deliverables directory the directive names - the model's only source for it. */
-function deliverablesDirFromDirective(directive: string): string {
-  const m = directive.match(/Deliverables you want the user to keep go in (.+?)\. Create that directory/);
-  if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
-  return m[1];
 }
 
 /**
@@ -405,16 +395,12 @@ describe('a scheduled run is told its deliverables directory in text it can actu
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
     const h = makeHarness(workspace);
-    let directive = '';
+    let staging = '';
     await h.run(job, async (channels) => {
-      directive = channels.directive;
+      staging = channels.outputDir;
     });
 
-    const staging = deliverablesDirFromDirective(directive);
     expect(staging).toContain(`${pathMod.sep}.staging${pathMod.sep}`);
-    // KNOWN-POSITIVE CONTROL: the directive really does carry it, so "the
-    // message does not contain it" is a statement about the message.
-    expect(directive).toContain(staging);
     expect(h.sent[0]).not.toContain(staging);
     expect(h.sent[0]).not.toContain(workspace);
   });
@@ -454,7 +440,7 @@ describe('a scheduled run is told its deliverables directory in text it can actu
       {
         getTask: vi.fn(() => undefined),
         getOrBuildTask: vi.fn(async () => ({
-          type: 'wcore',
+          type: 'acp',
           // no `workspace` key at all
           sendMessage: vi.fn(async (p: { content?: string }) => {
             sent.push(p?.content ?? '');
@@ -500,8 +486,8 @@ describe('a scheduled run is told its deliverables directory in text it can actu
     let staging = '';
     let decoy = '';
     await h.run(job, async (channels, ws) => {
-      staging = deliverablesDirFromDirective(channels.directive);
-      // The block must PIN the directive's directory. Capturing $OUT from the
+      staging = channels.outputDir;
+      // The block must PIN the deliverables directory. Capturing $OUT from the
       // block itself is the only thing that asserts its content: writing to
       // `staging` directly left a decoy-path mutation completely green.
       const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), staging, ws);

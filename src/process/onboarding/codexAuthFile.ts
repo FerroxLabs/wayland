@@ -5,21 +5,20 @@
  */
 
 /**
- * The bridge between the desktop "Sign in with ChatGPT" OAuth flow and Wayland
- * Core (the engine) / the Codex CLI.
+ * The bridge between the desktop "Sign in with ChatGPT" OAuth flow and the
+ * Codex CLI.
  *
  * A ChatGPT *subscription* access token cannot hit `api.openai.com`; inference
- * must route through the Codex `/responses` backend, which the engine already
- * implements. The engine (and the `codex` CLI) read the credential from
+ * must route through the Codex `/responses` backend. The `codex` CLI reads
+ * the credential from
  * `$CODEX_HOME/auth.json` (default `~/.codex/auth.json`) - the standard Codex
  * CLI store. So after a successful in-app sign-in we WRITE that file, and on
  * sign-in we REUSE an existing one (the user already ran `codex login`),
  * exactly mirroring how the xAI flow reuses `~/.grok/auth.json`.
  *
- * Engine contract (read-only ref: `wcore-agent/src/oauth/chatgpt.rs`
- * `import_codex_cli_tokens`): a JSON doc with a `tokens` object holding
+ * Codex CLI store contract: a JSON doc with a `tokens` object holding
  * `access_token` (required), `refresh_token`, `id_token`; `chatgpt_account_id`
- * is derived from the access-token JWT. The engine requires the file be owned
+ * is derived from the access-token JWT. The CLI requires the file be owned
  * by the user and not group/world-writable, so we write mode 0o600.
  */
 

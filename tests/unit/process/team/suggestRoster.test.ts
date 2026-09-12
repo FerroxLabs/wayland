@@ -23,7 +23,12 @@ const specs: SuggestSpecialist[] = [
   { id: 'ext-launch', name: 'Launch Strategist', description: 'Plans book launches and funnels.', agentType: 'gemini' },
   { id: 'ext-copy', name: 'Copy', description: 'Writes ad copy and emails.', agentType: 'claude' },
   { id: 'ext-analyst', name: 'Funnel Analyst', description: 'Analyzes paid funnel performance.', agentType: 'codex' },
-  { id: 'ext-design', name: 'Designer', description: 'Visual design and book cover work.', agentType: 'unknown-backend' },
+  {
+    id: 'ext-design',
+    name: 'Designer',
+    description: 'Visual design and book cover work.',
+    agentType: 'unknown-backend',
+  },
   { id: 'ext-pm', name: 'Project Manager', description: 'Tracks deadlines and sprints.', agentType: 'claude' },
   { id: 'ext-research', name: 'Researcher', description: 'Audience and market research.', agentType: 'gemini' },
   { id: 'ext-coach', name: 'Coach', description: 'Stays generic and helps with whatever.' },
@@ -135,17 +140,17 @@ describe('suggestRoster', () => {
     expect(result.teammates).toEqual([]);
   });
 
-  it('uses recommendBackend; falls back to wayland-core when agentType not detected', () => {
+  it('uses recommendBackend; falls back to fuigo when agentType not detected', () => {
     const result = suggestRoster({
       goalText: 'design book cover visual',
       specialists: specs,
       detectedBackends: ['claude'], // gemini/codex/unknown-backend NOT detected
       targetSize: 5,
     });
-    // Designer's agentType is 'unknown-backend' - should fall back to wayland-core
+    // Designer's agentType is 'unknown-backend' - should fall back to fuigo
     const designer = [result.leader, ...result.teammates].find((e) => e?.specialistId === 'ext-design');
     expect(designer).toBeDefined();
-    expect(designer!.backend).toBe('wayland-core');
+    expect(designer!.backend).toBe('fuigo');
   });
 
   it('uses detected backend when agentType matches available pool', () => {
@@ -160,7 +165,7 @@ describe('suggestRoster', () => {
     expect(copy!.backend).toBe('claude');
   });
 
-  it('handles specialists with undefined agentType (defaults to wayland-core)', () => {
+  it('handles specialists with undefined agentType (defaults to fuigo)', () => {
     const result = suggestRoster({
       goalText: 'whatever generic',
       specialists: [{ id: 'solo', name: 'Solo', description: 'whatever generic' }],
@@ -168,7 +173,7 @@ describe('suggestRoster', () => {
       targetSize: 2,
     });
     expect(result.leader!.specialistId).toBe('solo');
-    expect(result.leader!.backend).toBe('wayland-core');
+    expect(result.leader!.backend).toBe('fuigo');
   });
 
   it('filters stopwords from the goal so common words do not dominate', () => {

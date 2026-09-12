@@ -32,6 +32,10 @@
     "bun-windows-x64-baseline.zip": {
       "size": 97757272,
       "sha256": "9005d0d585d80425e9b715690de3e614651124c94458ef3d3a302ca1a6d3d813"
+    },
+    "bun-windows-aarch64.zip": {
+      "size": 94583896,
+      "sha256": "c48ea01208766207606927a320d640371140dca51e9963367779b32d18460716"
     }
   }
 }

@@ -3,9 +3,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AcpAgentV2, SESSION_START_TIMEOUT_MS } from '@process/acp/compat/AcpAgentV2';
 import { getFullAutoMode } from '@/common/types/agentModes';
-import type { SessionCallbacks } from '@process/acp/types';
+import type { AgentConfig, SessionCallbacks } from '@process/acp/types';
 import type { OldAcpAgentConfig } from '@process/acp/compat/typeBridge';
-import type { McpConfigProjection } from '@process/acp/session/McpConfig';
+import { McpConfig, type McpConfigProjection } from '@process/acp/session/McpConfig';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 import { getMcpSessionReceiptForServer } from '@/common/mcp/sessionReceipt';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
@@ -14,6 +14,7 @@ import type { IMcpServer } from '@/common/config/storage';
 
 // Mock dependencies
 let capturedCallbacks: SessionCallbacks;
+let capturedAgentConfig: AgentConfig;
 let mockSessionMethods: {
   start: ReturnType<typeof vi.fn>;
   stop: ReturnType<typeof vi.fn>;
@@ -28,7 +29,8 @@ let mockSessionMethods: {
 
 vi.mock('@process/acp/session/AcpSession', () => ({
   AcpSession: class MockAcpSession {
-    constructor(_config: unknown, _factory: unknown, callbacks: SessionCallbacks) {
+    constructor(config: AgentConfig, _factory: unknown, callbacks: SessionCallbacks) {
+      capturedAgentConfig = config;
       capturedCallbacks = callbacks;
     }
 
@@ -1002,6 +1004,33 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
 
       vi.useRealTimers();
     });
+
+    it('skips session.setModel for a Flux tier on claude (env-carried; the bridge rejects it)', async () => {
+      const agent = await createStartedAgent({ backend: 'claude' });
+      capturedCallbacks.onModelUpdate({ currentModelId: 'claude-4', availableModels: [] });
+
+      const result = await agent.setModelByConfigOption('flux-reasoning');
+
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+      expect(result?.currentModelId).toBe('claude-4');
+    });
+
+    it('sends session.setModel for a Flux tier on fuigo (the tier is a catalog model there)', async () => {
+      const agent = await createStartedAgent({ backend: 'fuigo' });
+      mockSessionMethods.setModel.mockImplementation(() => {
+        setTimeout(() => {
+          capturedCallbacks.onModelUpdate({
+            currentModelId: 'flux-reasoning',
+            availableModels: [{ modelId: 'flux-reasoning', name: 'flux-reasoning', tier: 'premium' }],
+          });
+        }, 0);
+      });
+
+      const result = await agent.setModelByConfigOption('flux-reasoning');
+
+      expect(mockSessionMethods.setModel).toHaveBeenCalledWith('flux-reasoning');
+      expect(result?.currentModelId).toBe('flux-reasoning');
+    });
   });
 
   describe('setMode()', () => {
@@ -1324,9 +1353,7 @@ describe('AcpAgentV2 - live receipt-bound MCP publication (Tavily/Firecrawl/n8n/
   }): Promise<McpConfigProjection> {
     const caps: Caps = opts.capabilities ?? { stdio: true, http: true, sse: true };
     vi.mocked(loadRuntimeMcpServers).mockResolvedValue(opts.servers);
-    getSpy.mockImplementation(async (key: string) =>
-      key === 'acp.cachedInitializeResult' ? { claude: { capabilities: { mcpCapabilities: caps } } } : undefined
-    );
+    getSpy.mockResolvedValue(undefined as never);
 
     let captured: McpConfigProjection | undefined;
     const config: OldAcpAgentConfig = {
@@ -1348,6 +1375,11 @@ describe('AcpAgentV2 - live receipt-bound MCP publication (Tavily/Firecrawl/n8n/
 
     const agent = new AcpAgentV2(config);
     mockSessionMethods.start.mockImplementation(() => {
+      const source = capturedAgentConfig.mcpStorageSource;
+      if (!source) throw new Error('mcpStorageSource was not supplied');
+      capturedCallbacks.onMcpProjection?.(
+        McpConfig.projectStorageConfig(source.servers, { ...source.request, capabilities: caps })
+      );
       setTimeout(() => capturedCallbacks.onStatusChange('active'), 0);
     });
     await agent.start();

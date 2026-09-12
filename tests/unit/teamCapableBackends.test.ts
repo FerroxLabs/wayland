@@ -13,8 +13,8 @@ const withStdio = (stdio: boolean) =>
   ({ capabilities: { mcpCapabilities: { stdio } } }) as unknown as AcpInitializeResult;
 
 describe('team-capable backend filter (#152)', () => {
-  it('keeps the known-capable backends, including both engine ids', () => {
-    for (const b of ['gemini', 'claude', 'codex', 'wcore', 'wayland-core']) {
+  it('keeps the known-capable backends, including the bundled engine', () => {
+    for (const b of ['gemini', 'claude', 'codex', 'fuigo']) {
       expect(isTeamCapableBackend(b, null)).toBe(true);
     }
   });
@@ -29,7 +29,7 @@ describe('team-capable backend filter (#152)', () => {
   });
 
   it('filters a detected list down to team-capable backends and never drops the engine fallback', () => {
-    const detected = ['claude', 'copilot', 'wayland-core'];
-    expect(getTeamCapableBackends(detected, null)).toEqual(['claude', 'wayland-core']);
+    const detected = ['claude', 'copilot', 'fuigo'];
+    expect(getTeamCapableBackends(detected, null)).toEqual(['claude', 'fuigo']);
   });
 });

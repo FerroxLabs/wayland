@@ -39,7 +39,6 @@ const SkillsSettings = React.lazy(() => import('@renderer/pages/settings/SkillsS
 const SlashCommandsSettings = React.lazy(() => import('@renderer/pages/settings/SlashCommandsSettings'));
 const StorageSettings = React.lazy(() => import('@renderer/pages/settings/StorageSettings'));
 const DoctorSettings = React.lazy(() => import('@renderer/pages/settings/DoctorSettings'));
-const WCoreConfig = React.lazy(() => import('@renderer/pages/settings/WCoreConfig'));
 const SystemSettings = React.lazy(() => import('@renderer/pages/settings/SystemSettings'));
 const VoiceSettings = React.lazy(() => import('@renderer/pages/settings/VoiceSettings'));
 const WebuiSettings = React.lazy(() => import('@renderer/pages/settings/WebuiSettings'));
@@ -145,8 +144,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             />
             {/* ARTIFACTS - the deliverables rail.
 
-              DESKTOP ONLY, gated exactly like `/settings/wcore-config` below.
-              The whole `artifacts.` namespace is remote-denied in
+              DESKTOP ONLY. The whole `artifacts.` namespace is remote-denied in
               bridgeAllowlist.ts (list enumerates the absolute paths of every
               workspace the user has; open reaches an OS launcher on the LOCAL
               machine; save-copy writes a file there), so on a paired WebUI
@@ -168,7 +166,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/skills' element={withRouteFallback(SkillsSettings)} />
             <Route path='/settings/commands' element={withRouteFallback(SlashCommandsSettings)} />
             {/* Constitution is a Desktop concept (the engine has none of its own),
-              so it lives as a standalone Desktop settings page, not a Core pane. */}
+              so it lives as a standalone Desktop settings page. */}
             <Route path='/settings/constitution' element={withRouteFallback(ConstitutionSettings)} />
             {/* AI MODELS */}
             <Route path='/settings/models' element={withRouteFallback(ModelsSettings)} />
@@ -177,35 +175,6 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/providers' element={<Navigate to='/settings/models' replace />} />
             <Route path='/settings/images' element={withRouteFallback(ImageGenSettings)} />
             <Route path='/settings/voice' element={withRouteFallback(VoiceSettings)} />
-            {/* ENGINE - the Wayland Core configuration surface (its own destination).
-              It subsumes the former standalone `wcore` engine-status page.
-
-              #997: DESKTOP ONLY. The page drives the local engine's config.toml,
-              its profile directories and the in-app engine updater. Every
-              wcoreConfig WRITE and every local-identity READ behind it is
-              remote-denied in bridgeAllowlist.ts, so a paired WebUI reaching it
-              got a mostly-broken surface. Not an inert one: getOutputBudget
-              (#990) and the presence-only wcoreToolKeys.list are reachable by
-              design, and the latter really did populate the Services and Keys
-              pane. See DESKTOP_ONLY_SETTINGS_IDS for the full split.
-
-              This gate is CLIENT-SIDE and is therefore attack-surface and UX
-              reduction, NOT a security boundary - a remote browser can define
-              window.electronAPI before the bundle loads and render the page. It
-              gains nothing: src/process/webserver/adapter.ts applies the same
-              allowlist server-side, so a spoofer lands in the pre-#997 state.
-
-              The nav entry is dropped for the same runtime
-              (`visibleSettingsNavigationIds`); this guard closes the
-              deep-link/legacy-redirect door the rail no longer opens. */}
-            <Route
-              path='/settings/wcore-config'
-              element={
-                isElectronDesktop() ? withRouteFallback(WCoreConfig) : <Navigate to='/settings/general' replace />
-              }
-            />
-            {/* Legacy redirect: old standalone route now lands inside Core. */}
-            <Route path='/settings/wcore' element={<Navigate to='/settings/wcore-config' replace />} />
             {/* INTEGRATIONS */}
             <Route path='/settings/webui' element={withRouteFallback(WebuiSettings)} />
             <Route path='/settings/channels' element={withRouteFallback(ChannelsIndex)} />

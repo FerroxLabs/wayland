@@ -14,7 +14,6 @@ const {
   writeJson,
 } = require('./acceptanceBundle');
 const matrix = require('./verifyHardeningMatrix');
-const prepareWaylandCore = require('../prepareWaylandCore');
 
 const CAPABILITIES = ['cowork-office', 'voice', 'mcp', 'sandbox', 'flux'];
 
@@ -225,27 +224,15 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
 
   const publisherIndex = readJsonFile(source, 'publisher-artifacts.json', 'M8I_PUBLISHER_INDEX_INVALID');
   exactKeys(publisherIndex.value, ['contract', 'artifacts'], 'M8I_PUBLISHER_INDEX_INVALID');
+  // The bundled engine ships from npm (sha512 integrity + independent digest
+  // pins verified at packaging), so no publisher-attested release archive is
+  // demanded any more; the index must say so explicitly.
   if (
     publisherIndex.value.contract !== 'wayland-raw-publisher-artifacts/1.0' ||
     !Array.isArray(publisherIndex.value.artifacts) ||
-    publisherIndex.value.artifacts.length !== matrix.TARGETS.length
+    publisherIndex.value.artifacts.length !== 0
   ) {
     fail('M8I_PUBLISHER_INDEX_INVALID', 'coverage-mismatch');
-  }
-  const publisherPaths = new Set();
-  for (const artifact of publisherIndex.value.artifacts) {
-    exactKeys(artifact, ['assetName', 'releaseTag', 'expectedSha256', 'path'], 'M8I_PUBLISHER_INDEX_INVALID');
-    if (
-      artifact.releaseTag !== prepareWaylandCore.DEFAULT_WCORE_VERSION ||
-      typeof artifact.assetName !== 'string' ||
-      !/^[a-f0-9]{64}$/.test(String(artifact.expectedSha256)) ||
-      artifact.path !== `publisher-artifacts/${artifact.assetName}` ||
-      publisherPaths.has(artifact.path)
-    ) {
-      fail('M8I_PUBLISHER_INDEX_INVALID', 'invalid-or-duplicate-artifact');
-    }
-    publisherPaths.add(artifact.path);
-    fixedFiles.push(artifact.path);
   }
   fixedFiles.push('publisher-artifacts.json');
 

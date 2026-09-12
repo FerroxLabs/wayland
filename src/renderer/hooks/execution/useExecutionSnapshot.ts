@@ -9,7 +9,6 @@ import type { TMessage } from '@/common/chat/chatLib';
 import {
   adaptAcpMessages,
   adaptGeminiMessages,
-  adaptWCoreMessages,
   projectExecution,
   selectCurrentExecutionMessages,
   type ExecutionBackend,
@@ -37,11 +36,7 @@ export function useBackendExecutionSnapshot(
     const context = { identity: seed.identity, observedAt: options.now };
     const currentMessages = selectCurrentExecutionMessages(backend, messages);
     const events =
-      backend === 'wcore'
-        ? adaptWCoreMessages(currentMessages, context)
-        : backend === 'gemini'
-          ? adaptGeminiMessages(currentMessages, context)
-          : adaptAcpMessages(currentMessages, context);
+      backend === 'gemini' ? adaptGeminiMessages(currentMessages, context) : adaptAcpMessages(currentMessages, context);
     return projectExecution(seed, events, options);
   }, [backend, messages, options, seed]);
 }

@@ -25,7 +25,7 @@ const now = 7_000;
 const digest = (char: string): `sha256:${string}` => `sha256:${char.repeat(64)}`;
 const seed: ExecutionSeed = {
   identity,
-  actor: { backend: 'wcore', agentId: 'core' },
+  actor: { backend: 'gemini', agentId: 'gemini' },
   scope: { workspaceId: 'workspace-1', host: 'desktop', trust: 'trusted', scheduled: false },
   requestedGovernance: { mode: 'trusted-edits', enforceability: 'enforced' },
 };

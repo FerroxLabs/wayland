@@ -57,7 +57,6 @@ import {
 import type { ModelRegistryDeps, SpawnHandle } from '@process/providers/ipc/modelRegistryIpc';
 import { fetchWithRetry } from '@process/utils/fetchWithRetry';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
-import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 
 describe('CloudRegistrySource - google-auth Gemini catalog (zero-models regression)', () => {
   // A google-auth Gemini connection routes through the cloud-synthesis path but
@@ -851,19 +850,19 @@ describe('modelRegistry IPC - custom models (#617)', () => {
     expect(row?.providerId).toBe('openrouter');
   });
 
-  it('surfaces a custom model (enabled) in the wcore picker union; a disable override flips its flag', async () => {
+  it('surfaces a custom model (enabled) in the gemini picker union; a disable override flips its flag', async () => {
     const { deps, repo } = connectedRepo();
     const h = createModelRegistryHandlers(deps);
     await h.addCustomModel({ providerId: 'openrouter', modelId: '@preset/myfusion' });
 
-    const enabledRow = (await h.curatedForAgent({ agentKey: 'wcore' })).find((m) => m.id === '@preset/myfusion');
+    const enabledRow = (await h.curatedForAgent({ agentKey: 'gemini' })).find((m) => m.id === '@preset/myfusion');
     expect(enabledRow?.enabled).toBe(true);
 
     // Toggling it off routes through the same override path a catalog model uses.
     // curatedForAgent still returns the row (enabled:false) - the picker
     // viewmodel is what hides disabled rows, exactly like any catalog model.
     repo.setRegistryOverride('openrouter', '@preset/myfusion', false);
-    const disabledRow = (await h.curatedForAgent({ agentKey: 'wcore' })).find((m) => m.id === '@preset/myfusion');
+    const disabledRow = (await h.curatedForAgent({ agentKey: 'gemini' })).find((m) => m.id === '@preset/myfusion');
     expect(disabledRow?.enabled).toBe(false);
   });
 
@@ -922,8 +921,8 @@ describe('modelRegistry IPC - custom models (#617)', () => {
     expect(row?.enriched).toBe(true);
     expect(row?.tags).toContain('recommended');
 
-    // The wcore picker union is deduped too.
-    const picker = (await h.curatedForAgent({ agentKey: 'wcore' })).filter(
+    // The gemini picker union is deduped too.
+    const picker = (await h.curatedForAgent({ agentKey: 'gemini' })).filter(
       (m) => m.id === 'anthropic/claude-3-5-sonnet'
     );
     expect(picker).toHaveLength(1);
@@ -963,14 +962,6 @@ describe('modelRegistry IPC - curatedForAgent', () => {
     ]);
     return fakes;
   }
-
-  it('wcore unions every connected provider', async () => {
-    const { deps } = twoProviderRepo();
-    const h = createModelRegistryHandlers(deps);
-    const ids = (await h.curatedForAgent({ agentKey: 'wcore' })).map((m) => m.id);
-    expect(ids).toContain('gpt-4o');
-    expect(ids).toContain('flux-auto');
-  });
 
   it('gemini unions every connected provider (AionCLI is multi-provider)', async () => {
     const { deps } = twoProviderRepo();
@@ -1915,7 +1906,7 @@ describe('modelRegistry IPC - resolveForChatStart', () => {
 });
 
 describe('modelRegistry IPC - curatedForAgent', () => {
-  it('unions every connected provider for the wcore agent', async () => {
+  it('unions every connected provider for the gemini agent', async () => {
     const { deps, repo } = makeFakes();
     repo.upsertRegistryProvider({
       providerId: 'openai',
@@ -1933,13 +1924,13 @@ describe('modelRegistry IPC - curatedForAgent', () => {
     repo.replaceRegistryCatalog('anthropic', [catalogModel({ id: 'claude-3-5', providerId: 'anthropic' })]);
     const h = createModelRegistryHandlers(deps);
 
-    const curated = await h.curatedForAgent({ agentKey: 'wcore' });
+    const curated = await h.curatedForAgent({ agentKey: 'gemini' });
 
     expect(curated.map((m) => m.id).toSorted()).toEqual(['claude-3-5', 'gpt-4o']);
   });
 
-  it('dedups a (providerId, id) pair the wcore union would otherwise repeat', async () => {
-    // Fix 7: the wcore union must not emit a duplicate `(providerId, id)`.
+  it('dedups a (providerId, id) pair the gemini union would otherwise repeat', async () => {
+    // Fix 7: the gemini union must not emit a duplicate `(providerId, id)`.
     // The same model id appearing under two DIFFERENT providers is kept (the
     // consumer distinguishes by providerId), but a repeat within one provider
     // collapses to one entry.
@@ -1964,7 +1955,7 @@ describe('modelRegistry IPC - curatedForAgent', () => {
     repo.replaceRegistryCatalog('openrouter', [catalogModel({ id: 'gpt-4o', providerId: 'openrouter' })]);
     const h = createModelRegistryHandlers(deps);
 
-    const curated = await h.curatedForAgent({ agentKey: 'wcore' });
+    const curated = await h.curatedForAgent({ agentKey: 'gemini' });
 
     // The openai duplicate collapses; the openrouter copy is a distinct
     // (providerId, id) and survives - two entries total.
@@ -3030,128 +3021,5 @@ describe('modelRegistry IPC - resolveForChatStart durable catalog fallback (#578
 
     const result = await h.resolveForChatStart({ providerId: 'baseten', modelId: 'llama-3.3-70b' });
     expect(result).toEqual({ ok: false, error: 'undecryptable' });
-  });
-});
-
-describe('modelRegistry IPC - curatedForAgent wnano provider parity (#1002)', () => {
-  // Wayland Nano is first-party and multi-provider: its backend entry declares
-  // `authRequired: false` ("Draws on the providers connected in Wayland; no own
-  // login"), and every spawn is handed `WAYLAND_NANO_PROVIDERS` listing the
-  // CONNECTED providers that appear in `NANO_KNOWN_PROVIDER_IDS`
-  // (AcpAgentManager.buildWnanoProvidersEnv). The picker, meanwhile, fell
-  // through to the `return []` at the end of `curatedForAgent`, so a Nano chat
-  // offered Flux Auto and nothing else while Nano itself was being told it could
-  // run every one of those providers' models.
-  //
-  // The fix is NOT the wcore rule. wcore unions EVERY connected provider; Nano's
-  // vendored catalog table knows only the 17 ids in `NANO_KNOWN_PROVIDER_IDS`,
-  // and `buildWaylandNanoProvidersPayload` drops anything outside that set
-  // before Nano ever sees it. Offering a model Nano is never advertised would
-  // just move the dead end from the picker to the dispatch. So the picker must
-  // union exactly the intersection the spawn payload uses - no more, no less.
-
-  it('the fixture is discriminating: openai is a Nano-known id, chatgpt-subscription is not', () => {
-    // Positive control. Without this a renamed or emptied known-set would make
-    // every assertion below pass vacuously.
-    expect(NANO_KNOWN_PROVIDER_IDS).toContain('openai');
-    expect(NANO_KNOWN_PROVIDER_IDS).toContain('anthropic');
-    expect(NANO_KNOWN_PROVIDER_IDS).not.toContain('chatgpt-subscription');
-  });
-
-  it('unions the connected providers Nano is advertised', async () => {
-    const { deps, repo } = makeFakes();
-    repo.upsertRegistryProvider({
-      providerId: 'openai',
-      connectedVia: 'api-key',
-      state: 'connected',
-      creds: { key: 'k' },
-    });
-    repo.upsertRegistryProvider({
-      providerId: 'anthropic',
-      connectedVia: 'api-key',
-      state: 'connected',
-      creds: { key: 'k' },
-    });
-    repo.replaceRegistryCatalog('openai', [catalogModel({ id: 'gpt-4o', providerId: 'openai' })]);
-    repo.replaceRegistryCatalog('anthropic', [catalogModel({ id: 'claude-3-5', providerId: 'anthropic' })]);
-    const h = createModelRegistryHandlers(deps);
-
-    const curated = await h.curatedForAgent({ agentKey: 'wnano' });
-
-    // Ids are namespaced `<provider>:<model>` (#1039) so the pick names a provider
-    // unambiguously all the way to the spawn env. Written on a lane where wnano ids
-    // were still bare; namespaced is the stronger contract and both lanes share it.
-    expect(curated.map((m) => m.id).toSorted()).toEqual(['anthropic:claude-3-5', 'openai:gpt-4o']);
-  });
-
-  it('withholds a connected provider Nano is never advertised and cannot route', async () => {
-    const { deps, repo } = makeFakes();
-    repo.upsertRegistryProvider({
-      providerId: 'openai',
-      connectedVia: 'api-key',
-      state: 'connected',
-      creds: { key: 'k' },
-    });
-    repo.upsertRegistryProvider({
-      providerId: 'chatgpt-subscription',
-      connectedVia: 'oauth',
-      state: 'connected',
-      creds: { key: 'tok' },
-    });
-    repo.replaceRegistryCatalog('openai', [catalogModel({ id: 'gpt-4o', providerId: 'openai' })]);
-    repo.replaceRegistryCatalog('chatgpt-subscription', [
-      catalogModel({ id: 'gpt-5-codex', providerId: 'chatgpt-subscription' }),
-    ]);
-    const h = createModelRegistryHandlers(deps);
-
-    const forNano = await h.curatedForAgent({ agentKey: 'wnano' });
-    // Positive control on the SAME fixture: wcore unions every connected
-    // provider, so the withheld row is demonstrably present and reachable - the
-    // exclusion is Nano's known-set rule, not an empty catalog.
-    const forWcore = await h.curatedForAgent({ agentKey: 'wcore' });
-
-    expect(forNano.map((m) => m.id)).toEqual(['openai:gpt-4o']);
-    expect(forWcore.map((m) => m.id).toSorted()).toEqual(['gpt-4o', 'gpt-5-codex']);
-  });
-
-  it('withholds a Nano-known provider whose row is not connected', async () => {
-    const { deps, repo } = makeFakes();
-    repo.upsertRegistryProvider({
-      providerId: 'openai',
-      connectedVia: 'api-key',
-      state: 'connected',
-      creds: { key: 'k' },
-    });
-    repo.upsertRegistryProvider({
-      providerId: 'anthropic',
-      connectedVia: 'api-key',
-      state: 'error',
-      creds: { key: 'k' },
-    });
-    repo.replaceRegistryCatalog('openai', [catalogModel({ id: 'gpt-4o', providerId: 'openai' })]);
-    repo.replaceRegistryCatalog('anthropic', [catalogModel({ id: 'claude-3-5', providerId: 'anthropic' })]);
-    const h = createModelRegistryHandlers(deps);
-
-    const curated = await h.curatedForAgent({ agentKey: 'wnano' });
-
-    // `buildWnanoProvidersEnv` advertises only `state === 'connected'` rows, so
-    // an errored provider is not in Nano's payload and must not be in its picker.
-    expect(curated.map((m) => m.id)).toEqual(['openai:gpt-4o']);
-  });
-
-  it('still returns [] when nothing Nano knows is connected', async () => {
-    const { deps, repo } = makeFakes();
-    repo.upsertRegistryProvider({
-      providerId: 'chatgpt-subscription',
-      connectedVia: 'oauth',
-      state: 'connected',
-      creds: { key: 'tok' },
-    });
-    repo.replaceRegistryCatalog('chatgpt-subscription', [
-      catalogModel({ id: 'gpt-5-codex', providerId: 'chatgpt-subscription' }),
-    ]);
-    const h = createModelRegistryHandlers(deps);
-
-    expect(await h.curatedForAgent({ agentKey: 'wnano' })).toEqual([]);
   });
 });

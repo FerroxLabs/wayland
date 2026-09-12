@@ -169,10 +169,6 @@ function defaultVerifyPlatformSmoke(input, context) {
   return require('./verifyPlatformPackageSmokes').verifyPlatformPackageSmoke(input, context);
 }
 
-function defaultVerifyPublisherArtifact(artifact) {
-  return require('../supply-chain/verifyPublisherAttestation').verifyPublisherAttestation(artifact);
-}
-
 function defaultVerifyUpdaterObservation(input) {
   return require('./verifyUpdaterObservation').verifyUpdaterObservation(input);
 }
@@ -189,40 +185,6 @@ function defaultVerifyReleaseBlockers(input, context) {
   return require('./verifyReleaseAuthorities').verifyReleaseBlockers(input, context);
 }
 
-function defaultExpectedPublisherAssets() {
-  const { readPolicy } = require('../supply-chain/verifyPublisherAttestation');
-  const policy = readPolicy();
-  // Scope to wayland-core. This ledger also carries wayland-nano policies, and nano
-  // legitimately has more than one active release, so an unscoped filter counts them
-  // toward the "exactly one active Core release" rule and fails every run. The assets
-  // resolved immediately below come from bundled-wcore-shasums.json, so Core is the
-  // only family this rule was ever about.
-  const active = policy.policies.filter(
-    (entry) => entry.status === 'active' && entry.repository === 'FerroxLabs/wayland-core'
-  );
-  if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
-  const shasums = JSON.parse(
-    fs.readFileSync(path.join(productionCandidateRoot(), 'scripts', 'bundled-wcore-shasums.json'), 'utf8')
-  );
-  const assets = Object.entries(shasums[active[0].releaseTag] || {})
-    .map(([asset, evidence]) => ({
-      asset,
-      sha256: typeof evidence === 'string' ? evidence : evidence?.archiveSha256,
-    }))
-    .sort((left, right) => left.asset.localeCompare(right.asset));
-  if (assets.length !== TARGETS.length) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-release-target-coverage-mismatch');
-  }
-  for (const asset of assets) {
-    exactKeys(asset, ['asset', 'sha256'], 'M8A_PUBLISHER_ATTESTATION_INVALID');
-    if (typeof asset.asset !== 'string' || asset.asset.length === 0) {
-      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset');
-    }
-    digest(asset.sha256, 'M8A_PUBLISHER_ATTESTATION_INVALID');
-  }
-  return assets;
-}
-
 const DEFAULT_VERIFIERS = Object.freeze({
   observeCandidateIdentity: defaultObserveCandidateIdentity,
   verifyHardeningMatrix: defaultVerifyHardeningMatrix,
@@ -233,8 +195,6 @@ const DEFAULT_VERIFIERS = Object.freeze({
   verifyReleaseEvidenceManifest: defaultVerifyReleaseEvidenceManifest,
   verifyReleaseClaimsManifest: defaultVerifyReleaseClaimsManifest,
   verifyThirdPartyLedger: defaultVerifyThirdPartyLedger,
-  verifyPublisherArtifact: defaultVerifyPublisherArtifact,
-  expectedPublisherAssets: defaultExpectedPublisherAssets,
   verifyUpdaterObservation: defaultVerifyUpdaterObservation,
   verifyConditionalCapability: defaultVerifyConditionalCapability,
   verifyFindingsClearance: defaultVerifyFindingsClearance,
@@ -376,40 +336,6 @@ function verifyPlatformReceipt(receipt, candidate, expectedTarget) {
   }
   if (result.authority !== 'protected-native-package-observer') {
     fail('M8A_PLATFORM_SMOKE_INVALID', 'untrusted-authority');
-  }
-  return result;
-}
-
-function verifyPublisherReceipt(receipt) {
-  const result = exactKeys(
-    receipt,
-    [
-      'contract',
-      'policyId',
-      'repository',
-      'signerWorkflow',
-      'sourceRef',
-      'sourceDigest',
-      'predicateType',
-      'runner',
-      'asset',
-      'sha256',
-      'verified',
-    ],
-    'M8A_PUBLISHER_ATTESTATION_INVALID'
-  );
-  if (
-    result.contract !== 'wayland-publisher-attestations/1.0' ||
-    result.repository !== 'FerroxLabs/wayland-core' ||
-    result.runner !== 'github-hosted' ||
-    result.predicateType !== 'https://slsa.dev/provenance/v1' ||
-    result.verified !== true
-  ) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'untrusted-attestation');
-  }
-  digest(result.sha256, 'M8A_PUBLISHER_ATTESTATION_INVALID');
-  if (typeof result.asset !== 'string' || result.asset.length === 0) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-asset');
   }
   return result;
 }
@@ -728,48 +654,12 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
     matrixReceipt.targetGateRequirements
   );
 
-  const expectedPublisherAssets = verifiers.expectedPublisherAssets();
-  if (
-    !Array.isArray(expectedPublisherAssets) ||
-    expectedPublisherAssets.length !== TARGETS.length ||
-    expectedPublisherAssets.some(
-      (asset) =>
-        !asset ||
-        typeof asset !== 'object' ||
-        Array.isArray(asset) ||
-        Object.keys(asset).length !== 2 ||
-        typeof asset.asset !== 'string' ||
-        asset.asset.length === 0 ||
-        !SHA256.test(String(asset.sha256))
-    )
-  ) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset-set');
-  }
-  const expectedPublisherByAsset = new Map(expectedPublisherAssets.map((asset) => [asset.asset, asset.sha256]));
-  if (expectedPublisherByAsset.size !== expectedPublisherAssets.length) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset-set');
-  }
-  if (
-    !Array.isArray(request.publisherArtifacts) ||
-    request.publisherArtifacts.length !== expectedPublisherAssets.length
-  ) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-asset-coverage-mismatch');
-  }
-  const publisherReceipts = request.publisherArtifacts.map((artifact) =>
-    verifyPublisherReceipt(verifiers.verifyPublisherArtifact(artifact))
-  );
-  const observedPublisherAssets = new Set();
-  for (const receipt of publisherReceipts) {
-    if (observedPublisherAssets.has(receipt.asset) || !expectedPublisherByAsset.has(receipt.asset)) {
-      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
-    }
-    observedPublisherAssets.add(receipt.asset);
-    if (receipt.sha256 !== expectedPublisherByAsset.get(receipt.asset)) {
-      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-asset-digest-mismatch');
-    }
-  }
-  if (observedPublisherAssets.size !== expectedPublisherByAsset.size) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
+  // No publisher-attested release archive is part of acceptance any more: the
+  // bundled engine comes from npm with sha512 integrity plus Desktop's own
+  // digest pins, both enforced by verify-packaged-resources at packaging. The
+  // request field stays so the contract shape is fixed, and it must be empty.
+  if (!Array.isArray(request.publisherArtifacts) || request.publisherArtifacts.length !== 0) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'unexpected-publisher-artifacts');
   }
 
   const updaterInput = exactKeys(request.updaterEvidence, ['observations'], 'M8A_UPDATER_RECEIPT_INVALID');
@@ -855,7 +745,7 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
       gate: receipt.gate,
       evidenceSha256: receipt.evidenceSha256,
     })),
-    publisherAssets: publisherReceipts.map((receipt) => ({ asset: receipt.asset, sha256: receipt.sha256 })),
+    publisherAssets: [],
     updaterReceipts: updaterReceipts.map((receipt) => ({
       target: receipt.target,
       receiptSha256: receipt.receiptSha256,

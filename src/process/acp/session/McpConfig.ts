@@ -2,7 +2,12 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
-import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
+import {
+  hasExplicitToolSelection,
+  mergeMcpSpawnEnv,
+  resolveSessionMcpStdioSpawn,
+  wrapSpawnWithToolFilter,
+} from '@process/services/mcpServices/builtinMcpRuntime';
 import { isServerActiveForSession } from '@process/agent/acp/mcpSessionConfig';
 import {
   createMcpSessionState,
@@ -52,8 +57,8 @@ export type McpConfigProjection = {
 };
 
 /**
- * Default MCP capabilities used when no cached initialize result is available.
- * stdio is mandatory per ACP spec; http/sse are conservatively disabled.
+ * Conservative fallback for direct/legacy callers. Production SessionLifecycle
+ * supplies the parsed live initialize capabilities for every projection.
  */
 const DEFAULT_MCP_CAPABILITIES: AcpMcpCapabilities = { stdio: true, http: false, sse: false };
 
@@ -128,7 +133,11 @@ export class McpConfig {
       )
       // This is an authority boundary, not a display preference. Builtins stay
       // available; user connectors must match this conversation's selection.
-      .filter((server) => isServerActiveForSession(server, activeServerIds));
+      .filter((server) => isServerActiveForSession(server, activeServerIds))
+      // An explicit empty list means this connector contributes nothing. It is
+      // absent from descriptors and receipt expectations rather than published
+      // as a connector that can never register a tool.
+      .filter((server) => server.allowedTools === undefined || server.allowedTools.length > 0);
     const projected: McpServer[] = [];
     const omissions: McpConfigOmission[] = [];
     for (const server of eligible) {
@@ -143,9 +152,12 @@ export class McpConfig {
           // Same runtime tuple as the Library probe: `npx`→bundled Bun (#827)
           // AND Wayland's own bundled MCP servers→resolved JS runtime (#1008),
           // carrying the runtime env the dev runtime needs to BE a Node runtime.
-          const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
+          const resolved = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
             libraryEntryId: server.libraryEntryId,
           });
+          const spawn = hasExplicitToolSelection(server)
+            ? wrapSpawnWithToolFilter(resolved, server.allowedTools ?? [])
+            : resolved;
           runtimeServer = {
             name: server.name,
             command: spawn.command,
@@ -160,6 +172,10 @@ export class McpConfig {
             reason = 'ACP runtime did not advertise HTTP MCP transport support';
             break;
           }
+          if (hasExplicitToolSelection(server)) {
+            reason = 'Standard ACP cannot enforce per-tool selection for hosted HTTP MCP servers';
+            break;
+          }
           runtimeServer = {
             type: 'http' as const,
             name: server.name,
@@ -170,6 +186,10 @@ export class McpConfig {
         case 'sse':
           if (!caps.sse) {
             reason = 'ACP runtime did not advertise SSE MCP transport support';
+            break;
+          }
+          if (hasExplicitToolSelection(server)) {
+            reason = 'Standard ACP cannot enforce per-tool selection for hosted SSE MCP servers';
             break;
           }
           runtimeServer = {

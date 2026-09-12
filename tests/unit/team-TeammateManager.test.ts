@@ -1,5 +1,8 @@
 // tests/unit/team-TeammateManager.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 // ---------------------------------------------------------------------------
 // Hoist mocks before any imports
@@ -20,6 +23,7 @@ const mockIpcBridge = vi.hoisted(() => ({
 }));
 
 const mockAddMessage = vi.hoisted(() => vi.fn());
+const mockGetConversationMessages = vi.hoisted(() => vi.fn(() => ({ data: [] })));
 
 vi.mock('@/common', () => ({ ipcBridge: mockIpcBridge }));
 vi.mock('electron', () => ({ app: { getPath: vi.fn(() => '/tmp') } }));
@@ -46,7 +50,7 @@ vi.mock('@process/utils/initStorage', () => ({
 // notification; keep it hermetic (no real SQLite) — an empty result yields the
 // bare "Turn completed" notification, which is all the dedup tests care about.
 vi.mock('@process/services/database', () => ({
-  getDatabase: vi.fn(async () => ({ getConversationMessages: () => ({ data: [] }) })),
+  getDatabase: vi.fn(async () => ({ getConversationMessages: mockGetConversationMessages })),
 }));
 
 import { TeammateManager, computeUsageDelta } from '@process/team/TeammateManager';
@@ -133,6 +137,7 @@ function makeTeammateManager(agents: TeamAgent[] = [], overrides: Record<string,
 describe('TeammateManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetConversationMessages.mockReturnValue({ data: [] });
   });
 
   afterEach(() => {
@@ -1384,6 +1389,61 @@ describe('TeammateManager', () => {
   // -------------------------------------------------------------------------
 
   describe('finalizeTurn', () => {
+    it('#980: reconciles an automatic completion artifact claim before writing the leader mailbox', async () => {
+      const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-team-claim-'));
+      try {
+        mockGetConversationMessages.mockReturnValue({
+          data: [
+            {
+              id: 'assistant-report',
+              type: 'text',
+              position: 'left',
+              content: { content: 'Completed the audit and saved it to reports/missing-audit.md' },
+            },
+          ],
+        });
+        const leadAgent = makeAgent({
+          slotId: 'slot-lead',
+          conversationId: 'conv-lead',
+          role: 'leader',
+          status: 'idle',
+        });
+        const memberAgent = makeAgent({
+          slotId: 'slot-member',
+          conversationId: 'conv-member',
+          role: 'teammate',
+          status: 'active',
+        });
+        const { mgr, mailbox } = makeTeammateManager([leadAgent, memberAgent], { teamWorkspace: workspace });
+
+        teamEventBus.emit('responseStream', {
+          type: 'finish',
+          conversation_id: 'conv-member',
+          msg_id: 'turn-artifact',
+          data: null,
+        });
+
+        await vi.waitFor(() => {
+          expect(mailbox.write).toHaveBeenCalledWith(
+            expect.objectContaining({
+              type: 'idle_notification',
+              content: expect.stringContaining('[Wayland]'),
+            })
+          );
+        });
+        const notification = vi
+          .mocked(mailbox.write)
+          .mock.calls.map(([message]) => message)
+          .find((message) => message.type === 'idle_notification');
+        expect(notification?.content).toContain('reports/missing-audit.md');
+        expect(notification?.content).toContain('bounded workspace check');
+        expect(notification?.content).not.toContain('not found anywhere');
+        mgr.dispose();
+      } finally {
+        await fs.rm(workspace, { recursive: true, force: true });
+      }
+    });
+
     it('sets agent to idle after finish event with empty response', async () => {
       const leadAgent = makeAgent({
         slotId: 'slot-lead',

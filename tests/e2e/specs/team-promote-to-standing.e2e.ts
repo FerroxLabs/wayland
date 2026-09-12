@@ -59,14 +59,14 @@ test.describe('Promote to Standing - D1', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
     });
-    if (!created?.id) throw new Error('team.create returned null - required backend (wcore) not installed');
+    if (!created?.id) throw new Error('team.create returned null - required backend (fuigo) not installed');
     const teamId = created.id;
 
     // Seed eligibility - drop the cache between bumps so getOrStartSession

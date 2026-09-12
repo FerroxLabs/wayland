@@ -292,14 +292,13 @@ describe('prepareOfficeCli supply-chain contract', () => {
       '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\\.node|\\.dylib)$',
       '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\\.bare$',
       '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
-      '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
-      '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$',
+      '/Contents/Resources/bundled-fuigo/[^/]+/fuigo$',
       '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$',
     ]);
-    // The bundled Nano runtime carries its own publisher signature and must be
-    // left alone, exactly like the engine and the authoring runtime beside it.
-    const nanoPath = '/tmp/Wayland.app/Contents/Resources/bundled-wayland-nano/darwin-arm64/wayland-nano';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(nanoPath))).toBe(true);
+    // The bundled Fuigo engine carries its own publisher signature and must be
+    // left alone, exactly like the authoring runtime beside it.
+    const fuigoPath = '/tmp/Wayland.app/Contents/Resources/bundled-fuigo/darwin-arm64/fuigo';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(fuigoPath))).toBe(true);
     const bunPath = '/tmp/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
     expect(signIgnore?.some((pattern) => new RegExp(pattern).test(bunPath))).toBe(true);
     const whatsappNativePath =

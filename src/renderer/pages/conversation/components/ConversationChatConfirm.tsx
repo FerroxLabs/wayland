@@ -1,7 +1,5 @@
 import { ipcBridge } from '@/common';
 import type { IConfirmation } from '@/common/chat/chatLib';
-import { isPathBoundaryConfirmation } from '@/common/chat/pathBoundaryConsent';
-import PathBoundaryConfirmCard from './PathBoundaryConfirmCard';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Divider, Typography } from '@arco-design/web-react';
@@ -34,15 +32,8 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
   // Keys are parsed in backend (single source of truth)
   const checkAndAutoConfirm = useCallback(
     async (confirmation: StoredConfirmation): Promise<boolean> => {
-      // #1099: a filesystem-boundary card is never auto-confirmed. The stored
-      // "always allow" memory below is category-keyed and cannot describe WHICH
-      // folder was approved, so replaying it here would grant a root the user
-      // never agreed to. Excluded explicitly rather than relying on the value
-      // match further down failing to find `proceed_*`.
-      if (isPathBoundaryConfirmation(confirmation)) return false;
-
       // Only check agent types that have approval store
-      if (agentType !== 'gemini' && agentType !== 'wcore') return false;
+      if (agentType !== 'gemini') return false;
 
       const { action, commandType } = confirmation;
       // Skip if no action (backend will return false for empty keys)
@@ -158,13 +149,6 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      // #1099: a folder grant binds NO key. Enter fires `options[0]` by index,
-      // which on a boundary card is the grant itself — a keystroke away from
-      // handing the session standing read access outside the workspace, and one
-      // a user could hit while meaning to send a message. Y and A are excluded
-      // for the same reason. The grant is click-only, deliberately.
-      if (isPathBoundaryConfirmation(confirmation)) return;
-
       // Skip if user is typing in an input
       const target = event.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
@@ -281,18 +265,6 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
     });
   };
 
-  // #1099: a filesystem-boundary escalation gets its own card. It asks a folder
-  // question with a folder answer, which the generic allow/deny prompt below
-  // cannot express — see PathBoundaryConfirmCard.
-  if (hasConfirmation && confirmation && isPathBoundaryConfirmation(confirmation)) {
-    return (
-      <>
-        <PathBoundaryConfirmCard confirmation={confirmation} onConfirm={confirmOptionAndDismiss} />
-        <div className='hidden'>{children}</div>
-      </>
-    );
-  }
-
   return (
     <>
       {hasConfirmation && confirmation && (
@@ -304,7 +276,7 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
         >
           <div className='flex-1 overflow-y-auto min-h-0'>
             <Typography.Ellipsis className='text-16px font-bold color-[var(--text-primary)]' rows={2} expandable>
-              {/* #610: mask inline secrets - the wcore/acp mapper puts the real
+              {/* #610: mask inline secrets - the acp mapper puts the real
                   command in the confirmation title/description ("Execute: <cmd>"). */}
               {redactCommandSecrets($t(confirmation.title)) || 'Choose an action'}
             </Typography.Ellipsis>

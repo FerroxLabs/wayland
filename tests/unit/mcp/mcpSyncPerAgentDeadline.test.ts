@@ -9,7 +9,7 @@
  *
  * RC1 executed it: main-process instrumentation, restart, click Reconnect ->
  * `[RC1LOCK] enqueue #394 from McpService.syncMcpToAgents` -> `start #394` ->
- * no `done`, no `fail`, for the rest of the session. `gemini` and `wcore`
+ * no `done`, no `fail`, for the rest of the session. `gemini` and the retired Core engine
  * returned in 4 ms and 38 ms; claude/codex/qwen/opencode never did. The
  * renderer publishes BEFORE committing `enabled: true`, so the hang means no
  * commit, no rollback, no toast, and `updatedAt` byte-identical two minutes
@@ -28,7 +28,7 @@ import type { IMcpServer } from '@/common/config/storage';
 
 const { installs } = vi.hoisted(() => ({
   installs: {
-    wcore: vi.fn(async () => ({ success: true })),
+    gemini: vi.fn(async () => ({ success: true })),
     claude: vi.fn(async () => {
       throw new Error('claude mcp add exited 1');
     }),
@@ -55,10 +55,9 @@ function stubAgent(install: () => Promise<{ success: boolean; error?: string }>)
   };
 }
 
-vi.mock('@process/services/mcpServices/agents/WCoreMcpAgent', () => ({ WCoreMcpAgent: stubAgent(installs.wcore) }));
 vi.mock('@process/services/mcpServices/agents/ClaudeMcpAgent', () => ({ ClaudeMcpAgent: stubAgent(installs.claude) }));
 vi.mock('@process/services/mcpServices/agents/QwenMcpAgent', () => ({ QwenMcpAgent: stubAgent(installs.qwen) }));
-vi.mock('@process/services/mcpServices/agents/GeminiMcpAgent', () => ({ GeminiMcpAgent: stubAgent(installs.other) }));
+vi.mock('@process/services/mcpServices/agents/GeminiMcpAgent', () => ({ GeminiMcpAgent: stubAgent(installs.gemini) }));
 vi.mock('@process/services/mcpServices/agents/WaylandMcpAgent', () => ({ WaylandMcpAgent: stubAgent(installs.other) }));
 vi.mock('@process/services/mcpServices/agents/CodexMcpAgent', () => ({ CodexMcpAgent: stubAgent(installs.other) }));
 vi.mock('@process/services/mcpServices/agents/OpencodeMcpAgent', () => ({
@@ -82,7 +81,7 @@ const server: IMcpServer = {
 };
 
 const agents = [
-  { backend: 'wcore', name: 'Wayland Core' },
+  { backend: 'gemini', cliPath: 'gemini', name: 'Gemini CLI' },
   { backend: 'claude', name: 'Claude Code' },
   { backend: 'qwen', name: 'Qwen Code' },
 ];
@@ -113,7 +112,7 @@ describe('MCP publication cannot be hung by one agent', () => {
     // Every agent is accounted for by NAME, including the one that never
     // returned - the caller can say which CLI is broken instead of spinning.
     const byAgent = new Map(result.results.map((entry) => [entry.agent, entry]));
-    expect(byAgent.get('Wayland Core')?.success).toBe(true);
+    expect(byAgent.get('Gemini CLI')?.success).toBe(true);
     expect(byAgent.get('Claude Code')?.success).toBe(false);
     expect(byAgent.get('Claude Code')?.error).toContain('claude mcp add exited 1');
     expect(byAgent.get('Qwen Code')?.success).toBe(false);

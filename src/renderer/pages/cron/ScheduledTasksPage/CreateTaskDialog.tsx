@@ -23,7 +23,8 @@ import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
 import dayjs from 'dayjs';
 import AcpConfigSelector from '@renderer/components/agent/AcpConfigSelector';
-import { getFullAutoMode } from '@renderer/utils/model/agentModes';
+import { resolveUnattendedMode } from '@/common/types/agentModes';
+import AgentModeSelector from '@renderer/components/agent/AgentModeSelector';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendAll, AcpModelInfo, AcpSessionConfigOption, AgentBackend } from '@/common/types/acpTypes';
@@ -271,6 +272,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [workflowLoading, setWorkflowLoading] = useState(false);
 
   // Advanced settings state
+  const [approvalMode, setApprovalMode] = useState<string | undefined>();
   const [modelId, setModelId] = useState<string | undefined>(undefined);
   const [configOptions, setConfigOptions] = useState<Record<string, string> | undefined>(undefined);
   const [workspace, setWorkspace] = useState<string | undefined>(undefined);
@@ -353,6 +355,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         agent: agentKey,
       });
       // Populate advanced settings from the authoritative job record
+      setApprovalMode(freshJob.metadata.agentConfig?.mode);
       setModelId(freshJob.metadata.agentConfig?.modelId);
       setConfigOptions(freshJob.metadata.agentConfig?.configOptions);
       setWorkspace(freshJob.metadata.agentConfig?.workspace);
@@ -364,6 +367,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       setCustomCronExpr('');
       setExecutionMode(initialExecutionMode);
       setAdvancedOpen(false);
+      setApprovalMode(undefined);
       setModelId(undefined);
       setConfigOptions(undefined);
       setWorkspace(undefined);
@@ -468,27 +472,18 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       .catch(() => setCachedConfigOptions(undefined));
   }, [resolvedBackend]);
 
-  const isGeminiMode = resolvedBackend === 'gemini' || resolvedBackend === 'wcore';
-
-  // WaylandCLI does not support Google Auth - filter it out (mirrors GuidPage.tsx logic)
-  const filteredProviders = useMemo(
-    () =>
-      resolvedBackend === 'wcore'
-        ? providers.filter((p) => !p.platform?.toLowerCase().includes('gemini-with-google-auth'))
-        : providers,
-    [resolvedBackend, providers]
-  );
+  const isGeminiMode = resolvedBackend === 'gemini';
 
   // Build Gemini currentModel from modelId for GuidModelSelector
   const geminiCurrentModel = useMemo<TProviderWithModel | undefined>(() => {
-    if ((resolvedBackend !== 'gemini' && resolvedBackend !== 'wcore') || !modelId) return undefined;
-    for (const p of filteredProviders) {
+    if (resolvedBackend !== 'gemini' || !modelId) return undefined;
+    for (const p of providers) {
       if (getAvailableModels(p).includes(modelId)) {
         return { ...p, useModel: modelId } as TProviderWithModel;
       }
     }
     return undefined;
-  }, [resolvedBackend, modelId, filteredProviders, getAvailableModels]);
+  }, [resolvedBackend, modelId, providers, getAvailableModels]);
 
   const handleGeminiModelSelect = useCallback(
     async (model: TProviderWithModel) => {
@@ -511,7 +506,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   // Load ACP cached model info when backend changes
   useEffect(() => {
-    if (!resolvedBackend || resolvedBackend === 'gemini' || resolvedBackend === 'wcore') {
+    if (!resolvedBackend || resolvedBackend === 'gemini') {
       setAcpCachedModelInfo(null);
       return;
     }
@@ -533,12 +528,6 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           if (preferred) setModelId(preferred);
         })
         .catch((err) => console.warn('[CreateTaskDialog.get gemini.defaultModel]', err));
-    } else if (resolvedBackend === 'wcore') {
-      ConfigStorage.get('wcore.defaultModel')
-        .then((saved) => {
-          if (saved?.useModel) setModelId(saved.useModel);
-        })
-        .catch((err) => console.warn('[CreateTaskDialog.get wcore.defaultModel]', err));
     }
   }, [resolvedBackend, modelId]);
 
@@ -613,6 +602,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       markEdited();
       setSelectedAgent(value);
       // Reset model and configOptions when agent changes
+      setApprovalMode(undefined);
       setModelId(undefined);
       setConfigOptions(undefined);
       // Workspace remains unchanged (agent-agnostic)
@@ -668,7 +658,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           backend: agent.backend as AgentBackend,
           name: agent.name,
           cliPath: agent.cliPath,
-          mode: getFullAutoMode(agent.backend),
+          mode: resolveUnattendedMode(agent.backend, approvalMode),
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
@@ -685,7 +675,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           isPreset: true,
           customAgentId: agent.customAgentId,
           presetAgentType: agent.presetAgentType,
-          mode: getFullAutoMode(agent.backend),
+          mode: resolveUnattendedMode(agent.backend, approvalMode),
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
@@ -985,6 +975,20 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </Select>
           </FormItem>
 
+          {resolvedBackend ? (
+            <FormItem label={t('agentMode.permission')}>
+              <AgentModeSelector
+                backend={resolvedBackend}
+                compact
+                initialMode={resolveUnattendedMode(resolvedBackend, approvalMode)}
+                onModeSelect={(mode) => {
+                  markEdited();
+                  setApprovalMode(mode);
+                }}
+              />
+            </FormItem>
+          ) : null}
+
           <FormItem label={t('cron.page.form.executionMode')}>
             <Radio.Group
               value={executionMode}
@@ -1101,10 +1105,10 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                     </label>
                     <GuidModelSelector
                       isGeminiMode={isGeminiMode}
-                      modelList={filteredProviders}
+                      modelList={providers}
                       currentModel={geminiCurrentModel}
                       setCurrentModel={handleGeminiModelSelect}
-                      agentKey={resolvedBackend ?? 'wcore'}
+                      agentKey={resolvedBackend ?? 'fuigo'}
                       currentAcpCachedModelInfo={acpCachedModelInfo}
                       selectedAcpModel={modelId ?? null}
                       setSelectedAcpModel={handleAcpModelSelect}

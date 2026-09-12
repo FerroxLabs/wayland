@@ -1,6 +1,6 @@
 /**
  * Regression cover for #748 - the LEGACY gemini backend (src/process/agent/gemini),
- * not the wcore backend.
+ * not the bundled engine backend.
  *
  * Gemini 3.x attaches a `thoughtSignature` to every `functionCall` part it emits.
  * On the next request each of those parts must carry a signature or the API

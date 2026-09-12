@@ -1,24 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import {
-  recommendBackend,
-  resolveAvailableBackends,
-} from '@process/team/backends/resolveAvailableBackends';
+import { recommendBackend, resolveAvailableBackends } from '@process/team/backends/resolveAvailableBackends';
 
 describe('resolveAvailableBackends', () => {
-  it('includes detected CLIs plus wayland-core fallback', () => {
+  it('includes detected CLIs plus the bundled fuigo fallback', () => {
     const result = resolveAvailableBackends(['claude', 'gemini']);
     expect(result).toContain('claude');
     expect(result).toContain('gemini');
-    expect(result).toContain('wayland-core');
+    expect(result).toContain('fuigo');
     expect(result.length).toBe(3);
   });
 
-  it('returns just wayland-core when nothing is detected', () => {
-    expect(resolveAvailableBackends([])).toEqual(['wayland-core']);
+  it('returns just fuigo when nothing is detected', () => {
+    expect(resolveAvailableBackends([])).toEqual(['fuigo']);
   });
 
-  it('does not duplicate wayland-core when it is already detected', () => {
-    expect(resolveAvailableBackends(['wayland-core'])).toEqual(['wayland-core']);
+  it('does not duplicate fuigo when it is already detected', () => {
+    expect(resolveAvailableBackends(['fuigo'])).toEqual(['fuigo']);
   });
 });
 
@@ -27,11 +24,11 @@ describe('recommendBackend', () => {
     expect(recommendBackend(['claude', 'gemini'], 'claude')).toBe('claude');
   });
 
-  it('falls back to wayland-core when the preset backend is not detected', () => {
-    expect(recommendBackend(['gemini'], 'claude')).toBe('wayland-core');
+  it('falls back to fuigo when the preset backend is not detected', () => {
+    expect(recommendBackend(['gemini'], 'claude')).toBe('fuigo');
   });
 
-  it('falls back to wayland-core when no preset is supplied', () => {
-    expect(recommendBackend([], undefined)).toBe('wayland-core');
+  it('falls back to fuigo when no preset is supplied', () => {
+    expect(recommendBackend([], undefined)).toBe('fuigo');
   });
 });

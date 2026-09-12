@@ -8,8 +8,8 @@ import {
   useMessageLstCache,
   useRemoveMessageByMsgId,
 } from '@/renderer/pages/conversation/Messages/hooks';
-import { transformMessage, type TMessage } from '@/common/chat/chatLib';
-import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import { activityMsgId, type TMessage } from '@/common/chat/chatLib';
+import { addOrUpdateNode, emptyActivityContent } from '@/common/chat/activityTree';
 
 const mockGetConversationMessagesInvoke = vi.fn();
 
@@ -26,6 +26,8 @@ vi.mock('@/common', () => ({
 type TestMessage = {
   id: string;
   msg_id?: string;
+  segment_id?: string;
+  ingest_order?: number;
   conversation_id: string;
   type: string;
   position?: string;
@@ -126,7 +128,71 @@ describe('message hooks cache merge', () => {
     expect(merged.map((message) => message.id)).toEqual(['db-1', 'stream-1']);
   });
 
-  // Two text rows now legitimately share one msg_id: WCore persists the user
+  it('hydrates and extends distinct text segments without collapsing a turn across tools', async () => {
+    const dbMessages: TestMessage[] = [
+      {
+        id: 'db-text-a',
+        msg_id: 'turn-1',
+        segment_id: 'segment-a',
+        ingest_order: 1,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'A' },
+      },
+      {
+        id: 'db-tool',
+        msg_id: 'turn-1',
+        segment_id: 'tool-1',
+        ingest_order: 2,
+        conversation_id: 'conv-1',
+        type: 'tool_group',
+        content: { content: 'tool' },
+      },
+      {
+        id: 'db-text-b',
+        msg_id: 'turn-1',
+        segment_id: 'segment-b',
+        ingest_order: 3,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'B' },
+      },
+    ];
+    mockGetConversationMessagesInvoke.mockResolvedValue(dbMessages);
+
+    const liveMessages: TestMessage[] = [
+      {
+        ...dbMessages[2],
+        id: 'live-text-b',
+        content: { content: 'B extended' },
+      },
+      {
+        id: 'live-text-c',
+        msg_id: 'turn-1',
+        segment_id: 'segment-c',
+        ingest_order: 4,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'C' },
+      },
+    ];
+
+    render(
+      <MessageListProvider value={liveMessages as TMessage[]}>
+        <CacheProbe conversationId='conv-1' />
+      </MessageListProvider>
+    );
+
+    await waitFor(() => {
+      const messages = JSON.parse(screen.getByTestId('messages').textContent ?? '[]') as TestMessage[];
+      expect(messages.map((message) => message.id)).toEqual(['db-text-a', 'db-tool', 'live-text-b', 'live-text-c']);
+    });
+  });
+
+  // Two text rows now legitimately share one msg_id: the engine persists the user
   // turn and streams the reply under the same turn id, and they are only kept
   // apart by `position`. This merge keyed on msg_id alone, so it kept the LAST
   // match (the assistant), then substituted it for the USER row on the
@@ -218,11 +284,22 @@ describe('message hooks cache merge', () => {
 // implementations cannot silently drift.
 // ---------------------------------------------------------------------------
 
-const resp = (m: Partial<IResponseMessage> & { type: string }): IResponseMessage =>
-  ({ conversation_id: 'conv-1', ...m }) as unknown as IResponseMessage;
-
-const subAgentResp = (parentCallId: string, agentName: string, inner: unknown): IResponseMessage =>
-  resp({ type: 'sub_agent_event', msg_id: '', data: { parentCallId, agentName, inner } });
+// One tool_chunk delta folded into a fresh activity card for `turnId`, shaped
+// exactly as the live stream hands it to the merge path.
+const activityChunk = (turnId: string, callId: string, chunk: string): TMessage => ({
+  id: `activity-${callId}-${chunk}`,
+  type: 'activity',
+  msg_id: activityMsgId(turnId),
+  position: 'left',
+  conversation_id: 'conv-1',
+  content: addOrUpdateNode(emptyActivityContent(turnId), {
+    kind: 'tool_chunk',
+    callId,
+    name: 'Bash',
+    chunk,
+    ts: 1,
+  }),
+});
 
 // Drives a fixed stream of TMessage through the real useAddOrUpdateMessage merge
 // path (add=false, exactly how live stream events arrive) and renders the list.
@@ -261,12 +338,8 @@ describe('composeMessageWithIndex - activity merge (#252)', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('merges two tool_chunk deltas for the same turn into one activity card', async () => {
-    const a = transformMessage(
-      resp({ type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'c1', toolName: 'Bash', chunk: 'aaa' } })
-    )!;
-    const b = transformMessage(
-      resp({ type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'c1', toolName: 'Bash', chunk: 'bbb' } })
-    )!;
+    const a = activityChunk('turn-1', 'c1', 'aaa');
+    const b = activityChunk('turn-1', 'c1', 'bbb');
 
     await waitFor(async () => {
       const list = await runStream([a, b]);
@@ -286,9 +359,7 @@ describe('composeMessageWithIndex - activity merge (#252)', () => {
         conversation_id: 'conv-1',
         content: { content },
       }) as TMessage;
-    const activity = transformMessage(
-      resp({ type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'c1', toolName: 'Bash', chunk: 'out' } })
-    )!;
+    const activity = activityChunk('turn-1', 'c1', 'out');
 
     await waitFor(async () => {
       const list = await runStream([text('Hello '), activity, text('World')]);
@@ -329,68 +400,6 @@ describe('composeMessageWithIndex - activity merge (#252)', () => {
       expect(textCards).toHaveLength(1);
       expect((textCards[0] as Extract<TMessage, { type: 'text' }>).content.content).toBe('Hello World');
       expect(list.filter((m) => m.type === 'tool_group')).toHaveLength(1);
-    });
-  });
-});
-
-describe('composeMessageWithIndex - sub_agent subtree merge (#252 Phase 2)', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('merges a child tool_request then tool_result into one evolving node', async () => {
-    const req = transformMessage(
-      subAgentResp('spawn:1:w', 'w', {
-        type: 'tool_request',
-        msg_id: 'm1',
-        call_id: 'c1',
-        tool: { name: 'Bash', category: 'exec', args: {}, description: '' },
-      })
-    )!;
-    const res = transformMessage(
-      subAgentResp('spawn:1:w', 'w', {
-        type: 'tool_result',
-        msg_id: 'm1',
-        call_id: 'c1',
-        tool_name: 'Bash',
-        status: 'success',
-        output: 'done output',
-        output_type: 'text',
-      })
-    )!;
-
-    await waitFor(async () => {
-      const list = await runStream([req, res]);
-      const cards = list.filter((m) => m.type === 'sub_agent');
-      expect(cards).toHaveLength(1);
-      const nodes = (cards[0] as Extract<TMessage, { type: 'sub_agent' }>).content.nodes!;
-      expect(nodes).toHaveLength(1);
-      expect(nodes[0]).toMatchObject({ id: 'c1', kind: 'tool', name: 'Bash', status: 'done' });
-    });
-  });
-
-  it('folds a nested sub_agent_event into a child subtree', async () => {
-    const nested = transformMessage(
-      subAgentResp('spawn:1:parent', 'parent', {
-        type: 'sub_agent_event',
-        parent_call_id: 'spawn:2:child',
-        agent_name: 'child',
-        inner: {
-          type: 'tool_request',
-          msg_id: 'm2',
-          call_id: 'grandchild',
-          tool: { name: 'ReadFile', category: 'info', args: {}, description: '' },
-        },
-      })
-    )!;
-
-    await waitFor(async () => {
-      const list = await runStream([nested]);
-      const cards = list.filter((m) => m.type === 'sub_agent');
-      expect(cards).toHaveLength(1);
-      const nodes = (cards[0] as Extract<TMessage, { type: 'sub_agent' }>).content.nodes!;
-      // The nested sub-agent appears as a node whose own children hold the grandchild tool.
-      const child = nodes.find((n) => n.children && n.children.length > 0);
-      expect(child).toBeDefined();
-      expect(child!.children!.some((c) => c.name === 'ReadFile')).toBe(true);
     });
   });
 });

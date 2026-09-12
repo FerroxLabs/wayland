@@ -30,14 +30,10 @@ export function filterTeamSupportedAgents(
   });
 }
 
-export function resolveConversationType(
-  backend: string
-): 'gemini' | 'acp' | 'wcore' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' {
+export function resolveConversationType(backend: string): 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'remote' {
   if (backend === 'gemini') return 'gemini';
-  if (backend === 'wcore') return 'wcore';
   if (backend === 'codex') return 'acp';
   if (backend === 'openclaw-gateway') return 'openclaw-gateway';
-  if (backend === 'nanobot') return 'nanobot';
   if (backend === 'remote') return 'remote';
   return 'acp';
 }
@@ -45,10 +41,8 @@ export function resolveConversationType(
 export const AgentOptionLabel: React.FC<{ agent: AvailableAgent }> = ({ agent }) => {
   const LucideIconComponent = getLucideIcon(agent.avatar);
   const logo = LucideIconComponent ? null : getAgentLogo(agent.backend);
-  const avatarImage =
-    !LucideIconComponent && agent.avatar ? CUSTOM_AVATAR_IMAGE_MAP[agent.avatar] : undefined;
-  const isEmoji =
-    !LucideIconComponent && agent.avatar && !avatarImage && !agent.avatar.endsWith('.svg');
+  const avatarImage = !LucideIconComponent && agent.avatar ? CUSTOM_AVATAR_IMAGE_MAP[agent.avatar] : undefined;
+  const isEmoji = !LucideIconComponent && agent.avatar && !avatarImage && !agent.avatar.endsWith('.svg');
   return (
     <div className='flex items-center gap-8px'>
       {LucideIconComponent ? (

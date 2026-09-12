@@ -64,7 +64,6 @@ describe('McpService.syncMcpToAgents publishes the resolved runtime, not bare no
       'CodebuddyMcpAgent',
       'QwenMcpAgent',
       'CodexMcpAgent',
-      'WCoreMcpAgent',
       'GeminiMcpAgent',
       'WaylandMcpAgent',
       'OpencodeMcpAgent',

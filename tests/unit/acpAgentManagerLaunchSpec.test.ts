@@ -16,10 +16,15 @@
  * any single forward turns this file red rather than leaving a silent fallback
  * to the shredded string.
  */
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
-const { mockGet, capturedAgentConfigs } = vi.hoisted(() => ({
+const { mockGet, capturedAgentConfigs, repairStagedTideSkill, launchEvents } = vi.hoisted(() => ({
   mockGet: vi.fn(),
+  repairStagedTideSkill: vi.fn(async () => {}),
+  launchEvents: [] as string[],
   capturedAgentConfigs: [] as Array<Record<string, unknown>>,
 }));
 
@@ -51,9 +56,13 @@ vi.mock('@process/extensions', () => ({
 vi.mock('@process/acp/compat/AcpAgentV2', () => ({
   AcpAgentV2: class {
     constructor(config: Record<string, unknown>) {
+      launchEvents.push('construct');
       capturedAgentConfigs.push(config);
     }
-    start = vi.fn().mockResolvedValue(undefined);
+    start = vi.fn(async () => {
+      launchEvents.push('start');
+    });
+    getModelInfo = vi.fn(() => null);
     stop = vi.fn();
     kill = vi.fn();
     cancelPrompt = vi.fn();
@@ -92,7 +101,7 @@ vi.mock('@process/task/MessageMiddleware', () => ({
   processCronInMessage: vi.fn((x: unknown) => x),
 }));
 vi.mock('@process/task/ThinkTagDetector', () => ({ stripThinkTags: vi.fn((x: unknown) => x) }));
-vi.mock('@process/utils/initAgent', () => ({ hasNativeSkillSupport: vi.fn(() => false) }));
+vi.mock('@process/utils/initAgent', () => ({ hasNativeSkillSupport: vi.fn(() => false), repairStagedTideSkill }));
 vi.mock('@process/task/agentUtils', () => ({
   prepareFirstMessageWithSkillsIndex: vi.fn((x: string) => Promise.resolve({ content: x, loadedSkills: [] })),
   isConciergeAssistant: vi.fn(() => false),
@@ -193,5 +202,63 @@ describe('AcpAgentManager - installed-agent launch spec forwarding (K-05)', () =
     const config = capturedAgentConfigs[0];
     expect(config.launch).toEqual(LAUNCH);
     expect((config.extra as Record<string, unknown>).launch).toEqual(LAUNCH);
+  });
+});
+
+describe('Fuigo existing conversation skill repair at launch', () => {
+  let workspace: string;
+  beforeEach(() => {
+    workspace = mkdtempSync(join(tmpdir(), 'fuigo-resume-repair-'));
+    capturedAgentConfigs.length = 0;
+    launchEvents.length = 0;
+    repairStagedTideSkill.mockReset().mockResolvedValue(undefined);
+  });
+  afterEach(() => rmSync(workspace, { recursive: true, force: true }));
+
+  const forWorkspace = (workspacePath: string, backend: AcpBackend = 'fuigo') => {
+    const m = new AcpAgentManager({ conversation_id: 'existing-session', backend, workspace: workspacePath });
+    vi.spyOn(
+      m as unknown as { resolveAgentCliConfig: () => Promise<{ cliPath: string }> },
+      'resolveAgentCliConfig'
+    ).mockResolvedValue({ cliPath: backend });
+    return m;
+  };
+
+  it('awaits repair of the existing Fuigo copy before constructing or starting the engine', async () => {
+    const skill = join(workspace, '.wayland', 'skills', 'tide-morning-brief');
+    mkdirSync(skill, { recursive: true });
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    repairStagedTideSkill.mockImplementation(async () => {
+      launchEvents.push('repair-start');
+      await gate;
+      launchEvents.push('repair-end');
+    });
+    const m = forWorkspace(workspace);
+    const started = m.initAgent();
+    await vi.waitFor(() => expect(repairStagedTideSkill).toHaveBeenCalledWith(workspace, skill));
+    expect(capturedAgentConfigs).toHaveLength(0);
+    release();
+    await started;
+    await m.initAgent();
+    expect(repairStagedTideSkill).toHaveBeenCalledTimes(1);
+    expect(launchEvents).toEqual(['repair-start', 'repair-end', 'construct', 'start']);
+  });
+
+  it('does not create or repair an absent staged skill', async () => {
+    await forWorkspace(workspace).initAgent();
+    expect(repairStagedTideSkill).not.toHaveBeenCalled();
+    expect(capturedAgentConfigs).toHaveLength(1);
+  });
+
+  it('does not repair another backend or rewrite an already bootstrapped agent', async () => {
+    mkdirSync(join(workspace, '.wayland', 'skills', 'tide-morning-brief'), { recursive: true });
+    const m = forWorkspace(workspace, 'qwen');
+    await m.initAgent();
+    await m.initAgent();
+    expect(repairStagedTideSkill).not.toHaveBeenCalled();
+    expect(capturedAgentConfigs).toHaveLength(1);
   });
 });

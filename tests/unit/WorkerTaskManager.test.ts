@@ -126,6 +126,20 @@ describe('WorkerTaskManager', () => {
     await expect(mgr.kill('nonexistent')).resolves.toBeUndefined();
   });
 
+  it('killTask terminates only the exact owned manager instance', async () => {
+    const owned = makeAgent('c1');
+    const unrelated = makeAgent('c1');
+    const mgr = newManager(makeFactory() as any, repo);
+    mgr.addTask('c1', owned as any);
+
+    await mgr.killTask('c1', unrelated as any);
+    expect(unrelated.kill).not.toHaveBeenCalled();
+    expect(owned.kill).not.toHaveBeenCalled();
+
+    await mgr.killTask('c1', owned as any);
+    expect(owned.kill).toHaveBeenCalledOnce();
+  });
+
   // --- clear ---
 
   it('clear kills all tasks and empties the list', async () => {
@@ -149,11 +163,11 @@ describe('WorkerTaskManager', () => {
     const mgr = newManager(makeFactory() as any, repo);
     mgr.addTask('c1', makeAgent('c1', 'gemini') as any);
     mgr.addTask('c2', makeAgent('c2', 'acp') as any);
-    mgr.addTask('c3', makeAgent('c3', 'nanobot') as any);
+    mgr.addTask('c3', makeAgent('c3', 'gemini') as any);
     expect(mgr.listTasks()).toEqual([
       { id: 'c1', type: 'gemini' },
       { id: 'c2', type: 'acp' },
-      { id: 'c3', type: 'nanobot' },
+      { id: 'c3', type: 'gemini' },
     ]);
   });
 
@@ -169,6 +183,76 @@ describe('WorkerTaskManager', () => {
     expect(repo.getConversation).not.toHaveBeenCalled();
     expect(factory.create).not.toHaveBeenCalled();
     expect(result).toBe(agent);
+  });
+
+  it('fully stops a cached worker before replacing it across a policy boundary', async () => {
+    let finishKill: (() => void) | undefined;
+    const oldAgent = makeAgent();
+    oldAgent.kill.mockReturnValue(
+      new Promise<void>((resolve) => {
+        finishKill = resolve;
+      })
+    );
+    const restrictedAgent = makeAgent();
+    const factory = {
+      register: vi.fn(),
+      create: vi.fn().mockReturnValue(restrictedAgent),
+    };
+    vi.mocked(repo.getConversation).mockReturnValue(makeConversation('c1') as any);
+    const mgr = newManager(factory as any, repo);
+    mgr.addTask('c1', oldAgent as any);
+
+    const replacement = mgr.getOrBuildTask('c1', { executionPolicy: 'channel-conversational' });
+    await Promise.resolve();
+
+    expect(oldAgent.kill).toHaveBeenCalledOnce();
+    expect(factory.create).not.toHaveBeenCalled();
+
+    finishKill?.();
+    await expect(replacement).resolves.toBe(restrictedAgent);
+    expect(factory.create).toHaveBeenCalledWith(makeConversation('c1'), {
+      executionPolicy: 'channel-conversational',
+    });
+  });
+
+  it('fails closed when a policy-boundary worker cannot terminate', async () => {
+    const oldAgent = makeAgent();
+    oldAgent.kill.mockRejectedValue(new Error('still running'));
+    const factory = makeFactory(makeAgent());
+    const mgr = newManager(factory as any, repo);
+    mgr.addTask('c1', oldAgent as any);
+
+    await expect(mgr.getOrBuildTask('c1', { executionPolicy: 'channel-conversational' })).rejects.toThrow(
+      'still running'
+    );
+    await expect(mgr.getOrBuildTask('c1', { executionPolicy: 'channel-conversational' })).rejects.toThrow(
+      'termination is incomplete'
+    );
+    expect(factory.create).not.toHaveBeenCalled();
+  });
+
+  it('does not publish a task when its in-flight launch is cancelled', async () => {
+    let resolveConversation: ((conversation: ReturnType<typeof makeConversation>) => void) | undefined;
+    vi.mocked(repo.getConversation).mockReturnValue(
+      new Promise((resolve) => {
+        resolveConversation = resolve;
+      }) as any
+    );
+    const factory = makeFactory(makeAgent());
+    const mgr = newManager(factory as any, repo);
+    const controller = new AbortController();
+
+    const build = mgr.getOrBuildTask('c1', {
+      executionPolicy: 'channel-conversational',
+      launchSignal: controller.signal,
+    });
+    await Promise.resolve();
+    controller.abort();
+    resolveConversation?.(makeConversation('c1'));
+
+    await expect(build).rejects.toThrow('task launch cancelled');
+    expect(factory.create).not.toHaveBeenCalled();
+    expect(mgr.getTask('c1')).toBeUndefined();
   });
 
   // --- getOrBuildTask: repo hit ---

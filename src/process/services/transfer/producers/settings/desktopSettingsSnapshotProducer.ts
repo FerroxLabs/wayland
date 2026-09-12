@@ -148,19 +148,6 @@ function portableSkillPreferences(
   return { pinned, disabled, revision };
 }
 
-function portableOutputBudget(value: unknown, key: string): { mode: 'auto' | 'fixed'; value?: number } | undefined {
-  if (value === undefined) return undefined;
-  if (!isPlainRecord(value)) invalid(key);
-  const keys = Object.keys(value).toSorted();
-  if (keys.some((candidate) => candidate !== 'mode' && candidate !== 'value')) invalid(key);
-  const mode = ownValue(value, 'mode');
-  if (mode !== 'auto' && mode !== 'fixed') invalid(key);
-  const amount = portableInteger(ownValue(value, 'value'), key, 1, 10_000_000);
-  if (mode === 'auto' && amount !== undefined) invalid(key);
-  if (mode === 'fixed' && amount === undefined) invalid(key);
-  return amount === undefined ? { mode } : { mode, value: amount };
-}
-
 function setIfDefined(target: Record<string, Json>, key: string, value: Json | undefined): void {
   if (value !== undefined) target[key] = value;
 }
@@ -313,11 +300,6 @@ function projectPortableSettings(snapshot: unknown): Readonly<Record<string, Jso
     portableBoolean(ownValue(snapshot, 'upload.saveToWorkspace'), 'upload.saveToWorkspace')
   );
   setIfDefined(values, 'user.displayName', portableText(ownValue(snapshot, 'user.displayName'), 'user.displayName'));
-  setIfDefined(
-    values,
-    'wcore.outputBudget',
-    portableOutputBudget(ownValue(snapshot, 'wcore.outputBudget'), 'wcore.outputBudget')
-  );
   setIfDefined(
     values,
     'workspace.pasteConfirm',

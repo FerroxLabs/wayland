@@ -11,7 +11,6 @@ import {
   type AgentBackend,
 } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
-import type { ResolvedWaylandNanoActivationInput, WaylandNanoConnectionMode } from '@process/agent/acp/AcpConnection';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import type { AgentConfig, AgentSource, ConfigOption, InitialDesiredConfig, ModelSnapshot } from '@process/acp/types';
 import { getEnhancedEnv, loadFullShellEnvironment } from '@process/utils/shellEnv';
@@ -28,8 +27,6 @@ export type OldAcpAgentConfig = {
   workingDir: string;
   customArgs?: string[];
   customEnv?: Record<string, string>;
-  /** Already owner-resolved authority; mutable conversation fields are never fallbacks. */
-  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
   extra?: {
     workspace?: string;
     backend: AgentBackend;
@@ -59,6 +56,8 @@ export type OldAcpAgentConfig = {
     activeMcpServers?: string[];
     /** #1045: ms a held tool call may wait in an UNATTENDED run before it is denied. */
     unattendedHoldDeadlineMs?: number;
+    /** Backend-specific `_meta` for session/new|load (Fuigo `startupHints`). */
+    sessionMetadata?: Record<string, unknown>;
   };
   onStreamEvent: (data: unknown) => void;
   onSignalEvent?: (data: unknown) => void;
@@ -75,11 +74,11 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
   // const extra = old.extra;
 
   // Determine agentSource from backend identity
-  // backend may be a non-ACP AgentBackend (gemini, wcore, etc.) passed through the compat layer
+  // backend may be a non-ACP AgentBackend (gemini) passed through the compat layer
   const backend: AgentBackend = old.extra?.backend ?? old.backend;
   let agentSource: AgentSource = 'custom';
 
-  if (backend === 'gemini' || backend === 'wcore') {
+  if (backend === 'gemini') {
     agentSource = 'builtin';
   } else if (backend in ACP_BACKENDS_ALL) {
     agentSource = 'extension'; // NOTE: All of these will eventually be migrated into extensions; setting it to extension here proactively so it is stored correctly from the start.
@@ -119,17 +118,13 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     launch: old.extra?.launch ?? old.launch,
     args: old.extra?.customArgs ?? old.customArgs,
     env: old.extra?.customEnv ?? old.customEnv,
-    waylandNanoActivation: old.waylandNanoActivation,
-    waylandNanoMode:
-      backend === 'wnano'
-        ? ((old.waylandNanoActivation ? 'authenticated' : 'nonpersistent') satisfies WaylandNanoConnectionMode)
-        : undefined,
     cwd: old.workingDir,
+    sessionMetadata: old.extra?.sessionMetadata,
     activeMcpServers: old.extra?.activeMcpServers,
 
     teamMcpConfig: teamMcpConfig,
 
-    resumeSessionId: backend === 'wnano' && !old.waylandNanoActivation ? undefined : old.extra?.acpSessionId,
+    resumeSessionId: old.extra?.acpSessionId,
     acpWrapperVersion: old.extra?.acpWrapperVersion,
     initialDesired: hasInitialDesired ? initialDesired : undefined,
 
@@ -233,6 +228,11 @@ export function toResponseMessage(msg: TMessage, conversationId: string): IRespo
 
     case 'plan':
       base.type = 'plan';
+      base.data = msg.content;
+      break;
+
+    case 'sub_agent':
+      base.type = 'sub_agent';
       base.data = msg.content;
       break;
 

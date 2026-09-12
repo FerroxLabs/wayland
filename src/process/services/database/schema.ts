@@ -68,6 +68,8 @@ export function initSchema(db: ISqliteDriver): void {
     content TEXT NOT NULL,
     position TEXT CHECK(position IN ('left', 'right', 'center', 'pop')),
     status TEXT CHECK(status IN ('finish', 'pending', 'error', 'work')),
+    segment_id TEXT,
+    ingest_order INTEGER,
     created_at INTEGER NOT NULL,
     FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
   )`);
@@ -76,6 +78,12 @@ export function initSchema(db: ISqliteDriver): void {
   db.exec('CREATE INDEX IF NOT EXISTS idx_messages_type ON messages(type)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_messages_msg_id ON messages(msg_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_messages_conversation_created ON messages(conversation_id, created_at)');
+  const messageColumns = db.pragma('table_info(messages)');
+  if (Array.isArray(messageColumns) && messageColumns.some((column) => column?.name === 'ingest_order')) {
+    db.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_conversation_ingest ON messages(conversation_id, ingest_order)'
+    );
+  }
 
   // Teams table (team mode)
   db.exec(`CREATE TABLE IF NOT EXISTS teams (
@@ -190,4 +198,4 @@ export function setDatabaseVersion(db: ISqliteDriver, version: number): void {
  * Current database schema version
  * Update this when adding new migrations in migrations.ts
  */
-export const CURRENT_DB_VERSION = 57;
+export const CURRENT_DB_VERSION = 59;

@@ -8,6 +8,9 @@
  * the test exercises ONLY the composition logic.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 // Hoist mock state for AcpSkillManager so factories can reference it.
 const { skillsState } = vi.hoisted(() => ({
@@ -161,4 +164,20 @@ describe('prepareFirstMessageWithSkillsIndex - Constitution wiring', () => {
     expect(result.content).toContain(`[User Request]\n${original}`);
     expect(result.loadedSkills).toEqual(skillsState.index);
   });
+});
+
+it('points Fuigo at its workspace copies while retaining prompt-based skill support', async () => {
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'fuigo-skills-'));
+  try {
+    const staged = path.join(workspace, '.wayland', 'skills');
+    fs.mkdirSync(staged, { recursive: true });
+    skillsState.hasAny = true;
+    skillsState.index = [{ name: 'tide-morning-brief', description: 'Report', source: 'user' }];
+    mockBridge.mockReturnValue({ constitution: '', overlay: null });
+    const result = await prepareFirstMessageWithSkillsIndex('report', { backend: 'fuigo', workspace });
+    expect(result.content).toContain(`User custom skills: ${staged}/{skill-name}/SKILL.md`);
+    expect(result.content).not.toContain('/mock/skills');
+  } finally {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
 });

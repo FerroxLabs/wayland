@@ -9,7 +9,7 @@
  * (tool_group, acp_tool_call, sub_agent, activity) into the unified renderer
  * model (ActivityStep[]) that ActivityTimeline consumes.
  *
- * This is where "one timeline, every backend" is realized: a wcore tool_group, a
+ * This is where "one timeline, every backend" is realized: a native tool_group, a
  * Claude-Code/Codex/Gemini acp_tool_call, a spawned sub_agent card, and the live
  * activity tree all collapse onto the same canonical ActivityNode shape and the
  * same humanized step projection. Pure - no React, no IO; unit-tested.
@@ -23,10 +23,10 @@ import type {
   ActivityNode,
 } from '../chatLib';
 import { nodeToStep, nodesToSteps, type ActivitySource, type ActivityStep } from './activityStep';
-import { parseWcoreSearchOutput } from './sources';
+import { parseNativeSearchOutput } from './sources';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 
-/** wcore tool_group item status -> canonical node status. */
+/** Native tool_group item status -> canonical node status. */
 const TOOLGROUP_STATUS: Record<string, ActivityNode['status']> = {
   Executing: 'running',
   Pending: 'running',
@@ -56,9 +56,9 @@ const toolGroupDetail = (rd: IMessageToolGroup['content'][number]['resultDisplay
 
 /**
  * Names that identify a web-search tool call. Covers the named variants
- * (`web_search`, `brave_web_search`, ...) AND the bare native wcore tool
+ * (`web_search`, `brave_web_search`, ...) AND the bare native engine tool
  * literally named `web` (operation=search lives in the args, not the name -
- * captured live against Flux 0.12.8). parseWcoreSearchOutput is defensive, so
+ * captured live against Flux 0.12.8). parseNativeSearchOutput is defensive, so
  * a non-search `web` op simply yields [].
  */
 const WEB_SEARCH_RE = /^web$|web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search/i;
@@ -67,7 +67,7 @@ const WEB_SEARCH_RE = /^web$|web[_-]?search|google[_-]?search|search[_-]?web|bra
  * #520 - the humanized command string for a tool item, when the engine gave us
  * one. For an exec/shell tool the actual command lives in the `exec`
  * confirmationDetails (`command`), set at tool_request and preserved through the
- * merge. Fall back to the item `description` (which the wcore mapper carries as
+ * merge. Fall back to the item `description` (which the native mapper carries as
  * "Execute: <cmd>") so a non-exec command-ish tool still surfaces something.
  */
 export const toolGroupCommand = (t: IMessageToolGroup['content'][number]): string | undefined => {
@@ -82,7 +82,7 @@ export const toolGroupCommand = (t: IMessageToolGroup['content'][number]): strin
   return desc ? redactCommandSecrets(desc) : undefined;
 };
 
-/** Map one wcore tool_group message's items to canonical tool nodes. */
+/** Map one native tool_group message's items to canonical tool nodes. */
 export const toolGroupToNodes = (content: IMessageToolGroup['content']): ActivityNode[] =>
   content.map((t) => {
     const detail = toolGroupDetail(t.resultDisplay);
@@ -98,7 +98,7 @@ export const toolGroupToNodes = (content: IMessageToolGroup['content']): Activit
     };
     if (WEB_SEARCH_RE.test(t.name)) {
       const raw = typeof t.resultDisplay === 'string' ? t.resultDisplay : '';
-      const sources = parseWcoreSearchOutput(raw);
+      const sources = parseNativeSearchOutput(raw);
       if (sources.length) node.sources = sources;
     }
     return node;
@@ -133,7 +133,7 @@ const settleNodes = (nodes: ActivityNode[]): ActivityNode[] =>
   }));
 
 /**
- * Project a grouped tool_summary (mixed wcore tool_group + ACP acp_tool_call)
+ * Project a grouped tool_summary (mixed native tool_group + ACP acp_tool_call)
  * into one ordered ActivityStep[] - this REPLACES the old clunky "View Steps".
  */
 export const toolSummaryToSteps = (

@@ -22,7 +22,10 @@ import type { IAgentFactory } from '../../src/process/task/IAgentFactory';
 import type { IConversationRepository } from '../../src/process/services/database/IConversationRepository';
 import type { TChatConversation } from '../../src/common/config/storage';
 
-function makeRepo(conversation: TChatConversation | undefined, overrides: Partial<IConversationRepository> = {}): IConversationRepository {
+function makeRepo(
+  conversation: TChatConversation | undefined,
+  overrides: Partial<IConversationRepository> = {}
+): IConversationRepository {
   return {
     getConversation: vi.fn(async () => conversation),
     createConversation: vi.fn(),
@@ -65,8 +68,8 @@ describe('WorkerTaskManager #30 spawn-time no-drift', () => {
     mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
     const conversation = {
       id: 'c1',
-      type: 'wcore',
-      extra: { projectId: 'p1', workspace: '/tmp/wcore-temp-123' },
+      type: 'acp',
+      extra: { projectId: 'p1', workspace: '/tmp/acp-temp-123' },
     } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
@@ -88,7 +91,7 @@ describe('WorkerTaskManager #30 spawn-time no-drift', () => {
     mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
     const conversation = {
       id: 'c2',
-      type: 'wcore',
+      type: 'acp',
       extra: { projectId: 'p1', workspace: '/projects/alpha' },
     } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
@@ -104,8 +107,8 @@ describe('WorkerTaskManager #30 spawn-time no-drift', () => {
   it('leaves a non-project chat untouched', async () => {
     const conversation = {
       id: 'c3',
-      type: 'wcore',
-      extra: { workspace: '/tmp/wcore-temp-999' },
+      type: 'acp',
+      extra: { workspace: '/tmp/acp-temp-999' },
     } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
@@ -115,6 +118,6 @@ describe('WorkerTaskManager #30 spawn-time no-drift', () => {
 
     expect(mockGetProject).not.toHaveBeenCalled();
     expect(repo.updateConversation).not.toHaveBeenCalled();
-    expect(((captured.conv as TChatConversation).extra as Record<string, unknown>).workspace).toBe('/tmp/wcore-temp-999');
+    expect(((captured.conv as TChatConversation).extra as Record<string, unknown>).workspace).toBe('/tmp/acp-temp-999');
   });
 });

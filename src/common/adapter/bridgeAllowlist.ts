@@ -30,7 +30,6 @@
  */
 
 import { bridge, storage } from '@office-ai/platform';
-import { isPathBoundaryOptionValue } from '@/common/chat/pathBoundaryConsent';
 
 /** Keys registered via `buildProvider` (main-process providers, renderer invokes). */
 const providerKeys = new Set<string>();
@@ -314,33 +313,6 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // privileged export/import publication. Deny the entire namespace so a
   // future provider cannot become remotely reachable by omission.
   'waylandTransfer.',
-  // #1024 Engine config recovery. Three of the four channels write to or move
-  // the engine's `config.toml`, the file holding the user's providers, API keys
-  // and memory/skills settings: `repair` rewrites it, `regenerate` renames it
-  // away behind a confirmation, and `reveal` asks the HOST OS to open a
-  // Finder/Explorer window. The fourth, `inspect`, is a read, but it discloses
-  // the host's engine config path and its integrity posture - the same
-  // reconnaissance class as `doctor.run`. A paired-device WS token proves a
-  // remote BROWSER, not the local trusted user, so the ENTIRE namespace is
-  // denied. A PREFIX and not four exact keys, for the reason stated on
-  // `waylandTransfer.` directly above and proved by execution: with only the
-  // exact keys listed, `engine-config-recovery.setPath` was remotely ALLOWED
-  // while `terminal.anythingNew` was denied. A namespace where three of four
-  // channels move a credential-bearing file must not be one omission away from
-  // being reachable.
-  'engine-config-recovery.',
-  // The boundary axis - "folders this workspace may reach". `add` mints an AI
-  // agent STANDING READ ACCESS to a folder outside its workspace, `remove`
-  // withdraws it, and `list` discloses the absolute path of every folder the
-  // user has ever consented to. An external audit on the previous milestone
-  // found a paired WebUI could mint exactly this grant through the consent card
-  // with nobody at the desktop (#1099); the Settings surface must not reopen it
-  // from the other side. A PREFIX, for the reason stated on `waylandTransfer.`
-  // above: a namespace whose whole purpose is granting filesystem reach must
-  // not be one omitted enumeration away from being remotely reachable. The
-  // three shipped keys are ALSO listed in REMOTE_DENIED_KEYS below, so
-  // narrowing this prefix later cannot silently re-open them.
-  'workspaceFolderGrants.',
   // N2. The concierge APPLY namespace. `confirm-proposal` with `action:'accept'`
   // is the one path in the feature that mutates config: it connects a provider
   // with the user's API key, rewrites an assistant's instructions, sets the
@@ -356,8 +328,7 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // A PREFIX, for the reason stated on `waylandTransfer.` above: a namespace
   // whose entire purpose is applying model-authored config mutations must not be
   // one omitted enumeration away from remote reach. `confirm-proposal` is ALSO
-  // listed in REMOTE_DENIED_KEYS below, the same belt-and-braces pair
-  // `workspaceFolderGrants.` uses, so narrowing this prefix cannot re-open it.
+  // listed in REMOTE_DENIED_KEYS below, so narrowing this prefix cannot re-open it.
   'conciergeConfig.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
@@ -441,48 +412,6 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     denied: it reports only installed/running booleans and the remote
   //     Models page needs it to explain why a local provider is unreachable. ---
   'modelRegistry.startLocalRuntime',
-  // --- Wayland Core tool-backend key mutation (plant/clear a search API key) ---
-  'wcoreToolKeys.set',
-  'wcoreToolKeys.delete',
-  // --- Wayland Core engine config.toml mutation (rewrite tool allow-list /
-  //     sandbox policy / env passthrough). A remote caller reaching this could
-  //     disable the sandbox or force-allow secrets into bash (SEC-6).
-  //
-  //     #987: a `wcoreConfig.setSection` entry used to head this group. No such
-  //     provider is registered — `setSection()` is a MAIN-process helper in
-  //     src/process/agent/wcore/configBridge.ts that the typed providers below
-  //     call; it never crosses the wire. Matching here is exact, so the entry
-  //     could never fire: it was protection that protected nothing, the same
-  //     failure the agent-installer note further down warns about. The real
-  //     wire surface is the typed setters, all of which are denied. ---
-  'wcoreConfig.patchField',
-  'wcoreConfig.setBrowserPolicy',
-  'wcoreConfig.setRawEngineMode',
-  'wcoreConfig.setOutputBudget',
-  'wcoreConfig.openEffectiveRuntimeFolder',
-  // Also deny the read: it discloses the engine's security/tools posture to a
-  // paired WebUI client (no secret values, but defence-in-depth — SEC review F2).
-  'wcoreConfig.getSection',
-  'wcoreConfig.getBrowserPolicy',
-  // Exact runtime config identity includes absolute local filesystem paths.
-  'wcoreConfig.getEffectiveRuntime',
-  //     #990: `wcoreConfig.getOutputBudget` is the one member of this namespace
-  //     that is deliberately NOT denied, and the gap is design rather than drift.
-  //     It was carved out in the same commit that denied every sibling (#925),
-  //     and `bridgeAllowlist.redteam.test.ts` has asserted the split ever since
-  //     ("keeps output-budget reads remote but denies the mutation"). The reason
-  //     the reads above are denied does not apply to it: its whole payload is
-  //     `{ mode: 'auto' | 'fixed'; value?: number }` - a token cap, with no
-  //     secret, no local path, and nothing about the sandbox or tool posture.
-  //     `setOutputBudget` above is the half that matters and stays denied, as
-  //     does the `wcore.outputBudget` config-storage side door further down.
-  //     Recorded here because an unexplained gap in an otherwise-uniform group
-  //     gets re-raised every time someone reads the file; the sync test in
-  //     `bridgeAllowlistWcoreConfig.redteam.test.ts` now pins the whole namespace
-  //     so a FUTURE sibling cannot inherit this carve-out by omission.
-  // Profile metadata includes local names and filesystem paths. Remote has no
-  // redacted DTO or authority contract, so fail closed.
-  'wcoreProfiles.list',
   // The workspace retention preview is read-only but carries canonical local
   // paths plus conversation/project/schedule identifiers. Keep that diagnostic
   // inventory on the trusted local renderer only.
@@ -498,7 +427,7 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     would spawn a Force/AutoEdit-mode agent with NO local user action. There
   //     is no per-call remote/local signal inside a buildProvider handler (remote
   //     enforcement is name-based here), so mode cannot be clamped in-handler;
-  //     deny the write/exec surface outright, mirroring `wcoreConfig.patchField`.
+  //     deny the write/exec surface outright.
   //     add-job/update-job set the mode; run-now fires the agent (exec);
   //     save-skill writes the job's SKILL.md verbatim (validated only for YAML
   //     frontmatter shape, NOT instruction content), so a remote caller could
@@ -540,17 +469,6 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     cannot slip past this the way the first one did. ---
   'promotion.preview',
   'promotion.promote',
-  // --- In-app engine updater. `install` downloads + stages a native binary the
-  //     next engine spawn executes; a remote caller reaching it is an RCE chain.
-  //     `check` hits the network + discloses the engine version. HUMAN-only. ---
-  'wcoreUpdate.check',
-  'wcoreUpdate.install',
-  // --- Wayland Core profile fs mutation (create/clone/activate/delete profile
-  //     directories under the profiles root). Remote-denied (SEC-4). ---
-  'wcoreProfiles.create',
-  'wcoreProfiles.clone',
-  'wcoreProfiles.activate',
-  'wcoreProfiles.remove',
   // --- Asleep-engine pending-send store (SEC-8). Message bodies are PII/secrets
   //     held in main-process memory only. A remote caller must never read a held
   //     body (take/peek) or inject one (hold), nor drop another user's hold. ---
@@ -611,8 +529,8 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // --- Onboarding credential writes. connect-pasted-key persists a
   //     caller-supplied provider key (remote credential injection / overwrite of
   //     the legitimate key); connect-flux mints + persists a Flux provider
-  //     credential via OAuth. Same class as modelRegistry.connect /
-  //     wcoreToolKeys.set (already denied). The read-only onboarding.infer-focus
+  //     credential via OAuth. Same class as modelRegistry.connect (already
+  //     denied). The read-only onboarding.infer-focus
   //     stays allowed. ---
   'onboarding.connect-pasted-key',
   'onboarding.connect-flux',
@@ -720,9 +638,7 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     stdio spec, then run it" in two remote calls.
   //
   //     This block is an INCOMPLETE ENUMERATION, not a deliberate carve-out.
-  //     Where this file does mean to leave a gap it says so and pins it with a
-  //     test (`wcoreConfig.getOutputBudget`, #990, above); there is no such note
-  //     here. Every terminal operation of the same flow - sync-to-agents,
+  //     Every terminal operation of the same flow - sync-to-agents,
   //     remove-from-agents, archive/restore, all four OAuth keys - is already
   //     denied directly above, so a paired browser could never finish an MCP
   //     install anyway. These two close the steps that could still execute.
@@ -794,23 +710,12 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
-  // NOTE: `engine-config-recovery.*` (#1024) is denied by PREFIX in
-  //     REMOTE_DENIED_PREFIXES above, not enumerated here. See that entry.
   // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
   //     harmless boolean and stays allowed, but a remote peer must not flip the
   //     advanced PTY feature ON. The PTY spawn itself is already denied via the
   //     `terminal.` prefix, so this is defense-in-depth against enabling the
   //     capability surface, matching app.set-* / storage:* setting denials. ---
   'system-settings:set-terminal-enabled',
-  // --- Boundary axis (folder grants). SHADOWED by the
-  //     `workspaceFolderGrants.` prefix above and enumerated here anyway, for
-  //     the reason this Set exists: the prefix is the general rule and these
-  //     three are the specific channels that must survive it being narrowed.
-  //     `add` grants an agent standing read access outside its workspace,
-  //     `remove` withdraws it, `list` enumerates every granted absolute path. ---
-  'workspaceFolderGrants.list',
-  'workspaceFolderGrants.remove',
-  'workspaceFolderGrants.add',
 ]);
 
 /**
@@ -885,12 +790,6 @@ const CONFIG_STORAGE_SET_KEY = 'agent.config.storage.set';
 const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = [
   'webui.desktop.',
   'workspace.trustLevel',
-  'wcore.rawEngineMode',
-  // Output-budget writes must use the dedicated transactional provider, and that
-  // provider (`wcoreConfig.setOutputBudget`) is itself remote-denied. Guard the
-  // persisted key so the generic storage setter cannot become the side door the
-  // typed path closed. The matching READ stays remote-reachable by design (#990).
-  'wcore.outputBudget',
   // N2, and the exact #671 lesson one paragraph up. `mcp.config` is the
   // `IMcpServer[]` - every connector's stdio `command`, `args` and `env` - and
   // it lives in this same ProcessConfig store. Denying the typed
@@ -925,32 +824,6 @@ export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean 
     if (targetKey.startsWith(prefix)) return true;
   }
   return false;
-}
-
-/** The generic confirmation-answer wire key. Legitimately remote-invokable. */
-const CONFIRMATION_CONFIRM_KEY = 'confirmation.confirm';
-
-/**
- * True iff a remote peer is answering a card only the LOCAL user may answer.
- *
- * `confirmation.confirm` stays remote-allowed on purpose: a paired WebUI
- * answering an ordinary tool prompt is a feature. But a `path_boundary` card is
- * not an ordinary prompt - it GRANTS AN AI AGENT STANDING READ ACCESS TO A
- * FOLDER OUTSIDE ITS WORKSPACE, and it is answered by clicking (or pressing
- * Space on) a control in the desktop window. A WebSocket token proves a paired
- * BROWSER, not the human at that window.
- *
- * Without this gate a token-holding client that has seen a `confirmation.add`
- * (or called `confirmation.list`) can post the card's own grant value straight
- * to `task.confirm` and mint the grant with nobody touching the desktop card.
- * Value-gated at the wire rather than key-denied, exactly like
- * {@link isRemoteDeniedConfigWrite} above: the key is legitimate, the VALUE is
- * what must never arrive from a remote peer.
- */
-export function isRemoteDeniedConfirmation(name: string, data: unknown): boolean {
-  if (typeof name !== 'string' || name !== `subscribe-${CONFIRMATION_CONFIRM_KEY}`) return false;
-  const payload = (data as { data?: { data?: unknown } } | null | undefined)?.data;
-  return isPathBoundaryOptionValue((payload as { data?: unknown } | undefined)?.data);
 }
 
 /**

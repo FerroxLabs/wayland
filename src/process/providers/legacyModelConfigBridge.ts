@@ -13,7 +13,6 @@
  * five legacy UI surfaces still read `getMergedModelProviders()` directly:
  *
  *   - `AcpModelSelector` (CLI-agent header in the conversation page)
- *   - `WCoreModelSelector` (Wayland-Core agent header)
  *   - `GeminiModelSelector` (Gemini agent header)
  *   - `EditModeModal` (per-conversation override)
  *   - `AddPlatformModal` (the "add a custom provider" UX in some flows)

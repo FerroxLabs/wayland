@@ -207,7 +207,7 @@ export const resolveFluxAuto = (modelList: IProvider[]): ModelChoice | null => {
  * platform: 'openai-compatible', __waylandModelRegistryBridge: 'v2:flux-router' }`,
  * so both matches missed and the user's deliberate Flux pin was discarded on
  * every boot. Resolve by bridge tag as well, mirroring the priority
- * `resolveSelectedProvider` and `useWCoreModelSelection` already use.
+ * `resolveSelectedProvider` already uses.
  */
 const resolveSavedPin = (savedModel: unknown, modelList: IProvider[]): ModelChoice | null => {
   if (savedModel && typeof savedModel === 'object' && 'id' in savedModel) {
@@ -232,12 +232,11 @@ const resolveSavedPin = (savedModel: unknown, modelList: IProvider[]): ModelChoi
 };
 
 /** Provider-based agent keys that share the model list UI */
-type ProviderAgentKey = 'gemini' | 'wcore';
+type ProviderAgentKey = 'gemini';
 
 /** Map agent key → storage key for persisting default model */
-const MODEL_STORAGE_KEY: Record<ProviderAgentKey, 'gemini.defaultModel' | 'wcore.defaultModel'> = {
+const MODEL_STORAGE_KEY: Record<ProviderAgentKey, 'gemini.defaultModel'> = {
   gemini: 'gemini.defaultModel',
-  wcore: 'wcore.defaultModel',
 };
 
 export type GuidModelSelectionResult = {
@@ -252,9 +251,9 @@ export type GuidModelSelectionResult = {
 
 /**
  * Hook that manages Gemini model list and selection state for the Guid page.
- * @param agentKey - current provider-based agent ('gemini' | 'wcore'), defaults to 'wcore'
+ * @param agentKey - current provider-based agent, defaults to 'gemini'
  */
-export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): GuidModelSelectionResult => {
+export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): GuidModelSelectionResult => {
   const { geminiModeOptions, isGoogleAuth } = useGeminiGoogleAuthModels();
   const { data: modelConfig, mutate: mutateModelConfig } = useSWR('model.config.welcome', () => {
     return ipcBridge.mode.getModelConfig.invoke().then((data) => {
@@ -269,7 +268,7 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
   // dismissing it never remounts the page — without this subscription the SWR
   // cache stays on its empty cold-start snapshot, `currentModel` never
   // resolves, and the brand-new user's first send is silently dropped by the
-  // wcore "no model configured" guard (issue #108). Mirrors the same
+  // "no model configured" guard (issue #108). Mirrors the same
   // revalidation `useModelProviderList` already does for `model.config.shared`.
   useEffect(() => {
     return ipcBridge.modelRegistry.listChanged.on(() => {
@@ -283,9 +282,9 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
     let allProviders: IProvider[] = [];
 
     // Only expose the Gemini Google Auth provider when the current agent is
-    // 'gemini'. Other provider-based agents (e.g. wcore) do not support
-    // Google login, so surfacing this provider would make the default-model
-    // fallback pick a Gemini auto model by mistake.
+    // 'gemini'. Other agents do not support Google login, so surfacing this
+    // provider would make the default-model fallback pick a Gemini auto model
+    // by mistake.
     if (isGoogleAuth && agentKey === 'gemini') {
       const geminiProvider: IProvider = {
         id: uuid(),

@@ -52,6 +52,7 @@
   "export.unavailable": "目前無法匯出對話",
   "unknownMessageType": "未知訊息類型：{{type}}",
   "permissionRequest": "權限請求",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "代理正在請求權限。",
   "command": "命令：",
   "chooseAction": "請選擇操作：",
@@ -87,10 +88,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "來自代理",
-    "preview": "預覽",
-    "truncated": "已截斷 —— 內容過大，無法完整顯示。"
   }
 }

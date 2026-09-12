@@ -10,7 +10,7 @@
  * canonical {@link ActivityNode} model used by the observability timeline.
  *
  * This unifies the ACP backends onto the SAME activity surface the Wayland Core
- * (wcore) path already feeds, so the timeline renders one shape regardless of
+ * (native) path already feeds, so the timeline renders one shape regardless of
  * which engine produced the turn.
  *
  * Returns ZERO OR MORE partial nodes per event. The caller folds them into the

@@ -52,6 +52,7 @@
   "export.unavailable": "현재 대화를 내보낼 수 없습니다",
   "unknownMessageType": "알 수 없는 메시지 유형: {{type}}",
   "permissionRequest": "권한 요청",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "에이전트가 권한을 요청하고 있습니다.",
   "command": "명령:",
   "chooseAction": "작업 선택:",
@@ -87,10 +88,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "에이전트가 보냄",
-    "preview": "미리 보기",
-    "truncated": "잘림 — 너무 커서 전체를 표시할 수 없습니다."
   }
 }

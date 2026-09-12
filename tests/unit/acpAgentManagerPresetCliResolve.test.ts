@@ -118,6 +118,20 @@ describe('resolveCustomAgentCliConfig — thin-specialist fallthrough (#66)', ()
     mockGet.mockImplementation(async (key: string) => (key === 'assistants' ? ASSISTANTS : undefined));
   });
 
+  it('preserves registered custom launch arguments and environment ahead of legacy rows', async () => {
+    const custom = {
+      id: 'fuigo-pilot',
+      defaultCliPath: '/opt/fuigo',
+      acpArgs: ['agent', '--no-leader', 'stdio'],
+      env: { FUIGO_HOME: '/tmp/fuigo-pilot' },
+    };
+    mockGet.mockImplementation(async (key: string) =>
+      key === 'acp.customAgents' ? [custom] : key === 'assistants' ? [{ ...custom, acpArgs: ['legacy'] }] : undefined
+    );
+    const result = await resolver('custom')({ customAgentId: custom.id, backend: 'custom' });
+    expect(result).toMatchObject({ cliPath: custom.defaultCliPath, customArgs: custom.acpArgs, customEnv: custom.env });
+  });
+
   it('resolves a real cliPath for a thin builtin specialist (no defaultCliPath)', async () => {
     const res = await resolver('claude')({ customAgentId: 'builtin-social', backend: 'claude', cliPath: undefined });
     // The regression returned { cliPath: undefined } → spawn throws. The fix falls

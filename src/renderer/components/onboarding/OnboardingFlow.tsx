@@ -257,10 +257,12 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   const hasOllama = detection.ollama.running && detection.ollama.models.length > 0;
   const fluxConnected = detection.fluxConnected;
   const warm = hasKeys || hasOllama || fluxConnected;
-  // Installed execution engines beyond the always-present bundled ones (Wayland
-  // Core, Gemini CLI) - a detected Claude Code / Qwen / Kimi / OpenClaw / … means
-  // the user can chat now, so it counts toward the ready (cli-only) fork.
-  const discoveredAgents = detection.agents.filter((a) => a.kind !== 'wcore' && a.kind !== 'gemini');
+  // Installed execution engines beyond the always-present bundled ones (Fuigo,
+  // Gemini CLI) - a detected Claude Code / Qwen / Kimi / OpenClaw / … means the
+  // user can chat now, so it counts toward the ready (cli-only) fork. Fuigo is
+  // an ACP backend, so it is keyed by `id` (its `kind` is the generic 'acp'),
+  // unlike the native-kind Gemini engine.
+  const discoveredAgents = detection.agents.filter((a) => a.id !== 'fuigo' && a.kind !== 'gemini');
   const cliOnly = !warm && (discoveredAgents.length > 0 || detection.clis.length > 0 || detection.claudePro);
   const trueCold = !warm && !cliOnly;
 
@@ -300,7 +302,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       // the composer falls to the cold-start resolver.
       //
       // Measured, not reasoned: 1 run in 10 of a fresh Flux-connected profile
-      // ended with `wcore.defaultModel` undefined and the chip on `flux-auto`.
+      // ended with `fuigo.defaultModel` undefined and the chip on `flux-auto`.
       // The buyers most likely to hit it are exactly the ones who click fast.
       //
       // Stale state updates are still suppressed - that is what the flag is
@@ -319,7 +321,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       if (detection.fluxConnected) {
         try {
           const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
-          await ConfigStorage.set('wcore.defaultModel', pin);
+          await ConfigStorage.set('fuigo.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
           announceDefaultModelPin();
@@ -349,7 +351,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           const safe = resolveSafeDefault(providers ?? []);
           if (safe?.provider?.id && safe.useModel) {
             const pin = { id: safe.provider.id, useModel: safe.useModel };
-            await ConfigStorage.set('wcore.defaultModel', pin);
+            await ConfigStorage.set('fuigo.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
             announceDefaultModelPin();
           }
@@ -379,7 +381,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         // non-fatal: the connection already succeeded, so never block onboarding.
         try {
           const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
-          await ConfigStorage.set('wcore.defaultModel', pin);
+          await ConfigStorage.set('fuigo.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
           announceDefaultModelPin();
@@ -439,7 +441,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         if (res.providerId === FLUX_PROVIDER_ID) {
           try {
             const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
-            await ConfigStorage.set('wcore.defaultModel', pin);
+            await ConfigStorage.set('fuigo.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
             await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
             announceDefaultModelPin();

@@ -6,7 +6,11 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { CODEX_MODE_FULL_AUTO } from '@/common/types/codex/codexModes';
+import {
+  CODEX_MODE_AUTO_EDIT,
+  CODEX_MODE_FULL_AUTO,
+  CODEX_MODE_FULL_AUTO_NO_SANDBOX,
+} from '@/common/types/codex/codexModes';
 
 /**
  * Full-auto (YOLO) mode ID per backend.
@@ -36,10 +40,15 @@ export const ACP_AUTO_GUARDED_MODE = 'autoGuarded';
 
 const FULL_AUTO_MODE: Record<string, string> = {
   claude: ACP_AUTO_GUARDED_MODE,
+  // Fuigo speaks Claude Code's permission-mode vocabulary (default, acceptEdits,
+  // plan, auto, dontAsk, bypassPermissions) over session/set_mode but advertises
+  // no `modes` on session/new (verified live on 1.0.13), so its full-auto is the
+  // same client-enforced guarded mode as claude's; blind auto is Autopilot
+  // ('bypassPermissions'), which the engine accepts as a set_mode id.
+  fuigo: ACP_AUTO_GUARDED_MODE,
   qwen: 'yolo',
   opencode: 'build',
   gemini: 'yolo',
-  wcore: 'yolo',
   codex: CODEX_MODE_FULL_AUTO,
   cursor: 'agent',
   snow: 'yolo',
@@ -119,9 +128,34 @@ export function getFullAutoMode(backend: string | undefined): string {
   return FULL_AUTO_MODE[backend] || 'yolo';
 }
 
+/** Safe per-run defaults; full-auto is never inferred from a backend name. */
+export function getDefaultUnattendedMode(backend: string | undefined): string {
+  if (backend === 'gemini') return 'autoEdit';
+  if (backend === 'claude' || backend === 'fuigo') return 'acceptEdits';
+  if (backend === 'codex') return CODEX_MODE_AUTO_EDIT;
+  if (backend === 'opencode') return 'build';
+  if (backend === 'cursor') return 'agent';
+  return 'default';
+}
+
+/** Only a declared bypass mode authorizes the host's blanket-approval flag. */
+export function isExplicitUnattendedFullAuto(backend: string | undefined, declaredMode: string | undefined): boolean {
+  const mode = declaredMode?.trim();
+  if (backend === 'claude' || backend === 'fuigo') return mode === 'bypassPermissions';
+  if (backend === 'codex') return mode === CODEX_MODE_FULL_AUTO || mode === CODEX_MODE_FULL_AUTO_NO_SANDBOX;
+  return ['gemini', 'qwen', 'snow'].includes(backend ?? '') && mode === 'yolo';
+}
+
+/** Keep an explicit per-run declaration; let the backend reject unsupported values. */
+export function resolveUnattendedMode(backend: string | undefined, declaredMode?: string): string {
+  const declared = declaredMode?.trim();
+  if (!declared) return getDefaultUnattendedMode(backend);
+  return declared;
+}
+
 /**
  * ACP session mode that auto-approves file edits while still prompting for
- * commands (Claude's "Accept Edits"). Other ACP backends (Gemini/WCore) enforce
+ * commands (Claude's "Accept Edits"). Other backends (Gemini) enforce
  * their own auto-edit mode at the manager layer; this constant covers the ACP
  * `session/set_mode` modeId surfaced by the claude bridge.
  */
@@ -133,7 +167,7 @@ const ACP_ACCEPT_EDITS_MODE = 'acceptEdits';
  *
  * The claude ACP bridge still forwards a `session/request_permission` for edit
  * tools even after `session/set_mode` -> `acceptEdits`, so Wayland must honor the
- * mode itself (mirroring GeminiAgentManager.autoEdit and WCoreManager.auto_edit).
+ * mode itself (mirroring GeminiAgentManager.autoEdit).
  * Read/execute tools are intentionally NOT auto-approved here: the "Accept Edits"
  * contract is "auto-approve file edits, prompt for commands".
  *

@@ -1,5 +1,7 @@
 # Wayland Desktop Master Plan Adversarial Audit
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Audit date: 2026-07-15; reopened 2026-07-16; Wave 0 scope rebaseline 2026-07-17
 Plan audited: `MASTER-BUILD-PLAN.md`
 Release baseline: Desktop `v0.11.18` at `1b1c1e91119e3352bec3958188254ee91f150492`
@@ -295,7 +297,7 @@ the gate remains HOLD until both independently return no unresolved High.
 The source-tracing Codex rerun verified the production quarantine but found one
 additional High in the preview/startup implementation: concurrent Core chats in
 one project wrote distinct provider and connector profiles to the same
-`.wcore.toml`, then yielded before spawn/ready. Either engine could therefore
+the temporary project config, then yielded before spawn/ready. Either engine could therefore
 consume its sibling's launch authority. It also found two Medium gaps: an
 unexpected connector receipt could enter the preview reducer, and Gemini
 started replacement bootstrap before the prior worker had fully exited.
@@ -336,15 +338,15 @@ treated as open until current-tree proof existed:
 | Name-only Core receipts did not prove definition/session/scope identity    | Receipt/restart/persistence code is test-harness-only and cannot promote product UI; MCP-2 correlation remains explicitly open                                                                                                                                                          | Product false-promotion closed; MCP-2 still locked |
 | Active-profile Core publication used per-instance read/modify/write queues | Every Core config writer now shares the same atomic mutation lock. The manager captures one active-profile home before MCP publication and passes that exact home through engine spawn, so a marker change cannot split one launch across profiles                                      | Corrected locally; external rerun pending          |
 | Project lease used lexical paths and missed symlink aliases                | Lease acquisition resolves the physical workspace once and passes that captured canonical path through config publication, child `cwd`, ready, and restore. Symlink aliases serialize, and retargeting an alias after acquisition cannot redirect the operation                         | Corrected locally; external rerun pending          |
-| Temporary `.wcore.toml` was neither atomic nor crash recoverable           | Replacement and restoration are atomic; original bytes and replacement digest are journaled with rename/unlink metadata flushes; next launch heals an interrupted transaction and preserves newer user edits. Final-component symlinks are refused for target, marker, and backup reads | Corrected locally; external rerun pending          |
+| Temporary engine project config was neither atomic nor crash recoverable   | Replacement and restoration are atomic; original bytes and replacement digest are journaled with rename/unlink metadata flushes; next launch heals an interrupted transaction and preserves newer user edits. Final-component symlinks are refused for target, marker, and backup reads | Corrected locally; external rerun pending          |
 | Gemini replacement could start without a new fork or confirmed old exit    | Replacement now initializes a new fork only after `kill()` resolves; Electron timeout/refusal rejects instead of pretending exit was confirmed                                                                                                                                          | Corrected locally; external rerun pending          |
 
 The follow-up source audit found three additional launch-integrity gaps: corrupt
 or unreadable active-profile markers fell back to the default profile, the final
-`.wcore.toml` component could be a symlink, and the crash journal did not flush
+project-config component could be a symlink, and the crash journal did not flush
 parent-directory metadata after rename/unlink. All three now fail closed or use
 ordered metadata flushes. Active-profile marker activation itself is an atomic,
-mode-0600, synced replacement. The WCore publication/launch matrix passes 7 files
+mode-0600, synced replacement. The engine publication/launch matrix passes 7 files
 / 69 tests; the marker/config/lease security matrix passes 7 files / 48 tests.
 
 Exact-current acceptance now passes 1,293 test files / 13,362 tests, with 19
@@ -381,11 +383,11 @@ artifact proof, cohort authority, or MCP-2 readiness promotion is unlocked.
 Later M0A/Cowork packaging work invalidated two stale source-of-truth claims and
 exposed one new High implementation contradiction:
 
-| Finding                                                                                                                                                                                                  | Correction or required proof                                                                                                                                                                                                                             | Current state                   |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Cowork still described the removed npm `0.2.79`/hosted-credit path as its immediate defect and repeated the removed fallback plus completed ledger as current C0 blockers                                | Cowork and master-plan prose now distinguish historical baseline defects from current release gates. Current blockers are cross-target/signed Office packaging, authority rollback, shared readiness ownership, and the complete vertical                | Corrected in plan               |
-| M0A said no actual packaged-host proof existed after a real macOS ARM64 app package proved both Windows recovery extractors and the exact OfficeCLI publisher/hash/entitlement chain                     | Execution control and receipts now record that bounded package proof while retaining Windows/Linux, signed-release, packaged-recovery, and six-target gates                                                                                              | Corrected in plan               |
-| Direct `build-with-builder.js` packaging reused a Core manifest with `sourceType=local-prebuilt` and `verified=false`; post-package verification accepted any non-empty `bundled-wayland-core` directory | M0A/M1/M8 now require strict preparation asserted by the package command plus an exact target/release/archive/binary provenance receipt replayed from the actual package. Local, skipped, unverified, mismatched, or self-asserted manifests fail closed | **High open in implementation** |
+| Finding                                                                                                                                                                                          | Correction or required proof                                                                                                                                                                                                                             | Current state                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Cowork still described the removed npm `0.2.79`/hosted-credit path as its immediate defect and repeated the removed fallback plus completed ledger as current C0 blockers                        | Cowork and master-plan prose now distinguish historical baseline defects from current release gates. Current blockers are cross-target/signed Office packaging, authority rollback, shared readiness ownership, and the complete vertical                | Corrected in plan               |
+| M0A said no actual packaged-host proof existed after a real macOS ARM64 app package proved both Windows recovery extractors and the exact OfficeCLI publisher/hash/entitlement chain             | Execution control and receipts now record that bounded package proof while retaining Windows/Linux, signed-release, packaged-recovery, and six-target gates                                                                                              | Corrected in plan               |
+| Direct `build-with-builder.js` packaging reused a Core manifest with `sourceType=local-prebuilt` and `verified=false`; post-package verification accepted any non-empty bundled-engine directory | M0A/M1/M8 now require strict preparation asserted by the package command plus an exact target/release/archive/binary provenance receipt replayed from the actual package. Local, skipped, unverified, mismatched, or self-asserted manifests fail closed | **High open in implementation** |
 
 The plan is goal-aligned and dependency-ordered after these corrections, but the
 current package implementation contradicts its Core provenance gate. Bounded
@@ -411,7 +413,7 @@ High bypasses. All were accepted and corrected:
 | Finding                                                                                                                                                    | Correction                                                                                                                                                                                                                                                                        | Proof                                                                                                                       |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Electron Builder aliases, boolean forms such as `--x64=true`, target-qualified architecture, and `--universal` could evade the wrapper's one-target parser | Package grammar now rejects non-canonical platform/architecture spellings, encoded target architectures, unsupported architectures, multi-platform, and multi-architecture invocations before preparation or build; convenience scripts run architectures as isolated invocations | Behavioral child-process cases cover aliases, `=`, target suffixes, universal, canonical multi-target, and multi-arch forms |
-| Strict cache reuse left stale executables such as `wcore` inside the selected runtime and the packaged verifier did not enumerate runtime contents         | Reuse prunes the selected runtime to the independently pinned regular executable before regenerating its manifest; packaged verification requires exactly the expected executable and manifest as regular files                                                                   | Preparation prune test plus packaged stale-executable and symlink rejection tests                                           |
+| Strict cache reuse left stale executables inside the selected runtime and the packaged verifier did not enumerate runtime contents                         | Reuse prunes the selected runtime to the independently pinned regular executable before regenerating its manifest; packaged verification requires exactly the expected executable and manifest as regular files                                                                   | Preparation prune test plus packaged stale-executable and symlink rejection tests                                           |
 | macOS CI could convert a post-package provenance failure into success when a DMG existed and prior log text mentioned notarization/stapling                | The workflow removes stale DMGs before each attempt and propagates every non-zero build/verifier exit exactly; notarization hooks own their bounded non-fatal degradation internally                                                                                              | Workflow contract test rejects the removed log-text/DMG reclassification path                                               |
 
 Focused exact-current proof after those corrections passes five files and 46
@@ -420,7 +422,7 @@ A fresh post-correction macOS ARM64 package proved exact Core SHA-256
 `aa818a9492b59fd4402b2d4d451104d88dee5e5c20f05b722a487cdc39a6a382`,
 one target-exact Core runtime, one target-exact OfficeCLI runtime, strict deep
 app signature validation, and the mandatory packaged-resource verifier. The
-Core runtime contained exactly the regular `wayland-core` executable and
+Core runtime contained exactly the regular engine executable and
 `manifest.json`; the standalone verifier replayed the exact target/release,
 archive and binary digests, manifest, and packaged bytes. Optional Hub download
 and Signal CLI archive-layout failures remain separate packaging gaps and were
@@ -487,7 +489,7 @@ reopened the broader plan gate. The customer packet is source-correlated:
   profile override, not only model/skills, so it can worsen the reported
   connector/skill symptoms and cannot be offered as Browser recovery;
 - deleting a conversation removes only its database record while generated
-  `wcore-temp-*` workspaces remain unmanaged; this is a Desktop state-lifecycle
+  temporary no-folder chat workspaces remain unmanaged; this is a Desktop state-lifecycle
   gap, but it does **not** authorize deleting user files;
 - updater pending-marker/quit safeguards are code-present, while Mike's failed
   relaunch remains unclosed until a signed candidate proves apply/relaunch and
@@ -738,7 +740,7 @@ This requirement is now split into two non-overlapping lanes. The archive lane
 owns authenticated HMAC v3 records, legacy list-only behavior, recovery
 reservation semantics, and an explicit no-fallback backend boundary. A new
 standalone `wayland-constitution-fs` lane owns directory-handle-anchored native
-transactions; it is independent of Wayland Core. POSIX support must use held
+transactions; it is independent of the engine. POSIX support must use held
 directory descriptors and no-replace mutation. Windows must either implement
 HANDLE-relative reparse-safe operations with real junction tests or return a
 stable unsafe-platform error. Packaging and signed multi-target proof remain

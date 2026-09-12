@@ -105,8 +105,8 @@ function collectReferences(): Reference[] {
  *  - anything else is relative to the skill's own directory, which is the cwd
  *    the SKILL.md tells the agent to `cd` into.
  */
-/** The engine stages every enabled skill under `<workspace>/.wayland-core/skills/<id>/`. */
-const WORKSPACE_SKILLS_PREFIX = '.wayland-core/skills/';
+/** The engine stages every enabled skill under `<workspace>/.wayland/skills/<id>/`. */
+const WORKSPACE_SKILLS_PREFIX = '.wayland/skills/';
 
 function resolveReference(ref: Reference): string {
   if (ref.token.startsWith('skills/')) return path.join(RESOURCES, ref.token);

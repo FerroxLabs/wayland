@@ -14,7 +14,7 @@ import { getAgentModes, supportsModeSwitch, type AgentModeOption } from '@/rende
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { AgentLogoIcon } from './AgentBadge';
 import { Button, Dropdown, Menu, Message } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarqueePillLabel from './MarqueePillLabel';
 
@@ -148,6 +148,14 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   const validInitialMode = initialMode && modes.some((m) => m.value === initialMode) ? initialMode : defaultMode;
   const [currentMode, setCurrentMode] = useState<string>(validInitialMode);
   const [isLoading, setIsLoading] = useState(false);
+  const modeChangeEpoch = useRef(0);
+  useEffect(() => {
+    modeChangeEpoch.current += 1;
+    setIsLoading(false);
+    return () => {
+      modeChangeEpoch.current += 1;
+    };
+  }, [conversationId, backend]);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const getDisplayModeLabel = useCallback(
     (mode: AgentModeOption) => modeLabelFormatter?.(mode) ?? mode.label,
@@ -173,22 +181,25 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
     if (!conversationId || !canSwitchMode) return;
     let cancelled = false;
 
-    ipcBridge.acpConversation.getMode
-      .invoke({ conversationId })
-      .then((result) => {
-        if (!cancelled && result.success && result.data) {
-          // Only sync from backend when manager is initialized;
-          // before first message, getMode returns { mode: 'default', initialized: false }
-          // which would overwrite the correct initialMode (e.g. opencode has no 'default').
-          if (result.data.initialized !== false) {
+    let request = 0;
+    const refresh = () => {
+      const version = ++request;
+      void ipcBridge.acpConversation.getMode
+        .invoke({ conversationId })
+        .then((result) => {
+          if (
+            !cancelled &&
+            version === request &&
+            result.success &&
+            result.data?.initialized !== false &&
+            result.data
+          ) {
             setCurrentMode(result.data.mode);
           }
-        }
-      })
-      .catch(() => {
-        // Silent fail, keep current state
-      });
-
+        })
+        .catch(() => {});
+    };
+    refresh();
     return () => {
       cancelled = true;
     };
@@ -212,12 +223,14 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
       if (!conversationId) return;
 
       setIsLoading(true);
+      const epoch = modeChangeEpoch.current;
       try {
         const result = await ipcBridge.acpConversation.setMode.invoke({
           conversationId,
           mode,
         });
 
+        if (epoch !== modeChangeEpoch.current) return;
         if (result.success) {
           setCurrentMode(result.data?.mode ?? mode);
           onModeChanged?.(result.data?.mode ?? mode);
@@ -228,13 +241,16 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
           Message.warning(errorMsg);
         }
       } catch (error) {
+        if (epoch !== modeChangeEpoch.current) return;
         console.error('[AgentModeSelector] Failed to switch mode:', error);
         Message.error('Switch failed');
       } finally {
-        setIsLoading(false);
+        if (epoch === modeChangeEpoch.current) {
+          setIsLoading(false);
+        }
       }
     },
-    [conversationId, currentMode, onModeSelect]
+    [conversationId, currentMode, onModeSelect, onModeChanged]
   );
 
   const renderLogo = () => (
@@ -289,6 +305,8 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
           className={`sendbox-model-btn agent-mode-compact-pill ${canInteract ? '' : 'agent-mode-compact-pill--readonly'}`}
           shape='round'
           size='small'
+          aria-label={compactLabel}
+          aria-busy={isLoading}
           onClick={canInteract ? () => !isLoading && setDropdownVisible((visible) => !visible) : undefined}
           style={{
             opacity: isLoading ? 0.6 : 1,

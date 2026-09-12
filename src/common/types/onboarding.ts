@@ -21,9 +21,9 @@ export type DetectionResult = {
   /**
    * Execution engines found by the app's unified `AgentRegistry` - the same
    * scan that powers the model picker (Claude Code, Codex, Qwen Code, Kimi CLI,
-   * OpenCode, Hermes, OpenClaw Gateway, Gemini CLI, Wayland Core, …). `kind` is
-   * the registry `DetectedAgentKind` (`acp` | `gemini` | `wcore` |
-   * `openclaw-gateway` | `nanobot` | `remote`).
+   * OpenCode, Hermes, OpenClaw Gateway, Gemini CLI, Fuigo, …). `kind` is
+   * the registry `DetectedAgentKind` (`acp` | `gemini` | `openclaw-gateway` |
+   * `remote`).
    */
   agents: { id: string; kind: string; name: string }[];
   /** Provider env keys discovered in the shell environment / config files. */

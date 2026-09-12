@@ -116,7 +116,7 @@ export async function enableSkillForAssistant(
  * The resolution follows `useGuidAgentSelection.restoreSavedSelection`, because
  * the answer has to be the assistant the composer will really use:
  *   - `custom:<id>` / `remote:<id>` -> that assistant, trusted directly
- *   - a plain backend key (`wcore`, `gemini`) names an ENGINE, not an assistant,
+ *   - a plain backend key (`fuigo`, `gemini`) names an ENGINE, not an assistant,
  *     so it tells us nothing here and falls through
  *   - nothing saved -> the Concierge default, unless the user turned
  *     `concierge.defaultPersona` off
@@ -126,7 +126,7 @@ export async function enableSkillForAssistant(
  *
  * ONE PATH IT DOES NOT MODEL, and the comment used to claim it mirrored the
  * composer "exactly". Sidebar "New chat" takes a different branch: the reset
- * effect writes a PLAIN BACKEND KEY (the first detected CLI engine, or `wcore`)
+ * effect writes a PLAIN BACKEND KEY (the first detected CLI engine, or `fuigo`)
  * and the restore effect returns early, so nothing here ever sees a preset. The
  * outcome is not wrong - after a reset the composer really is on an engine and
  * not on an assistant, so "no assistant" is the truthful answer - but it means

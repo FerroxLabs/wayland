@@ -14,8 +14,6 @@
  *
  * Usage:
  *   node scripts/verify-packaged-resources.js [--out <dir>]
- *     --wcore-runtime <platform-arch> [--wcore-runtime ...]
- *     --wnano-runtime <platform-arch> [--wnano-runtime ...]
  *     --officecli-runtime <platform-arch> [--officecli-runtime ...]
  *   (defaults to ./out, electron-builder's directories.output)
  *
@@ -25,6 +23,7 @@
 'use strict';
 
 const fs = require('fs');
+const { verifyTvControl } = require('./prepareTvControl');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
@@ -33,8 +32,6 @@ const {
   isDarwinDeveloperIdSigned,
   darwinSigningIdentifier,
 } = require('./signDarwinStagedBinary');
-const prepareWaylandCore = require('./prepareWaylandCore');
-const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
 const bundledBunShasums = require('./bundled-bun-shasums.json');
 const bundledBunBinaries = require('./bundled-bun-binaries.json');
@@ -43,20 +40,19 @@ const voiceModelPinnedRelease = require('./voice-model-pinned-release.json');
 const modelsDevSnapshotPin = require('./modelsdev-snapshot-pin.json');
 const whatsappBridgeSource = require('./whatsapp-bridge-source.json');
 const { verifyCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
-const { CONTRACT: PUBLISHER_CONTRACT, selectPolicy } = require('./supply-chain/verifyPublisherAttestation');
-const { isAuthenticodeSigned, describeAuthenticode } = require('./peAuthenticode');
 
 const TAG = '[verify-packaged-resources]';
 
 // resource path (relative to the app Resources dir) -> {critical, kind}
 // kind 'file' = must exist and be non-empty; 'dir' = must exist and be non-empty.
+const fuigoAuthority = require('./fuigo/authority.json');
 const REQUIRED = [
+  { rel: 'bundled-fuigo', critical: true, kind: 'fuigo-bundle' },
   { rel: 'capability-seal.json', critical: true, kind: 'capability-seal' },
   { rel: 'skills-library', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
-  { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
-  { rel: 'bundled-wayland-nano', critical: true, kind: 'wnano-bundle', absentWhen: 'noWNanoRuntime' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
+  { rel: 'bundled-tvcontrol', critical: true, kind: 'tvcontrol-bundle' },
   {
     rel: 'managed-cli-shims/officecli',
     critical: true,
@@ -328,7 +324,7 @@ function verifyConstitutionFsBundle(
     return false;
   const identity = inspectExecutable(binaryPath);
   if (identity?.platform !== targetPlatform || identity?.arch !== targetArch) return false;
-  // Signature policy matches wcore/wnano: only a build that HAD a Developer ID
+  // Signature policy: only a build that HAD a Developer ID
   // identity must ship a signed helper, and then it must be a real Ferrox Labs
   // Developer ID signature (ad-hoc / linker-signed is exactly what Apple
   // rejects at notarization). A build with no identity deliberately stages the
@@ -340,8 +336,7 @@ function verifyConstitutionFsBundle(
   // which is what actually authenticates them, since package-authority.json
   // ships inside the package alongside the manifest.
   if (targetPlatform === 'darwin' && requireDarwinSignature) {
-    // Bind the signature to the bytes it was minted for, the way wcore and wnano
-    // already do. prepareConstitutionFs signs with
+    // Bind the signature to the bytes it was minted for. prepareConstitutionFs signs with
     // `--identifier wayland-constitution-fs.<pre-signature sha256>`, so the
     // identifier lives INSIDE the signature and cannot be changed without the
     // signing key. Checking only "is this Developer ID signed" accepted any
@@ -506,260 +501,6 @@ function parseRequiredRuntimes(argv, flag, label) {
     throw new Error(`${TAG} at least one ${flag} is required; ${label} target identity must never be inferred`);
   }
   return [...new Set(runtimes)].sort();
-}
-
-function verifyWCoreRuntime(
-  bundleDir,
-  runtimeKey,
-  authority = prepareWaylandCore,
-  signedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
-) {
-  const [platform, arch] = runtimeKey.split('-');
-  const binaryName = platform === 'win32' ? 'wayland-core.exe' : 'wayland-core';
-  const runtimeDir = path.join(bundleDir, runtimeKey);
-  const manifestPath = path.join(runtimeDir, 'manifest.json');
-  const binaryPath = path.join(runtimeDir, binaryName);
-  if (!isNonEmpty(manifestPath, 'file') || !isNonEmpty(binaryPath, 'file')) return false;
-  const runtimeEntries = fs.readdirSync(runtimeDir, { withFileTypes: true });
-  const expectedRuntimeFiles = [binaryName, 'manifest.json'].sort();
-  if (
-    JSON.stringify(runtimeEntries.map((entry) => entry.name).sort()) !== JSON.stringify(expectedRuntimeFiles) ||
-    runtimeEntries.some((entry) => !entry.isFile())
-  ) {
-    return false;
-  }
-
-  const metadata = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const releaseTag = authority.DEFAULT_WCORE_VERSION;
-  const assetName = authority.getAssetName(platform, arch, releaseTag);
-  if (!assetName) return false;
-  const expected = authority.loadExpectedProvenance(releaseTag, assetName, { requireBinary: true });
-  const actualBinarySha256 = sha256File(binaryPath);
-  const manifestArchiveSha256 = String(metadata.source?.archiveSha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const manifestBinarySha256 = String(metadata.binary?.sha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const manifestStagedSha256 = String(metadata.binary?.stagedSha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const expectedUrl = `https://github.com/FerroxLabs/wayland-core/releases/download/${releaseTag}/${assetName}`;
-  const publisher = metadata.publisherAttestation;
-  const publisherPolicy = selectPolicy(releaseTag);
-  const publisherVerified =
-    publisher?.contract === PUBLISHER_CONTRACT &&
-    publisher?.policyId === publisherPolicy.id &&
-    publisher?.repository === publisherPolicy.repository &&
-    publisher?.signerWorkflow === publisherPolicy.signerWorkflow &&
-    publisher?.sourceRef === publisherPolicy.sourceRef &&
-    publisher?.sourceDigest === publisherPolicy.sourceDigest &&
-    publisher?.predicateType === publisherPolicy.predicateType &&
-    publisher?.runner === publisherPolicy.runner &&
-    publisher?.asset === assetName &&
-    publisher?.sha256 === `sha256:${expected.archiveSha256}` &&
-    publisher?.verified === true;
-
-  return (
-    metadata.contract === authority.BUNDLE_CONTRACT &&
-    metadata.generator === authority.BUNDLE_GENERATOR &&
-    metadata.platform === platform &&
-    metadata.arch === arch &&
-    metadata.releaseTag === releaseTag &&
-    metadata.version === releaseTag &&
-    ['download', 'verified-cache'].includes(metadata.sourceType) &&
-    metadata.verified === true &&
-    publisherVerified &&
-    metadata.skipped === false &&
-    metadata.source?.owner === 'FerroxLabs' &&
-    metadata.source?.repository === 'wayland-core' &&
-    metadata.source?.url === expectedUrl &&
-    metadata.source?.asset === assetName &&
-    manifestArchiveSha256 === expected.archiveSha256 &&
-    // #914: wayland-nano v0.1.1 shipped a win32-x64 executable whose PE
-    // certificate table was EMPTY. Every digest pin matched, the installer
-    // around it was signed, and nothing in the build ever looked at the
-    // executable's own signature - so an unsigned binary went out inside a
-    // signed installer and Defender blocked it on users' machines.
-    //
-    // We do not, and must not, sign this binary ourselves: Authenticode
-    // signing rewrites the file and would break the binarySha256 pinned above,
-    // which is exactly why electron-builder.yml excludes it with a negative
-    // signExts pattern. The only correct check is that the UPSTREAM signature
-    // survived into the package. Fails closed - an executable that cannot be
-    // parsed as a signed PE is treated as unsigned.
-    (platform !== 'win32' || isAuthenticodeSigned(binaryPath)) &&
-    metadata.binary?.name === binaryName &&
-    manifestBinarySha256 === expected.binarySha256 &&
-    // Byte identity is never traded for signer identity: the shipped bytes must
-    // equal the staged digest exactly. The staged bytes are then either the
-    // pinned upstream bytes verbatim, or - on macOS only - a Developer ID
-    // signed derivative of them, because Apple rejects ad-hoc Mach-O.
-    //
-    // Neither branch is a way in. Claiming the first forces the attacker to
-    // ship the genuine upstream binary. Claiming the second forces them to
-    // produce a Ferrox Labs signature whose IDENTIFIER embeds the pinned
-    // upstream digest - so a different, or older-but-also-signed, binary fails.
-    // The manifest is therefore not load-bearing for authenticity: it cannot be
-    // edited into accepting bytes we did not sign for this exact release.
-    actualBinarySha256 === manifestStagedSha256 &&
-    (platform === 'darwin' && requireDarwinSignature
-      ? // A release build must ship the SIGNED binary. Accepting the unsigned
-        // upstream bytes would mean shipping genuine code with no hardened
-        // runtime, and Apple would refuse to notarize it anyway.
-        signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256))
-      : manifestStagedSha256 === expected.binarySha256 ||
-        (platform === 'darwin' &&
-          signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
-    JSON.stringify(metadata.files) === JSON.stringify([binaryName])
-  );
-}
-
-function verifyWCoreBundle(
-  bundleDir,
-  requiredRuntimes,
-  authority = prepareWaylandCore,
-  signedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
-) {
-  if (!fs.statSync(bundleDir).isDirectory()) return false;
-  const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
-  if (entries.length === 0) return false;
-  if (entries.some((entry) => !entry.isDirectory() || !/^(darwin|linux|win32)-(x64|arm64)$/.test(entry.name))) {
-    return false;
-  }
-  const packagedRuntimes = entries.map((entry) => entry.name).sort();
-  if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) =>
-    verifyWCoreRuntime(bundleDir, runtime, authority, signedCheck, requireDarwinSignature)
-  );
-}
-
-// Mirrors verifyWCoreRuntime for the bundled wayland-nano agent. The policy
-// selector is injectable because, unlike wayland-core, the first
-// FerroxLabs/wayland-nano publisher-attestation policy only exists once the
-// first signed release lands - tests substitute their own until then.
-function verifyWNanoRuntime(
-  bundleDir,
-  runtimeKey,
-  authority = prepareWaylandNano,
-  policySelector = selectPolicy,
-  signedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
-) {
-  const [platform, arch] = runtimeKey.split('-');
-  const binaryName = platform === 'win32' ? 'wayland-nano.exe' : 'wayland-nano';
-  const runtimeDir = path.join(bundleDir, runtimeKey);
-  const manifestPath = path.join(runtimeDir, 'manifest.json');
-  const binaryPath = path.join(runtimeDir, binaryName);
-  if (!isNonEmpty(manifestPath, 'file') || !isNonEmpty(binaryPath, 'file')) return false;
-  const runtimeEntries = fs.readdirSync(runtimeDir, { withFileTypes: true });
-  const expectedRuntimeFiles = [binaryName, 'manifest.json'].sort();
-  if (
-    JSON.stringify(runtimeEntries.map((entry) => entry.name).sort()) !== JSON.stringify(expectedRuntimeFiles) ||
-    runtimeEntries.some((entry) => !entry.isFile())
-  ) {
-    return false;
-  }
-
-  const metadata = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const releaseTag = authority.DEFAULT_WNANO_VERSION;
-  const assetName = authority.getAssetName(platform, arch, releaseTag);
-  if (!assetName) return false;
-  const expected = authority.loadExpectedProvenance(releaseTag, assetName, { requireBinary: true });
-  const actualBinarySha256 = sha256File(binaryPath);
-  const manifestArchiveSha256 = String(metadata.source?.archiveSha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const manifestBinarySha256 = String(metadata.binary?.sha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const manifestStagedSha256 = String(metadata.binary?.stagedSha256 || '')
-    .replace(/^sha256:/i, '')
-    .toLowerCase();
-  const expectedUrl = `https://github.com/FerroxLabs/wayland-nano/releases/download/${releaseTag}/${assetName}`;
-  const publisher = metadata.publisherAttestation;
-  const publisherPolicy = policySelector(releaseTag);
-  const publisherVerified =
-    publisher?.contract === PUBLISHER_CONTRACT &&
-    publisher?.policyId === publisherPolicy.id &&
-    publisher?.repository === publisherPolicy.repository &&
-    publisher?.signerWorkflow === publisherPolicy.signerWorkflow &&
-    publisher?.sourceRef === publisherPolicy.sourceRef &&
-    publisher?.sourceDigest === publisherPolicy.sourceDigest &&
-    publisher?.predicateType === publisherPolicy.predicateType &&
-    publisher?.runner === publisherPolicy.runner &&
-    publisher?.asset === assetName &&
-    publisher?.sha256 === `sha256:${expected.archiveSha256}` &&
-    publisher?.verified === true;
-
-  return (
-    metadata.contract === authority.BUNDLE_CONTRACT &&
-    metadata.generator === authority.BUNDLE_GENERATOR &&
-    metadata.platform === platform &&
-    metadata.arch === arch &&
-    metadata.releaseTag === releaseTag &&
-    metadata.version === releaseTag &&
-    ['download', 'verified-cache'].includes(metadata.sourceType) &&
-    metadata.verified === true &&
-    publisherVerified &&
-    metadata.skipped === false &&
-    metadata.source?.owner === 'FerroxLabs' &&
-    metadata.source?.repository === 'wayland-nano' &&
-    metadata.source?.url === expectedUrl &&
-    metadata.source?.asset === assetName &&
-    manifestArchiveSha256 === expected.archiveSha256 &&
-    // #914: wayland-nano v0.1.1 shipped a win32-x64 executable whose PE
-    // certificate table was EMPTY. Every digest pin matched, the installer
-    // around it was signed, and nothing in the build ever looked at the
-    // executable's own signature - so an unsigned binary went out inside a
-    // signed installer and Defender blocked it on users' machines.
-    //
-    // We do not, and must not, sign this binary ourselves: Authenticode
-    // signing rewrites the file and would break the binarySha256 pinned above,
-    // which is exactly why electron-builder.yml excludes it with a negative
-    // signExts pattern. The only correct check is that the UPSTREAM signature
-    // survived into the package. Fails closed - an executable that cannot be
-    // parsed as a signed PE is treated as unsigned.
-    (platform !== 'win32' || isAuthenticodeSigned(binaryPath)) &&
-    metadata.binary?.name === binaryName &&
-    manifestBinarySha256 === expected.binarySha256 &&
-    // Same contract as wayland-core: exact bytes against the staged digest, and
-    // the staged bytes are either the pinned upstream bytes or a macOS-signed
-    // derivative of them.
-    actualBinarySha256 === manifestStagedSha256 &&
-    (platform === 'darwin' && requireDarwinSignature
-      ? // A release build must ship the SIGNED binary. Accepting the unsigned
-        // upstream bytes would mean shipping genuine code with no hardened
-        // runtime, and Apple would refuse to notarize it anyway.
-        signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256))
-      : manifestStagedSha256 === expected.binarySha256 ||
-        (platform === 'darwin' &&
-          signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
-    JSON.stringify(metadata.files) === JSON.stringify([binaryName])
-  );
-}
-
-function verifyWNanoBundle(
-  bundleDir,
-  requiredRuntimes,
-  authority = prepareWaylandNano,
-  policySelector = selectPolicy,
-  signedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
-) {
-  if (!fs.statSync(bundleDir).isDirectory()) return false;
-  const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
-  if (entries.length === 0) return false;
-  if (entries.some((entry) => !entry.isDirectory() || !/^(darwin|linux|win32)-(x64|arm64)$/.test(entry.name))) {
-    return false;
-  }
-  const packagedRuntimes = entries.map((entry) => entry.name).sort();
-  if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) =>
-    verifyWNanoRuntime(bundleDir, runtime, authority, policySelector, signedCheck, requireDarwinSignature)
-  );
 }
 
 function hasNonHiddenRegularFile(dir) {
@@ -1064,7 +805,7 @@ function describeTargetForDiagnostics(target, maxEntries = 24) {
 
 // The bridge's prebuilt natives are Developer ID signed at STAGE time by
 // scripts/build-with-builder.js (signWhatsAppBridgeNatives), exactly like the
-// bundled wayland-core, wayland-nano and constitution-fs binaries verified above.
+// bundled constitution-fs binary verified above.
 // Apple refuses to notarize an app containing unsigned Mach-Os, and all of these
 // were named in the notary log that blocked 0.12.0.
 //
@@ -1230,9 +971,9 @@ function verifySkillPack(packDir) {
 
 function verifyBunBundle(bundleDir, targetPlatform, targetArch, authority = bundledBunBinaries) {
   // Derived, never a second literal. Every other binary in this gate resolves
-  // its version from the staging module's exported constant (DEFAULT_WCORE_VERSION
-  // at :534, DEFAULT_WNANO_VERSION at :667); this one was the outlier, so a Bun
-  // bump failed here AFTER sign+notarize with a mismatch it could not explain.
+  // its version from the staging module's exported constant; this one was the
+  // outlier, so a Bun bump failed here AFTER sign+notarize with a mismatch it
+  // could not explain.
   const version = require('./prepareBundledBun').PINNED_BUN_VERSION;
   // Mirrors prepareBundledBun.needsBaselineVariant: every x64 target stages an
   // AVX2-free baseline runtime alongside the default one (#438, and #1017 for
@@ -1376,8 +1117,6 @@ function isNonEmpty(
   kind,
   requiredOfficeCliRuntimes = [],
   expected = {},
-  requiredWCoreRuntimes = [],
-  wcoreAuthority = prepareWaylandCore,
   targetPlatform,
   targetArch,
   voiceAuthority = voiceModelPinnedRelease,
@@ -1390,11 +1129,10 @@ function isNonEmpty(
   constitutionFsAuthority,
   verifyConstitutionFsDarwinSignature,
   verifyCandidateCapabilitySeal = verifyCapabilitySeal,
-  requiredWNanoRuntimes = [],
-  wnanoAuthority = prepareWaylandNano,
-  wnanoPolicySelector = selectPolicy,
   darwinSignedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
+  requireDarwinSignature = false,
+  tvControlAuthority,
+  fuigoPin = fuigoAuthority
 ) {
   // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
   // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
@@ -1418,19 +1156,7 @@ function isNonEmpty(
       return true;
     }
     if (!st.isDirectory()) return false;
-    if (kind === 'wcore-bundle') {
-      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck, requireDarwinSignature);
-    }
-    if (kind === 'wnano-bundle') {
-      return verifyWNanoBundle(
-        p,
-        requiredWNanoRuntimes,
-        wnanoAuthority,
-        wnanoPolicySelector,
-        darwinSignedCheck,
-        requireDarwinSignature
-      );
-    }
+    if (kind === 'tvcontrol-bundle') return verifyTvControl(p, tvControlAuthority);
     if (kind === 'officecli-bundle') {
       const entries = fs.readdirSync(p, { withFileTypes: true });
       if (entries.some((entry) => !entry.isDirectory() || !/^(darwin|linux|win32)-(x64|arm64)$/.test(entry.name))) {
@@ -1525,6 +1251,28 @@ function isNonEmpty(
         isDarwinDeveloperIdSigned,
         failureReasons
       );
+    if (kind === 'fuigo-bundle') {
+      const runtime = `${targetPlatform}-${targetArch}`;
+      const dir = path.join(p, runtime);
+      const manifest = readJson(path.join(dir, 'bundle.json'));
+      const name = targetPlatform === 'win32' ? 'fuigo.exe' : 'fuigo';
+      const pin = fuigoPin.platforms[runtime];
+      return Boolean(
+        pin &&
+        manifest?.contract === 'fuigo-bundle/1.0' &&
+        manifest.runtime === runtime &&
+        manifest.version === fuigoPin.version &&
+        manifest.packageIntegrity === pin.integrity &&
+        manifest.binary === name &&
+        manifest.binarySha256 === pin.binarySha256 &&
+        manifest.archiveSha256 === pin.archiveSha256 &&
+        sha256File(path.join(dir, name)) === manifest.stagedSha256 &&
+        (targetPlatform === 'darwin'
+          ? (!requireDarwinSignature && manifest.stagedSha256 === pin.binarySha256) ||
+            darwinSignedCheck(path.join(dir, name), darwinSigningIdentifier(name, pin.binarySha256))
+          : manifest.stagedSha256 === pin.binarySha256)
+      );
+    }
     return hasNonHiddenRegularFile(p);
   } catch (error) {
     // A throw here used to vanish into `return false` with no reason at all -
@@ -1539,9 +1287,6 @@ function verifyPackagedResources(options = {}) {
   const argv = options.argv || process.argv;
   const cwd = options.cwd || process.cwd();
   const logger = options.logger || console;
-  const wcoreAuthority = options.wcoreAuthority || prepareWaylandCore;
-  const wnanoAuthority = options.wnanoAuthority || prepareWaylandNano;
-  const wnanoPolicySelector = options.wnanoPolicySelector || selectPolicy;
   const voiceAuthority = options.voiceAuthority || voiceModelPinnedRelease;
   const bunAuthority = options.bunAuthority || bundledBunBinaries;
   const modelsAuthority = options.modelsAuthority || modelsDevSnapshotPin;
@@ -1565,35 +1310,17 @@ function verifyPackagedResources(options = {}) {
   const outDir = parseOutDir(argv, cwd);
   const { platform: targetPlatform, arch: targetArch } = parseTarget(argv);
   const requiredOfficeCliRuntimes = parseRequiredRuntimes(argv, '--officecli-runtime', 'OfficeCLI');
-  const requiredWCoreRuntimes = parseRequiredRuntimes(argv, '--wcore-runtime', 'wayland-core');
-  // wayland-nano does not publish a runtime for every target Desktop packages
-  // (there is no win32-arm64 build), so such a target legitimately bundles none.
-  // That still has to be stated rather than inferred from an absent flag, which is
-  // why this is an explicit opt-out and is rejected alongside --wnano-runtime.
-  const noWNanoRuntime = argv.includes('--no-wnano-runtime');
-  const hasWNanoRuntimeFlag = argv.includes('--wnano-runtime');
-  if (noWNanoRuntime && hasWNanoRuntimeFlag) {
-    throw new Error(`${TAG} --no-wnano-runtime cannot be combined with --wnano-runtime`);
-  }
-  // Bun publishes no Windows ARM64 build, so that target bundles none. Same rule as
-  // nano: the absence is declared, never inferred, and the bundle must then be gone.
+  // Bun publishes no Windows ARM64 build, so that target bundles none. The
+  // absence is declared, never inferred, and the bundle must then be gone.
   const noBunRuntime = argv.includes('--no-bun-runtime');
-  const requiredWNanoRuntimes = noWNanoRuntime ? [] : parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
   // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
   // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
   // require the seal to be ABSENT (not present-and-valid) — enforcing omit-not-forge —
   // while every other critical resource + signature check stays fully in force.
   const allowMissingSeal = argv.includes('--allow-missing-seal');
   const expectedRuntime = `${targetPlatform}-${targetArch}`;
-  // Nano is the one runtime that may legitimately be absent for a target, and only
-  // when that is declared. Everything else must still name exactly this target.
-  const expectedWNanoRuntimes = noWNanoRuntime ? [] : [expectedRuntime];
-  if (
-    JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime]) ||
-    JSON.stringify(requiredWCoreRuntimes) !== JSON.stringify([expectedRuntime]) ||
-    JSON.stringify(requiredWNanoRuntimes) !== JSON.stringify(expectedWNanoRuntimes)
-  ) {
-    throw new Error(`${TAG} Core, Nano and OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
+  if (JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime])) {
+    throw new Error(`${TAG} OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
   }
   const explicitResourceDir = parseSingleArg(argv, '--resources-dir', false);
   const explicitExecutable = parseSingleArg(argv, '--app-executable', false);
@@ -1666,8 +1393,7 @@ function verifyPackagedResources(options = {}) {
         }
         continue;
       }
-      const declaredAbsent =
-        (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) || (req.absentWhen === 'noBunRuntime' && noBunRuntime);
+      const declaredAbsent = req.absentWhen === 'noBunRuntime' && noBunRuntime;
       if (declaredAbsent) {
         // Opting out of a runtime is not the same as not checking for it. The bundle
         // has to be genuinely absent, so a stale or half-copied one cannot ride along
@@ -1688,8 +1414,6 @@ function verifyPackagedResources(options = {}) {
         req.kind,
         requiredOfficeCliRuntimes,
         req,
-        requiredWCoreRuntimes,
-        wcoreAuthority,
         targetPlatform,
         targetArch,
         voiceAuthority,
@@ -1702,11 +1426,10 @@ function verifyPackagedResources(options = {}) {
         constitutionFsAuthority,
         verifyConstitutionFsDarwinSignature,
         verifyCandidateCapabilitySeal,
-        requiredWNanoRuntimes,
-        wnanoAuthority,
-        wnanoPolicySelector,
         darwinSignedCheck,
-        requireDarwinSignature
+        requireDarwinSignature,
+        options.tvControlAuthority,
+        options.fuigoAuthority
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);
@@ -1721,13 +1444,6 @@ function verifyPackagedResources(options = {}) {
         // in the verdict but not here.
         logger.error(`${TAG}        path: ${target}`);
         logger.error(`${TAG}        ${describeTargetForDiagnostics(target)}`);
-        // A bare boolean also cannot say "the upstream Authenticode signature is
-        // gone", which is the one failure this gate was added for. Name it.
-        if (targetPlatform === 'win32' && (req.kind === 'wcore-bundle' || req.kind === 'wnano-bundle')) {
-          const product = req.kind === 'wcore-bundle' ? 'wayland-core' : 'wayland-nano';
-          const exe = path.join(target, `${targetPlatform}-${targetArch}`, `${product}.exe`);
-          logger.error(`${TAG}        ${describeAuthenticode(exe)}`);
-        }
         criticalFailures += 1;
         criticalFailureRels.push(req.rel);
       } else {
@@ -1742,19 +1458,6 @@ function verifyPackagedResources(options = {}) {
       `${TAG} ${criticalFailures} CRITICAL resource(s) missing or invalid in the packaged app: ` +
         `${criticalFailureRels.join(', ')}. Refusing to ship a broken build.`
     );
-  }
-
-  // A check that quietly does not run reads exactly like a check that passed.
-  // #914 stayed invisible for a whole release because nothing ever said either
-  // way, so the Authenticode gate reports itself on every target - including
-  // the non-Windows ones, where it legitimately does not apply.
-  const authenticodeRuntimes = [...requiredWCoreRuntimes, ...requiredWNanoRuntimes].filter((runtime) =>
-    runtime.startsWith('win32-')
-  );
-  if (authenticodeRuntimes.length > 0) {
-    logger.log(`${TAG}   OK   upstream Authenticode signature present on ${authenticodeRuntimes.join(', ')}`);
-  } else {
-    logger.log(`${TAG}   SKIP upstream Authenticode signature check (${expectedRuntime} bundles no Windows binary)`);
   }
 
   logger.log(
@@ -1785,10 +1488,6 @@ module.exports = {
   verifyVoiceBundle,
   verifyModelsSnapshot,
   verifyConstitutionFsBundle,
-  verifyWCoreBundle,
-  verifyWCoreRuntime,
-  verifyWNanoBundle,
-  verifyWNanoRuntime,
 };
 
 if (require.main === module) {

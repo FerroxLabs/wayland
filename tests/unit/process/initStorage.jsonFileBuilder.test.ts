@@ -74,11 +74,11 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
         const store = JsonFileBuilder<Record<string, unknown>>(filePath);
 
         await expect(store.get('anything')).resolves.toBeUndefined();
-        await expect(store.set('wcore.rawEngineMode', true)).resolves.toBe(true);
+        await expect(store.set('engine.rawMode', true)).resolves.toBe(true);
         const quarantined = (await fs.readdir(tmpDir)).filter((name) => name.startsWith('test-config.txt.corrupt-'));
         expect(quarantined).toHaveLength(1);
         expect(await fs.readFile(path.join(tmpDir, quarantined[0]), 'utf8')).toBe('!!!invalid-base64!!!');
-        expect(JSON.parse(decode(await fs.readFile(filePath, 'utf8')))).toEqual({ 'wcore.rawEngineMode': true });
+        expect(JSON.parse(decode(await fs.readFile(filePath, 'utf8')))).toEqual({ 'engine.rawMode': true });
       });
 
       it.skipIf(process.platform === 'win32')(
@@ -199,14 +199,14 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
 
     it('does not let a failed key write contaminate a later sibling-key snapshot', async () => {
       type TestConfig = {
-        'wcore.rawEngineMode': boolean;
-        'wcore.outputBudget': { mode: 'auto' } | { mode: 'fixed'; value: number };
+        'engine.rawMode': boolean;
+        'engine.outputBudget': { mode: 'auto' } | { mode: 'fixed'; value: number };
       };
 
       const store = JsonFileBuilder<TestConfig>(filePath);
       await store.setJson({
-        'wcore.rawEngineMode': false,
-        'wcore.outputBudget': { mode: 'auto' },
+        'engine.rawMode': false,
+        'engine.outputBudget': { mode: 'auto' },
       });
 
       // Replacing the target file with a directory makes the atomic rename fail
@@ -214,18 +214,18 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
       // state must remain unchanged.
       await fs.rm(filePath);
       await fs.mkdir(filePath);
-      await expect(store.set('wcore.rawEngineMode', true)).rejects.toThrow();
-      expect(await store.get('wcore.rawEngineMode')).toBe(false);
+      await expect(store.set('engine.rawMode', true)).rejects.toThrow();
+      expect(await store.get('engine.rawMode')).toBe(false);
 
       // Once persistence is available again, a sibling ProcessConfig write must
       // be built from the last successful state, never the rejected candidate.
       await fs.rm(filePath, { recursive: true });
-      await store.set('wcore.outputBudget', { mode: 'fixed', value: 4096 });
+      await store.set('engine.outputBudget', { mode: 'fixed', value: 4096 });
 
       const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
       expect(persisted).toEqual({
-        'wcore.rawEngineMode': false,
-        'wcore.outputBudget': { mode: 'fixed', value: 4096 },
+        'engine.rawMode': false,
+        'engine.outputBudget': { mode: 'fixed', value: 4096 },
       });
     });
 

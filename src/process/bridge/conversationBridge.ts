@@ -23,7 +23,6 @@ import {
 } from '@process/utils/initStorage';
 import type AcpAgentManager from '../task/AcpAgentManager';
 import type { GeminiAgentManager } from '../task/GeminiAgentManager';
-import { WCoreApprovalStore, type WCoreManager } from '../task/WCoreManager';
 import type OpenClawAgentManager from '../task/OpenClawAgentManager';
 import { prepareFirstMessage } from '../task/agentUtils';
 import { composeStepContext } from '@process/services/workflow/composeStepContext';
@@ -53,12 +52,10 @@ const VALID_CONVERSATION_TYPES = new Set<TChatConversation['type']>([
   'acp',
   'codex',
   'openclaw-gateway',
-  'nanobot',
   'remote',
-  'wcore',
 ]);
 
-const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex', 'wcore']);
+const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex']);
 
 export function shouldRebuildForMcpFingerprint(
   taskType: string | undefined,
@@ -679,7 +676,7 @@ export function initConversationBridge(
         workspaceFiles = [];
       }
     } else {
-      // Non-Gemini agents (ACP, Codex, NanoBot, OpenClaw, Remote): Use cache directory paths directly
+      // Non-Gemini agents (ACP, Codex, OpenClaw, Remote): Use cache directory paths directly
       // Filter to only include absolute paths that exist
       workspaceFiles = (files ?? []).filter((f) => path.isAbsolute(f));
     }
@@ -763,7 +760,7 @@ export function initConversationBridge(
 
     try {
       // Pass unified data - each agent reads the fields it needs from the unknown payload.
-      // `content` aliases `input` for ACP/Codex/NanoBot/OpenClaw agents.
+      // `content` aliases `input` for ACP/Codex/OpenClaw agents.
       // `agentContent` carries the skill-injected text for OpenClaw (equals `input` when no skills).
       await task.sendMessage({
         ...other,
@@ -838,19 +835,13 @@ export function initConversationBridge(
   // Session-level approval memory for "always allow" decisions.
   // Keys are parsed from raw action+commandType here (single source of truth).
   ipcBridge.conversation.approval.check.provider(async ({ conversation_id, action, commandType }) => {
-    const task = workerTaskManager.getTask(conversation_id) as unknown as GeminiAgentManager | WCoreManager | undefined;
+    const task = workerTaskManager.getTask(conversation_id) as unknown as GeminiAgentManager | undefined;
     if (!task || !('approvalStore' in task) || !task.approvalStore) {
       return false;
     }
 
     if (task.type === 'gemini') {
       const keys = GeminiApprovalStore.createKeysFromConfirmation(action, commandType);
-      if (keys.length === 0) return false;
-      return task.approvalStore.allApproved(keys);
-    }
-
-    if (task.type === 'wcore') {
-      const keys = WCoreApprovalStore.createKeysFromConfirmation(action, commandType);
       if (keys.length === 0) return false;
       return task.approvalStore.allApproved(keys);
     }

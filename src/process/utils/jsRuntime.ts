@@ -43,11 +43,8 @@ import { getBundledBunDir } from '@process/utils/shellEnv';
  *                       UNPACKAGED (dev/test), where the fuse is not applied.
  *  - `bundled-bun`    → the Bun runtime shipped inside the signed bundle. The
  *                       primary packaged runtime: always present, correct arch.
- *  - `system-node`    → a `node` on PATH. Best-effort last resort when the
- *                       bundled Bun binary is somehow missing (partial install);
- *                       may ENOENT, which callers already degrade on. Chosen in
- *                       preference to ever falling back to the app binary, which
- *                       is the exact crash-loop this module removes.
+ *  - `system-node`    → retained for callers supplying their own runtime tuple.
+ * Missing packaged runtimes are refused before spawning; no PATH guess is made.
  */
 export type JsRuntimeKind = 'electron-node' | 'bundled-bun' | 'system-node';
 
@@ -64,6 +61,8 @@ export interface ResolvedJsRuntime {
 }
 
 export interface JsRuntimeInputs {
+  /** Bundled connectors use their shipped runtime in complete development builds too. */
+  preferBundled?: boolean;
   /** Is the app packaged? When packaged, the RunAsNode fuse is off. */
   isPackaged: boolean;
   /** Full path to the bundled Bun binary, or null if unavailable. */
@@ -80,16 +79,19 @@ export interface JsRuntimeInputs {
  *   1. NOT packaged → run the app binary as Node. Preserves dev/test behaviour
  *      EXACTLY: unpackaged Electron is unfused and honours the env var.
  *   2. packaged + bundled Bun present → Bun. The normal packaged path.
- *   3. packaged + no bundled Bun → system `node`. Never the app binary.
+ *   3. packaged + no bundled Bun → a repairable installation error.
  */
 export function resolveJsRuntimeWith(inputs: JsRuntimeInputs): ResolvedJsRuntime {
+  if (inputs.preferBundled && inputs.bundledBunPath) {
+    return { command: inputs.bundledBunPath, env: {}, kind: 'bundled-bun' };
+  }
   if (!inputs.isPackaged) {
     return { command: inputs.execPath, env: { ELECTRON_RUN_AS_NODE: '1' }, kind: 'electron-node' };
   }
   if (inputs.bundledBunPath) {
     return { command: inputs.bundledBunPath, env: {}, kind: 'bundled-bun' };
   }
-  return { command: inputs.platform === 'win32' ? 'node.exe' : 'node', env: {}, kind: 'system-node' };
+  throw new Error('Wayland bundled JavaScript runtime is missing. Repair or reinstall Wayland.');
 }
 
 /** Binary name of the bundled Bun for the current platform. */
@@ -101,13 +103,14 @@ function bunBinaryName(platform: NodeJS.Platform): string {
  * Resolve the JS runtime for the current process. Reads real process/platform
  * state and defers to {@link resolveJsRuntimeWith} for the decision.
  */
-export function resolveJsRuntime(): ResolvedJsRuntime {
+export function resolveJsRuntime(options: { preferBundled?: boolean } = {}): ResolvedJsRuntime {
   const isPackaged = getPlatformServices().paths.isPackaged();
   // Only resolve the bundled Bun when it can actually be used (packaged). This
   // keeps the dev/test path off the filesystem and off getBundledBunDir.
-  const bunDir = isPackaged ? getBundledBunDir() : null;
+  const bunDir = isPackaged || options.preferBundled ? getBundledBunDir() : null;
   const bundledBunPath = bunDir ? path.join(bunDir, bunBinaryName(process.platform)) : null;
   return resolveJsRuntimeWith({
+    preferBundled: options.preferBundled,
     isPackaged,
     bundledBunPath,
     execPath: process.execPath,

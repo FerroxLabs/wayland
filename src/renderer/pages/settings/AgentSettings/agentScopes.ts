@@ -35,8 +35,8 @@ const ANY: AgentScope = { scopeKey: 'any', accent: true };
  * consistent when adding or renaming an agent backend.
  */
 const AGENT_SCOPES: Record<string, AgentScope> = {
-  // Wayland's own engine - runs every connected provider's models.
-  wcore: ANY,
+  // Wayland's bundled engine - runs every connected provider's models.
+  fuigo: ANY,
 
   // Self-authenticated CLI agents - one provider each (stated in plain words).
   claude: { scopeKey: 'claude', accent: false },

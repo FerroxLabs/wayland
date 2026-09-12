@@ -851,15 +851,6 @@ const SendBox: React.FC<{
     [conversationContext?.type, handleExternalSelectionAppend]
   );
   useAddEventListener(
-    'wcore.selected.file.append',
-    (items: FileSelectionItem[]) => {
-      if (conversationContext?.type === 'wcore') {
-        handleExternalSelectionAppend(items);
-      }
-    },
-    [conversationContext?.type, handleExternalSelectionAppend]
-  );
-  useAddEventListener(
     'acp.selected.file.append',
     (items: FileSelectionItem[]) => {
       if (conversationContext?.type === 'acp') {
@@ -887,15 +878,6 @@ const SendBox: React.FC<{
     [conversationContext?.type, handleExternalSelectionAppend]
   );
   useAddEventListener(
-    'nanobot.selected.file.append',
-    (items: FileSelectionItem[]) => {
-      if (conversationContext?.type === 'nanobot') {
-        handleExternalSelectionAppend(items);
-      }
-    },
-    [conversationContext?.type, handleExternalSelectionAppend]
-  );
-  useAddEventListener(
     'codex.selected.file.append',
     (items: FileSelectionItem[]) => {
       if (conversationContext?.type === 'codex') {
@@ -911,9 +893,6 @@ const SendBox: React.FC<{
         case 'gemini':
           emitter.emit('gemini.selected.file.append', [item]);
           break;
-        case 'wcore':
-          emitter.emit('wcore.selected.file.append', [item]);
-          break;
         case 'acp':
           emitter.emit('acp.selected.file.append', [item]);
           break;
@@ -922,9 +901,6 @@ const SendBox: React.FC<{
           break;
         case 'openclaw-gateway':
           emitter.emit('openclaw-gateway.selected.file.append', [item]);
-          break;
-        case 'nanobot':
-          emitter.emit('nanobot.selected.file.append', [item]);
           break;
         case 'codex':
           emitter.emit('codex.selected.file.append', [item]);
@@ -1593,9 +1569,9 @@ const SendBox: React.FC<{
    * branches.
    *
    * These were two byte-identical copies. That looked harmless and was not:
-   * NanobotSendBox passes neither defaultMultiLine nor lockMultiLine, so
-   * isSingleLine initialises true there and the single-line branch is live for
-   * real users. Editing one copy is not "a change no user ever sees" - it is a
+   * A send box that passes neither defaultMultiLine nor lockMultiLine has
+   * isSingleLine initialise true, so the single-line branch is live for real
+   * users. Editing one copy is not "a change no user ever sees" - it is a
    * silent per-platform divergence where one product quietly misses whatever
    * the other one gained.
    */

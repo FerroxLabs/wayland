@@ -7,10 +7,10 @@
 /**
  * B9: A SCHEDULED RUN HAD NO ROUTE TO MARKET DATA OF ANY KIND.
  *
- * Two independent walls. The shell has no network - measured, not read:
- * `wayland-core sandbox exec` on the pinned v0.13.4 answers
- * `curl: (6) Could not resolve host` for Yahoo, refuses raw-IP TCP, and refuses
- * `127.0.0.1:9222`, while the identical curl on the host returns `http=429`.
+ * Two independent walls. The engine sandbox shell has no network - measured on
+ * the retired Core engine, not read: its sandbox exec answered
+ * `curl: (6) Could not resolve host` for Yahoo, refused raw-IP TCP, and refused
+ * `127.0.0.1:9222`, while the identical curl on the host returned `http=429`.
  * And `activeMcpServers: []` scopes every connector out, so the only other
  * route is closed too.
  *
@@ -28,7 +28,9 @@ import {
   isDeclarableConnectorId,
   selectRoutineConnectorIds,
 } from '@process/services/cron/routineConnectors';
-import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+
+const ACP_CAPS = { stdio: true, http: true, sse: true } as const;
 
 function server(over: Partial<IMcpServer> & { id: string }): IMcpServer {
   return {
@@ -126,15 +128,18 @@ describe('a routine grants ONLY the connectors it names', () => {
     expect(granted).not.toContain(`srv-${ROUTINE_CONNECTOR_CAP}`);
   });
 
-  it('the granted id is the one the REAL wcore launch selector accepts', () => {
+  it('the granted id is the one the REAL ACP session selector accepts', () => {
     // The ids this function returns are only worth anything if
     // `isServerActiveForSession` matches on them. Drive the real selector.
     const granted = selectRoutineConnectorIds(['com.ferroxlabs/tvcontrol'], [TV, SLACK]);
-    expect(buildWCoreSessionMcpServers([TV, SLACK], granted).map((s) => s.name)).toEqual(['tvcontrol']);
+    expect(buildAcpSessionMcpServers([TV, SLACK], ACP_CAPS, granted).map((s) => s.name)).toEqual(['tvcontrol']);
     // KNOWN-POSITIVE CONTROL: with NO selection the same selector hands over
     // BOTH - the posture this grant must never regress to.
-    expect(buildWCoreSessionMcpServers([TV, SLACK], undefined).map((s) => s.name)).toEqual(['tvcontrol', 'slack']);
+    expect(buildAcpSessionMcpServers([TV, SLACK], ACP_CAPS, undefined).map((s) => s.name)).toEqual([
+      'tvcontrol',
+      'slack',
+    ]);
     // ...and with the empty default it hands over neither.
-    expect(buildWCoreSessionMcpServers([TV, SLACK], []).map((s) => s.name)).toEqual([]);
+    expect(buildAcpSessionMcpServers([TV, SLACK], ACP_CAPS, []).map((s) => s.name)).toEqual([]);
   });
 });

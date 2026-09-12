@@ -8,13 +8,13 @@
  * `resolveOutputDir` IS THE SINGLE PRODUCER OF A HOST-BLESSED WRITE DESTINATION,
  * AND IT COMPARED TWO DIFFERENT SPELLINGS OF THE SAME DIRECTORY.
  *
- * `WCoreAgent.start` runs the non-raw spawn under `withWCoreProjectConfigLease`,
+ * The engine spawn ran under a project-config lease,
  * which hands it a REALPATHED workspace (`index.ts:520`), and that value reaches
  * `resolveOutputDir` at `:637`. The run's staging directory arrives from
  * `runOutputDir.ts:64`, which stores only `path.resolve(outputDir)` built from
  * the LEXICAL workspace. On macOS `~/.wayland` really is a symlink
  * (`-> ~/Library/Application Support/Wayland/wayland`), so every managed
- * `wcore-temp-*` workspace has two spellings.
+ * `acp-temp-*` workspace has two spellings.
  *
  * The containment check was lexical, so the two spellings read as "the staging
  * directory is outside the workspace" and it silently fell through to the CHAT
@@ -32,7 +32,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 
 const cleanup: string[] = [];
 

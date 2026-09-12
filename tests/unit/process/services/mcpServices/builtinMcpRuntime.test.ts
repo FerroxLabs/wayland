@@ -73,6 +73,44 @@ const deps = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
+describe('pinned TVControl uses the same bundled runtime in probes and sessions', () => {
+  const args = ['@ferroxlabs/tvcontrol@2.5.1'];
+  const entry = '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js';
+  it('resolves a catalog-owned declaration without npx or a user cache', () => {
+    expect(
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        args,
+        deps({ libraryEntryId: 'com.ferroxlabs/tvcontrol', tvControlEntry: () => entry })
+      )
+    ).toEqual({ command: PACKAGED_BUN, args: [entry], env: {} });
+  });
+  it('keeps a user declaration and a custom version untouched', () => {
+    expect(resolveBuiltinMcpRuntimeSpawn('npx', args, deps())).toBeNull();
+    expect(
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        ['@ferroxlabs/tvcontrol@2.4.5'],
+        deps({ libraryEntryId: 'com.ferroxlabs/tvcontrol' })
+      )
+    ).toBeNull();
+  });
+  it('reports a missing bundle instead of falling back to network installation', () => {
+    expect(() =>
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        args,
+        deps({
+          libraryEntryId: 'com.ferroxlabs/tvcontrol',
+          tvControlEntry: () => {
+            throw new Error('missing bundle');
+          },
+        })
+      )
+    ).toThrow('missing bundle');
+  });
+});
+
 describe('F2 — our own script is matched by exact path, never by basename', () => {
   it('accepts the absolute path this install actually seeds', () => {
     expect(isOwnBuiltinCoreMcpScript(OURS, deps())).toBe(true);
@@ -237,7 +275,7 @@ describe('F2b — a bare @wayland filename is expanded ONLY on catalog provenanc
   });
 
   it('applyBuiltinMcpRuntime reads provenance off the record itself', () => {
-    // The publication chokepoints (McpService, AcpAgentManager, WCoreManager)
+    // The publication chokepoints (McpService, AcpAgentManager)
     // hand over a whole IMcpServer and pass no deps, so the record must carry it.
     const installed = { ...stdioServer('node', ['builtin-mcp-apple.mjs']), libraryEntryId: APPLE_ENTRY };
     expect(applyBuiltinMcpRuntime(installed, deps()).transport).toEqual({

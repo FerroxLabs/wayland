@@ -6,8 +6,7 @@
  * #455 scope 4 - managed `.gitignore` for persistent project workspaces.
  *
  * Native skill discovery requires the engine/CLIs to find their skill dirs at
- * the workspace ROOT (the wayland-core engine scans `<cwd>/.wayland-core/skills`,
- * each ACP CLI scans its own `.<tool>/skills`; this is hard-coded relative to the
+ * the workspace ROOT (each ACP CLI scans its own `.<tool>/skills`; this is hard-coded relative to the
  * spawn cwd, with no env/arg override). For a persistent, user-visible project
  * workspace those managed dot-dirs (plus the `.wayland/` knowledge folder) would
  * otherwise clutter the user's folder and git status, so we add them to a managed
@@ -23,8 +22,9 @@ const MANAGED_GITIGNORE_END = '# --- end Wayland ---';
 
 /**
  * The top-level dot-dirs Wayland creates inside a project workspace: every ACP
- * backend's skill dir, the wcore + gemini engine skill dirs, and the `.wayland/`
- * knowledge folder. Derived from ACP_BACKENDS_ALL so new backends stay covered.
+ * backend's skill dir, the gemini engine skill dir, the retired Core engine's
+ * `.wayland-core/` (still present in pre-cutover project workspaces), and the
+ * `.wayland/` knowledge folder. Derived from ACP_BACKENDS_ALL so new backends stay covered.
  */
 function managedEntries(): string[] {
   const dirs = new Set<string>(['.wayland/', '.wayland-core/', '.gemini/']);

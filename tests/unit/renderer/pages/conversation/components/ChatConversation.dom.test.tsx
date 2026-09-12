@@ -64,7 +64,6 @@ vi.mock('@/renderer/pages/conversation/components/ChatSider', () => ({
 // `useWorkflowSession` call in ChatConversation.
 type PlatformChatCaptured = Record<string, unknown>;
 const acpChatCalls: PlatformChatCaptured[] = [];
-const wcoreChatCalls: PlatformChatCaptured[] = [];
 const geminiChatCalls: PlatformChatCaptured[] = [];
 
 vi.mock('@/renderer/pages/conversation/platforms/acp/AcpChat', () => ({
@@ -73,20 +72,11 @@ vi.mock('@/renderer/pages/conversation/platforms/acp/AcpChat', () => ({
     return <div data-testid='mock-acp-chat' />;
   },
 }));
-vi.mock('@/renderer/pages/conversation/platforms/wcore/WCoreChat', () => ({
-  default: (props: PlatformChatCaptured) => {
-    wcoreChatCalls.push(props);
-    return <div data-testid='mock-wcore-chat' />;
-  },
-}));
 vi.mock('@/renderer/pages/conversation/platforms/gemini/GeminiChat', () => ({
   default: (props: PlatformChatCaptured) => {
     geminiChatCalls.push(props);
     return <div data-testid='mock-gemini-chat' />;
   },
-}));
-vi.mock('@/renderer/pages/conversation/platforms/nanobot/NanobotChat', () => ({
-  default: () => <div data-testid='mock-nanobot-chat' />,
 }));
 vi.mock('@/renderer/pages/conversation/platforms/openclaw/OpenClawChat', () => ({
   default: () => <div data-testid='mock-openclaw-chat' />,
@@ -116,9 +106,6 @@ vi.mock('@/renderer/components/agent/AcpModelSelector', () => ({
 }));
 vi.mock('@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector', () => ({
   default: () => <div data-testid='mock-gemini-model-selector' />,
-}));
-vi.mock('@/renderer/pages/conversation/platforms/wcore/WCoreModelSelector', () => ({
-  default: () => <div data-testid='mock-wcore-model-selector' />,
 }));
 
 // Heavy dependency stubs.
@@ -220,17 +207,6 @@ const buildAcpConversation = (extra: Partial<AcpExtra> = {}) =>
     modifyTime: 0,
   }) as unknown as Parameters<typeof ChatConversation>[0]['conversation'];
 
-const buildWCoreConversation = (extra: Record<string, unknown> = {}) =>
-  ({
-    id: 'conv-wcore',
-    name: 'WCore Chat',
-    type: 'wcore',
-    extra: { workspace: '/tmp', ...extra },
-    model: {},
-    createTime: 0,
-    modifyTime: 0,
-  }) as unknown as Parameters<typeof ChatConversation>[0]['conversation'];
-
 const buildGeminiConversation = (extra: Record<string, unknown> = {}) =>
   ({
     id: 'conv-gemini',
@@ -250,7 +226,6 @@ beforeEach(() => {
   chatLayoutCalls.length = 0;
   workflowSurfaceCalls.length = 0;
   acpChatCalls.length = 0;
-  wcoreChatCalls.length = 0;
   geminiChatCalls.length = 0;
   mockLocationState = null;
   mockWorkflowSessionData = null;
@@ -289,18 +264,6 @@ describe('ChatConversation - workflow path via conversation.extra', () => {
     expect(layout.getAttribute('data-hide-header')).toBe('true');
   });
 
-  it('WCore conversation with extra.workflowSessionId renders WorkflowSurface wrapping WCoreChat', () => {
-    render(<ChatConversation conversation={buildWCoreConversation({ workflowSessionId: 'sess-wcore' })} />);
-
-    const surface = screen.getByTestId('mock-workflow-surface');
-    expect(surface).toBeTruthy();
-    expect(surface.getAttribute('data-session-id')).toBe('sess-wcore');
-    expect(screen.getByTestId('mock-wcore-chat')).toBeTruthy();
-
-    const layout = screen.getByTestId('mock-chat-layout');
-    expect(layout.getAttribute('data-hide-header')).toBe('true');
-  });
-
   it('Gemini conversation with extra.workflowSessionId renders WorkflowSurface wrapping GeminiChat', () => {
     render(<ChatConversation conversation={buildGeminiConversation({ workflowSessionId: 'sess-gemini' })} />);
 
@@ -315,25 +278,11 @@ describe('ChatConversation - workflow path via conversation.extra', () => {
 });
 
 describe('ChatConversation - workflow composer model selection (#132)', () => {
-  it('seeds WCore workflow chat with a real model selection from conversation.model (not a null-object)', () => {
+  it('seeds Gemini workflow chat with a real model selection from conversation.model', () => {
     // #132: the workflow path passed a static null-object model selection
     // (currentModel: undefined), so typing in the composer inside a running
     // workflow threw "No model selected for current session". The send box
     // gate requires currentModel?.useModel; it must come from conversation.model.
-    mockProviders = [{ id: 'wcore-prov', platform: 'wayland-core' }];
-    mockAvailableModels = () => ['sonnet-4.6'];
-
-    const conv = buildWCoreConversation({ workflowSessionId: 'sess-model' });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (conv as any).model = { id: 'wcore-prov', useModel: 'sonnet-4.6' };
-
-    render(<ChatConversation conversation={conv} />);
-
-    const selection = wcoreChatCalls.at(-1)?.modelSelection as { currentModel?: { useModel?: string } } | undefined;
-    expect(selection?.currentModel?.useModel).toBe('sonnet-4.6');
-  });
-
-  it('seeds Gemini workflow chat with a real model selection from conversation.model', () => {
     mockProviders = [{ id: 'gem-prov', platform: 'gemini' }];
     mockAvailableModels = () => ['gemini-3.5'];
 
@@ -352,15 +301,6 @@ describe('ChatConversation - workflow model switcher (#587)', () => {
   // The reported bug: in a workflow the ChatLayout header is hidden, so no model
   // switcher showed. The fix passes the platform selector to WorkflowSurface's
   // `headerAccessory` slot. These assert the wiring actually happens.
-  it('passes the WCore model selector to WorkflowSurface via headerAccessory', () => {
-    render(<ChatConversation conversation={buildWCoreConversation({ workflowSessionId: 'sess-acc-wcore' })} />);
-
-    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
-    expect(accessory).toBeTruthy();
-    const { getByTestId } = render(<>{accessory}</>);
-    expect(getByTestId('mock-wcore-model-selector')).toBeTruthy();
-  });
-
   it('passes the Gemini model selector to WorkflowSurface via headerAccessory', () => {
     render(<ChatConversation conversation={buildGeminiConversation({ workflowSessionId: 'sess-acc-gemini' })} />);
 
@@ -376,7 +316,7 @@ describe('ChatConversation - workflow model switcher for ACP/codex and fixed-mod
   // without a headerAccessory, so ACP/codex conversations lost their model
   // switcher inside a workflow. The fix passes the same per-backend `modelSelector`
   // memo the non-workflow header uses. ACP/codex get the live AcpModelSelector;
-  // openclaw/nanobot/remote get the disabled placeholder (parity with normal chat).
+  // openclaw/remote get the disabled placeholder (parity with normal chat).
   it('passes the ACP model selector to WorkflowSurface via headerAccessory', () => {
     render(<ChatConversation conversation={buildAcpConversation({ workflowSessionId: 'sess-acc-acp' })} />);
 
@@ -419,7 +359,7 @@ describe('ChatConversation - workflow model switcher for ACP/codex and fixed-mod
     const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
     expect(accessory).toBeTruthy();
     const { getByTestId } = render(<>{accessory}</>);
-    // openclaw/nanobot/remote are fixed-model: the header shows the same disabled
+    // openclaw/remote are fixed-model: the header shows the same disabled
     // GeminiModelSelector placeholder it shows in normal (non-workflow) chat.
     expect(getByTestId('mock-gemini-model-selector')).toBeTruthy();
   });

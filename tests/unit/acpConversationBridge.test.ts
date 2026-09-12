@@ -20,6 +20,7 @@ vi.mock('../../src/common', () => ({
       detectCliPath: makeChannel('detectCliPath'),
       getAvailableAgents: makeChannel('getAvailableAgents'),
       getLoadErrors: makeChannel('getLoadErrors'),
+      getFuigoEngineStatus: makeChannel('getFuigoEngineStatus'),
       refreshCustomAgents: makeChannel('refreshCustomAgents'),
       testCustomAgent: makeChannel('testCustomAgent'),
       checkAgentHealth: makeChannel('checkAgentHealth'),
@@ -66,10 +67,6 @@ vi.mock('../../src/process/task/GeminiAgentManager', () => ({ GeminiAgentManager
 
 vi.mock('../../src/process/services/mcpServices/McpService', () => ({
   mcpService: { getSupportedTransportsForAgent: vi.fn(() => []) },
-}));
-
-vi.mock('../../src/process/agent/wcore/binaryResolver', () => ({
-  detectWCore: vi.fn(() => ({ available: false, path: null })),
 }));
 
 vi.mock('../../src/process/utils/mainLogger', () => ({

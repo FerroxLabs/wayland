@@ -64,7 +64,7 @@ export function adaptAcpMessages(
           status: toolStatus(update.status),
           // `update.kind` is a typed protocol enum, so it belongs in the
           // structured slot. It used to be written into `detail`, where the
-          // workbench could not tell it apart from WCore's free-text tool
+          // workbench could not tell it apart from a free-text tool
           // description - and `update.title`, the only thing left in `name`, is
           // a sentence the agent writes, so nothing structured survived and
           // every ACP lane went dark.

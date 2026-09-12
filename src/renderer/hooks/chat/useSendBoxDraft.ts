@@ -34,19 +34,7 @@ type Draft =
       uploadFile: string[];
     }
   | {
-      _type: 'nanobot';
-      content: string;
-      atPath: Array<string | FileOrFolderItem>;
-      uploadFile: string[];
-    }
-  | {
       _type: 'remote';
-      content: string;
-      atPath: Array<string | FileOrFolderItem>;
-      uploadFile: string[];
-    }
-  | {
-      _type: 'wcore';
       content: string;
       atPath: Array<string | FileOrFolderItem>;
       uploadFile: string[];
@@ -64,9 +52,7 @@ const store: SendBoxDraftStore = {
   acp: new Map(),
   codex: new Map(),
   'openclaw-gateway': new Map(),
-  nanobot: new Map(),
   remote: new Map(),
-  wcore: new Map(),
 };
 
 /**
@@ -315,25 +301,11 @@ const setDraft = <K extends TChatConversation['type']>(
         store['openclaw-gateway'].delete(conversation_id);
       }
       break;
-    case 'nanobot':
-      if (draft) {
-        store.nanobot.set(conversation_id, draft as Extract<Draft, { _type: 'nanobot' }>);
-      } else {
-        store.nanobot.delete(conversation_id);
-      }
-      break;
     case 'remote':
       if (draft) {
         store.remote.set(conversation_id, draft as Extract<Draft, { _type: 'remote' }>);
       } else {
         store.remote.delete(conversation_id);
-      }
-      break;
-    case 'wcore':
-      if (draft) {
-        store.wcore.set(conversation_id, draft as Extract<Draft, { _type: 'wcore' }>);
-      } else {
-        store.wcore.delete(conversation_id);
       }
       break;
     default:
@@ -357,12 +329,8 @@ const getInMemoryDraft = <K extends TChatConversation['type']>(
       return store.codex.get(conversation_id) as Extract<Draft, { _type: K }>;
     case 'openclaw-gateway':
       return store['openclaw-gateway'].get(conversation_id) as Extract<Draft, { _type: K }>;
-    case 'nanobot':
-      return store.nanobot.get(conversation_id) as Extract<Draft, { _type: K }>;
     case 'remote':
       return store.remote.get(conversation_id) as Extract<Draft, { _type: K }>;
-    case 'wcore':
-      return store.wcore.get(conversation_id) as Extract<Draft, { _type: K }>;
     default:
       return undefined;
   }

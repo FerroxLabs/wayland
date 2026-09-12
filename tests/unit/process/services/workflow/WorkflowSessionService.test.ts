@@ -867,10 +867,10 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
       body: TWO_STEP_BODY,
     });
 
-    const wcoreModel: TProviderWithModel = {
-      id: 'wcore',
-      platform: 'wcore',
-      name: 'Wayland Core',
+    const fuigoModel: TProviderWithModel = {
+      id: 'fuigo',
+      platform: 'fuigo',
+      name: 'Fuigo',
       baseUrl: '',
       apiKey: '',
       useModel: 'default',
@@ -890,19 +890,19 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
 
     await parts.service.start({
       workflow_name: 'demo',
-      backend: 'wcore',
-      cliPath: '/usr/local/bin/wcore',
-      model: wcoreModel,
+      backend: 'fuigo',
+      cliPath: '/usr/local/bin/fuigo',
+      model: fuigoModel,
     });
 
     expect(launchTargetSpy).not.toHaveBeenCalled();
 
     const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
-    expect(callArg.extra.backend).toBe('wcore');
-    expect(callArg.extra.cliPath).toBe('/usr/local/bin/wcore');
-    // agentTypeForBackend('wcore') → 'wcore'
-    expect(callArg.type).toBe('wcore');
-    expect(callArg.model).toMatchObject({ id: 'wcore' });
+    expect(callArg.extra.backend).toBe('fuigo');
+    expect(callArg.extra.cliPath).toBe('/usr/local/bin/fuigo');
+    // agentTypeForBackend('fuigo') → 'acp'
+    expect(callArg.type).toBe('acp');
+    expect(callArg.model).toMatchObject({ id: 'fuigo' });
   });
 
   it('propagates the selected codex model id into extra.currentModelId so the spawn does not fall back to the codex default (GitHub #111)', async () => {
@@ -938,17 +938,17 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
     expect(callArg.extra.currentModelId).toBe('gpt-5.1-codex-mini');
   });
 
-  it('does not set extra.currentModelId for non-ACP backends (wcore reads model elsewhere)', async () => {
+  it('does not set extra.currentModelId for non-ACP backends (gemini reads model elsewhere)', async () => {
     const parts = buildService();
     parts.skillMap.set('demo', {
       entry: skillEntry({ name: 'demo', type: 'workflow' }),
       body: TWO_STEP_BODY,
     });
 
-    const wcoreModel: TProviderWithModel = {
-      id: 'wcore',
-      platform: 'wcore',
-      name: 'Wayland Core',
+    const geminiModel: TProviderWithModel = {
+      id: 'gemini',
+      platform: 'gemini',
+      name: 'Gemini',
       baseUrl: '',
       apiKey: '',
       useModel: 'default',
@@ -956,14 +956,15 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
 
     await parts.service.start({
       workflow_name: 'demo',
-      backend: 'wcore',
-      cliPath: '/usr/local/bin/wcore',
-      model: wcoreModel,
+      backend: 'gemini',
+      cliPath: '/usr/local/bin/gemini',
+      model: geminiModel,
     });
 
     const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
-    expect(callArg.type).toBe('wcore');
+    expect(callArg.type).toBe('gemini');
     expect(callArg.extra.currentModelId).toBeUndefined();
+    expect(callArg.extra.sessionMode).toBe('autoEdit');
   });
 
   it('missing backend/model falls through to getDefaultLaunchTarget()', async () => {
@@ -990,6 +991,7 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
     const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
     expect(callArg.extra.backend).toBe('claude');
     expect(callArg.extra.cliPath).toBe('/opt/homebrew/bin/claude');
+    expect(callArg.extra.sessionMode).toBe('acceptEdits');
     // agentTypeForBackend('claude') → 'acp'
     expect(callArg.type).toBe('acp');
   });
@@ -999,9 +1001,7 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
       { backend: 'claude', expectedType: 'acp' },
       { backend: 'codex', expectedType: 'acp' },
       { backend: 'qwen', expectedType: 'acp' },
-      { backend: 'wcore', expectedType: 'wcore' },
       { backend: 'gemini', expectedType: 'gemini' },
-      { backend: 'nanobot', expectedType: 'nanobot' },
       { backend: 'openclaw-gateway', expectedType: 'openclaw-gateway' },
       { backend: 'openclaw', expectedType: 'openclaw-gateway' },
       { backend: 'remote', expectedType: 'remote' },

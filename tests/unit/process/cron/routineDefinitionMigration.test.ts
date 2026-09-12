@@ -131,12 +131,12 @@ function legacyJob(over: {
     metadata: {
       conversationId: '',
       conversationTitle: over.routineId,
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: over.routineId,
         mode: 'bypassPermissions',
         configOptions: over.configOptions ?? { kind: 'routine', routineId: over.routineId },

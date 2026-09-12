@@ -25,12 +25,12 @@ const node = (over: Partial<ActivityNode>): ActivityNode => ({
 
 describe('activityStep.nodeToStep', () => {
   it('projects a tool node with humanized label + glyph', () => {
-    const s = nodeToStep(node({ name: 'Read', detail: '/src/config.ts', startTime: 1000, endTime: 3100 }), 'wcore');
+    const s = nodeToStep(node({ name: 'Read', detail: '/src/config.ts', startTime: 1000, endTime: 3100 }), 'native');
     expect(s.id).toBe('n1');
     expect(s.kind).toBe('tool');
     expect(s.glyph).toBe('file');
     expect(s.label).toBe('Reading config.ts');
-    expect(s.source).toBe('wcore');
+    expect(s.source).toBe('native');
   });
   it('carries agent name for sub_agent and recurses children', () => {
     const s = nodeToStep(
@@ -40,7 +40,7 @@ describe('activityStep.nodeToStep', () => {
         status: 'running',
         children: [node({ id: 'c1', name: 'WebFetch', detail: 'https://apnews.com', status: 'done' })],
       }),
-      'wcore'
+      'native'
     );
     expect(s.agent).toBe('researcher');
     expect(s.children).toHaveLength(1);

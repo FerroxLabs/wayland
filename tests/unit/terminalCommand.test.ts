@@ -6,23 +6,27 @@
 
 /**
  * #645 Task 3 — agent → command resolver. Pure, so tests inject the
- * wcore-binary resolver and never touch the filesystem.
+ * engine-binary resolver and never touch the filesystem or Electron.
  */
 import { describe, expect, it } from 'vitest';
 import { resolveTerminalCommand } from '@process/terminal/terminalCommand';
 
-const wcoreFound = { resolveWCore: () => '/bundled/wayland-core' };
-const wcoreMissing = { resolveWCore: () => null };
+const fuigoFound = { resolveFuigo: () => ({ path: '/bundled/fuigo' }), fuigoHome: () => '/userData/fuigo' };
+const fuigoMissing = { resolveFuigo: () => null, fuigoHome: () => '/userData/fuigo' };
 
 describe('resolveTerminalCommand (#645)', () => {
-  it('maps wcore to the bundled binary with NO --json-stream, cwd = workspace', () => {
-    const spec = resolveTerminalCommand({ type: 'wcore', extra: { workspace: '/proj' } }, wcoreFound);
-    expect(spec).toEqual({ command: '/bundled/wayland-core', args: [], cwd: '/proj' });
-    expect(spec?.args).not.toContain('--json-stream');
+  // Fuigo cutover: the engine's TUI is the bare `fuigo` binary (no subcommand),
+  // and it must open the SAME engine home the ACP spawn uses, or the terminal
+  // shows an unrelated, empty engine (no memory, no MCP config, no trust).
+  it('maps acp + fuigo backend to the bundled fuigo TUI with FUIGO_HOME pinned to the shared home', () => {
+    const spec = resolveTerminalCommand({ type: 'acp', extra: { backend: 'fuigo', workspace: '/proj' } }, fuigoFound);
+    expect(spec).toEqual({ command: '/bundled/fuigo', args: [], cwd: '/proj', env: { FUIGO_HOME: '/userData/fuigo' } });
   });
 
-  it('returns null for wcore when the bundled binary is absent', () => {
-    expect(resolveTerminalCommand({ type: 'wcore', extra: { workspace: '/proj' } }, wcoreMissing)).toBeNull();
+  it('returns null for a fuigo chat when the bundled engine is absent', () => {
+    expect(
+      resolveTerminalCommand({ type: 'acp', extra: { backend: 'fuigo', workspace: '/p' } }, fuigoMissing)
+    ).toBeNull();
   });
 
   it('maps codex to the codex CLI', () => {
@@ -54,14 +58,11 @@ describe('resolveTerminalCommand (#645)', () => {
     expect(spec?.command).toBe('/usr/local/bin/claude');
   });
 
-  it('returns null for a non-claude ACP backend (no native TUI in v1)', () => {
-    expect(resolveTerminalCommand({ type: 'acp', extra: { backend: 'qwen', workspace: '/w' } })).toBeNull();
+  it('returns null for a third-party ACP backend with no native TUI', () => {
+    expect(resolveTerminalCommand({ type: 'acp', extra: { backend: 'qwen', workspace: '/w' } }, fuigoFound)).toBeNull();
   });
 
-  it.each(['gemini', 'openclaw-gateway', 'nanobot', 'remote', 'unknown'])(
-    'returns null for unmapped agent %s',
-    (type) => {
-      expect(resolveTerminalCommand({ type, extra: { workspace: '/w' } }, wcoreFound)).toBeNull();
-    }
-  );
+  it.each(['gemini', 'openclaw-gateway', 'remote', 'unknown'])('returns null for unmapped agent %s', (type) => {
+    expect(resolveTerminalCommand({ type, extra: { workspace: '/w' } }, fuigoFound)).toBeNull();
+  });
 });

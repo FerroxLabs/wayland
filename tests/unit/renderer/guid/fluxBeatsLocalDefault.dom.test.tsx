@@ -104,7 +104,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 /** Resolve the hook's default and let every async settle before asserting. */
 const resolveDefault = async () => {
-  const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+  const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
   await waitFor(() => expect(result.current.currentModel).toBeDefined());
   // The resolver runs several awaits (pin read, telemetry, Flux toggle) before
   // it commits. Settle them so a late overwrite cannot pass as a pass.
@@ -126,7 +126,7 @@ describe('useGuidModelSelection - a connected Flux Router outranks the local Oll
     // wrote on an earlier cold start.
     modelConfig = [OLLAMA_ROW, FLUX_ROW];
     routeThroughFlux = true;
-    store.set('wcore.defaultModel', { id: 'e6ea99f2', useModel: 'gemma3:4b', accountId: 'default' });
+    store.set('gemini.defaultModel', { id: 'e6ea99f2', useModel: 'gemma3:4b', accountId: 'default' });
 
     const result = await resolveDefault();
 
@@ -152,7 +152,7 @@ describe('useGuidModelSelection - a connected Flux Router outranks the local Oll
     // registry ProviderId, not the opaque mirrored id. It must still resolve.
     modelConfig = [OLLAMA_ROW, FLUX_ROW];
     routeThroughFlux = false;
-    store.set('wcore.defaultModel', {
+    store.set('gemini.defaultModel', {
       id: 'flux-router',
       useModel: 'flux-pinned-claude-opus-5',
       accountId: 'default',
@@ -192,7 +192,7 @@ describe('useGuidModelSelection - a connected Flux Router outranks the local Oll
   it('known-positive control: a local pin survives when Flux is not connected', async () => {
     modelConfig = [OLLAMA_ROW, { ...FLUX_ROW, model: [] }];
     routeThroughFlux = false;
-    store.set('wcore.defaultModel', { id: 'e6ea99f2', useModel: 'qwen2.5:7b', accountId: 'default' });
+    store.set('gemini.defaultModel', { id: 'e6ea99f2', useModel: 'qwen2.5:7b', accountId: 'default' });
 
     const result = await resolveDefault();
 

@@ -400,12 +400,12 @@ describe('ijfw/safeSpawn', () => {
       expect(argv[0]).toBe(trustedNpxCli);
     });
 
-    it('falls back to system node (not the app binary) when bundled Bun is absent', async () => {
+    it('refuses to spawn when the packaged bundled runtime is missing', async () => {
       h.bundledBunDir = null;
-      await safeSpawn({ cmd: 'node', args: ['x'] });
-      const [argv0] = spawnCalls()[0];
-      expect(argv0).toBe(process.platform === 'win32' ? 'node.exe' : 'node');
-      expect(argv0).not.toBe(process.execPath);
+      await expect(safeSpawn({ cmd: 'node', args: ['x'] })).rejects.toThrow(
+        'Wayland bundled JavaScript runtime is missing. Repair or reinstall Wayland.'
+      );
+      expect(spawnCalls()).toEqual([]);
     });
   });
 });

@@ -56,8 +56,8 @@ describe('team guide MCP injection capability check', () => {
       expect(await shouldInjectTeamGuideMcp('gemini')).toBe(true);
     });
 
-    it('injects for wcore backend (known team-capable)', async () => {
-      expect(await shouldInjectTeamGuideMcp('wcore')).toBe(true);
+    it('injects for the fuigo backend (known team-capable)', async () => {
+      expect(await shouldInjectTeamGuideMcp('fuigo')).toBe(true);
     });
   });
 

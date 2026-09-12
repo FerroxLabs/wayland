@@ -14,7 +14,7 @@ const DEFAULT_EFFORT: EffortLevel = 'medium';
 
 /**
  * Read/write the per-conversation reasoning effort for effort-capable backends
- * (Codex / WCore / Claude-ACP). Reads `conversation.get` -> `extra.effort`
+ * (Codex / Claude-ACP). Reads `conversation.get` -> `extra.effort`
  * (default `'medium'`) and persists via `conversation.update` with
  * `mergeExtra: true` so only the `effort` key is touched. The new value reaches
  * the backend on the next turn (each backend's config builder reads

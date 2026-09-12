@@ -6,6 +6,8 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, loadSkillsContent, ProcessConfig } from '@process/utils/initStorage';
 import { resolveMcpConnectorGuidance } from '@process/task/mcpConnectorGuidance';
 import { AcpSkillManager, buildSkillsIndexText, type SkillIndex } from './AcpSkillManager';
@@ -466,6 +468,8 @@ export async function mergeLoadedSkillsExtra(conversationId: string, skills: Ski
  * First message processing configuration
  */
 export interface FirstMessageConfig {
+  /** Managed workspace containing Fuigo's bounded skill copies. */
+  workspace?: string;
   /**
    * Conversation this prompt is being built for. Passed down to the
    * Constitution composer so a key ring regenerated during this turn is
@@ -651,9 +655,12 @@ export async function prepareFirstMessageWithSkillsIndex(
     const skillsIndex = skillManager.getSkillsIndex().filter((s) => !excludeSet.has(s.name));
     loadedSkills = skillsIndex;
     // getSkillsDir() already returns CLI-safe path (symlink on macOS)
-    const skillsDir = getSkillsDir();
-    const builtinSkillsCopyDir = getBuiltinSkillsCopyDir();
-    const builtinSkillsDir = builtinSkillsCopyDir + '/_builtin';
+    const stagedDir =
+      config.backend === 'fuigo' && config.workspace ? path.join(config.workspace, '.wayland', 'skills') : undefined;
+    const useStaged = stagedDir && existsSync(stagedDir);
+    const skillsDir = useStaged ? stagedDir : getSkillsDir();
+    const builtinSkillsCopyDir = useStaged ? stagedDir : getBuiltinSkillsCopyDir();
+    const builtinSkillsDir = useStaged ? stagedDir : builtinSkillsCopyDir + '/_builtin';
     // Pass hasLib so the index text includes the wayland_search_skills discovery
     // note. `[LOAD_SKILL:]` is NOT advertised here: ACP agents read SKILL.md
     // directly from the `[Skills Location]` paths below, and no handler
@@ -819,7 +826,7 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
   // Gated on the cron skill actually being in the always-on set. If the user
   // excluded it there is no scheduling path to direct the model towards, and an
   // unconditional push would also mean this builder never returns undefined -
-  // the signal WCoreManager uses to keep the "no presetRules" behaviour on a
+  // the signal a manager uses to keep the "no presetRules" behaviour on a
   // fresh install.
   if (cronAvailable) {
     instructions.push(SCHEDULING_DIRECTIVE);

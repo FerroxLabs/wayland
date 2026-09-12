@@ -19,7 +19,7 @@ import type Anthropic from '@anthropic-ai/sdk';
  *
  * This is intentionally 4096 (a conservative Anthropic-side completion
  * budget), NOT 8192 (the engine's `default_max_tokens()` in
- * wcore-config/src/config.rs:226 - used when no provider-side default is
+ * the retired engine's config - used when no provider-side default is
  * configured at all). The two values serve different layers:
  *   - 8192 = "config didn't pick a number, use a generous default"
  *   - 4096 = "API converter needs SOMETHING and conservative is safer for

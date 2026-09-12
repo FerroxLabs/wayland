@@ -9,7 +9,6 @@ import {
 } from '@process/providers/ipc/modelRegistryIpc';
 import type { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import type { TProviderWithModel } from '@/common/config/storage';
-import { AWS_AUTHORITY_ENV_KEYS, buildEngineSpawnEnv, buildSpawnConfig } from '@process/agent/wcore/envBuilder';
 import { GeminiAgent } from '@process/agent/gemini';
 
 /**
@@ -210,7 +209,18 @@ describe('mergeSpawnSecrets', () => {
       __waylandModelRegistryBridge: 'v2:aws-bedrock',
     } as TProviderWithModel;
 
-    const awsKeys = AWS_AUTHORITY_ENV_KEYS;
+    // Every ambient AWS authority variable GeminiAgent clears before it picks a
+    // provider arm (src/process/agent/gemini/index.ts).
+    const awsKeys = [
+      'AWS_REGION',
+      'AWS_DEFAULT_REGION',
+      'AWS_ACCESS_KEY_ID',
+      'AWS_SECRET_ACCESS_KEY',
+      'AWS_SESSION_TOKEN',
+      'AWS_PROFILE',
+      'AWS_SHARED_CREDENTIALS_FILE',
+      'AWS_CONFIG_FILE',
+    ] as const;
     const failureRepos = [
       ['lookup-miss', makeRepo({})],
       ['disconnected', makeRepo({ 'aws-bedrock': { connected: false, creds: { key: 'must-not-be-read' } } })],
@@ -231,20 +241,6 @@ describe('mergeSpawnSecrets', () => {
         expect(scrubbed.baseUrl, failure).toBe('');
         expect(scrubbed.bedrockConfig, failure).toBeUndefined();
 
-        // Contaminate the real parent environment before building the FINAL
-        // child environment. Checking buildSpawnConfig().env alone misses
-        // ambient variables re-imported by getEnhancedEnv at the spawn seam.
-        for (const key of awsKeys) process.env[key] = `ambient-${failure}-${key}`;
-        const wcore = buildSpawnConfig(scrubbed, { workspace: '/tmp/wayland-capability-hostile' });
-        expect(wcore.ambientEnvDenylist, failure).toEqual(awsKeys);
-        expect(wcore.spawnEnvDenylist, failure).toEqual(awsKeys);
-        const finalChildEnv = buildEngineSpawnEnv({
-          providerEnv: wcore.env,
-          toolKeys: { AWS_SESSION_TOKEN: `tool-${failure}-session`, AWS_CONFIG_FILE: `/tool/${failure}/config` },
-          ambientEnvDenylist: wcore.ambientEnvDenylist,
-          spawnEnvDenylist: wcore.spawnEnvDenylist,
-        });
-        for (const key of awsKeys) expect(finalChildEnv[key], `${failure}:${key}`).toBeUndefined();
         return scrubbed;
       });
 
@@ -252,9 +248,8 @@ describe('mergeSpawnSecrets', () => {
         expect(scrubbed).not.toHaveProperty('bedrockConfig');
       }
 
-      // A successfully resolved Bedrock binding remains explicit and is not
-      // marked for ambient denial. Its final child environment gets the
-      // authoritative registry credentials over conflicting shell values.
+      // A successfully resolved Bedrock binding keeps its authoritative registry
+      // credentials on the merged model.
       const valid = mergeResolvedRegistryBinding(staleBedrock, {
         apiKey: '',
         baseUrl: '',
@@ -265,55 +260,7 @@ describe('mergeSpawnSecrets', () => {
           secretAccessKey: 'RESOLVED_SECRET_KEY',
         },
       });
-      const validWcore = buildSpawnConfig(valid, { workspace: '/tmp/wayland-capability-hostile' });
-      expect(validWcore.ambientEnvDenylist).toEqual(awsKeys);
-      expect(validWcore.spawnEnvDenylist).toBeUndefined();
-      const validFinalEnv = buildEngineSpawnEnv({
-        providerEnv: validWcore.env,
-        toolKeys: { AWS_PROFILE: 'tool-profile', AWS_SESSION_TOKEN: 'tool-session' },
-        ambientEnvDenylist: validWcore.ambientEnvDenylist,
-        spawnEnvDenylist: validWcore.spawnEnvDenylist,
-      });
-      expect(validFinalEnv.AWS_REGION).toBe('resolved-region-1');
-      expect(validFinalEnv.AWS_ACCESS_KEY_ID).toBe('RESOLVED_ACCESS_KEY');
-      expect(validFinalEnv.AWS_SECRET_ACCESS_KEY).toBe('RESOLVED_SECRET_KEY');
-      for (const key of awsKeys) {
-        if (!['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'].includes(key)) {
-          expect(validFinalEnv[key], key).toBeUndefined();
-        }
-      }
-
-      // Profile auth is particularly sensitive to ambient precedence: access
-      // keys and session tokens override AWS_PROFILE in the SDK chain. Strip
-      // all ambient AWS authority, then reapply only the resolved profile and
-      // region from the canonical registry binding.
-      const validProfile = mergeResolvedRegistryBinding(staleBedrock, {
-        apiKey: '',
-        baseUrl: '',
-        bedrockConfig: {
-          authMethod: 'profile',
-          region: 'profile-region-1',
-          profile: 'resolved-profile',
-        },
-      });
-      const validProfileWcore = buildSpawnConfig(validProfile, { workspace: '/tmp/wayland-capability-hostile' });
-      expect(validProfileWcore.ambientEnvDenylist).toEqual(awsKeys);
-      expect(validProfileWcore.spawnEnvDenylist).toBeUndefined();
-      const validProfileFinalEnv = buildEngineSpawnEnv({
-        providerEnv: validProfileWcore.env,
-        toolKeys: {
-          AWS_ACCESS_KEY_ID: 'TOOL_ACCESS_KEY',
-          AWS_SECRET_ACCESS_KEY: 'TOOL_SECRET_KEY',
-          AWS_SESSION_TOKEN: 'TOOL_SESSION_TOKEN',
-          AWS_CONFIG_FILE: '/tool/config',
-        },
-        ambientEnvDenylist: validProfileWcore.ambientEnvDenylist,
-      });
-      expect(validProfileFinalEnv.AWS_PROFILE).toBe('resolved-profile');
-      expect(validProfileFinalEnv.AWS_REGION).toBe('profile-region-1');
-      for (const key of awsKeys) {
-        if (key !== 'AWS_PROFILE' && key !== 'AWS_REGION') expect(validProfileFinalEnv[key], key).toBeUndefined();
-      }
+      expect(valid.bedrockConfig).toMatchObject({ region: 'resolved-region-1', accessKeyId: 'RESOLVED_ACCESS_KEY' });
 
       // Gemini's real constructor clears inherited AWS auth before selecting
       // its provider arm. The scrubbed binding therefore fails closed on the

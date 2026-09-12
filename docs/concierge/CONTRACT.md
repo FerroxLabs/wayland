@@ -111,7 +111,7 @@ includeModels?: boolean; agentKey?: string }` (all default true except agentKey)
   {
     id: 'concierge',
     avatar: 'lucide:Concierge',            // verify icon name resolves; fallback 'lucide:Sparkles'
-    presetAgentType: 'wcore',              // native engine (self-knowledge works natively + ACP)
+    presetAgentType: 'fuigo',              // bundled Fuigo engine (self-knowledge works natively + ACP)
     category: 'general',
     resourceDir: 'src/process/resources/assistant/concierge',
     ruleFiles: { 'en-US': 'concierge.md', 'zh-CN': 'concierge.zh-CN.md' },
@@ -200,7 +200,7 @@ Reuse these proven pieces (read them before building):
   Parser mirrors `src/process/task/CronCommandDetector.ts`; message creation mirrors
   `src/process/task/MessageMiddleware.ts` (new message type `concierge_propose`, state machine
   `pending|processing|accepted|cancelled`). The concierge SKILL.md documents the block format so the
-  model emits it from natural language (works for native wcore AND ACP agents, same as cron).
+  model emits it from natural language (works for the bundled Fuigo engine AND other ACP agents, same as cron).
 - **Confirm card (renderer):** new `ConciergeConfigCard.tsx` mirroring
   `src/renderer/pages/conversation/Messages/components/CronProposeCard.tsx`. Shows a **diff/summary**
   of the change; secrets rendered last-4 only. Yes/Edit/Cancel → `ipcBridge.conciergeConfig.confirmProposal.invoke({ conversationId, msgId, action })`.
@@ -209,7 +209,7 @@ Reuse these proven pieces (read them before building):
   `processing` transition + emit broadcast). On `accept`, call the REAL write paths **in main**:
   - provider_connect → `connectModelRegistryProvider(providerId, creds)` (exported from
     `@process/providers/ipc/modelRegistryIpc`; encrypts via safeStorage in main).
-  - set_default_model → `ProcessConfig.set('wcore.defaultModel'|'gemini.defaultModel', { id, useModel, accountId })` (MAIN → ProcessConfig, NOT ConfigStorage).
+  - set_default_model → `ProcessConfig.set('fuigo.defaultModel'|'gemini.defaultModel', { id, useModel, accountId })` (MAIN → ProcessConfig, NOT ConfigStorage).
   - add_mcp → read+write `ProcessConfig.get/set('mcp.config', IMcpServer[])`.
   - edit_assistant → `writeAssistantResource('rules', assistantId, content, locale, …)` (from `fsBridge`).
 - **Consent is automatic + explicit:** the confirm card IS the approval; never apply without `accept`.

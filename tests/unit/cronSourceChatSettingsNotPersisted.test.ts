@@ -3,12 +3,12 @@
  * persist its agent settings onto that chat.
  *
  * A UI-created "run in this chat" job carries a real agentConfig - and
- * `getFullAutoMode('wcore')` is `'yolo'` (CreateTaskDialog -> ICronAgentConfig).
+ * `getFullAutoMode(backend)` is `'yolo'` (CreateTaskDialog -> ICronAgentConfig).
  * Once `resolveConversationForJob` reuses the source conversation, the sync
  * block wrote `sessionMode: 'yolo'` and the job's `currentModelId` straight onto
  * it, and `applyAgentSettings` -> `task.setMode('yolo')` ->
- * `WCoreManager.saveSessionMode` wrote the same thing again through a second
- * door. Both are permanent: `WCoreManager`'s constructor reads
+ * the manager's `saveSessionMode` wrote the same thing again through a second
+ * door. Both are permanent: the manager's constructor reads
  * `extra.sessionMode`, and `tryAutoApprove` then auto-approves EVERY tool call
  * in that chat with no confirmation dialog, forever.
  *
@@ -62,7 +62,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    extra: { ...params.extra, workspace: params.extra?.workspace || `/tmp/wcore-temp-${Date.now()}` },
+    extra: { ...params.extra, workspace: params.extra?.workspace || `/tmp/acp-temp-${Date.now()}` },
   };
   conversationStore.set(id, conv);
   return conv;
@@ -92,7 +92,7 @@ const USER_WORKSPACE = '/Users/tester/real-project';
 
 /**
  * The job CreateTaskDialog builds for "run in this chat": a full agentConfig
- * whose mode is `getFullAutoMode('wcore')` === 'yolo', a chosen model, and no
+ * whose mode is `getFullAutoMode(backend)` === 'yolo', a chosen model, and no
  * workspace (the picker defaults to undefined).
  */
 function makeUiCreatedJob(overrides?: Partial<CronJob['metadata']['agentConfig']>): CronJob {
@@ -104,12 +104,12 @@ function makeUiCreatedJob(overrides?: Partial<CronJob['metadata']['agentConfig']
     target: { payload: { kind: 'message', text: 'summarise' }, executionMode: 'existing' },
     metadata: {
       conversationId: 'conv-source',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'acp' as CronJob['metadata']['agentType'],
       createdBy: 'user',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: 'Wayland',
         mode: 'yolo',
         modelId: 'model-cron',
@@ -120,15 +120,15 @@ function makeUiCreatedJob(overrides?: Partial<CronJob['metadata']['agentConfig']
   } as CronJob;
 }
 
-/** The user's own chat: created through the normal wcore path, so no `cronWorkspace`. */
+/** The user's own chat: created through the normal chat path, so no `cronWorkspace`. */
 function seedUserChat() {
   conversationStore.set('conv-source', {
     id: 'conv-source',
-    type: 'wcore',
+    type: 'acp',
     name: 'My project chat',
     createTime: 1000,
     modifyTime: 1000,
-    model: { id: 'm', name: 'm', useModel: 'model-user', platform: 'wcore', baseUrl: '', apiKey: '' },
+    model: { id: 'm', name: 'm', useModel: 'model-user', platform: 'fuigo', baseUrl: '', apiKey: '' },
     extra: {
       workspace: USER_WORKSPACE,
       customWorkspace: true,
@@ -143,16 +143,16 @@ function seedUserChat() {
 function seedCronChild() {
   conversationStore.set('conv-child', {
     id: 'conv-child',
-    type: 'wcore',
+    type: 'acp',
     name: 'Nightly summary - 08/19 09:00',
     createTime: 5000,
     modifyTime: 5000,
-    model: { id: 'm', name: 'm', useModel: 'model-old', platform: 'wcore', baseUrl: '', apiKey: '' },
+    model: { id: 'm', name: 'm', useModel: 'model-old', platform: 'fuigo', baseUrl: '', apiKey: '' },
     extra: {
-      workspace: '/tmp/wcore-temp-1755000000000',
+      workspace: '/tmp/acp-temp-1755000000000',
       cronWorkspace: '',
       cronJobId: 'job-ui',
-      backend: 'wcore',
+      backend: 'fuigo',
       sessionMode: 'default',
     },
   });
@@ -173,7 +173,7 @@ function makeExecutor(task?: any) {
 
 function makeTask() {
   return {
-    type: 'wcore',
+    type: 'acp',
     workspace: USER_WORKSPACE,
     sendMessage: vi.fn(async () => {}),
     setMode: vi.fn(async () => ({ success: true })),
@@ -232,8 +232,9 @@ describe("a cron job never persists its own settings onto the user's chat", () =
 
     expect(updateCalls.filter(([id, patch]) => id === 'conv-source' && patch?.model)).toEqual([]);
     expect(conversationStore.get('conv-source').model.useModel).toBe('model-user');
-    // The user's live task must not be torn down to swap a model we did not swap.
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    // Acquisition retires the idle runtime to clear sticky approval flags;
+    // it never rewrites the user's model row or causes an extra model swap.
+    expect(taskManager.kill).toHaveBeenCalledExactlyOnceWith('conv-source');
   });
 
   it("applies full-auto to the live session but does not persist it in the user's chat", async () => {

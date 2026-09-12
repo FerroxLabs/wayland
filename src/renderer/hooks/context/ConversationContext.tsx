@@ -26,12 +26,15 @@ export interface ConversationContextValue {
   /**
    * Conversation type
    */
-  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'remote';
 
   /**
    * Cron job ID (if this conversation was created by a scheduled task)
    */
   cronJobId?: string;
+
+  /** Display-only: Core recovery has superseded stale running transcript events. */
+  executionInterrupted?: boolean;
 
   /**
    * When true, platform chat components should hide the SendBox (e.g. sub-agents in team mode)

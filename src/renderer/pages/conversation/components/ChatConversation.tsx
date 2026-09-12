@@ -25,16 +25,12 @@ import { emitter } from '../../../utils/emitter';
 import AcpChat from '../platforms/acp/AcpChat';
 import ChatLayout from './ChatLayout';
 import ChatSider from './ChatSider';
-import NanobotChat from '../platforms/nanobot/NanobotChat';
 import OpenClawChat from '../platforms/openclaw/OpenClawChat';
 import RemoteChat from '../platforms/remote/RemoteChat';
 import GeminiChat from '../platforms/gemini/GeminiChat';
 import AcpModelSelector from '@/renderer/components/agent/AcpModelSelector';
 import GeminiModelSelector from '../platforms/gemini/GeminiModelSelector';
 import { useGeminiModelSelection } from '../platforms/gemini/useGeminiModelSelection';
-import WCoreChat from '../platforms/wcore/WCoreChat';
-import WCoreModelSelector from '../platforms/wcore/WCoreModelSelector';
-import { useWCoreModelSelection } from '../platforms/wcore/useWCoreModelSelection';
 import { usePreviewContext } from '../Preview';
 import StarOfficeMonitorCard from '../platforms/openclaw/StarOfficeMonitorCard.tsx';
 import ConversationSkillsIndicator from './ConversationSkillsIndicator';
@@ -43,7 +39,7 @@ import { WorkflowRailSlotProvider } from '@/renderer/pages/guid/components/workf
 import { WorkflowTabbedSider } from '@/renderer/pages/guid/components/workflow/WorkflowTabbedSider';
 // import SkillRuleGenerator from './components/SkillRuleGenerator'; // Temporarily hidden
 
-// Shared props for the wcore/gemini panels rendered inside WorkflowSurface.
+// Shared props for the gemini panels rendered inside WorkflowSurface.
 type WorkflowPanelExtras = {
   sliderTitle: React.ReactNode;
   workspaceEnabled: boolean;
@@ -207,130 +203,6 @@ const GeminiConversationPanel: React.FC<{
   );
 };
 
-type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
-
-const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
-  conversation,
-  sliderTitle,
-}) => {
-  const onSelectModel = useCallback(
-    async (_provider: IProvider, modelName: string) => {
-      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
-      // Kill running agent on model switch - will be rebuilt with new model on next message
-      await ipcBridge.conversation.stop.invoke({ conversation_id: conversation.id });
-      const ok = await ipcBridge.conversation.update.invoke({ id: conversation.id, updates: { model: selected } });
-      return Boolean(ok);
-    },
-    [conversation.id]
-  );
-
-  const modelSelection = useWCoreModelSelection({
-    initialModel: conversation.model,
-    onSelectModel,
-  });
-  const workspaceEnabled = Boolean(conversation.extra?.workspace);
-  const { info: presetAssistantInfo } = usePresetAssistantInfo(conversation);
-  const wcoreAssistantId = resolveAssistantConfigId(conversation) ?? undefined;
-
-  const chatLayoutProps = {
-    title: conversation.name,
-    siderTitle: sliderTitle,
-    sider: <ChatSider conversation={conversation} />,
-    headerLeft: <WCoreModelSelector selection={modelSelection} conversationId={conversation.id} />,
-    headerExtra: (
-      <div className='flex items-center gap-8px'>
-        <ConversationSkillsIndicator conversation={conversation} />
-        <CronJobManager
-          conversationId={conversation.id}
-          cronJobId={conversation.extra?.cronJobId as string | undefined}
-          conversationTitle={conversation.name}
-          agentType='wcore'
-        />
-      </div>
-    ),
-    workspaceEnabled,
-    backend: 'wcore' as const,
-    presetAssistant: presetAssistantInfo ? { ...presetAssistantInfo, id: wcoreAssistantId } : undefined,
-  };
-
-  return (
-    <ChatLayout {...chatLayoutProps} conversationId={conversation.id} projectId={conversation.extra?.projectId}>
-      <WCoreChat
-        conversation_id={conversation.id}
-        workspace={conversation.extra.workspace}
-        modelSelection={modelSelection}
-        sessionMode={conversation.extra?.sessionMode}
-        projectId={conversation.extra?.projectId}
-      />
-    </ChatLayout>
-  );
-};
-
-// #132: wcore/gemini conversations wrapped in WorkflowSurface own the real
-// selection hook seeded from conversation.model (identical to the non-workflow
-// panels above), so the composer can send and - since #587 - the user can
-// switch models mid-workflow. The ChatLayout header stays hidden (hideHeader)
-// in workflow mode; the model switcher is surfaced inside WorkflowSurface's
-// top control row via `headerAccessory` instead.
-const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & WorkflowPanelExtras> = ({
-  conversation,
-  sliderTitle,
-  workspaceEnabled,
-  workflowSessionId,
-  initialWorkflowSession,
-  workflowTotalSteps,
-  workflowApplyStepMarker,
-  onLaunchWorkflow,
-}) => {
-  const onSelectModel = useCallback(
-    async (_provider: IProvider, modelName: string) => {
-      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
-      await ipcBridge.conversation.stop.invoke({ conversation_id: conversation.id });
-      const ok = await ipcBridge.conversation.update.invoke({ id: conversation.id, updates: { model: selected } });
-      return Boolean(ok);
-    },
-    [conversation.id]
-  );
-  const modelSelection = useWCoreModelSelection({ initialModel: conversation.model, onSelectModel });
-  return (
-    // Build #116: one right sider - the WorkflowSurface step rail portals into the
-    // "Steps" tab beside "Workspace", instead of a second fixed 280px rail. Force
-    // the sider on so a workspace-less workflow still shows its Steps tab.
-    <WorkflowRailSlotProvider>
-      <ChatLayout
-        title={conversation.name}
-        sider={<WorkflowTabbedSider workspace={workspaceEnabled ? <ChatSider conversation={conversation} /> : null} />}
-        siderTitle={sliderTitle}
-        workspaceEnabled={true}
-        workspacePath={conversation.extra.workspace}
-        conversationId={conversation.id}
-        projectId={conversation.extra?.projectId}
-        hideHeader={true}
-        stepsRailSider={true}
-      >
-        <WorkflowSurface
-          sessionId={workflowSessionId}
-          initialSession={initialWorkflowSession}
-          onLaunchWorkflow={onLaunchWorkflow}
-          headerAccessory={<WCoreModelSelector selection={modelSelection} conversationId={conversation.id} />}
-        >
-          <WCoreChat
-            key={conversation.id}
-            conversation_id={conversation.id}
-            workspace={conversation.extra.workspace}
-            modelSelection={modelSelection}
-            sessionMode={conversation.extra?.sessionMode}
-            projectId={conversation.extra?.projectId}
-            workflowSessionId={workflowSessionId}
-            workflowTotalSteps={workflowTotalSteps}
-            workflowApplyStepMarker={workflowApplyStepMarker}
-          />
-        </WorkflowSurface>
-      </ChatLayout>
-    </WorkflowRailSlotProvider>
-  );
-};
-
 const GeminiWorkflowPanel: React.FC<
   { conversation: GeminiConversation; hideSendBox?: boolean } & WorkflowPanelExtras
 > = ({
@@ -438,10 +310,9 @@ const ChatConversation: React.FC<{
   const workflowApplyStepMarker = hoistedWorkflowSession.applyStepMarker;
 
   const isGeminiConversation = conversation?.type === 'gemini';
-  const isWCoreConversation = conversation?.type === 'wcore';
 
   // Use unified hook for preset assistant info (ACP/Codex conversations)
-  const acpConversation = isGeminiConversation || isWCoreConversation ? undefined : conversation;
+  const acpConversation = isGeminiConversation ? undefined : conversation;
   const { info: presetAssistantInfo, isLoading: isLoadingPreset } = usePresetAssistantInfo(acpConversation);
   const acpAssistantId = acpConversation ? (resolveAssistantConfigId(acpConversation) ?? undefined) : undefined;
 
@@ -449,7 +320,7 @@ const ChatConversation: React.FC<{
   const assistantDisplayName = presetAssistantInfo?.name || conversationAgentName;
 
   const conversationNode = useMemo(() => {
-    if (!conversation || isGeminiConversation || isWCoreConversation) return null;
+    if (!conversation || isGeminiConversation) return null;
     switch (conversation.type) {
       case 'acp':
         return (
@@ -500,15 +371,6 @@ const ChatConversation: React.FC<{
             cronJobId={(conversation.extra as { cronJobId?: string })?.cronJobId}
           />
         );
-      case 'nanobot':
-        return (
-          <NanobotChat
-            key={conversation.id}
-            conversation_id={conversation.id}
-            workspace={conversation.extra?.workspace}
-            cronJobId={(conversation.extra as { cronJobId?: string })?.cronJobId}
-          />
-        );
       case 'remote':
         return (
           <RemoteChat
@@ -524,7 +386,6 @@ const ChatConversation: React.FC<{
   }, [
     conversation,
     isGeminiConversation,
-    isWCoreConversation,
     assistantDisplayName,
     hideSendBox,
     workflowSessionId,
@@ -544,7 +405,7 @@ const ChatConversation: React.FC<{
   // For other non-Gemini conversations, show disabled GeminiModelSelector.
   // NOTE: This must be placed before the Gemini early return to maintain consistent hook order.
   const modelSelector = useMemo(() => {
-    if (!conversation || isGeminiConversation || isWCoreConversation) return undefined;
+    if (!conversation || isGeminiConversation) return undefined;
     if (conversation.type === 'acp') {
       const extra = conversation.extra as { backend?: string; currentModelId?: string };
       return (
@@ -560,15 +421,11 @@ const ChatConversation: React.FC<{
       return <AcpModelSelector conversationId={conversation.id} initialModelId={extra.currentModelId} />;
     }
     return <GeminiModelSelector disabled={true} />;
-  }, [conversation, isGeminiConversation, isWCoreConversation]);
+  }, [conversation, isGeminiConversation]);
 
   // Non-workflow paths: delegate to the specialized panel components that own
   // their own ChatLayout + model selector. This path is unchanged from v0.6.0.
   if (!isWorkflow) {
-    if (conversation && conversation.type === 'wcore') {
-      return <WCoreConversationPanel key={conversation.id} conversation={conversation} sliderTitle={sliderTitle} />;
-    }
-
     if (conversation && conversation.type === 'gemini') {
       return (
         <GeminiConversationPanel
@@ -584,24 +441,8 @@ const ChatConversation: React.FC<{
   // Workflow path: build the appropriate chat node for any backend type, then
   // wrap it in WorkflowSurface inside a ChatLayout that hides the standard header.
   if (isWorkflow && workflowSessionId) {
-    // wcore/gemini workflow conversations delegate to dedicated panels that own
+    // gemini workflow conversations delegate to a dedicated panel that owns
     // a real model selection seeded from conversation.model (#132).
-    if (conversation && conversation.type === 'wcore') {
-      return (
-        <WCoreWorkflowPanel
-          key={conversation.id}
-          conversation={conversation as WCoreConversation}
-          sliderTitle={sliderTitle}
-          workspaceEnabled={workspaceEnabled}
-          workflowSessionId={workflowSessionId}
-          initialWorkflowSession={initialWorkflowSession}
-          workflowTotalSteps={workflowTotalSteps}
-          workflowApplyStepMarker={workflowApplyStepMarker}
-          onLaunchWorkflow={handleLaunchWorkflow}
-        />
-      );
-    }
-
     if (conversation && conversation.type === 'gemini') {
       return (
         <GeminiWorkflowPanel
@@ -619,7 +460,7 @@ const ChatConversation: React.FC<{
       );
     }
 
-    // ACP / codex / openclaw / nanobot / remote workflow conversations:
+    // ACP / codex / openclaw / remote workflow conversations:
     // conversationNode was already built above via useMemo. Build #116: same
     // single-sider treatment - rail portals into the "Steps" tab, no double rail.
     return (
@@ -661,17 +502,13 @@ const ChatConversation: React.FC<{
           backend:
             conversation?.type === 'acp'
               ? conversation?.extra?.backend
-              : conversation?.type === 'wcore'
-                ? 'wcore'
-                : conversation?.type === 'codex'
-                  ? 'codex'
-                  : conversation?.type === 'openclaw-gateway'
-                    ? 'openclaw-gateway'
-                    : conversation?.type === 'nanobot'
-                      ? 'nanobot'
-                      : conversation?.type === 'remote'
-                        ? 'remote'
-                        : undefined,
+              : conversation?.type === 'codex'
+                ? 'codex'
+                : conversation?.type === 'openclaw-gateway'
+                  ? 'openclaw-gateway'
+                  : conversation?.type === 'remote'
+                    ? 'remote'
+                    : undefined,
           agentName: conversationAgentName,
         };
 

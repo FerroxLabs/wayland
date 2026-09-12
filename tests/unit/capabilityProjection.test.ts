@@ -39,7 +39,7 @@ const TEST_INSTANCES = {
     ...Array.from({ length: 10 }, (_, index) => `runtime-${index}`),
   ],
   routing_contract: 'flux-contract',
-  engine_ready: 'wcore-session-1',
+  engine_ready: 'engine-session-1',
   provider_registry: 'registry',
   stored_config: 'settings',
   static_catalog: 'bundle',
@@ -728,7 +728,7 @@ describe('projectCapabilities', () => {
     const browser = base({
       evidenceId: 'browser',
       source: 'engine_ready',
-      sourceInstance: 'wcore-session-1',
+      sourceInstance: 'engine-session-1',
       kind: 'browser',
       payload: { status: 'available', controls: ['interact', 'navigate', 'observe'] },
     });

@@ -72,23 +72,23 @@ test.describe('Team export - E1', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
         {
           slotId: 'slot-mate',
           conversationId: '',
           role: 'teammate',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Teammate One',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
     });
-    if (!created?.id) throw new Error('team.create returned null - required backend (wcore) not installed');
+    if (!created?.id) throw new Error('team.create returned null - required backend (fuigo) not installed');
     const teamId = created.id;
 
     // Export.

@@ -38,14 +38,6 @@ env:
   # mirrors") and aborts the build. Skip hub staging until that repo is
   # published; hub extensions are not required to ship a working release.
   WAYLAND_HUB_SKIP: '1'
-  # Bundle the Wayland-Core engine into every release installer. The engine's
-  # multi-platform release stream (FerroxLabs/wayland-core) now exists with all
-  # six platform archives + verified shasums, so prepareWaylandCore.js downloads
-  # and bundles the matching binary at build time (auth via the GH_TOKEN passed
-  # to the build step). There is NO runtime download fallback, so the release
-  # MUST bundle the engine here. Native package smoke in build-matrix.yml also
-  # bundles it; lightweight pr-checks.yml keeps WCORE_SKIP=1.
-  WCORE_SKIP: '0'
   # Pinned Bun runtime bundled into the packaged app. Must match
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.

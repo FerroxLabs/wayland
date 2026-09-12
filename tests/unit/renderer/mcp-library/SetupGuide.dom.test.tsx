@@ -31,18 +31,14 @@ const guide: GuideT = {
 };
 
 test('renders all 3 steps', () => {
-  render(
-    <SetupGuide guide={guide} envValues={{}} onEnvChange={() => {}} onPrimary={() => {}} />,
-  );
+  render(<SetupGuide guide={guide} envValues={{}} onEnvChange={() => {}} onPrimary={() => {}} />);
   expect(screen.getByText('Install the server')).toBeInTheDocument();
   expect(screen.getByText('Paste your API key')).toBeInTheDocument();
   expect(screen.getByText('Start the server')).toBeInTheDocument();
 });
 
 test('marks autoCompletedByInstall step as done', () => {
-  const { container } = render(
-    <SetupGuide guide={guide} envValues={{}} onEnvChange={() => {}} onPrimary={() => {}} />,
-  );
+  const { container } = render(<SetupGuide guide={guide} envValues={{}} onEnvChange={() => {}} onPrimary={() => {}} />);
   // A completed step renders the Check icon (an <svg>) in its number badge
   // instead of the numeric index. Assert on that rendered signal rather than a
   // CSS Module class name (which is hashed at build time).
@@ -57,15 +53,19 @@ test('calls onEnvChange when user types in input', () => {
   const onEnvChange = (name: string, value: string) => {
     captured = { name, value };
   };
-  render(
-    <SetupGuide
-      guide={guide}
-      envValues={{}}
-      onEnvChange={onEnvChange}
-      onPrimary={() => {}}
-    />,
-  );
+  render(<SetupGuide guide={guide} envValues={{}} onEnvChange={onEnvChange} onPrimary={() => {}} />);
   const input = screen.getByPlaceholderText(/API Key/i);
   fireEvent.change(input, { target: { value: 'sk_test' } });
   expect(captured).toEqual({ name: 'API_KEY', value: 'sk_test' });
+});
+
+test('loads the shipped TVControl guide through the real catalog parser', async () => {
+  const { renderHook } = await import('@testing-library/react');
+  const { useMcpLibrary } = await import('@renderer/pages/settings/McpLibrary/hooks/useMcpLibrary');
+  const { result } = renderHook(() => useMcpLibrary());
+  const shipped = result.current.getGuide('com.ferroxlabs/tvcontrol');
+  expect(shipped.guideVersion).toBe('1.0.1');
+  const launch = shipped.steps.find((step) => step.id === 'enable-control');
+  expect(launch?.body).toContain('Get-AppxPackage');
+  expect(launch?.body).not.toContain('launch_tv_debug.bat');
 });

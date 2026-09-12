@@ -10,14 +10,13 @@ vi.mock('@/renderer/assets/logos/tools/coding/codebuddy.svg', () => ({ default: 
 vi.mock('@/renderer/assets/logos/brand/droid.svg', () => ({ default: 'droid.svg' }));
 vi.mock('@/renderer/assets/logos/tools/goose.svg', () => ({ default: 'goose.svg' }));
 vi.mock('@/renderer/assets/logos/brand/auggie.svg', () => ({ default: 'auggie.svg' }));
-vi.mock('@/renderer/assets/logos/brand/wayland-nano.svg', () => ({ default: 'wayland-nano.svg' }));
+vi.mock('@/renderer/assets/logos/brand/wayland.svg', () => ({ default: 'wayland.svg' }));
 vi.mock('@/renderer/assets/logos/ai-china/kimi.svg', () => ({ default: 'kimi.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/opencode-light.svg', () => ({ default: 'opencode-light.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/opencode-dark.svg', () => ({ default: 'opencode-dark.svg' }));
 vi.mock('@/renderer/assets/logos/tools/github.svg', () => ({ default: 'github.svg' }));
 vi.mock('@/renderer/assets/logos/tools/openclaw.svg', () => ({ default: 'openclaw.svg' }));
 vi.mock('@/renderer/assets/logos/ai-major/mistral.svg', () => ({ default: 'mistral.svg' }));
-vi.mock('@/renderer/assets/logos/tools/nanobot.svg', () => ({ default: 'nanobot.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/qoder.png', () => ({ default: 'qoder.png' }));
 vi.mock('@/renderer/assets/logos/tools/coding/cursor.png', () => ({ default: 'cursor.png' }));
 
@@ -36,7 +35,7 @@ describe('agentLogo', () => {
 
     it('leaves colored brand logos untouched (no filter), even on dark', () => {
       setTheme('dark');
-      for (const b of ['claude', 'gemini', 'codebuddy', 'hermes', 'vibe', 'droid', 'opencode', 'wnano']) {
+      for (const b of ['claude', 'gemini', 'codebuddy', 'hermes', 'vibe', 'droid', 'opencode']) {
         expect(agentLogoDarkFilter(b)).toBeUndefined();
       }
     });
@@ -87,9 +86,8 @@ describe('agentLogo', () => {
       expect(getAgentLogo('copilot')).toBe('github.svg');
     });
 
-    it('should return the orange-on-black brand logo for wnano', () => {
-      expect(getAgentLogo('wnano')).toBe('wayland-nano.svg');
-      expect(getAgentLogo('WNano')).toBe('wayland-nano.svg');
+    it('gives the bundled Fuigo engine the Wayland brand mark', () => {
+      expect(getAgentLogo('fuigo')).toBe('wayland.svg');
     });
   });
 

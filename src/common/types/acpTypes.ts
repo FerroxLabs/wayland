@@ -25,23 +25,6 @@ export const CODEBUDDY_ACP_BRIDGE_VERSION = '2.73.0';
 export const CODEBUDDY_ACP_NPX_PACKAGE = `@tencent-ai/codebuddy-code@${CODEBUDDY_ACP_BRIDGE_VERSION}`;
 
 /**
- * Wayland Nano's own npm distribution. PINNED DELIBERATELY: a pin is
- * reproducible in a way a moving dist-tag is not.
- *
- * Now on the STABLE release. `latest` used to point at `0.1.0-alpha.0` while
- * the candidate sat on `next`, so a bare `npx waylandnano` installed the older
- * alpha; `latest` is `0.1.0` as of 2026-08-15 and that hazard is gone, but the
- * pin stays for reproducibility.
- *
- * Note the tarball ships `bin/wayland-nano.js` mode 0644. That does NOT affect
- * us: we launch through `npx`, which runs the file via node's bin shim rather
- * than exec'ing it. Verified against 0.1.0 - `npx waylandnano@0.1.0 --version`
- * prints `wayland-nano 0.1.0`, and the `acp-host` subcommand below starts.
- */
-export const WNANO_NPM_VERSION = '0.1.1';
-export const WNANO_NPX_PACKAGE = `waylandnano@${WNANO_NPM_VERSION}`;
-
-/**
  * Current ACP wrapper version for a given backend, in the format `<backend>@<version>`,
  * or `null` for backends whose wrapper version we don't pin (locally installed CLIs).
  *
@@ -70,7 +53,7 @@ export type AcpBackendAll =
   // | 'gemini' // Google Gemini - not an ACP agent, handled by AgentRegistry directly
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
-  | 'wnano' // Wayland Nano - first-party sandboxed Rust agent (native ACP over stdio)
+  | 'fuigo' // Fuigo - first-party native ACP engine
   | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
@@ -88,7 +71,7 @@ export type AcpBackendAll =
   | 'custom'; // User-configured custom ACP agent (extension adapters)
 
 // Superset type covering all execution engine backends (ACP + non-ACP).
-export type AgentBackend = AcpBackendAll | 'gemini' | 'remote' | 'wcore' | 'nanobot' | 'openclaw-gateway';
+export type AgentBackend = AcpBackendAll | 'gemini' | 'remote' | 'openclaw-gateway';
 
 /**
  * Structured launch descriptor for an installed agent: the executable and its
@@ -477,30 +460,21 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // Responses surface via a [model_providers.flux] table in its TOML config.
     fluxCompat: 'setup',
   },
-  // Wayland Nano: first-party sandboxed Rust agent. Always listed in the agent
-  // registry (AgentRegistry.createWNanoAgent); AcpAgentManager resolves the
-  // verified bundled binary first (resolveWNanoBinary: userData override →
-  // bundled-wayland-nano → dev resources), falling back to cliCommand on PATH.
-  // Speaks ACP natively over stdio via the `acp-host`
-  // subcommand (bare `wayland-nano` prints usage and exits 2 — live-proven B1).
-  wnano: {
-    id: 'wnano',
-    name: 'Wayland Nano',
-    cliCommand: 'wayland-nano',
-    authRequired: false, // Draws on the providers connected in Wayland; no own login
+  fuigo: {
+    id: 'fuigo',
+    name: 'Fuigo',
+    cliCommand: 'fuigo',
+    authRequired: false,
     enabled: true,
-    // Released on npm as `waylandnano` (bin: `wayland-nano`). A locally built
-    // or installed binary on PATH still wins; this is the fallback for a
-    // machine that has never built Nano, and it is what makes the agent
-    // installable rather than merely detectable.
-    defaultCliPath: `npx ${WNANO_NPX_PACKAGE}`,
-    supportsStreaming: true, // Native ACP, streams session/update chunks
-    acpArgs: ['acp-host'], // ACP over stdio via subcommand, no bridge
-    // 'env', for the same reason as hermes: Desktop routes it per-spawn with no
-    // user action. AcpAgentManager hands nano the connected Flux key as a file
-    // and exports the provider-parity env alongside it. Left undefined, nano was
-    // the ONLY agent in the list with no chip at all — read as "not supported"
-    // for the one agent we ship ourselves.
+    supportsStreaming: true,
+    acpArgs: ['--permission-mode', 'default', 'agent', 'stdio'],
+    // Skills are staged under `<workspace>/.wayland/skills` and handed to Fuigo
+    // natively as a `session/new` `_meta.pluginDirs` root (launch.ts). Declaring
+    // the dir here keeps the first-message skills index OUT of the prompt: with
+    // it in, a default Concierge first turn was 28,875 bytes, over Fuigo's
+    // 25,000-byte prompt offload threshold, and the offloaded file lives in
+    // $FUIGO_HOME where the model could not read it back.
+    skillsDirs: ['.wayland/skills'],
     fluxCompat: 'env',
   },
   grok: {
@@ -705,11 +679,8 @@ export type AcpBackend = keyof typeof ACP_BACKENDS_ALL;
  * Skill directories for non-ACP agents (DetectedAgentKind not in ACP_BACKENDS_ALL).
  * These agents have their own execution engines but still support native skill discovery.
  */
-// The wayland-core engine's project-level skill discovery walks for
-// `.wayland-core/skills/` (see engine crates/wcore-skills/src/paths.rs:46).
 const NON_ACP_SKILLS_DIRS: Record<string, string[]> = {
   gemini: ['.gemini/skills'],
-  wcore: ['.wayland-core/skills'],
 };
 
 /**
@@ -734,10 +705,9 @@ export function getSkillsDirsForBackend(agentTypeOrBackend: string | undefined):
 
 /**
  * Flux compatibility for non-ACP agents (handled outside ACP_BACKENDS_ALL).
- * wcore and gemini route through Flux via env injection (ready now).
+ * gemini routes through Flux via env injection (ready now).
  */
 const NON_ACP_FLUX_COMPAT: Record<string, AcpBackendConfig['fluxCompat']> = {
-  wcore: 'env',
   gemini: 'env',
   // 'setup', not 'env': OpenClaw resolves its provider as
   // `configuredProvider?.baseUrl ?? envDefault`, so a user who has ever set a
@@ -1019,6 +989,15 @@ export function parseInitializeResult(raw: unknown): AcpInitializeResult {
     authMethods: parseAuthMethods(result?.authMethods),
     modes: parseSessionModes(result?.modes),
   };
+}
+
+/** Refuse an initialize response that cannot speak this client's ACP version. */
+export function assertAcpProtocolVersion(result: AcpInitializeResult, supportedVersion: number): void {
+  if (result.protocolVersion !== supportedVersion) {
+    throw new Error(
+      `Unsupported ACP protocol version ${result.protocolVersion || 'missing'}; Wayland requires ${supportedVersion}`
+    );
+  }
 }
 
 /**

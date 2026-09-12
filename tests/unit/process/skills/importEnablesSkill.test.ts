@@ -65,9 +65,9 @@ describe('resolveCurrentAssistantId mirrors the composer', () => {
   });
 
   it('returns null for a plain BACKEND key, which names an engine and not an assistant', async () => {
-    // `wcore` / `gemini` are engines. Treating one as an assistant id would
+    // `fuigo` / `gemini` are engines. Treating one as an assistant id would
     // write a skill onto a record that does not exist.
-    store.set('guid.lastSelectedAgent', 'wcore');
+    store.set('guid.lastSelectedAgent', 'fuigo');
     expect(await resolveCurrentAssistantId()).toBeNull();
   });
 });
@@ -103,7 +103,7 @@ describe('enableSkillForCurrentAssistant', () => {
   });
 
   it('returns null and writes nothing when there is no assistant to attach to', async () => {
-    store.set('guid.lastSelectedAgent', 'wcore');
+    store.set('guid.lastSelectedAgent', 'fuigo');
     const before = JSON.stringify(store.get('assistants'));
     expect(await enableSkillForCurrentAssistant('tide-morning-brief')).toBeNull();
     expect(JSON.stringify(store.get('assistants'))).toBe(before);

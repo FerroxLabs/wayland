@@ -1,7 +1,8 @@
 import { getFullAutoMode, isAutoGuardedMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
-import { isFluxModelId } from '@/common/config/flux';
-import { parseInitializeResult } from '@/common/types/acpTypes';
+import { isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
+import { assertAcpProtocolVersion, parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
+import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import { looksLikeAdapterCorruption } from '@process/acp/errors/setupFailure';
 import type { AcpClient, ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
@@ -60,6 +61,7 @@ export class SessionLifecycle {
   private _client: AcpClient | null = null;
   private authPending = false;
   private cachedAuthMethods: AuthMethod[] | null = null;
+  private projectedUserMcpServers: McpServer[] | null = null;
 
   private startRetryCount = 0;
   private resumeRetryCount = 0;
@@ -80,10 +82,7 @@ export class SessionLifecycle {
     if (host.agentConfig.authCredentials) {
       this.authNegotiator.mergeCredentials(host.agentConfig.authCredentials);
     }
-    if (
-      host.agentConfig.resumeSessionId &&
-      !(host.agentConfig.agentBackend === 'wnano' && !host.agentConfig.waylandNanoActivation)
-    ) {
+    if (host.agentConfig.resumeSessionId) {
       this._sessionId = host.agentConfig.resumeSessionId;
     }
   }
@@ -153,6 +152,8 @@ export class SessionLifecycle {
     // here rather than in session/new). applySessionResult still overwrites when
     // session/new returns its own modes.
     const parsed = parseInitializeResult(initResult);
+    assertAcpProtocolVersion(parsed, PROTOCOL_VERSION);
+    this.projectLiveMcpServers(parsed.capabilities.mcpCapabilities);
     if (parsed.modes) {
       this.host.configTracker.syncFromInitializeResult(parsed.modes);
     }
@@ -170,6 +171,7 @@ export class SessionLifecycle {
             cwd: this.host.agentConfig.cwd,
             mcpServers,
             additionalDirectories: this.host.agentConfig.additionalDirectories,
+            metadata: this.host.agentConfig.sessionMetadata,
           });
     } catch (err) {
       const normalized = normalizeError(err);
@@ -195,7 +197,7 @@ export class SessionLifecycle {
     // same crash against the same broken files. Clear the bad install and retry
     // exactly ONCE. If it fails again the install is not what is wrong, so stop
     // there instead of spending the remaining retries on a doomed spawn.
-    if (!this.isWaylandNanoActivation() && looksLikeAdapterCorruption(acpErr.message)) {
+    if (looksLikeAdapterCorruption(acpErr.message)) {
       if (!this.brokenInstallRecoveryUsed && this.clearBrokenInstall()) {
         this.brokenInstallRecoveryUsed = true;
         await this.teardown();
@@ -209,7 +211,7 @@ export class SessionLifecycle {
       return;
     }
 
-    if (!this.isWaylandNanoActivation() && acpErr.retryable && this.startRetryCount < this.options.maxStartRetries) {
+    if (acpErr.retryable && this.startRetryCount < this.options.maxStartRetries) {
       this.startRetryCount++;
       await this.teardown();
       const delay = 1000 * Math.pow(2, this.startRetryCount - 1);
@@ -241,7 +243,7 @@ export class SessionLifecycle {
 
   private async handleResumeError(err: unknown): Promise<void> {
     const acpErr = normalizeError(err);
-    if (!this.isWaylandNanoActivation() && acpErr.retryable && this.resumeRetryCount < this.options.maxResumeRetries) {
+    if (acpErr.retryable && this.resumeRetryCount < this.options.maxResumeRetries) {
       this.resumeRetryCount++;
       this.clearBrokenInstall();
       await this.teardown();
@@ -375,8 +377,11 @@ export class SessionLifecycle {
       // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto), not by an in-place set_model.
       // Pushing it through session/set_model makes the claude binary validate it
       // against its native catalog and reject it (JSON-RPC -32601). Mark it as
-      // applied so it isn't re-queued, but skip the bridge call.
-      if (isFluxModelId(pending.model)) {
+      // applied so it isn't re-queued, but skip the bridge call. A Flux-native
+      // engine (fuigo) lists the tiers in its own catalog, so for it this IS the
+      // call that selects the tier - skipping it would leave every chat on the
+      // engine default (flux-auto) while the picker showed the user's pick.
+      if (isFluxModelId(pending.model) && !isFluxNativeBackend(this.host.agentConfig.agentBackend)) {
         this.host.configTracker.setCurrentModel(pending.model);
       } else {
         try {
@@ -435,22 +440,13 @@ export class SessionLifecycle {
 
   private async tryLoadOrCreate(mcpServers: McpServer[]): Promise<NewSessionResponse | LoadSessionResponse> {
     if (this._sessionId && this._client) {
-      if (this.isWaylandNanoActivation()) {
-        const loaded = await this._client.loadSession({
-          sessionId: this._sessionId,
-          cwd: this.host.agentConfig.cwd,
-          mcpServers,
-          additionalDirectories: this.host.agentConfig.additionalDirectories,
-        });
-        this.host.callbacks.onSignal({ type: 'session_loaded' });
-        return loaded;
-      }
       try {
         const loaded = await this._client.loadSession({
           sessionId: this._sessionId,
           cwd: this.host.agentConfig.cwd,
           mcpServers,
           additionalDirectories: this.host.agentConfig.additionalDirectories,
+          metadata: this.host.agentConfig.sessionMetadata,
         });
         // Resume succeeded. Tell the host so it drops any speculative history
         // replay it armed for this resume attempt.
@@ -469,19 +465,30 @@ export class SessionLifecycle {
       cwd: this.host.agentConfig.cwd,
       mcpServers,
       additionalDirectories: this.host.agentConfig.additionalDirectories,
+      metadata: this.host.agentConfig.sessionMetadata,
     });
-  }
-
-  private isWaylandNanoActivation(): boolean {
-    return this.host.agentConfig.agentBackend === 'wnano' && this.host.agentConfig.waylandNanoActivation !== undefined;
   }
 
   private buildMcpServers(): McpServer[] {
     return McpConfig.merge({
-      userServers: this.host.agentConfig.mcpServers,
+      userServers: this.projectedUserMcpServers ?? this.host.agentConfig.mcpServers,
       presetServers: this.host.agentConfig.presetMcpServers,
       teamServer: this.host.agentConfig.teamMcpConfig,
     });
+  }
+
+  private projectLiveMcpServers(capabilities: ReturnType<typeof McpConfig.resolveCapabilities>): void {
+    const source = this.host.agentConfig.mcpStorageSource;
+    if (!source) {
+      this.projectedUserMcpServers = null;
+      return;
+    }
+    const projection = McpConfig.projectStorageConfig(source.servers, {
+      ...source.request,
+      capabilities,
+    });
+    this.projectedUserMcpServers = projection.servers;
+    this.host.callbacks.onMcpProjection?.(projection);
   }
 
   /** @returns true only when a broken install was actually removed. */

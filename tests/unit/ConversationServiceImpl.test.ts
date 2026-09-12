@@ -25,7 +25,6 @@ vi.mock('../../src/process/utils/initAgent', () => ({
   createGeminiAgent: vi.fn(async () => ({ id: 'gen-id', type: 'gemini', name: 'test', extra: {} })),
   createAcpAgent: vi.fn(async () => ({ id: 'acp-id', type: 'acp', name: 'test', extra: {} })),
   createOpenClawAgent: vi.fn(async () => ({ id: 'claw-id', type: 'openclaw-gateway', name: 'test', extra: {} })),
-  createNanobotAgent: vi.fn(async () => ({ id: 'nano-id', type: 'nanobot', name: 'test', extra: {} })),
   createRemoteAgent: vi.fn(async () => ({ id: 'remote-id', type: 'remote', name: 'test', extra: {} })),
 }));
 vi.mock('@/common/utils', () => ({
@@ -522,7 +521,7 @@ describe('ConversationServiceImpl.createConversation', () => {
     });
 
     // The factory must receive the project workspace, not an empty value that
-    // would drift to a wcore-temp-* directory.
+    // would drift to a acp-temp-* directory.
     expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/projects/alpha');
   });
 
@@ -552,7 +551,7 @@ describe('ConversationServiceImpl.createConversation', () => {
       type: 'gemini',
       model: { provider: 'gemini', model: 'gemini-2.0-flash' } as any,
       // Non-empty, non-custom: a drifted workspace must still be pinned to the project.
-      extra: { projectId: 'p1', workspace: '/tmp/wcore-temp-123' },
+      extra: { projectId: 'p1', workspace: '/tmp/acp-temp-123' },
     });
 
     expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/projects/alpha');

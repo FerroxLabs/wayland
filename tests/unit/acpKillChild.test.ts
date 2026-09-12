@@ -121,7 +121,7 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     // pid ppid path - the same row shape as `ps -eo pid=,ppid=,comm=`, which is
     // why one parser serves both platforms. 5000/5001 are the exempt chart.
     const TABLE = [
-      '4242 4 C:\\Users\\t\\AppData\\Local\\Programs\\Wayland\\wayland-core.exe',
+      '4242 4 C:\\Users\\t\\AppData\\Local\\Programs\\Wayland\\fuigo.exe',
       '4300 4242 C:\\Program Files\\nodejs\\node.exe',
       '5000 4300 C:\\Program Files\\WindowsApps\\TradingView.Desktop_3.1.0_x64__v\\TradingView.exe',
       '5001 5000 C:\\Program Files\\WindowsApps\\TradingView.Desktop_3.1.0_x64__v\\TradingView.exe',

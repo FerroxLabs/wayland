@@ -34,11 +34,9 @@
   "whatHappens": "When you launch this",
   "bodyFallback": "The agent loads this workflow as its first directive and walks you through it step by step. You can interrupt or change direction at any point.",
   "noDescription": "No description provided.",
-  "launch": {
-    "placeholder": "Launch wiring is in flight. Soon you will pick an engine (Wayland Core / Gemini / Claude / Codex), and the workflow will load as the agent's first directive in a fresh chat."
-  },
   "launchError": "無法啟動工作流程：{{msg}}",
   "picker": {
-    "noAgent": "未選取後端"
+    "noAgent": "未選取後端",
+    "approvalForNewRun": "新執行的核准模式"
   }
 }

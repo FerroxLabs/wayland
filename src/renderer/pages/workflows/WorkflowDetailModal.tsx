@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import AgentModeSelector from '@renderer/components/agent/AgentModeSelector';
+import { resolveUnattendedMode } from '@/common/types/agentModes';
+
 /**
  * WorkflowDetailModal - opens when a WorkflowCard is clicked.
  *
@@ -90,7 +93,7 @@ async function loadPresetAgents(): Promise<AvailableAgent[]> {
       if (!a || typeof a.id !== 'string' || a.enabled === false || seen.has(a.id)) return;
       seen.add(a.id);
       out.push({
-        backend: (typeof a.presetAgentType === 'string' ? a.presetAgentType : 'wcore') as AcpBackendAll,
+        backend: (typeof a.presetAgentType === 'string' ? a.presetAgentType : 'fuigo') as AcpBackendAll,
         name: typeof a.name === 'string' ? a.name : a.id,
         customAgentId: a.id,
         isPreset: true,
@@ -123,6 +126,14 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
   const [selectedAgentKey, setSelectedAgentKey] = useState<string>('claude');
   const [modelOptions, setModelOptions] = useState<Array<{ id: string; label: string; providerId?: string }>>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const [approvalMode, setApprovalMode] = useState<string | undefined>();
+  const approvalAgent = availableAgents?.find((agent) => getAgentKey(agent) === selectedAgentKey);
+  const approvalBackend = approvalAgent?.isPreset
+    ? resolvePresetAgentType(approvalAgent.presetAgentType)
+    : approvalAgent?.backend;
+  useEffect(() => {
+    setApprovalMode(undefined);
+  }, [entry?.name, selectedAgentKey]);
 
   const depends = useMemo(() => parseDepends(entry?.metadata?.depends), [entry]);
 
@@ -156,7 +167,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
           const curated = await ipcBridge.modelRegistry.curatedForAgent.invoke({ agentKey: backend });
           // Keep providerId so buildLaunchTarget can resolve the real connected
           // provider (e.g. 'openai', 'perplexity') instead of a synthetic
-          // backend-keyed row that useWCoreModelSelection later clears (#198).
+          // backend-keyed row (#198).
           models = curated.map((m) => ({ id: m.id, label: m.displayName, providerId: m.providerId }));
         } catch {
           // Registry unavailable - leave empty; the picker shows the connect hint.
@@ -298,11 +309,10 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
       const providerList = Array.isArray(providers) ? providers : [];
       // Resolve the REAL provider that owns the selected model. The picker
       // carries the registry providerId (e.g. 'openai', 'perplexity'); match on
-      // that first - via the same resolver the WCore model selector uses - so a
-      // Wayland Core model binds to its actual connected provider. Matching only
-      // on `platform === backend` failed for wcore (backend 'wcore' never equals
-      // a provider platform like 'openai'), so the launcher built a synthetic
-      // 'wcore-fallback' row that useWCoreModelSelection then cleared as stale,
+      // that first so an engine model binds to its actual connected provider.
+      // Matching only on `platform === backend` failed for the bundled engine
+      // (its backend id never equals a provider platform like 'openai'), so the
+      // launcher built a synthetic fallback row that was later cleared as stale,
       // leaving the send box stuck on "No model selected" (#198). The legacy
       // backend match stays as the fallback for options with no providerId (an
       // ACP-cache model for a backend the user already opened).
@@ -364,15 +374,8 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
       };
     }
 
-    // Read preferred session mode for this backend
-    let sessionMode: string | undefined;
-    try {
-      const acpConfig = await ConfigStorage.get('acp.config');
-      const backendConfig = acpConfig?.[backend as AcpBackendAll] as Record<string, unknown> | undefined;
-      sessionMode = backendConfig?.preferredMode as string | undefined;
-    } catch {
-      // sessionMode stays undefined - service defaults to whatever it picks
-    }
+    // Permission preferences from another chat are not consent for this run.
+    const sessionMode = resolveUnattendedMode(backend, approvalMode);
 
     return {
       backend,
@@ -607,6 +610,20 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
                 </span>
               )}
             </div>
+
+            {approvalBackend ? (
+              <div className='flex items-center gap-8px'>
+                <span className='text-12px text-t-secondary'>
+                  {t('picker.approvalForNewRun', 'Approval for new runs')}
+                </span>
+                <AgentModeSelector
+                  backend={approvalBackend}
+                  compact
+                  initialMode={resolveUnattendedMode(approvalBackend, approvalMode)}
+                  onModeSelect={setApprovalMode}
+                />
+              </div>
+            ) : null}
 
             {/* Action area - content depends on whether an in-flight session
                 exists. Both paths use the picker selection above. */}

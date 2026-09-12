@@ -148,7 +148,7 @@ export async function resolveDefaultLaunchTarget(
     const useModel = desiredModelId || providerMatch.useModel || '';
     model = { ...providerMatch, useModel } as TProviderWithModel;
   } else if (modelOwner && desiredModelId) {
-    // `wcore` (and any backend that is not itself a provider) proxies whichever
+    // `fuigo` (and any backend that is not itself a provider) proxies whichever
     // provider serves the chosen model. Bind the desired model to the provider
     // whose catalog contains it, NOT providerList[0] - pasting e.g. an OpenAI
     // `gpt-5.5` onto a Google provider POSTs it to the Google API → 404. (C1)

@@ -195,21 +195,6 @@ export function getConfirmationOptions(type: string): Array<{ label: string; val
         { label: '✅ Always Allow Server', value: 'proceed_always_server' },
         { label: '❌ Cancel', value: 'cancel' },
       ];
-    case 'path_boundary':
-      // A filesystem boundary is answered on the DESKTOP only, so this offers
-      // no buttons at all. Two reasons, and the first is the serious one.
-      //
-      // The generic arm below carries `proceed_once`, which is not this card's
-      // vocabulary. `WCoreManager.confirm` now refuses foreign values on a
-      // boundary callId, but before it did, answering here cleared the desktop
-      // user's card and approved the tool WITHOUT the grant - the read failed
-      // anyway and the folder became ungrantable for the session.
-      //
-      // Second, this surface cannot describe the decision. `getConfirmationPrompt`
-      // has no idea which folder is at stake, so a remote user would be granting
-      // standing filesystem access outside the workspace from a message that
-      // says only "Please confirm the operation".
-      return [];
     default:
       return [
         { label: '✅ Confirm', value: 'proceed_once' },
@@ -245,11 +230,6 @@ function getConfirmationPrompt(details: { type: string; title?: string; [key: st
         : '';
       return `❓ <b>${escapeHtml(details.question || details.title || 'Question')}</b>\n${choiceLines}`;
     }
-    case 'path_boundary':
-      // Named explicitly rather than left to the generic string, so the remote
-      // user is told what is happening and where to answer it, instead of being
-      // shown an unanswerable prompt with no buttons.
-      return `🔒 <b>Folder access requested</b>\nWayland needs access to a folder outside this workspace.\n\nAnswer this on the desktop app - it cannot be granted from chat.`;
     default:
       return 'Please confirm the operation';
   }
@@ -352,11 +332,11 @@ function convertTMessageToOutgoing(
       if (isWeixinPlatform(platform)) {
         return null;
       }
-      // Channels (Telegram/Lark) use automatic approval via yoloMode.
-      // Show a subtle indicator instead of an error message.
+      // Restricted channel workers must deny unexpected permission requests.
+      // This is defensive feedback for a backend/protocol violation.
       return {
         type: 'text',
-        text: `⏳ ${formatTextForPlatform('Applying automatic approval for permission request...', platform)}`,
+        text: `🔒 ${formatTextForPlatform('Tool permission denied in this channel conversation.', platform)}`,
         parseMode: 'HTML',
       };
     }
@@ -585,15 +565,6 @@ export class ActionExecutor {
             if (backend === 'gemini') {
               sessionConversation = await conversationServiceSingleton.createConversation({
                 type: 'gemini',
-                model,
-                name: conversationName,
-                source,
-                channelChatId: chatId,
-                extra: conversationExtra,
-              });
-            } else if (backend === 'wcore') {
-              sessionConversation = await conversationServiceSingleton.createConversation({
-                type: 'wcore',
                 model,
                 name: conversationName,
                 source,
@@ -842,7 +813,8 @@ export class ActionExecutor {
           // Strip replyMarkup during streaming to prevent premature card finalization.
           // Tool confirmation cards set replyMarkup (e.g., for Confirming status),
           // but DingTalk interprets replyMarkup as "stream complete" and finishes the AI Card.
-          // Channel conversations use yoloMode (auto-approve), so confirmation buttons are unnecessary.
+          // Restricted channel conversations cannot grant tool permissions.
+          // Never publish confirmation buttons into a remote chat.
           const streamOutgoing: IUnifiedOutgoingMessage = {
             ...outgoingMessage,
             replyMarkup: undefined,

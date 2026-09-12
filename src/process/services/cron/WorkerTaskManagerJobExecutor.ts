@@ -16,7 +16,7 @@ import type { TChatConversation, TProviderWithModel } from '@/common/config/stor
 import type { AcpBackendAll, AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
 import { getConversationTypeForBackend } from '@/common/utils/buildAgentConversationParams';
-import type BaseAgentManager from '@process/task/BaseAgentManager';
+import { isExplicitUnattendedFullAuto, resolveUnattendedMode } from '@/common/types/agentModes';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
 import type { CreateConversationParams } from '@process/services/IConversationService';
@@ -31,8 +31,7 @@ import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { resolveRoutineConnectorIds } from './routineConnectors';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
-import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
+import { activeRunOutputDir, resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
@@ -424,7 +423,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Kill stale task so getOrBuildTask picks up the new model
           const staleTask = this.taskManager.getTask(conversationId);
           if (staleTask) {
-            this.taskManager.kill(conversationId);
+            await this.taskManager.kill(conversationId);
           }
         }
       }
@@ -442,22 +441,19 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       nextRunAtMs: job.state?.nextRunAtMs,
     });
 
-    // Reuse existing task if possible; ensure yoloMode is active for scheduled runs.
+    // Recreate an idle task to clear any sticky blanket-approval flag left by
+    // an earlier interactive or scheduled run. Persisted chat state is retained.
+    if (this.busyGuard.isProcessing(conversationId))
+      throw new Error(`Conversation ${conversationId} is already running; the scheduled task was not acquired.`);
     const existingTask = this.taskManager.getTask(conversationId);
+    const yoloMode = isExplicitUnattendedFullAuto(
+      job.metadata.agentConfig?.backend ?? job.metadata.agentType,
+      job.metadata.agentConfig?.mode
+    );
     let task;
     try {
-      if (existingTask) {
-        const yoloEnabled = await (existingTask as BaseAgentManager<unknown>).ensureYoloMode();
-        if (yoloEnabled) {
-          task = existingTask;
-        } else {
-          // Cannot enable yoloMode dynamically - kill and recreate.
-          this.taskManager.kill(conversationId);
-          task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-        }
-      } else {
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-      }
+      if (existingTask) await this.taskManager.kill(conversationId);
+      task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode, unattendedHoldDeadlineMs });
     } catch (err) {
       // Conversation may have been deleted between scheduling and execution.
       // Re-throw with context so the caller (CronService) can log and update job state.
@@ -467,8 +463,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       );
     }
 
-    // #1045: the REUSE branch above never rebuilds the session, so the deadline
-    // has to be pushed onto the live agent rather than only handed to a spawn.
+    // #1045: keep the bounded unattended hold on the acquired runtime as well
+    // as its spawn options.
     // Optional by design: a backend without the method has no PermissionResolver
     // hold to bound.
     (task as { setUnattendedHoldDeadlineMs?: (ms: number | undefined) => void }).setUnattendedHoldDeadlineMs?.(
@@ -501,25 +497,32 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Apply mode and config options if configured (must succeed before sendMessage).
     // If the task's agent is stale/disconnected, settings may fail - kill and retry
     // with a fresh task in that case.
-    if (
-      job.metadata.agentConfig?.mode ||
-      job.metadata.agentConfig?.configOptions ||
-      job.metadata.agentConfig?.modelId
-    ) {
+    {
       const persistSettings = !runsInUserOwnedChat;
       const ok = await this.applyAgentSettings(task, job, persistSettings);
       if (!ok) {
         console.warn(`[CronExecutor] Agent settings failed for job ${job.id}, recreating task and retrying`);
-        this.taskManager.kill(conversationId);
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-        await this.applyAgentSettings(task, job, persistSettings);
+        await this.taskManager.kill(conversationId);
+        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode, unattendedHoldDeadlineMs });
+        if (!(await this.applyAgentSettings(task, job, persistSettings))) {
+          const error = new Error(
+            `Agent settings could not be confirmed for scheduled job ${job.id}; the run was not sent.`
+          );
+          // Settle failure before releasing busy: idle callbacks must not
+          // publish a staging directory from a turn that never ran.
+          if (artifactRun) await this.settleArtifactRun(artifactRun, job, false, error);
+          this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
+          await this.taskManager.kill(conversationId);
+          this.busyGuard.setProcessing(conversationId, false);
+          throw error;
+        }
       }
     }
 
     // Registered AFTER the settings retry above, so it releases the task the run
     // actually used rather than one that was already replaced. The conversation
-    // is still marked busy at this point - neither WCoreManager.kill() nor
-    // AcpAgentManager.kill() touches the busy guard (only stop() does), so the
+    // is still marked busy at this point - AcpAgentManager.kill() does not
+    // touch the busy guard (only stop() does), so the
     // retry's kill cannot make onceIdle fire before the run has even sent.
     if (runsInUserOwnedChat) {
       this.releaseBorrowedTaskWhenIdle(conversationId, task);
@@ -531,9 +534,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     //
     // `resolveOutputDir` re-checks containment because its result becomes a
     // host-blessed write destination handed to model-authored skill text, and
-    // `WCoreAgent.start` resolves it ONCE and threads that one value into both
-    // the spawn env and the `--system-prompt` directive. Reproducing it here -
-    // same function, same inputs - is a question, not a third derivation.
+    // the agent start path resolves it ONCE and threads that one value into the
+    // spawn env. Reproducing it here - same function, same inputs - is a
+    // question, not a third derivation.
     //
     // A disagreement is not a detail to log. It means the engine was pointed at
     // a directory this run does not collect from, so the turn can only produce a
@@ -551,7 +554,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // Mirrors the sendMessage failure path: tear the half-started task down
         // so the next fire rebuilds a fresh one rather than reusing this spawn.
         try {
-          this.taskManager.kill(conversationId);
+          await this.taskManager.kill(conversationId);
         } catch (killErr) {
           console.warn(`[CronExecutor] kill after output-dir mismatch also failed for ${conversationId}:`, killErr);
         }
@@ -587,10 +590,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     const isSeededRoutine = !!job.metadata.agentConfig?.configOptions?.routineId;
     const needsSkillSuggest =
       job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill && !isSeededRoutine;
-    const isGeminiLike =
-      job.metadata.agentConfig?.backend === 'gemini' || job.metadata.agentConfig?.backend === 'wcore';
+    const isGeminiLike = job.metadata.agentConfig?.backend === 'gemini';
 
-    // Gemini/WCore: inline SKILL_SUGGEST instructions in the task prompt (single-turn).
+    // Gemini: inline SKILL_SUGGEST instructions in the task prompt (single-turn).
     // Other agents: separate follow-up message via onFirstFinish (multi-turn).
     const messageText = this.appendOutputDirCorrection(
       this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike),
@@ -641,7 +643,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       skillSuggestWatcher.unregister(conversationId);
 
       if (isGeminiLike) {
-        // Gemini/WCore: SKILL_SUGGEST instructions are already in the prompt.
+        // Gemini: SKILL_SUGGEST instructions are already in the prompt.
         // Just register the watcher (no onFirstFinish) and start polling.
         skillSuggestWatcher.register(conversationId, job.id, workspace!);
         void this.detectSkillSuggestWithRetry(job.id, workspace!, conversationId, 0);
@@ -706,7 +708,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         cronWorkspace: config.workspace || '',
         workspace: config.workspace || '',
         // A durable task folder is app-created. Without this the workspace gets
-        // NO `.wayland-core/skills` at all and the run cannot reach its own
+        // NO native skills directory at all and the run cannot reach its own
         // scanner. Deliberately not `customWorkspace: false`, which is a
         // persisted classification four other subsystems read as "temporary".
         appCreatedWorkspace: true,
@@ -725,7 +727,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // A named connector arrives with its WHOLE tool inventory: per-tool
         // narrowing is not reachable on this path (see `routineConnectors.ts`).
         activeMcpServers: routineConnectorIds,
-        ...(config.mode ? { sessionMode: config.mode } : {}),
+        sessionMode: resolveUnattendedMode(config.backend ?? job.metadata.agentType, config.mode),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),
         ...(extraSkillPaths.length > 0 ? { extraSkillPaths } : {}),
@@ -790,13 +792,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     switch (backend) {
       case 'gemini':
         return 'gemini';
-      case 'wcore':
-        return 'wcore';
       case 'openclaw-gateway':
       case 'openclaw' as AgentBackend:
         return 'openclaw-gateway';
-      case 'nanobot':
-        return 'nanobot';
       case 'remote':
         return 'remote';
       default:
@@ -882,8 +880,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       } else if (typeof savedModel === 'string') {
         preferredModelId = savedModel;
       }
-    } else if (backend === 'wcore') {
-      const savedModel = await ProcessConfig.get('wcore.defaultModel');
+    } else if (backend === 'fuigo') {
+      const savedModel = await ProcessConfig.get('fuigo.defaultModel');
       preferredModelId = savedModel?.useModel;
     } else {
       const acpConfig = await ProcessConfig.get('acp.config');
@@ -908,7 +906,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       return { ...match, useModel } as TProviderWithModel;
     }
 
-    // No provider is named after this backend. `wcore` in particular is a
+    // No provider is named after this backend. The bundled engine is a
     // backend, not a provider - it proxies whichever provider actually serves
     // the chosen model. Bind the preferred model to the provider whose catalog
     // contains it, NOT providerList[0]: pasting an OpenAI model id (e.g.
@@ -1093,7 +1091,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // `config.workspace || ''` used to turn "this job expresses no opinion"
           // into "the workspace is now empty", which read as a change and rehomed
           // the run into a fresh conversation with `workspace: ''` - i.e. a new
-          // `wcore-temp-<ts>` that cannot see any previous run. That is the
+          // temp workspace that cannot see any previous run. That is the
           // `extra.backend` defect one field over: `backfillCronJobIdOnConversations`
           // synthesises an agentConfig carrying a backend and NO workspace, so it
           // only ever bit after a restart, and it would throw away exactly the
@@ -1103,8 +1101,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
           // `extra.backend` is only persisted by the conversation factories that
-          // need it to pick a CLI - acp and openclaw-gateway. The wcore, gemini,
-          // nanobot and remote factories carry that identity in `type` instead
+          // need it to pick a CLI - acp and openclaw-gateway. The gemini and
+          // remote factories carry that identity in `type` instead
           // and their extra whitelists drop `backend` outright. So a missing
           // `extra.backend` means "this conversation type does not record one",
           // never "the agent changed": read it through `type` in that case.
@@ -1114,9 +1112,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // `prepareConversation` early-returns and they behave all session.
           // On the next launch `CronService.init()` backfills an agentConfig
           // (backend only, no workspace) - the early return disappears, the
-          // comparison lands here, `undefined !== 'wcore'` reads as an agent
+          // comparison lands here, `undefined !== 'gemini'` reads as an agent
           // change, and the job is rehomed into a brand-new conversation with
-          // `workspace: ''`, i.e. an empty `wcore-temp-<ts>` dir that cannot
+          // `workspace: ''`, i.e. an empty temp workspace that cannot
           // see any of the configured chat's files.
           const agentChanged = convBackend
             ? convBackend !== config.backend
@@ -1138,8 +1136,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // ...but only onto a conversation this job owns. When the reuse target
           // is the user's OWN chat, writing the job's settings there silently
           // reconfigures an interactive session: a UI-created job carries
-          // `mode: getFullAutoMode(backend)` (='yolo' for wcore), and once that
-          // lands in `extra.sessionMode` the next WCoreManager built for the chat
+          // `mode: getFullAutoMode(backend)`, and once that lands in
+          // `extra.sessionMode` the next agent manager built for the chat
           // starts in yolo and auto-approves every tool call with no dialog,
           // permanently. The workspace backfill below is exempt - it only fills a
           // field the chat already has.
@@ -1224,12 +1222,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * `WorkerTaskManager` keyed by the conversation, so the user's next
    * interactive turn in that chat runs on the reconfigured one:
    *
-   *   - `WCoreManager` inherits `BaseAgentManager.ensureYoloMode()` (returns
-   *     `false`), so the executor kills the user's task and rebuilds it with
-   *     `yoloMode: true`; `applyAgentSettings` then sets `currentMode = 'yolo'`.
-   *     `tryAutoApprove` auto-approves every tool call from that mode, and the
-   *     `this.yoloMode` branch of the `approval_required` handler auto-resumes
-   *     what would otherwise reach the user's confirmation gate.
+   *   - `GeminiAgentManager` inherits `BaseAgentManager.ensureYoloMode()`
+   *     (returns `false`), so the executor kills the user's task and rebuilds it
+   *     with `yoloMode: true`; `applyAgentSettings` then sets the live mode.
    *   - `AcpAgentManager.ensureYoloMode()` sets `options.yoloMode = true` and
    *     calls `agent.enableYoloMode()` on the live ACP session.
    *
@@ -1240,16 +1235,15 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * the next turn rebuilds it from the conversation row - which round 2
    * guarantees still holds the user's own settings. This is an ordinary
    * lifecycle event, not a new hazard: `WorkerTaskManager.killIdleCliAgents()`
-   * already tears down idle acp/wcore agents on a timer, and both resume their
+   * already tears down idle acp agents on a timer, and they resume their
    * session from the persisted markers.
    */
   private releaseBorrowedTaskWhenIdle(conversationId: string, borrowed: unknown): void {
     this.busyGuard.onceIdle(conversationId, () => {
       // `onceIdle` fires SYNCHRONOUSLY from inside `setProcessing(false)`, and the
       // managers call that at the TOP of turn teardown and then keep working -
-      // `WCoreManager.handleTurnEnd` goes on to flush buffered stream text, settle
-      // the activity card, notify turn completion, and can even start a follow-up
-      // turn. Killing there would tear the manager down mid-teardown. Defer one
+      // flushing buffered stream text, notifying turn completion, even starting
+      // a follow-up turn. Killing there would tear the manager down mid-teardown. Defer one
       // macrotask and re-check, exactly as `CronBusyGuard.fireGlobalIdleIfIdle`
       // does for the app-wide case; if work resumed, wait for the next real idle.
       setImmediate(() => {
@@ -1274,8 +1268,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    *
    * @param persistSettings - false when the run is happening inside a chat the
    *   user owns. Every setting still reaches the LIVE session (an unattended run
-   *   has nobody to answer a tool confirmation, and for wcore auto-approval is
-   *   driven by `currentMode`), but the agent managers' conversation-row writes -
+   *   has nobody to answer a tool confirmation), but the agent managers'
+   *   conversation-row writes -
    *   `saveSessionMode`, `saveModelId`, `saveConfigOptions` - are suppressed so
    *   the user's chat keeps its own mode, model and config options. The live
    *   session itself is handed back by `releaseBorrowedTaskWhenIdle`.
@@ -1297,8 +1291,11 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       ).setConfigOption === 'function';
 
     // Apply mode
-    if (job.metadata.agentConfig?.mode && hasSetMode) {
-      const desiredMode = job.metadata.agentConfig.mode;
+    if (hasSetMode) {
+      const desiredMode = resolveUnattendedMode(
+        job.metadata.agentConfig?.backend ?? job.metadata.agentType,
+        job.metadata.agentConfig?.mode
+      );
       try {
         const result = (await (
           task as { setMode: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }

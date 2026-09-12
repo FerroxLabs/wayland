@@ -95,9 +95,9 @@ describe('release preflight', () => {
     expect(workflow).toContain('every attestation would be rejected');
   });
 
-  it('asserts the pinned engine release actually carries every required asset', () => {
-    expect(workflow).toContain('DEFAULT_WCORE_VERSION');
-    expect(workflow).toContain('is missing $asset');
+  it('asserts the bundled engine authority carries a pin for every packaged target', () => {
+    expect(workflow).toContain('scripts/fuigo/authority.json');
+    expect(workflow).toContain('has no pin for');
   });
 
   it('lets dev-branch builds through even though preflight is tag-only', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveFluxRouting, GENERIC_FLUX_BACKENDS } from '@process/task/fluxRouting';
+import { resolveFluxRouting, needsRespawnForFluxTier, GENERIC_FLUX_BACKENDS } from '@process/task/fluxRouting';
 
 const ctx = (over = {}) => ({
   backend: 'qwen',
@@ -206,5 +206,26 @@ describe('resolveFluxRouting', () => {
     expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe(
       'native'
     );
+  });
+
+  // Fuigo: FluxRouter IS the provider (FUIGO_API_KEY is injected by the spawn's
+  // fuigo block, not here) and the tier is an in-place session/set_model, so
+  // the decision is 'flux' with nothing to inject and no tier pinned - a pinned
+  // `fluxModelId` would make needsRespawnForFluxTier tear the session down for
+  // a switch the engine applies live.
+  it('reports fuigo as flux-routed with no env, no strip list and no pinned tier', () => {
+    const out = resolveFluxRouting(ctx({ backend: 'fuigo', selectedModelId: 'flux-reasoning' }));
+    expect(out).toEqual({ routing: 'flux', env: {}, stripKeys: [] });
+    expect(out.fluxModelId).toBeUndefined();
+    expect(needsRespawnForFluxTier(out.routing, out.fluxModelId, 'flux-fast')).toBe(false);
+  });
+  it('reports fuigo as flux-routed regardless of key, toggle or model (the route never changes)', () => {
+    for (const over of [
+      { fluxConnected: false, fluxKey: undefined, routeThroughFlux: false },
+      { selectedModelId: 'claude-opus-5', routeThroughFlux: false },
+      { selectedModelId: undefined, resolvedModelId: 'claude-opus-5', routeThroughFlux: false },
+    ]) {
+      expect(resolveFluxRouting(ctx({ backend: 'fuigo', ...over })).routing).toBe('flux');
+    }
   });
 });

@@ -81,11 +81,11 @@ function job(): CronJob {
     target: { payload: { kind: 'message', text: 'run' }, executionMode: 'existing' },
     metadata: {
       conversationId: CONV,
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'acp' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1,
       updatedAt: 1,
-      agentConfig: { backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Smart Trader' },
+      agentConfig: { backend: 'fuigo' as CronJob['metadata']['agentType'], name: 'Smart Trader' },
     },
     state: { runCount: 0, retryCount: 0, maxRetries: 3 },
   };
@@ -102,9 +102,9 @@ beforeEach(() => {
   conversationStore.clear();
   conversationStore.set(CONV, {
     id: CONV,
-    type: 'wcore',
+    type: 'acp',
     createTime: 1,
-    extra: { workspace: '/tmp/wcore-temp-1700000000', cronJobId: JOB },
+    extra: { workspace: '/tmp/acp-temp-1700000000', cronJobId: JOB },
   });
 });
 afterEach(() => {

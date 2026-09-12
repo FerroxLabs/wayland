@@ -1,0 +1,459 @@
+{
+  "files": [
+    {
+      "path": "report/collect.mjs",
+      "sourceSha256": "d084c31705a8caffc4e331f30873d852f43ca9bc4a51fae373789d0b5bf36142",
+      "resultSha256": "f46c406e7cb567826991060733002f103c700264dff99f0bf476ffcaff1af82d",
+      "edits": [
+        {
+          "start": 18,
+          "deleteCount": 2,
+          "lines": [
+            " * Every price written out comes from TradingView chart bars; daily percentage",
+            " * change is calculated from the final two daily closes. Panel values come from",
+            " * the TC-TIDE panel. A symbol whose panel does not render is recorded"
+          ]
+        },
+        {
+          "start": 67,
+          "deleteCount": 1,
+          "lines": ["const SERVER = opt('server', '@ferroxlabs/tvcontrol@2.5.1');"]
+        },
+        {
+          "start": 230,
+          "deleteCount": 0,
+          "lines": [
+            "  // Desktop's verified per-user runtime is used outside Core's workspace",
+            "  // sandbox (including Fuigo). Only enumerate the known hash/version levels.",
+            "  const runtimeAppData = new Set([",
+            "    ...[realHome, homedir()].filter(Boolean).flatMap((base) => [",
+            "      path.join(base, 'Library', 'Application Support', 'Wayland'),",
+            "      path.join(base, '.config', 'Wayland'),",
+            "      path.join(base, 'AppData', 'Roaming', 'Wayland'),",
+            "    ]),",
+            "    ...(process.env.APPDATA ? [path.join(process.env.APPDATA, 'Wayland')] : []),",
+            "    ...(process.env.XDG_CONFIG_HOME ? [path.join(process.env.XDG_CONFIG_HOME, 'Wayland')] : []),",
+            "  ]);",
+            "  for (const appRoot of runtimeAppData) {",
+            "    scan(path.join(appRoot, 'mcp-runtimes', 'tvcontrol'), (hashDir, hash) => {",
+            "      if (!/^[a-f0-9]{64}$/.test(hash)) return null;",
+            "      scan(hashDir, (versionDir, version) => /^bunx-wayland-tvcontrol-\\d+\\.\\d+\\.\\d+$/.test(version)",
+            "        ? path.join(versionDir, 'node_modules', '@ferroxlabs', 'tvcontrol') : null);",
+            "      return null;",
+            "    });",
+            "  }"
+          ]
+        },
+        {
+          "start": 289,
+          "deleteCount": 0,
+          "lines": [
+            "// Node's Windows main-module loader rejects the NT-prefixed drive path that",
+            "// Core reports for its scratch directory. Change only the equivalent argv",
+            "// spelling; discovery and filesystem grants keep their original paths.",
+            "function nodeEntryPath(entry) {",
+            "  if (process.platform === 'win32' && entry.startsWith('\\\\\\\\?\\\\') && /^[A-Za-z]:\\\\/.test(entry.slice(4))) {",
+            "    return entry.slice(4);",
+            "  }",
+            "  return entry;",
+            "}"
+          ]
+        },
+        {
+          "start": 290,
+          "deleteCount": 1,
+          "lines": ["  ? spawn(process.execPath, [nodeEntryPath(local.entry)], {"]
+        },
+        {
+          "start": 345,
+          "deleteCount": 3,
+          "lines": [
+            "const rpc = (method, params) => new Promise((resolve, reject) => {",
+            "  const n = ++id;",
+            "  const timer = setTimeout(() => {",
+            "    pend.delete(n);",
+            "    reject(new Error(`${method} timed out`));",
+            "  }, method === 'initialize' ? 90000 : 45000);",
+            "  pend.set(n, (reply) => { clearTimeout(timer); resolve(reply); });",
+            "  srv.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: n, method, params }) + '\\n', (error) => {",
+            "    if (!error) return;",
+            "    clearTimeout(timer); pend.delete(n); reject(error);",
+            "  });"
+          ]
+        },
+        {
+          "start": 350,
+          "deleteCount": 0,
+          "lines": ["  if (interrupted && !restoring) throw new Error('collection interrupted');"]
+        },
+        {
+          "start": 351,
+          "deleteCount": 0,
+          "lines": ["  if (r.error) return { success: false, error: r.error.message || 'MCP request failed' };"]
+        },
+        {
+          "start": 352,
+          "deleteCount": 1,
+          "lines": [
+            "  try {",
+            "    const value = JSON.parse(t);",
+            "    return r.result.isError ? { success: false, error: value?.error || t } : value;",
+            "  } catch { return { success: false, error: t || 'Empty MCP response' }; }"
+          ]
+        },
+        {
+          "start": 376,
+          "deleteCount": 4,
+          "lines": ["// Collection errors are handled below so the original chart can be restored."]
+        },
+        {
+          "start": 385,
+          "deleteCount": 4,
+          "lines": [
+            "const withTimeout = async (p, ms, what) => {",
+            "  let timer;",
+            "  try { return await Promise.race([",
+            "    p, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`${what} timed out after ${ms}ms`)), ms); }),",
+            "  ]); } finally { clearTimeout(timer); }",
+            "};"
+          ]
+        },
+        {
+          "start": 426,
+          "deleteCount": 0,
+          "lines": [
+            "// Older collectors populated quotes from TradingView's scanner API. Those",
+            "// partial values are not chart evidence and must be collected again.",
+            "prior.quotes = Object.fromEntries(Object.entries(prior.quotes || {}).filter(([, quote]) =>",
+            "  quote?.source === 'chart' && Number.isFinite(quote.last) && Number.isFinite(quote.change_percent)));"
+          ]
+        },
+        {
+          "start": 428,
+          "deleteCount": 0,
+          "lines": ["const RESUME_COMPLETE = Symbol('resume-complete');"]
+        },
+        {
+          "start": 430,
+          "deleteCount": 17,
+          "lines": [
+            "  finalResult = { resume_needed: true, partial: PARTIAL, panels: done, of: total,",
+            "    next: 'run this exact command again - it continues from the partial file' };",
+            "  throw RESUME_COMPLETE;"
+          ]
+        },
+        {
+          "start": 448,
+          "deleteCount": 2,
+          "lines": [
+            "const canonicalTimeframe = (value) => String(value || '').trim().toUpperCase().replace(/^1([DWM])$/, '$1');",
+            "const canonicalSymbol = (symbol) => String(symbol || '').trim().toUpperCase().replace(/_DL(?=:)/, '');",
+            "let startState = null;",
+            "let finalResult = null;",
+            "let exitCode = 0;",
+            "let interrupted = false;",
+            "let restoring = false;",
+            "process.once('SIGTERM', () => { interrupted = true; });",
+            "process.once('SIGINT', () => { interrupted = true; });",
+            "try {",
+            "startState = await mustCall('chart_get_state', {});"
+          ]
+        },
+        {
+          "start": 451,
+          "deleteCount": 0,
+          "lines": [
+            "const startResolution = startState?.resolution || startState?.timeframe;",
+            "if (!startSymbol || !startResolution) throw new Error('Cannot capture the starting chart symbol and timeframe; collection was not started');",
+            "// Market bars and the trading calendar must use daily candles, independent of",
+            "// the chart the customer happened to leave open. Restore its interval in finally.",
+            "await mustCall('chart_set_timeframe', { timeframe: '1D' });",
+            "const dailyState = await mustCall('chart_get_state', {});",
+            "if (canonicalTimeframe(dailyState.resolution || dailyState.timeframe) !== 'D')",
+            "  throw new Error('Chart did not switch to the daily timeframe');"
+          ]
+        },
+        {
+          "start": 466,
+          "deleteCount": 1,
+          "lines": [
+            "  if (!on || canonicalSymbol(on) !== canonicalSymbol(tv)) throw new Error(`chart did not switch: asked ${tv}, chart is on ${on}`);"
+          ]
+        },
+        {
+          "start": 470,
+          "deleteCount": 1,
+          "lines": ["  market.push({ tv, resolved_symbol: on, sym, name, desc, kind,"]
+        },
+        {
+          "start": 484,
+          "deleteCount": 16,
+          "lines": [
+            "// 3. Quotes and panels from the same verified daily chart. quote_batch uses",
+            "// TradingView's scanner API, so it cannot be used for this chart-only report.",
+            "const quotes = { ...(prior.quotes || {}) };"
+          ]
+        },
+        {
+          "start": 505,
+          "deleteCount": 3,
+          "lines": ["for (const w of watchlist) {", "  if (quotes[w.tv] && panels[w.tv]) continue;"]
+        },
+        {
+          "start": 509,
+          "deleteCount": 20,
+          "lines": [
+            "  await mustCall('chart_set_symbol', { symbol: w.tv });",
+            "  await new Promise((r) => setTimeout(r, DELAY));",
+            "  const st = await mustCall('chart_get_state', {});",
+            "  const on = st?.symbol || st?.chart_symbol || '';",
+            "  if (canonicalSymbol(on) !== canonicalSymbol(w.tv))",
+            "    throw new Error(`chart did not switch: asked ${w.tv}, chart is on ${on}`);",
+            "  if (canonicalTimeframe(st.resolution || st.timeframe) !== 'D')",
+            "    throw new Error(`Chart is not daily while reading ${w.tv}`);",
+            "  const o = await mustCall('data_get_ohlcv', { count: 2 });",
+            "  const bars = o?.bars || [];",
+            "  const last = bars.at(-1)?.close;",
+            "  const previous = bars.at(-2)?.close;",
+            "  if (bars.length < 2 || !Number.isFinite(last) || !Number.isFinite(previous) || previous === 0)",
+            "    throw new Error(`Chart returned no usable pair of daily closes for ${w.tv}`);",
+            "  quotes[w.tv] = { last, change_percent: ((last - previous) / previous) * 100,",
+            "    source: 'chart', resolved_symbol: on, timeframe: '1D' };",
+            "  const p = await mustCall('data_get_pine_tables', { study_filter: 'TC-TIDE' });",
+            "  const cells = p?.studies?.[0]?.tables?.[0]?.cells;",
+            "  if (cells && stampOk(cells, w.ticker)) panels[w.tv] = cells;",
+            "  else say(`panel unread ${w.tv} - will be reported unread`);"
+          ]
+        },
+        {
+          "start": 530,
+          "deleteCount": 1,
+          "lines": [
+            "  say(`chart quotes ${Object.keys(quotes).length}/${watchlist.length}; panels ${Object.keys(panels).length}/${watchlist.length}`);"
+          ]
+        },
+        {
+          "start": 533,
+          "deleteCount": 13,
+          "lines": ["// Restoration happens for success, partial passes and errors in finally below."]
+        },
+        {
+          "start": 558,
+          "deleteCount": 4,
+          "lines": [
+            "finalResult = { wrote: out, market: market.length, quotes: Object.keys(quotes).length,",
+            "  panels: Object.keys(panels).length, of: watchlist.length, unread };",
+            "} catch (error) {",
+            "  if (error !== RESUME_COMPLETE) {",
+            "    say(`COLLECT FAILED: ${error?.message || error}`);",
+            "    exitCode = 1; finalResult = null;",
+            "  }",
+            "} finally {",
+            "  restoring = true;",
+            "  if (startState?.symbol || startState?.chart_symbol) {",
+            "    try {",
+            "      const originalSymbol = startState.symbol || startState.chart_symbol;",
+            "      const originalResolution = startState.resolution || startState.timeframe;",
+            "      const current = await mustCall('chart_get_state', {});",
+            "      if (startState.chart_id && current.chart_id && startState.chart_id !== current.chart_id)",
+            "        throw new Error('The active chart changed during collection; refusing to overwrite another chart');",
+            "      if (canonicalSymbol(current.symbol || current.chart_symbol) !== canonicalSymbol(originalSymbol))",
+            "        await mustCall('chart_set_symbol', { symbol: originalSymbol });",
+            "      const afterSymbol = await mustCall('chart_get_state', {});",
+            "      if (originalResolution && canonicalTimeframe(afterSymbol.resolution || afterSymbol.timeframe) !== canonicalTimeframe(originalResolution))",
+            "        await mustCall('chart_set_timeframe', { timeframe: String(originalResolution) });",
+            "      const restored = await mustCall('chart_get_state', {});",
+            "      if (canonicalSymbol(restored.symbol || restored.chart_symbol) !== canonicalSymbol(originalSymbol) ||",
+            "          (originalResolution && canonicalTimeframe(restored.resolution || restored.timeframe) !== canonicalTimeframe(originalResolution)))",
+            "        throw new Error('Starting chart restoration could not be verified');",
+            "    } catch (error) {",
+            "      say(`RESTORE FAILED: ${error?.message || error}`);",
+            "      exitCode = 1; finalResult = null;",
+            "    }",
+            "  }",
+            "  try { srv.stdin.end(); } catch { /* already closed */ }",
+            "  try { srv.kill(); } catch { /* closing stdin also ends the connector */ }",
+            "}",
+            "if (interrupted) exitCode = 1;",
+            "if (exitCode === 0 && finalResult) console.log(JSON.stringify({ ...finalResult, restored_start_state: true }));",
+            "process.exit(exitCode);"
+          ]
+        },
+        {
+          "start": 563,
+          "deleteCount": 0,
+          "lines": [""]
+        }
+      ]
+    },
+    {
+      "path": "SKILL.md",
+      "sourceSha256": "06a171877775350df8acccaa74a41701cd0e761f90d5a512ec6b18aead49ea30",
+      "resultSha256": "568d1a973d7d98d7f79e2d13d9dbefafc47c83c7b991bb5f545d4471c9fef21c",
+      "edits": [
+        {
+          "start": 21,
+          "deleteCount": 0,
+          "lines": [
+            "",
+            "## Collector compatibility update 1.0.1",
+            "",
+            "`tv_health_check` returning `success: true` with `datafeed.state: unknown` means its feed-state probe is inconclusive. It is not a disconnected-feed result. Confirm the active symbol and actual bar/TC-TIDE panel reads; never invent a healthy state or numbers. Keep the hard stop for an explicitly offline, disconnected, reconnecting or erroneous series.",
+            "",
+            "Use the shipped collector. It accepts TradingView's delayed exchange alias (for example `CME_MINI_DL:ES1!` for `CME_MINI:ES1!`) while retaining the resolved symbol in the data. Each successful, partial or failed pass restores and checks its starting symbol and timeframe. Treat `RESTORE FAILED` as a real failure. Allow up to 180 seconds for the shell invocation where supported; the collector still requests resumable passes using its normal 50-second budget."
+          ]
+        },
+        {
+          "start": 224,
+          "deleteCount": 2,
+          "lines": [
+            "many chart reads: eight market instruments, the daily-bar calendar, and each watchlist",
+            "symbol's daily closes and TC-TIDE panel. No quote or screener endpoint is used. As individual tool calls that exceeds"
+          ]
+        },
+        {
+          "start": 252,
+          "deleteCount": 3,
+          "lines": [
+            "The old rule said never drive the reads as individual tool calls because a live run hit its",
+            "turn cap with the scan finished and the report never written. Chart-only reads require still",
+            "more calls, so use the resumable collector whenever it can start. That cap is a config value (`max_turns`), not a law. Where it is set high enough, this"
+          ]
+        },
+        {
+          "start": 264,
+          "deleteCount": 6,
+          "lines": [
+            "3. Capture the original chart symbol, timeframe and chart id. Set and verify daily timeframe.",
+            "   Read each market instrument with `chart_set_symbol`, verify `chart_get_state`, then",
+            "   `data_get_ohlcv({ count: 260 })`. Retain full bars; a batch summary is insufficient.",
+            "4. For each watchlist symbol, switch and verify the chart, then read its last two daily bars",
+            "   with `data_get_ohlcv({ count: 2 })`. The latest close and the percentage difference from the",
+            "   preceding close supply `last` and `change_percent`. Do not use `quote_batch`: it calls",
+            "   TradingView's screener endpoint, which is outside this chart-only report.",
+            "5. On that same verified chart, read `data_get_pine_tables({ study_filter: \"TC-TIDE\" })`.",
+            "   Keep going until every symbol has been read. Track empty panels and retry them individually",
+            "   once. Save progress before the run budget expires; never replace chart reads with a fetch."
+          ]
+        },
+        {
+          "start": 276,
+          "deleteCount": 1,
+          "lines": [
+            "symbol and timeframe the user started on must be restored and read back at every exit,",
+            "including partial runs and errors. An unverified restoration is a failed run."
+          ]
+        }
+      ]
+    },
+    {
+      "path": "SETUP-TC-TIDE.md",
+      "sourceSha256": "32bf08e5d2ff571d8ce5bfddab79725312548a728efed3ce5d0f4c9536cab770",
+      "resultSha256": "8307f47a1a8ae2aacf1bce59e4f7a98bc7886bd49405c5af2a2a67d760a85387",
+      "edits": [
+        {
+          "start": 84,
+          "deleteCount": 1,
+          "lines": ["## Step 7 \u2014 record the chart and the exact watchlist"]
+        },
+        {
+          "start": 86,
+          "deleteCount": 4,
+          "lines": [
+            "Follow the setup procedure in this packet's `SKILL.md`. Resolve the user's watchlist with",
+            "`watchlist_list` and `watchlist_get_by_id`, and the chart with `layout_list` and",
+            "`layout_get_active`. Record the selected watchlist id, name, ordered symbols and count,",
+            "layout id and name, timeframe, account currency/size and slot count in the conversation's",
+            "workspace. Read that record back and state the choices to the user. If names are ambiguous,",
+            "ask which id they want; never silently pick another list with the same name."
+          ]
+        },
+        {
+          "start": 91,
+          "deleteCount": 3,
+          "lines": [
+            "The collector shipped here is `report/collect.mjs`. It has no settings or layout-saving",
+            "command. The record preserves the user's choices for the next run; it does not configure",
+            "TradingView automatically. Before each scan, follow `SKILL.md` to apply the recorded layout",
+            "by id and verify `layout_get_active` returns that exact id with TC-TIDE present and readable."
+          ]
+        },
+        {
+          "start": 95,
+          "deleteCount": 8,
+          "lines": [
+            "For the original Masterclass universe, use this packet's",
+            "`watchlists/TC-MASTER-WATCHLIST.csv` and state that it is the shipped list. To scan a different",
+            "live list, save the exact ordered symbols returned by `watchlist_get_by_id` as a UTF-8 text",
+            "file at the workspace root, one `EXCHANGE:TICKER` per line, with no header. The collector",
+            "accepts this format through `--watchlist <file>`. Read the file back and compare its ordered",
+            "symbols and count with the connector result before using it. Never type symbols from memory,",
+            "pass an exported JSON file as a watchlist, or substitute the shipped list for the user's choice."
+          ]
+        },
+        {
+          "start": 104,
+          "deleteCount": 23,
+          "lines": [
+            "Keep these records and any custom watchlist outside the staged skill folder, which can be",
+            "replaced when the app stages the skill again. State the actual workspace location and verify",
+            "that saved files exist; do not promise a future run will reuse them unless that run's workspace",
+            "and instructions point to them."
+          ]
+        },
+        {
+          "start": 152,
+          "deleteCount": 1,
+          "lines": ["## Step 8 \u2014 produce the chart-based brief"]
+        },
+        {
+          "start": 154,
+          "deleteCount": 3,
+          "lines": [
+            "Load this packet's `tide-morning-brief` skill and follow its shipped collector, assembler and",
+            "HTML renderer pipeline. Run from the workspace root; locate `report/collect.mjs` beside the",
+            "staged `SKILL.md` rather than assuming a Core- or Fuigo-specific path. Use the verified",
+            "watchlist from Step 7 and the user's recorded account and slot values."
+          ]
+        },
+        {
+          "start": 158,
+          "deleteCount": 7,
+          "lines": [
+            "First call `tv_health_check` and confirm the selected chart, actual bars and TC-TIDE panel",
+            "are readable. Follow the health rules in `SKILL.md`: an explicitly disconnected, offline,",
+            "reconnecting or erroneous series stops the scan; an unknown feed probe requires actual",
+            "chart/bar/panel verification and is not by itself proof of failure or health."
+          ]
+        },
+        {
+          "start": 166,
+          "deleteCount": 2,
+          "lines": [
+            "If the connector or chart cannot be read, state the observed blocker and stop. Do not run an",
+            "offline scanner, fetch Yahoo or another quote API, substitute cached figures, or create an",
+            "empty report and call it the morning brief. Every TIDE value must come from TC-TIDE's own",
+            "panel. If a pass reads only part of the list, retain the genuine reads and follow the collector's",
+            "resumable-pass instructions; name any remaining unread symbols honestly."
+          ]
+        },
+        {
+          "start": 169,
+          "deleteCount": 0,
+          "lines": [
+            "After real collection, write the HTML report through the pipeline in `SKILL.md` into this",
+            "conversation's Artifacts directory (or the absolute deliverables directory supplied by the",
+            "run). Verify the file exists and can be opened from Artifacts. State which watchlist was",
+            "scanned, the actual count read versus attempted, timeframe and bar date. Confirm the chart's",
+            "starting symbol and timeframe were restored; a failed restore is a failure to report, not a",
+            "successful scan. Only describe the brief as complete when collection and the report are complete.",
+            "",
+            "Offer a daily schedule only after the on-demand brief works, and only if the scheduled run can",
+            "access the required chart connector, verified layout, watchlist and persistent workspace.",
+            ""
+          ]
+        }
+      ]
+    }
+  ]
+}

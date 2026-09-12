@@ -3,14 +3,14 @@
  * launch with the chosen backend.
  *
  * Per `BackendPill.tsx` and `useAvailableBackends`:
- *   - wayland-core is ALWAYS in the available list (process-side fallback).
+ *   - fuigo is ALWAYS in the available list (process-side fallback).
  *   - detected CLIs (claude / gemini / codex / etc.) are added when installed.
  *   - The launcher pill is always rendered; `AgentBackendPill` (the in-team
  *     header pill) is what hides itself when `options.length < 2`, NOT this
  *     launcher pill.
  *
  * Strategy: open the leader's BackendPill dropdown, count options, pick the
- * one that's NOT the current value (always at least wayland-core present),
+ * one that's NOT the current value (always at least fuigo present),
  * confirm the pill renders the new value, then launch.
  */
 
@@ -53,7 +53,7 @@ test.describe('Team Launcher - backend selection', () => {
     // Open the WaylandSelect dropdown. Arco renders options into document.body.
     await leaderPill.click();
 
-    // List the visible option labels - wayland-core is guaranteed; if other
+    // List the visible option labels - fuigo is guaranteed; if other
     // CLIs are detected they're also listed.
     const options = page.locator('.arco-select-option');
     await expect(options.first()).toBeVisible({ timeout: 5_000 });
@@ -95,7 +95,7 @@ test.describe('Team Launcher - backend selection', () => {
     expect(teamId).toBeTruthy();
 
     // Backend persistence: team.get returns the leader with the agentType we
-    // chose. Note: BackendPill renders `id` directly (e.g. "wayland-core"), so
+    // chose. Note: BackendPill renders `id` directly (e.g. "fuigo"), so
     // pickedValue equals the backend id.
     const state = await invokeBridge<{ agents: Array<{ role: string; agentType: string }> }>(page, 'team.get', {
       id: teamId,

@@ -16,7 +16,7 @@ import { resolveJsRuntime, type ResolvedJsRuntime } from '@process/utils/jsRunti
  * transport command. The connection-TEST path (McpProtocol) already rewrites that
  * to the bundled Bun runtime (`bun x --bun <pkg>`) before spawning — which is why
  * the Library shows a green/connected badge. But the real SESSION-injection paths
- * (ACP `session/new`, the wcore engine's config.toml, per-CLI configs) forwarded
+ * (ACP `session/new`, per-CLI configs) forwarded
  * the raw `"npx"` verbatim. On Windows a bare `npx` is `npx.cmd` and does not
  * resolve via `CreateProcess`/PATHEXT for a shell:false spawn. On macOS/Linux a
  * bare command also reintroduces a dependency on the GUI process's PATH that
@@ -36,10 +36,13 @@ export function resolveMcpStdioSpawn(
   command: string,
   args: readonly string[] = [],
   resolveNpx: () => string = () => resolveNpxPath({}),
-  _platform: NodeJS.Platform = process.platform
+  platform: NodeJS.Platform = process.platform
 ): { command: string; args: string[] } {
   if (command === 'npx') {
     return { command: resolveNpx(), args: ['x', '--bun', ...normalizeNpxArgsForBundledBun([...args])] };
+  }
+  if (command === 'bun' || (platform === 'win32' && command === 'bun.exe')) {
+    return { command: resolveNpx(), args: [...args] };
   }
   return { command, args: [...args] };
 }
@@ -61,7 +64,7 @@ export function resolvePersistedMcpStdioSpawn(
   platform: NodeJS.Platform = process.platform
 ): { command: string; args: string[] } {
   const resolved = resolveMcpStdioSpawn(command, args, resolveNpx, platform);
-  if (command === 'npx' && platform !== 'win32') {
+  if ((command === 'npx' || command === 'bun') && platform !== 'win32') {
     return { command: 'bun', args: resolved.args };
   }
   return resolved;

@@ -15,9 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
-const prepareWaylandCore = require('./prepareWaylandCore');
-const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const prepareTvControl = require('./prepareTvControl');
 const {
   signDarwinStagedBinary,
   resolveDarwinSigningIdentity,
@@ -868,6 +867,7 @@ try {
   const bunPlatform = packagePlatforms[0];
   const bunArch = packageArchitectures[0];
   const bunRuntimeAvailable = prepareBundledBun.isSupportedBunTarget(bunPlatform, bunArch);
+  prepareTvControl();
   if (bunRuntimeAvailable) {
     prepareBundledBun({ platform: bunPlatform, arch: bunArch });
   } else {
@@ -893,12 +893,7 @@ try {
   // artifact. Keep both roots target-exact so stale preparation from a prior
   // job cannot contaminate this package with foreign executables.
   const exactRuntimeKey = `${packagePlatforms[0]}-${packageArchitectures[0]}`;
-  for (const bundleName of [
-    'bundled-wayland-core',
-    'bundled-wayland-nano',
-    'bundled-officecli',
-    'bundled-constitution-fs',
-  ]) {
+  for (const bundleName of ['bundled-fuigo', 'bundled-officecli', 'bundled-constitution-fs']) {
     const bundleRoot = path.resolve(__dirname, '..', 'resources', bundleName);
     if (!fs.existsSync(bundleRoot)) continue;
     for (const entry of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
@@ -907,41 +902,12 @@ try {
     }
   }
 
-  // 5b. Prepare wayland-core for every requested package target. The package
-  // command asserts strict mode directly and pins the release in source; it
-  // must never depend on npm lifecycle variables or accept a local-prebuilt,
-  // skipped, latest, or self-asserted engine manifest.
+  // 5b. Prepare the bundled Fuigo engine for every requested package target:
+  // the exact pinned npm release, verified against the independent digest
+  // pins in scripts/fuigo/authority.json before packaging.
   for (const platform of packagePlatforms) {
     for (const arch of packageArchitectures) {
-      prepareWaylandCore({
-        platform,
-        arch,
-        version: prepareWaylandCore.DEFAULT_WCORE_VERSION,
-        requireVerified: true,
-      });
-    }
-  }
-
-  // 5b-nano. Prepare wayland-nano for every requested package target under the
-  // same strict contract as wayland-core: exact pinned tag, independently
-  // verified archive + extracted-binary digests, no local-prebuilt, no skip,
-  // no "latest". Fails closed until DEFAULT_WNANO_VERSION is pinned and
-  // scripts/bundled-wnano-shasums.json carries the signed release checksums.
-  for (const platform of packagePlatforms) {
-    for (const arch of packageArchitectures) {
-      if (!prepareWaylandNano.isSupportedWNanoTarget(platform, arch)) {
-        console.log(
-          `wayland-nano publishes no ${platform}-${arch} runtime; skipping the bundle. ` +
-            'Nano still launches on this target through the npx fallback.'
-        );
-        continue;
-      }
-      prepareWaylandNano({
-        platform,
-        arch,
-        version: prepareWaylandNano.DEFAULT_WNANO_VERSION,
-        requireVerified: true,
-      });
+      execFileSync(process.execPath, [path.join(__dirname, 'fuigo/prepare.cjs'), platform, arch], { stdio: 'inherit' });
     }
   }
 
@@ -1201,21 +1167,7 @@ try {
   const officeCliRuntimeArgs = officeCliPlatforms
     .flatMap((platform) => officeCliArchitectures.map((arch) => `--officecli-runtime ${platform}-${arch}`))
     .join(' ');
-  const wcoreRuntimeArgs = packagePlatforms
-    .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
-    .join(' ');
-  const wnanoRuntimeKeys = packagePlatforms.flatMap((platform) =>
-    packageArchitectures
-      .filter((arch) => prepareWaylandNano.isSupportedWNanoTarget(platform, arch))
-      .map((arch) => `${platform}-${arch}`)
-  );
-  // A target with no published runtime says so explicitly. The verifier refuses to
-  // infer nano's target identity from a missing flag, and then requires the bundle
-  // to be genuinely absent.
   const bunRuntimeArgs = bunRuntimeAvailable ? [] : ['--no-bun-runtime'];
-  const wnanoRuntimeArgs = (
-    wnanoRuntimeKeys.length ? wnanoRuntimeKeys.map((key) => `--wnano-runtime ${key}`) : ['--no-wnano-runtime']
-  ).join(' ');
   execFileSync(
     'node',
     [
@@ -1230,8 +1182,6 @@ try {
       packagedTarget.resourceDir,
       '--app-executable',
       packagedTarget.executablePath,
-      ...wcoreRuntimeArgs.split(' '),
-      ...wnanoRuntimeArgs.split(' '),
       ...bunRuntimeArgs,
       ...officeCliRuntimeArgs.split(' '),
       // On a local verification build the seal is intentionally absent; tell the

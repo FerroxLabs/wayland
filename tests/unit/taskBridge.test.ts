@@ -83,7 +83,7 @@ describe('taskBridge', () => {
   it('getRunningCount returns count even when a task has no stop method', async () => {
     vi.mocked(taskManager.listTasks).mockReturnValue([
       { id: 'c1', type: 'gemini' },
-      { id: 'c2', type: 'nanobot' },
+      { id: 'c2', type: 'gemini' },
     ]);
 
     const result = await handlers['getRunningCount']();

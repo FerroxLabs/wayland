@@ -123,7 +123,7 @@ export type GuidSendResult = {
 };
 
 /**
- * Hook that manages the send logic for all conversation types (gemini/openclaw/nanobot/acp).
+ * Hook that manages the send logic for all conversation types (gemini/openclaw/acp).
  */
 export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
   const {
@@ -222,12 +222,12 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     const finalEffectiveAgentType = effectiveAgentType;
 
     // IMG-01: fail-closed image/vision gate. Only model-backed backends
-    // (gemini / wcore) route the image through `currentModel`; ACP agents spawn
+    // (gemini) route the image through `currentModel`; ACP agents spawn
     // their own model and handle attachments themselves, so they are exempt.
     // Blocks a concrete non-vision model from silently swallowing an image;
     // Flux routers are trusted to route to a vision-capable target.
     const imageBackend = isPreset ? finalEffectiveAgentType : selectedAgent;
-    const imageModelGated = !imageBackend || imageBackend === 'gemini' || imageBackend === 'wcore';
+    const imageModelGated = !imageBackend || imageBackend === 'gemini';
     if (imageModelGated) {
       const imageBlock = resolveImageVisionBlock(currentModel, files);
       if (imageBlock) {
@@ -371,111 +371,6 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         alert(`Failed to create OpenClaw conversation: ${errorMessage}`);
-        throw error;
-      }
-      return true;
-    }
-
-    // Nanobot path
-    if (selectedAgent === 'nanobot') {
-      const nanobotAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
-      const nanobotConversationParams = buildAgentConversationParams({
-        backend: nanobotAgentInfo?.backend || 'nanobot',
-        name: conversationName,
-        agentName: nanobotAgentInfo?.name,
-        presetAssistantId,
-        workspace: finalWorkspace,
-        model: currentModel!,
-        customAgentId: nanobotAgentInfo?.customAgentId,
-        customWorkspace: isCustomWorkspace,
-        extra: {
-          defaultFiles: files,
-          ...projectExtra,
-          ...sessionSkillsExtra,
-          enabledSkills: isPreset ? enabledSkills : undefined,
-          excludeBuiltinSkills,
-        },
-      });
-
-      try {
-        const conversation = await ipcBridge.conversation.create.invoke(nanobotConversationParams);
-
-        if (!conversation || !conversation.id) {
-          alert('Failed to create Nanobot conversation. Please ensure nanobot is installed.');
-          return false;
-        }
-
-        if (isCustomWorkspace) {
-          closeAllTabs();
-          updateWorkspaceTime(finalWorkspace);
-          openTab(conversation);
-        }
-
-        emitter.emit('chat.history.refresh');
-
-        const initialMessage = {
-          input,
-          files: files.length > 0 ? files : undefined,
-        };
-        seedInitialMessage(`nanobot_initial_message_${conversation.id}`, initialMessage);
-
-        await navigate(`/conversation/${conversation.id}`);
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        alert(`Failed to create Nanobot conversation: ${errorMessage}`);
-        throw error;
-      }
-      return true;
-    }
-
-    // Wayland Core path (direct selection or preset assistant with wcore as main agent)
-    if (selectedAgent === 'wcore' || (isPreset && finalEffectiveAgentType === 'wcore')) {
-      if (!currentModel) {
-        Message.warning(t('conversation.noModelConfigured'));
-        return false;
-      }
-      try {
-        const conversation = await ipcBridge.conversation.create.invoke({
-          type: 'wcore',
-          name: conversationName,
-          model: currentModel,
-          extra: {
-            defaultFiles: files,
-            ...projectExtra,
-            ...sessionSkillsExtra,
-            workspace: finalWorkspace,
-            customWorkspace: isCustomWorkspace,
-            presetRules: isPreset ? presetRules : undefined,
-            enabledSkills: isPreset ? enabledSkills : undefined,
-            excludeBuiltinSkills,
-            presetAssistantId,
-            sessionMode: selectedMode,
-          },
-        });
-
-        if (!conversation || !conversation.id) {
-          alert('Failed to create Wayland Core conversation. Please ensure wcore is installed.');
-          return false;
-        }
-
-        if (isCustomWorkspace) {
-          closeAllTabs();
-          updateWorkspaceTime(finalWorkspace);
-          openTab(conversation);
-        }
-
-        emitter.emit('chat.history.refresh');
-
-        const initialMessage = {
-          input,
-          files: files.length > 0 ? files : undefined,
-        };
-        seedInitialMessage(`wcore_initial_message_${conversation.id}`, initialMessage);
-
-        await navigate(`/conversation/${conversation.id}`);
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        alert(`Failed to create Wayland Core conversation: ${errorMessage}`);
         throw error;
       }
       return true;
@@ -651,14 +546,14 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
 
   // No usable model configured. Mirrors the send-time validation: only the
   // model-backed backends actually reject on a missing model - the Gemini path
-  // (unless a Google account is connected, `isGoogleAuth`) and the Wayland Core
-  // path. ACP/CLI agents (Claude Code, Codex, custom adapters) spawn their own
+  // (unless a Google account is connected, `isGoogleAuth`). ACP/CLI agents
+  // (Claude Code, Codex, custom adapters) spawn their own
   // model and send fine without one, so a missing model must NOT gate their
   // Send button or show the no-model CTA (#119 - the button was dead for Claude
   // Code while Enter, which skips this gate, worked). Drives both the new-chat
   // CTA card and the disabled Send button so they never diverge from the gate.
   const effectiveBackend = isPresetAgent ? currentEffectiveAgentInfo.agentType : selectedAgent;
-  const modelGatedBackend = !effectiveBackend || effectiveBackend === 'gemini' || effectiveBackend === 'wcore';
+  const modelGatedBackend = !effectiveBackend || effectiveBackend === 'gemini';
   const noModelConfigured = modelGatedBackend && !currentModel && !isGoogleAuth;
 
   // Calculate button disabled state

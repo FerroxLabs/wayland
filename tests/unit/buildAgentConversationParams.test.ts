@@ -126,33 +126,48 @@ describe('buildAgentConversationParams', () => {
     });
   });
 
-  // #150: Teams emit the WCore engine as the literal `wayland-core` (vs the
-  // app-wide `wcore`). It must route to the wcore manager, not fall through to
-  // `acp` and die with "No CLI path for backend wayland-core".
-  it('routes the team `wayland-core` backend to wcore (not acp)', () => {
+  // Fuigo cutover: Teams emit the first-party engine as the literal
+  // `wayland-core`. It is a NEW launch, so it routes to the Fuigo ACP backend -
+  // never to a fresh Core conversation, and never to `acp` with the alias left
+  // in `extra.backend` (which spawns nothing: "No CLI path for backend").
+  it('routes the team `wayland-core` backend to acp + fuigo', () => {
     const params = buildAgentConversationParams({
       backend: 'wayland-core',
       name: 'Team Member',
       workspace: '/workspace',
-      model: {} as any,
+      model: {} as never,
     });
-    expect(params.type).toBe('wcore');
-    expect(params.extra).not.toHaveProperty('backend', 'wayland-core');
+    expect(params.type).toBe('acp');
+    expect(params.extra).toHaveProperty('backend', 'fuigo');
   });
 
-  // #148: vendored agent-profile specialists carry no real backend and leak
-  // their preset type `agent-profile`. It must route to wcore, not acp.
-  it('routes an agent-profile specialist to wcore (not acp)', () => {
+  // Vendored agent-profile specialists carry no real backend and leak their
+  // preset type `agent-profile`. They are Fuigo presets: the persona lands on
+  // `presetContext` (the key the ACP path reads) with backend `fuigo`.
+  it('routes an agent-profile specialist to acp + fuigo with its persona on presetContext', () => {
     const params = buildAgentConversationParams({
       backend: 'agent-profile',
       name: 'Agent Profile Specialist',
       workspace: '/workspace',
-      model: {} as any,
+      model: {} as never,
       isPreset: true,
       presetAgentType: 'agent-profile',
       presetResources: { rules: 'PERSONA' },
     });
-    expect(params.type).toBe('wcore');
-    expect(params.extra).not.toHaveProperty('backend', 'agent-profile');
+    expect(params.type).toBe('acp');
+    expect(params.extra).toHaveProperty('backend', 'fuigo');
+    expect(params.extra).toHaveProperty('presetContext', 'PERSONA');
+    expect(params.extra).not.toHaveProperty('presetRules');
+  });
+
+  it.each(['wcore', 'wnano'])('routes a persisted retired-engine backend %s to acp + fuigo', (backend) => {
+    const params = buildAgentConversationParams({
+      backend: backend as never,
+      name: 'Existing Core Chat',
+      workspace: '/workspace',
+      model: {} as never,
+    });
+    expect(params.type).toBe('acp');
+    expect(params.extra).toHaveProperty('backend', 'fuigo');
   });
 });

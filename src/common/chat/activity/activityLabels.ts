@@ -61,7 +61,7 @@ const firstPath = (s: string): string => {
  */
 const CMD_LABEL_CAP = 64;
 export const formatCommandLabel = (command: string): string => {
-  // Drop a leading "Execute: " the wcore mapper prefixes onto the description
+  // Drop a leading "Execute: " the native mapper prefixes onto the description
   // fallback, so we show the bare command either way.
   const bare = command
     .replace(/^execute:\s*/i, '')
@@ -103,7 +103,7 @@ type LabelRule = {
   glyph: GlyphKind;
 };
 
-// Ordered: first match wins. Tool names from wcore (web_search, WebFetch, Read,
+// Ordered: first match wins. Native tool names (web_search, WebFetch, Read,
 // Write, Bash, Grep...), Gemini (google_search, url_context), Codex
 // (exec_command, web_search) and ACP titles all funnel through here.
 const RULES: LabelRule[] = [
@@ -224,7 +224,7 @@ export const deriveStep = (
   // is the question someone watching the timeline is actually asking - twenty
   // identical rows tell you nothing. #520 solved this for shell tools only; the
   // same visibility is owed to every other tool, so when the node carries a
-  // subject (the wcore mapper puts the tool's description in `command`) and it
+  // subject (the native mapper puts the tool's description in `command`) and it
   // adds information beyond the name, show it.
   const clean = (node.name || 'tool').replace(/[_-]+/g, ' ').trim();
   const titled = clean.charAt(0).toUpperCase() + clean.slice(1);

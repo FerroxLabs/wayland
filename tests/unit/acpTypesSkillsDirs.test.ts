@@ -4,7 +4,6 @@ import { ACP_BACKENDS_ALL, hasNativeSkillSupport, getSkillsDirsForBackend } from
 describe('acpTypes - skillsDirs integration', () => {
   describe('ACP_BACKENDS_ALL skillsDirs consistency', () => {
     it('should have skillsDirs for all backends that support native skill discovery', () => {
-      // Note: wcore was removed from ACP_BACKENDS_ALL (non-ACP protocol)
       const expectedSkillsDirs: Record<string, string[]> = {
         claude: ['.claude/skills'],
         qwen: ['.qwen/skills'],
@@ -28,7 +27,6 @@ describe('acpTypes - skillsDirs integration', () => {
     });
 
     it('should NOT have skillsDirs for backends that use prompt injection', () => {
-      // nanobot removed from ACP_BACKENDS_ALL (non-ACP protocol)
       const promptInjectionBackends = ['auggie', 'copilot', 'qoder', 'kiro'];
       for (const backend of promptInjectionBackends) {
         const config = ACP_BACKENDS_ALL[backend as keyof typeof ACP_BACKENDS_ALL];
@@ -58,7 +56,6 @@ describe('acpTypes - skillsDirs integration', () => {
         'cursor',
         'opencode',
         'gemini',
-        'wcore',
       ];
       for (const backend of supported) {
         expect(hasNativeSkillSupport(backend), `${backend}`).toBe(true);
@@ -85,13 +82,11 @@ describe('acpTypes - skillsDirs integration', () => {
     it('should return false for removed non-ACP backends without skill support', () => {
       // These were removed from ACP_BACKENDS_ALL and have no skill directories
       expect(hasNativeSkillSupport('remote')).toBe(false);
-      expect(hasNativeSkillSupport('nanobot')).toBe(false);
     });
 
     it('should return true for non-ACP agents with native skill dirs', () => {
-      // gemini and wcore are not ACP backends but support native skill discovery
+      // gemini is not an ACP backend but supports native skill discovery
       expect(hasNativeSkillSupport('gemini')).toBe(true);
-      expect(hasNativeSkillSupport('wcore')).toBe(true);
     });
   });
 
@@ -100,10 +95,6 @@ describe('acpTypes - skillsDirs integration', () => {
       expect(getSkillsDirsForBackend('claude')).toEqual(['.claude/skills']);
       expect(getSkillsDirsForBackend('droid')).toEqual(['.factory/skills']);
       expect(getSkillsDirsForBackend('gemini')).toEqual(['.gemini/skills']); // non-ACP but has skill dirs
-      // 'wcore' resolves to the engine's actual project-level skill discovery
-      // path. The engine looks in `.wayland-core/skills/` (see
-      // wcore-skills/src/paths.rs).
-      expect(getSkillsDirsForBackend('wcore')).toEqual(['.wayland-core/skills']);
     });
 
     it('should return undefined for unsupported backends', () => {
@@ -121,17 +112,5 @@ describe('acpTypes - skillsDirs integration', () => {
       expect(getSkillsDirsForBackend('nonexistent')).toBeUndefined();
       expect(getSkillsDirsForBackend('custom')).toBeUndefined();
     });
-  });
-});
-
-describe('ACP_BACKENDS_ALL.wnano spawn contract (regression B1)', () => {
-  // Live-proven: acpArgs [] spawned a bare `wayland-nano`, which prints usage
-  // and exits 2 — the binary speaks ACP only via the `acp-host` subcommand.
-  it('spawns via the acp-host subcommand, not bare', () => {
-    expect(ACP_BACKENDS_ALL.wnano.acpArgs).toEqual(['acp-host']);
-    expect(ACP_BACKENDS_ALL.wnano.cliCommand).toBe('wayland-nano');
-    expect(ACP_BACKENDS_ALL.wnano.enabled).toBe(true);
-    expect(ACP_BACKENDS_ALL.wnano.supportsStreaming).toBe(true);
-    expect(ACP_BACKENDS_ALL.wnano.authRequired).toBe(false);
   });
 });

@@ -118,9 +118,9 @@ export const usePresetAssistantResolver = ({
 
   const resolvePresetAgentType = useCallback(
     (agentInfo: { backend: AcpBackend; customAgentId?: string } | undefined): string => {
-      // Default to the always-present bundled Wayland Core engine, NOT Gemini CLI
+      // Default to the always-present bundled Fuigo engine, NOT Gemini CLI
       // (#380): an assistant with no resolvable backend / preset type should run
-      // on WCore (the friction-free default), not silently fall onto Google's CLI.
+      // on Fuigo (the friction-free default), not silently fall onto Google's CLI.
       if (!agentInfo) return DEFAULT_PRESET_AGENT_TYPE;
       if (!agentInfo.customAgentId) return agentInfo.backend as string;
       const customAgent = customAgents.find((agent) => agent.id === agentInfo.customAgentId);

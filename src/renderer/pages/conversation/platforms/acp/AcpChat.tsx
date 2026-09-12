@@ -70,7 +70,7 @@ const AcpChat: React.FC<{
   const { t } = useTranslation();
   const [authRemedy, setAuthRemedy] = useState<AcpAuthRemedy | null>(null);
   // Drives the shared inline orbit (MessageList footer) so it animates while the
-  // ACP agent is working, mirroring the wcore/Flux path. Fed by AcpSendBox.
+  // ACP agent is working, mirroring the Gemini/Flux path. Fed by AcpSendBox.
   const [isProcessing, setIsProcessing] = useState(false);
   // The turn that triggered the auth-failure card, captured so the Flux failover
   // can replay it after the backend reconnects.

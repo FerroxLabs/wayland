@@ -11,7 +11,6 @@
  */
 
 import WaylandLogo from '@/renderer/assets/logos/brand/wayland.svg';
-import WaylandNanoLogo from '@/renderer/assets/logos/brand/wayland-nano.svg';
 import AuggieLogo from '@/renderer/assets/logos/brand/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/ai-major/claude.svg';
 import CursorLogo from '@/renderer/assets/logos/tools/coding/cursor.png';
@@ -26,7 +25,6 @@ import HermesLogo from '@/renderer/assets/logos/brand/hermes.svg';
 import SnowLogo from '@/renderer/assets/logos/tools/coding/snow.png';
 import KimiLogo from '@/renderer/assets/logos/ai-china/kimi.svg';
 import MistralLogo from '@/renderer/assets/logos/ai-major/mistral.svg';
-import NanobotLogo from '@/renderer/assets/logos/tools/nanobot.svg';
 import OpenClawLogo from '@/renderer/assets/logos/tools/openclaw.svg';
 import OpenCodeLogoDark from '@/renderer/assets/logos/tools/coding/opencode-dark.svg';
 import OpenCodeLogoLight from '@/renderer/assets/logos/tools/coding/opencode-light.svg';
@@ -39,8 +37,7 @@ import QwenLogo from '@/renderer/assets/logos/ai-china/qwen.svg';
  * Note: keys are lowercase, supports multiple variants (e.g., openclaw-gateway and openclaw)
  */
 const AGENT_LOGO_MAP = {
-  wcore: WaylandLogo,
-  wnano: WaylandNanoLogo,
+  fuigo: WaylandLogo,
   claude: ClaudeLogo,
   gemini: GeminiLogo,
   qwen: QwenLogo,
@@ -58,7 +55,6 @@ const AGENT_LOGO_MAP = {
   openclaw: OpenClawLogo,
   'openclaw-gateway': OpenClawLogo,
   vibe: MistralLogo,
-  nanobot: NanobotLogo,
   remote: OpenClawLogo,
   qoder: QoderLogo,
   cursor: CursorLogo,
@@ -95,7 +91,7 @@ export function getAgentLogo(agent: string | undefined | null): string | null {
  * `<img src>` (a replaced element), `currentColor` resolves to its initial value
  * (black), so these render black-on-black and vanish on the dark theme. We force
  * them to a clean white silhouette on dark. Colored brand logos (claude, gemini,
- * codebuddy, hermes, nanobot, openclaw, vibe) are deliberately excluded so their
+ * codebuddy, hermes, openclaw, vibe) are deliberately excluded so their
  * brand colour is never flattened.
  *
  * `codex` is intentionally NOT in this set: its asset is a two-tone mark (a white

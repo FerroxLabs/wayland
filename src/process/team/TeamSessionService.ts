@@ -5,6 +5,7 @@ import { GOOGLE_AUTH_PROVIDER_ID } from '@/common/config/constants';
 import {
   buildAgentConversationParams,
   getConversationTypeForBackend,
+  resolveAcpBackendAlias,
 } from '@/common/utils/buildAgentConversationParams';
 import {
   loadPresetAssistantResources,
@@ -44,6 +45,7 @@ import {
 import { TeamExportSchema, type TeamExport } from './importExport/TeamExportSchema';
 import { TeamImportError } from './importExport/errors';
 import { inspectConversationDeletionSchedules } from '@process/services/conversationDeletionSafety';
+import { flattenGeminiModeIds } from '@/common/utils/geminiModes';
 
 /** Bare ids of the native built-in catalog, resolved once on first import. */
 let builtinCatalogBareIds: Set<string> | null = null;
@@ -218,14 +220,13 @@ export class TeamSessionService {
    * The keyless ChatGPT-subscription registry row.
    *
    * #983 - a Gemini teammate must never be DEFAULTED onto it. That row carries
-   * no API key (it authenticates by OAuth through ~/.codex/auth.json, which only
-   * the wcore engine can drive), so a Gemini-CLI teammate bound to it dies in
+   * no API key (it authenticates by OAuth through ~/.codex/auth.json, which
+   * no bundled engine can drive), so a Gemini-CLI teammate bound to it dies in
    * bootstrap with "OpenAI API key is required" - and the team's report was
    * exactly a bootstrap that never returned, leaving every member in Processing
-   * with no error. `preferSubscriptionForOwnedModel` already documents the same
-   * invariant from the other direction, and `getTeamAvailableModels` already
-   * hides the row from the Gemini picker (#555). The default resolver is the
-   * last place that still handed it out.
+   * with no error. `getTeamAvailableModels` already hides the row from the
+   * Gemini picker (#555). The default resolver is the last place that still
+   * handed it out.
    */
   private static isChatGptSubscriptionRow(provider: IProvider): boolean {
     return (
@@ -257,6 +258,9 @@ export class TeamSessionService {
   private async resolveDefaultGeminiModel(): Promise<TProviderWithModel> {
     const savedGeminiModel = await ProcessConfig.get('gemini.defaultModel');
     const configuredProviders = await ProcessConfig.get('model.config');
+    const googleAuthModelIds = flattenGeminiModeIds();
+    const googleAuthModels = new Set(googleAuthModelIds);
+    const googleAuthFallbackModel = googleAuthModelIds[0];
     // #983: `gemini.defaultModel` is state SHARED with plain Gemini chats, and
     // every fallback below walks `model.config` in configuration order. Both
     // reach providers that have nothing to do with the selected backend, so the
@@ -277,24 +281,30 @@ export class TeamSessionService {
       } as TProviderWithModel;
     };
 
-    if (
-      savedGeminiModel &&
-      typeof savedGeminiModel === 'object' &&
-      'id' in savedGeminiModel &&
-      'useModel' in savedGeminiModel
-    ) {
-      if (savedGeminiModel.id === GOOGLE_AUTH_PROVIDER_ID && (await hasGeminiOauthCreds())) {
-        return this.createGoogleAuthGeminiModel(savedGeminiModel.useModel);
+    if (savedGeminiModel && typeof savedGeminiModel === 'object') {
+      const savedProviderId =
+        'id' in savedGeminiModel && typeof savedGeminiModel.id === 'string' ? savedGeminiModel.id : undefined;
+      const savedModelId =
+        'useModel' in savedGeminiModel && typeof savedGeminiModel.useModel === 'string'
+          ? savedGeminiModel.useModel
+          : undefined;
+      if (
+        savedProviderId === GOOGLE_AUTH_PROVIDER_ID &&
+        savedModelId &&
+        googleAuthModels.has(savedModelId) &&
+        (await hasGeminiOauthCreds())
+      ) {
+        return this.createGoogleAuthGeminiModel(savedModelId);
       }
 
       const matchedProvider = providers.find(
         (provider) =>
-          provider.id === savedGeminiModel.id &&
-          provider.model?.includes(savedGeminiModel.useModel) &&
-          usable(provider, savedGeminiModel.useModel)
+          provider.id === savedProviderId &&
+          provider.model?.includes(savedModelId ?? '') &&
+          usable(provider, savedModelId)
       );
-      if (matchedProvider) {
-        return buildProviderModel(matchedProvider, savedGeminiModel.useModel);
+      if (matchedProvider && savedModelId) {
+        return buildProviderModel(matchedProvider, savedModelId);
       }
     }
 
@@ -318,14 +328,11 @@ export class TeamSessionService {
       if (enabledModel) return buildProviderModel(geminiProvider, enabledModel);
     }
 
-    if (await hasGeminiOauthCreds()) {
-      const oauthModel =
-        typeof savedGeminiModel === 'object' && 'useModel' in savedGeminiModel
-          ? savedGeminiModel.useModel
-          : typeof savedGeminiModel === 'string'
-            ? savedGeminiModel
-            : 'gemini-2.0-flash';
-      return this.createGoogleAuthGeminiModel(oauthModel);
+    if ((await hasGeminiOauthCreds()) && googleAuthFallbackModel) {
+      // A rejected saved selection has no authority over Google OAuth. In
+      // particular, never transplant a model from a disabled/removed API
+      // provider onto the OAuth route merely because credentials exist.
+      return this.createGoogleAuthGeminiModel(googleAuthFallbackModel);
     }
 
     const fallbackProvider = providers.find((provider) => provider.model?.some((model) => usable(provider, model)));
@@ -337,30 +344,62 @@ export class TeamSessionService {
     return this.createGoogleAuthGeminiModel('gemini-2.0-flash');
   }
 
-  private async resolveDefaultWCoreModel(): Promise<TProviderWithModel> {
-    const configuredProviders = await ProcessConfig.get('model.config');
-    const providers = Array.isArray(configuredProviders) ? configuredProviders.filter((p) => p.enabled !== false) : [];
+  /**
+   * Default model for a teammate on the bundled Fuigo engine (the `fuigo`
+   * backend and its launcher aliases).
+   *
+   * `fuigo.defaultModel` - the pick the user made for the engine - must still
+   * be OWNED by an enabled provider (listed and not switched off), otherwise a
+   * stale pick would name a model no provider serves. Last resort: the first
+   * enabled model of the first enabled provider.
+   *
+   * The keyless ChatGPT-subscription row is excluded from every step: it
+   * authenticates by OAuth through ~/.codex/auth.json, which Fuigo cannot drive
+   * (its `login --provider chatgpt` is not wired). Handing it to a Fuigo
+   * teammate would spawn an engine with no key at all.
+   *
+   * Fail-safe like the other ACP backends: an empty model (never a throw) when
+   * nothing is connected, so team creation is not killed by an unconfigured
+   * profile - Fuigo still runs on the connected Flux key.
+   */
+  /** Lists `modelId` and has not switched it off. */
+  private static ownsModel(provider: IProvider, modelId: string): boolean {
+    return (
+      Array.isArray(provider.model) && provider.model.includes(modelId) && provider.modelEnabled?.[modelId] !== false
+    );
+  }
 
-    const provider = providers[0];
-    if (!provider) {
-      throw new Error('No enabled model provider for Wayland Core');
+  private async resolveDefaultFuigoModel(): Promise<TProviderWithModel> {
+    const configuredProviders = await ProcessConfig.get('model.config');
+    const providers = Array.isArray(configuredProviders)
+      ? configuredProviders.filter(
+          (provider) => provider.enabled !== false && !TeamSessionService.isChatGptSubscriptionRow(provider)
+        )
+      : [];
+    const saved = await ProcessConfig.get('fuigo.defaultModel');
+    if (saved && typeof saved === 'object' && typeof saved.useModel === 'string') {
+      const { useModel } = saved;
+      const owner =
+        providers.find((provider) => provider.id === saved.id && TeamSessionService.ownsModel(provider, useModel)) ??
+        providers.find((provider) => TeamSessionService.ownsModel(provider, useModel));
+      if (owner) return { ...owner, useModel } as TProviderWithModel;
     }
 
-    const enabledModel = provider.model?.find((m: string) => provider.modelEnabled?.[m] !== false);
-    return {
-      ...provider,
-      useModel: enabledModel || provider.model?.[0],
-    } as TProviderWithModel;
+    const provider = providers[0];
+    if (!provider) return {} as TProviderWithModel;
+    const enabledModel =
+      provider.model?.find((m: string) => provider.modelEnabled?.[m] !== false) ?? provider.model?.[0];
+    return enabledModel ? ({ ...provider, useModel: enabledModel } as TProviderWithModel) : ({} as TProviderWithModel);
   }
 
   /**
    * Find the enabled provider that actually OWNS `modelId` (lists it in its
-   * model[] and has not disabled it), mirroring the main session's
-   * useWCoreModelSelection ownership check. Returns null when no provider owns
+   * model[] and has not disabled it), mirroring the main session's model
+   * selection ownership check. Returns null when no provider owns
    * the model so callers can fall back. Fixes #87: a spawned teammate pinned to
    * a specific model must hydrate THAT provider's key/baseUrl, not the
    * default-resolved provider's (which could send an sk-flux key to an OpenAI
-   * surface). Shared by the wcore and gemini pin paths.
+   * surface). Used by the gemini pin path.
    */
   private async resolveOwningProviderModelById(
     modelId: string,
@@ -406,52 +445,10 @@ export class TeamSessionService {
   }
 
   /**
-   * #555 teams — final safety net against a teammate billing a ChatGPT-subscription
-   * model on a metered look-alike. Whatever path resolved the model (an explicit
-   * pin via resolveOwningProviderModelById, the wcore default `providers[0]`, or
-   * the gemini `fallbackProvider` first-match), if the resulting `useModel` is a
-   * model the ChatGPT-subscription provider OWNS (lists + enabled) but the
-   * resolved provider is NOT the subscription, re-bind to the subscription (OAuth,
-   * no per-token cost) provider so envBuilder routes `--provider openai-chatgpt`
-   * instead of the metered `--provider openai`. This is the choke point that
-   * covers the default/fallback paths every shipped launcher hits (team_spawn_agent
-   * is usually called with no explicit model), which bypass the pin resolver.
-   *
-   * WCORE-ONLY, self-enforced: only the wcore engine can auth the keyless
-   * subscription provider (OAuth via ~/.codex/auth.json). Re-binding a non-wcore
-   * (e.g. Gemini-CLI) teammate to that keyless row breaks bootstrap ("OpenAI API
-   * key is required"), so the guard lives HERE - the invariant holds no matter
-   * how the method is called, not just because a call site remembered to gate it.
-   */
-  private async preferSubscriptionForOwnedModel(
-    model: TProviderWithModel,
-    conversationType?: string
-  ): Promise<TProviderWithModel> {
-    if (conversationType !== 'wcore') return model;
-    const useModel = model?.useModel;
-    if (!useModel) return model;
-    const subTag = `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`;
-    const currentTag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
-    if (currentTag === subTag) return model; // already the subscription - nothing to do
-
-    const configuredProviders = await ProcessConfig.get('model.config');
-    const providers = Array.isArray(configuredProviders) ? configuredProviders.filter((p) => p.enabled !== false) : [];
-    const subscription = providers.find(
-      (p) =>
-        (p as unknown as Record<string, unknown>).__waylandModelRegistryBridge === subTag &&
-        Array.isArray(p.model) &&
-        p.model.includes(useModel) &&
-        p.modelEnabled?.[useModel] !== false
-    );
-    return subscription ? ({ ...subscription, useModel } as TProviderWithModel) : model;
-  }
-
-  /**
    * Default model for an ACP-backed team agent (codex, claude, qwen, grok, …) so
    * a new teammate of ANY backend is created already pointing at a real model
-   * instead of an empty "Select Model" the agent can't start from. Mirrors
-   * `resolveDefaultWCoreModel`'s scan of the legacy `model.config` blob, but
-   * scoped to the provider(s) the backend actually runs
+   * instead of an empty "Select Model" the agent can't start from. Scans the
+   * legacy `model.config` blob scoped to the provider(s) the backend actually runs
    * (`resolveBackendCandidateProviders`, the same canonical map the home picker's
    * `curatedForAgent` uses - codex -> chatgpt-subscription|openai, claude ->
    * anthropic, qwen -> qwen, …).
@@ -463,8 +460,7 @@ export class TeamSessionService {
    * provider already owns.
    *
    * Providers are matched by their registry-bridge tag (`v2:<providerId>`, the
-   * precise identity `preferSubscriptionForOwnedModel`/`resolveOwningProviderModelById`
-   * also key on) first, falling back to the legacy `platform` string only for the
+   * precise identity `resolveOwningProviderModelById` also keys on) first, falling back to the legacy `platform` string only for the
    * three providers whose platform is unambiguous (anthropic/openai/gemini). The
    * `openai-compatible` long tail (xai, moonshot, qwen, …) is matched by tag only,
    * so a codex default can't bind to an unrelated OpenAI-compatible provider.
@@ -538,13 +534,15 @@ export class TeamSessionService {
       }
     }
 
-    if (type === 'wcore') {
-      return this.resolveDefaultWCoreModel();
-    }
-
     if (type === 'acp') {
+      // The bundled engine (and the launcher aliases the launchers emit) has
+      // its own default key; it is not a vendor CLI with a
+      // single underlying provider, so resolveDefaultAcpModel has nothing for it.
+      if (resolveAcpBackendAlias(effectiveBackend) === 'fuigo') {
+        return this.resolveDefaultFuigoModel();
+      }
       // Give codex and every other ACP backend a sensible default to start from,
-      // matching the gemini/wcore defaulting above. Fail-safe: an empty result
+      // matching the gemini defaulting above. Fail-safe: an empty result
       // preserves the prior "no default" behavior for an unconnected backend.
       return this.resolveDefaultAcpModel(effectiveBackend);
     }
@@ -774,16 +772,16 @@ export class TeamSessionService {
     const preferredModelId =
       agent.model ||
       (conversationType === 'acp'
-        ? ((await this.resolvePreferredAcpModelId(backend)) ?? acpDefaultModelId)
+        ? ((await this.resolvePreferredAcpModelId(resolveAcpBackendAlias(backend))) ?? acpDefaultModelId)
         : undefined);
 
     // Override the working model when the agent pins one explicitly.
     if (agent.model) {
-      if (conversationType === 'wcore' || conversationType === 'gemini') {
+      if (conversationType === 'gemini') {
         // Re-select the provider that OWNS this model id so the spawn hydrates
         // the right key/baseUrl (#87). Without this a pinned teammate keeps the
         // default-resolved provider and only swaps the model name, so a
-        // Flux-backed Gemini/WCore teammate sends its sk-flux key to
+        // Flux-backed Gemini teammate sends its sk-flux key to
         // api.openai.com (no Flux base URL applied) and 401s. Fall back to a
         // useModel-only override on the already-resolved provider when no
         // enabled provider claims it - e.g. a Google-auth Gemini model that
@@ -792,14 +790,6 @@ export class TeamSessionService {
         model = owned ?? { ...model, useModel: agent.model };
       }
     }
-
-    // #555 teams choke point: covers the wcore default (`providers[0]`) path that
-    // resolves a subscription model id onto the metered OpenAI provider (tag
-    // v2:openai) and would bill the API instead of the subscription. The method
-    // self-enforces the wcore-only invariant (a Gemini-CLI teammate cannot auth
-    // the keyless subscription provider, so it keeps the metered route), so we
-    // pass conversationType and let it decide rather than gating here.
-    model = await this.preferSubscriptionForOwnedModel(model, conversationType);
 
     return buildAgentConversationParams({
       backend,
@@ -839,12 +829,8 @@ export class TeamSessionService {
     switch (conversation.type) {
       case 'gemini':
         return 'gemini';
-      case 'wcore':
-        return 'wcore';
       case 'remote':
         return 'remote';
-      case 'nanobot':
-        return 'nanobot';
       case 'openclaw-gateway':
         return (conversation.extra as { backend?: string } | undefined)?.backend || 'openclaw-gateway';
       case 'acp':
@@ -1339,13 +1325,8 @@ export class TeamSessionService {
 
   private resolveConversationType(agentType: string): AgentType {
     // Delegate to the canonical backend→type map so this can never drift from
-    // it again. A divergent copy here is exactly what broke Teams for Wayland
-    // Core (#204): the `wayland-core`/`agent-profile` aliases - both the WCore
-    // engine, not an ACP CLI - fell through to 'acp', so an in-place backend
-    // swap to "wayland-core" passed the same-type guard, kept its 'acp'
-    // conversation, and then died on spawn with `No CLI path for backend
-    // "wayland-core"`. With the alias mapped to 'wcore', that swap is now
-    // correctly rejected as a cross-type change (remove + re-add instead).
+    // it again (#204: a divergent copy here once let an in-place backend swap
+    // pass the same-type guard and die on spawn).
     const type = getConversationTypeForBackend(agentType);
     // getConversationTypeForBackend's return type includes 'codex' (a
     // create-params type) but it never returns it - codex maps to 'acp'. Narrow
@@ -1454,7 +1435,7 @@ export class TeamSessionService {
   /**
    * Live-smoke fix #4b (2026-05-19) - swap a teammate's backend CLI in
    * place. Same-conversationType swaps only (e.g. claude ↔ codex, both
-   * 'acp'). Cross-type swaps (gemini ↔ claude, wcore ↔ remote, etc.)
+   * 'acp'). Cross-type swaps (gemini ↔ claude, acp ↔ remote, etc.)
    * are rejected with a descriptive error because the agent's
    * conversation row is typed at creation and would have to be torn
    * down + recreated to host a different protocol - losing chat
@@ -1518,8 +1499,11 @@ export class TeamSessionService {
     // supplied so the next wake reflects the user's pick.
     if (newModel && agent.conversationId) {
       try {
+        // The conversation row names the backend the spawn resolves, so a
+        // launcher alias (`agent-profile` -> `fuigo`) is normalised here; the
+        // agent record above keeps the id the picker used.
         await this.conversationService.updateConversation(agent.conversationId, {
-          extra: { backend: newBackend, currentModelId: newModel },
+          extra: { backend: resolveAcpBackendAlias(newBackend), currentModelId: newModel },
         } as Partial<TChatConversation>);
       } catch (error) {
         console.warn(

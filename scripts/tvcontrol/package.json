@@ -1,0 +1,8 @@
+{
+  "name": "wayland-bundled-tvcontrol",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@ferroxlabs/tvcontrol": "2.5.1"
+  }
+}

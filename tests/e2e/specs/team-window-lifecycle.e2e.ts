@@ -79,7 +79,7 @@ const buildAgent = () => ({
   slotId: '',
   conversationId: '',
   role: 'leader' as const,
-  agentType: 'wayland-core',
+  agentType: 'fuigo',
   agentName: 'Leader',
   conversationType: 'acp',
   status: 'pending' as const,
@@ -175,7 +175,7 @@ test.describe.serial('Team window lifecycle (adversarial)', () => {
       agent: {
         conversationId: '',
         role: 'teammate',
-        agentType: 'wayland-core',
+        agentType: 'fuigo',
         agentName: 'Persisted Teammate',
         conversationType: 'acp',
         status: 'pending',

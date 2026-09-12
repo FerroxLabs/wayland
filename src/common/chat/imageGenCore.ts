@@ -23,7 +23,7 @@ import type { TProviderWithModel } from '@/common/config/storage';
 import type { UnifiedChatCompletionResponse } from '@/common/api/RotatingApiClient';
 import { getProviderAuthType } from '@/common/utils/platformAuthType';
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
-import { FLUX_RECOMMENDED_IMAGE_ID, FLUX_IMAGE_ARMS } from '@/common/config/imageModels';
+import { FLUX_IMAGE_ARMS } from '@/common/config/imageModels';
 import { IMAGE_EXTENSIONS, MIME_TYPE_MAP, MIME_TO_EXT_MAP, DEFAULT_IMAGE_EXTENSION } from '@/common/config/constants';
 
 // Copyright 2026 Ferrox Labs
@@ -502,15 +502,12 @@ export async function executeFluxImageGen(
   const baseUrl = (provider.baseUrl || `https://${FLUX_IMAGE_HOST}/v1`).replace(/\/+$/, '');
   const endpoint = `${baseUrl}/images/generations`;
 
-  // "Flux Image" (the recommended default) is not a literal arm - it means
-  // "use whatever the user set as their default in the Flux members area". So
-  // omit the model entirely and let Flux resolve the account default. A pinned
-  // concrete arm id is sent verbatim instead. Either way: n=1, never
-  // response_format (gpt-image arms reject it).
-  const isAccountDefault = provider.useModel === FLUX_RECOMMENDED_IMAGE_ID;
-  const requestBody = isAccountDefault
-    ? { prompt: params.prompt, n: 1 }
-    : { model: provider.useModel, prompt: params.prompt, n: 1 };
+  // Every picker id, `flux-image` (Flux's own default alias) included, is a
+  // customer alias the endpoint accepts verbatim - always send it. A model-less
+  // request does NOT resolve to that alias: live (2026-09-12) it fell through to
+  // a low-cost FLUX arm (12KB JPEG), while `model: 'flux-image'` returned the
+  // GPT Image tier. n=1, never response_format (gpt-image arms reject it).
+  const requestBody = { model: provider.useModel, prompt: params.prompt, n: 1 };
 
   let response: Response;
   try {

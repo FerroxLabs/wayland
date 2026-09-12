@@ -23,7 +23,7 @@ const {
   resolvePackagedTarget,
   snapshotPackagedTargets,
   verifyConstitutionFsBundle,
-  verifyPackagedResources,
+  verifyPackagedResources: verifyPackagedResourcesActual,
   verifyWhatsAppDarwinSignIgnoreInventory,
   verifyWhatsAppNativeTarget,
 } = require('../../scripts/verify-packaged-resources.js') as {
@@ -52,35 +52,23 @@ const {
   verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
   verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
 };
-// Derived from the live policy, never re-typed: verify-packaged-resources reads
-// the real DEFAULT_WCORE_VERSION and the real attestation policy, so a
-// hard-coded tag here fails the day the engine is bumped and proves nothing in
-// between.
-//
-// Selected by engine id, NOT by "the first active entry". The document also
-// carries an active wayland-nano policy, so position decided which product this
-// picked: while the active engine entry happened to precede nano it worked, and
-// appending v0.13.3 after nano silently handed these fixtures the NANO tag and
-// failed fifteen tests on a mismatch that had nothing to do with the engine.
-// The production selector keys off releaseTag and demands a unique match, so
-// only this test was ever order-dependent.
-const TEST_WCORE_ACTIVE_POLICIES = (
-  require('../../scripts/supply-chain/verifyPublisherAttestation') as {
-    readPolicy: () => { policies: Array<{ status: string; id: string; releaseTag: string; sourceDigest: string }> };
-  }
-)
-  .readPolicy()
-  .policies.filter((entry) => entry.status === 'active' && entry.id.startsWith('wayland-core-'));
-if (TEST_WCORE_ACTIVE_POLICIES.length !== 1) {
-  throw new Error(
-    `expected exactly one active wayland-core publisher policy, found ${TEST_WCORE_ACTIVE_POLICIES.length}`
-  );
-}
-const TEST_WCORE_ACTIVE_POLICY = TEST_WCORE_ACTIVE_POLICIES[0]!;
-const TEST_WCORE_RELEASE = TEST_WCORE_ACTIVE_POLICY.releaseTag;
-const TEST_WCORE_ARCHIVE_SHA = 'a'.repeat(64);
-const TEST_WCORE_BYTES = Buffer.from('deterministic-test-wayland-core');
-const TEST_WCORE_BINARY_SHA = crypto.createHash('sha256').update(TEST_WCORE_BYTES).digest('hex');
+// The package sweep uses a tiny integrity-checked connector fixture. Real
+// published bytes are checked by prepareTvControl and the native package check.
+const TVCONTROL_FIXTURE = JSON.stringify({ name: '@ferroxlabs/tvcontrol', version: '2.4.7' });
+const tvControlAuthority = {
+  version: '2.4.7',
+  treeSha256: crypto
+    .createHash('sha256')
+    .update(
+      JSON.stringify([
+        ['@ferroxlabs/tvcontrol/package.json', crypto.createHash('sha256').update(TVCONTROL_FIXTURE).digest('hex')],
+      ])
+    )
+    .digest('hex'),
+};
+const verifyPackagedResources = (options: Record<string, unknown>) =>
+  verifyPackagedResourcesActual({ tvControlAuthority, ...options });
+
 const silentLogger = { log() {}, warn() {}, error() {} };
 const VOICE_MODEL_FILES = [
   'config.json',
@@ -183,53 +171,6 @@ const TEST_BUN_AUTHORITY = {
   ),
 };
 
-const testWCoreAuthority = {
-  BUNDLE_CONTRACT: 'wayland-core-bundle/1.0',
-  BUNDLE_GENERATOR: 'prepareWaylandCore/2',
-  DEFAULT_WCORE_VERSION: TEST_WCORE_RELEASE,
-  getAssetName(platform: string, arch: string, tag: string): string {
-    const archName = arch === 'arm64' ? 'aarch64' : 'x86_64';
-    const platformName =
-      platform === 'darwin' ? 'apple-darwin' : platform === 'linux' ? 'unknown-linux-gnu' : 'pc-windows-msvc';
-    return `wayland-core-${tag}-${archName}-${platformName}${platform === 'win32' ? '.zip' : '.tar.gz'}`;
-  },
-  loadExpectedProvenance(_tag: string, _asset: string, _options: { requireBinary: boolean }) {
-    return { archiveSha256: TEST_WCORE_ARCHIVE_SHA, binarySha256: TEST_WCORE_BINARY_SHA };
-  },
-};
-
-// wayland-nano mirrors the wayland-core fixture. Its publisher-attestation
-// policy does not exist in the real policy file yet (the first signed
-// FerroxLabs/wayland-nano release lands after this integration), so the gate
-// accepts an injected policy selector for the wnano bundle checks.
-const TEST_WNANO_RELEASE = 'v0.1.0';
-const TEST_WNANO_ARCHIVE_SHA = 'd'.repeat(64);
-const TEST_WNANO_BYTES = Buffer.from('deterministic-test-wayland-nano');
-const TEST_WNANO_BINARY_SHA = crypto.createHash('sha256').update(TEST_WNANO_BYTES).digest('hex');
-const TEST_WNANO_POLICY = {
-  id: 'wayland-nano-v0.1.0-release',
-  repository: 'FerroxLabs/wayland-nano',
-  signerWorkflow: 'FerroxLabs/wayland-nano/.github/workflows/release.yml',
-  sourceRef: 'refs/heads/main',
-  sourceDigest: 'e'.repeat(40),
-  predicateType: 'https://slsa.dev/provenance/v1',
-  runner: 'github-hosted',
-};
-
-const testWNanoAuthority = {
-  BUNDLE_CONTRACT: 'wayland-nano-bundle/1.0',
-  BUNDLE_GENERATOR: 'prepareWaylandNano/1',
-  DEFAULT_WNANO_VERSION: TEST_WNANO_RELEASE,
-  getAssetName(platform: string, arch: string, tag: string): string {
-    return `wayland-nano-${tag.replace(/^v/, '')}-${platform}-${arch}.zip`;
-  },
-  loadExpectedProvenance(_tag: string, _asset: string, _options: { requireBinary: boolean }) {
-    return { archiveSha256: TEST_WNANO_ARCHIVE_SHA, binarySha256: TEST_WNANO_BINARY_SHA };
-  },
-};
-
-const testWNanoPolicySelector = (_releaseTag: string) => TEST_WNANO_POLICY;
-
 function writeMachExecutable(target: string, arch: 'arm64' | 'x64'): void {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, machExecutableBytes(arch), { mode: 0o755 });
@@ -313,11 +254,32 @@ function addPackagedApp(
 ): string {
   const appRoot = path.join(root, folder, appName);
   const resources = path.join(appRoot, 'Contents', 'Resources');
+  const fuigoDir = path.join(resources, 'bundled-fuigo', `darwin-${arch}`);
+  fs.mkdirSync(fuigoDir, { recursive: true });
+  fs.writeFileSync(path.join(fuigoDir, 'fuigo'), 'fuigo-fixture');
+  const fuigoHash = crypto.createHash('sha256').update('fuigo-fixture').digest('hex');
+  fs.writeFileSync(
+    path.join(fuigoDir, 'bundle.json'),
+    JSON.stringify({
+      contract: 'fuigo-bundle/1.0',
+      runtime: `darwin-${arch}`,
+      version: '1.0.6',
+      binary: 'fuigo',
+      packageIntegrity: 'sha512-fixture',
+      binarySha256: fuigoHash,
+      stagedSha256: fuigoHash,
+      archiveSha256: 'fixture-archive',
+    })
+  );
+
   writeMachExecutable(path.join(appRoot, 'Contents', 'MacOS', appName.replace(/\.app$/, '')), arch);
   writeSkillPack(resources, 'skills-library');
   writeSkillPack(resources, 'bundled-workflows');
   writeBunBundle(resources, arch);
   fs.mkdirSync(resources, { recursive: true });
+  const tvControlPackage = path.join(resources, 'bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/package.json');
+  fs.mkdirSync(path.dirname(tvControlPackage), { recursive: true });
+  fs.writeFileSync(tvControlPackage, TVCONTROL_FIXTURE);
   fs.cpSync(path.resolve('resources/managed-cli-shims'), path.join(resources, 'managed-cli-shims'), {
     recursive: true,
   });
@@ -328,9 +290,6 @@ function addPackagedApp(
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, relativePath.endsWith('.json') ? '{}' : 'model');
   }
-  const wcoreBinary = path.join(resources, 'bundled-wayland-core', `darwin-${arch}`, 'wayland-core');
-  fs.mkdirSync(path.dirname(wcoreBinary), { recursive: true });
-  fs.writeFileSync(wcoreBinary, TEST_WCORE_BYTES);
   const constitutionRuntime = path.join(resources, 'bundled-constitution-fs', `darwin-${arch}`);
   const constitutionBinary = path.join(constitutionRuntime, 'wayland-constitution-fs');
   const constitutionAuthority = testConstitutionAuthority(arch);
@@ -363,93 +322,6 @@ function addPackagedApp(
       writeMachExecutable(officeBinary, officeCliRuntime.endsWith('-x64') ? 'x64' : 'arm64');
     else fs.writeFileSync(officeBinary, 'office-cli');
   }
-  const wcoreAsset = testWCoreAuthority.getAssetName('darwin', arch, TEST_WCORE_RELEASE);
-  fs.writeFileSync(
-    path.join(resources, 'bundled-wayland-core', `darwin-${arch}`, 'manifest.json'),
-    JSON.stringify({
-      contract: testWCoreAuthority.BUNDLE_CONTRACT,
-      generator: testWCoreAuthority.BUNDLE_GENERATOR,
-      platform: 'darwin',
-      arch,
-      releaseTag: TEST_WCORE_RELEASE,
-      version: TEST_WCORE_RELEASE,
-      sourceType: 'download',
-      verified: true,
-      source: {
-        owner: 'FerroxLabs',
-        repository: 'wayland-core',
-        url: `https://github.com/FerroxLabs/wayland-core/releases/download/${TEST_WCORE_RELEASE}/${wcoreAsset}`,
-        asset: wcoreAsset,
-        archiveSha256: `sha256:${TEST_WCORE_ARCHIVE_SHA}`,
-      },
-      publisherAttestation: {
-        contract: 'wayland-publisher-attestations/1.0',
-        policyId: TEST_WCORE_ACTIVE_POLICY.id,
-        repository: 'FerroxLabs/wayland-core',
-        signerWorkflow: 'FerroxLabs/wayland-core/.github/workflows/release.yml',
-        sourceRef: 'refs/heads/main',
-        sourceDigest: TEST_WCORE_ACTIVE_POLICY.sourceDigest,
-        predicateType: 'https://slsa.dev/provenance/v1',
-        runner: 'github-hosted',
-        asset: wcoreAsset,
-        sha256: `sha256:${TEST_WCORE_ARCHIVE_SHA}`,
-        verified: true,
-      },
-      binary: {
-        name: 'wayland-core',
-        sha256: `sha256:${TEST_WCORE_BINARY_SHA}`,
-        // Unsigned fixture: the staged bytes are the upstream bytes verbatim,
-        // which is what a build with no Developer ID identity produces.
-        stagedSha256: `sha256:${TEST_WCORE_BINARY_SHA}`,
-      },
-      files: ['wayland-core'],
-      skipped: false,
-    })
-  );
-  const wnanoBinary = path.join(resources, 'bundled-wayland-nano', `darwin-${arch}`, 'wayland-nano');
-  fs.mkdirSync(path.dirname(wnanoBinary), { recursive: true });
-  fs.writeFileSync(wnanoBinary, TEST_WNANO_BYTES);
-  const wnanoAsset = testWNanoAuthority.getAssetName('darwin', arch, TEST_WNANO_RELEASE);
-  fs.writeFileSync(
-    path.join(resources, 'bundled-wayland-nano', `darwin-${arch}`, 'manifest.json'),
-    JSON.stringify({
-      contract: testWNanoAuthority.BUNDLE_CONTRACT,
-      generator: testWNanoAuthority.BUNDLE_GENERATOR,
-      platform: 'darwin',
-      arch,
-      releaseTag: TEST_WNANO_RELEASE,
-      version: TEST_WNANO_RELEASE,
-      sourceType: 'download',
-      verified: true,
-      source: {
-        owner: 'FerroxLabs',
-        repository: 'wayland-nano',
-        url: `https://github.com/FerroxLabs/wayland-nano/releases/download/${TEST_WNANO_RELEASE}/${wnanoAsset}`,
-        asset: wnanoAsset,
-        archiveSha256: `sha256:${TEST_WNANO_ARCHIVE_SHA}`,
-      },
-      publisherAttestation: {
-        contract: 'wayland-publisher-attestations/1.0',
-        policyId: TEST_WNANO_POLICY.id,
-        repository: TEST_WNANO_POLICY.repository,
-        signerWorkflow: TEST_WNANO_POLICY.signerWorkflow,
-        sourceRef: TEST_WNANO_POLICY.sourceRef,
-        sourceDigest: TEST_WNANO_POLICY.sourceDigest,
-        predicateType: TEST_WNANO_POLICY.predicateType,
-        runner: TEST_WNANO_POLICY.runner,
-        asset: wnanoAsset,
-        sha256: `sha256:${TEST_WNANO_ARCHIVE_SHA}`,
-        verified: true,
-      },
-      binary: {
-        name: 'wayland-nano',
-        sha256: `sha256:${TEST_WNANO_BINARY_SHA}`,
-        stagedSha256: `sha256:${TEST_WNANO_BINARY_SHA}`,
-      },
-      files: ['wayland-nano'],
-      skipped: false,
-    })
-  );
   for (const extractorArch of ['arm64', 'x64']) {
     const target = path.join(resources, 'classic-recovery-tools', 'win', extractorArch, '7za.exe');
     fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -528,50 +400,28 @@ function packagedResourcesPath(out: string): string {
   return path.join(out, 'mac-arm64', 'Wayland.app', 'Contents', 'Resources');
 }
 
-function wcoreManifestPath(out: string, runtime = 'darwin-arm64'): string {
-  return path.join(packagedResourcesPath(out), 'bundled-wayland-core', runtime, 'manifest.json');
+function fuigoManifestPath(out: string, runtime = 'darwin-arm64'): string {
+  return path.join(packagedResourcesPath(out), 'bundled-fuigo', runtime, 'bundle.json');
 }
 
-function wcoreBinaryPath(out: string, runtime = 'darwin-arm64'): string {
+function fuigoBinaryPath(out: string, runtime = 'darwin-arm64'): string {
   return path.join(
     packagedResourcesPath(out),
-    'bundled-wayland-core',
+    'bundled-fuigo',
     runtime,
-    runtime.startsWith('win32-') ? 'wayland-core.exe' : 'wayland-core'
+    runtime.startsWith('win32-') ? 'fuigo.exe' : 'fuigo'
   );
 }
 
-function wnanoManifestPath(out: string, runtime = 'darwin-arm64'): string {
-  return path.join(packagedResourcesPath(out), 'bundled-wayland-nano', runtime, 'manifest.json');
-}
-
-function wnanoBinaryPath(out: string, runtime = 'darwin-arm64'): string {
-  return path.join(
-    packagedResourcesPath(out),
-    'bundled-wayland-nano',
-    runtime,
-    runtime.startsWith('win32-') ? 'wayland-nano.exe' : 'wayland-nano'
-  );
-}
-
-function verifyArgs(
-  out: string,
-  officeCliRuntime = 'darwin-arm64',
-  wcoreRuntime = 'darwin-arm64',
-  wnanoRuntime = wcoreRuntime
-): string[] {
+function verifyArgs(out: string, officeCliRuntime = 'darwin-arm64', targetRuntime = 'darwin-arm64'): string[] {
   return [
     'scripts/verify-packaged-resources.js',
     '--out',
     out,
     '--target-platform',
-    wcoreRuntime.split('-')[0],
+    targetRuntime.split('-')[0],
     '--target-arch',
-    wcoreRuntime.split('-')[1],
-    '--wcore-runtime',
-    wcoreRuntime,
-    '--wnano-runtime',
-    wnanoRuntime,
+    targetRuntime.split('-')[1],
     '--officecli-runtime',
     officeCliRuntime,
   ];
@@ -592,19 +442,38 @@ afterEach(() => {
 const itAcceptedSweep = it.skipIf(process.platform === 'win32');
 
 describe('packaged resource release gate', () => {
+  it('refuses a missing or tampered bundled TVControl tree', () => {
+    const out = createPackagedResources(true);
+    const connector = path.join(packagedResourcesPath(out), 'bundled-tvcontrol');
+    fs.appendFileSync(path.join(connector, 'node_modules/@ferroxlabs/tvcontrol/package.json'), ' ');
+    expect(() => verify(out)).toThrow();
+    fs.rmSync(connector, { recursive: true });
+    expect(() => verify(out)).toThrow();
+  });
+
   const verify = (
     out: string,
     officeCliRuntime = 'darwin-arm64',
-    wcoreRuntime = 'darwin-arm64',
+    targetRuntime = 'darwin-arm64',
     extra: Record<string, unknown> = {}
   ) =>
     verifyPackagedResources({
-      argv: verifyArgs(out, officeCliRuntime, wcoreRuntime),
+      argv: verifyArgs(out, officeCliRuntime, targetRuntime),
       cwd: process.cwd(),
       logger: silentLogger,
-      wcoreAuthority: testWCoreAuthority,
-      wnanoAuthority: testWNanoAuthority,
-      wnanoPolicySelector: testWNanoPolicySelector,
+      fuigoAuthority: {
+        version: '1.0.6',
+        platforms: Object.fromEntries(
+          ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+            runtime,
+            {
+              integrity: 'sha512-fixture',
+              binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+              archiveSha256: 'fixture-archive',
+            },
+          ])
+        ),
+      },
       voiceAuthority: TEST_VOICE_AUTHORITY,
       bunAuthority: TEST_BUN_AUTHORITY,
       modelsAuthority: TEST_MODELS_AUTHORITY,
@@ -619,76 +488,6 @@ describe('packaged resource release gate', () => {
   itAcceptedSweep('accepts a non-empty native OfficeCLI binary plus manifest', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
-  });
-
-  it('rejects a Core bundle whose publisher attestation is absent or altered', () => {
-    const out = createPackagedResources(true);
-    const manifestPath = wcoreManifestPath(out);
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      publisherAttestation: { sourceDigest: string } | null;
-    };
-    manifest.publisherAttestation = null;
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
-    expect(() => verify(out)).toThrow(/CRITICAL resource/);
-
-    const altered = createPackagedResources(true);
-    const alteredPath = wcoreManifestPath(altered);
-    const alteredManifest = JSON.parse(fs.readFileSync(alteredPath, 'utf8')) as {
-      publisherAttestation: { sourceDigest: string };
-    };
-    alteredManifest.publisherAttestation.sourceDigest = 'f'.repeat(40);
-    fs.writeFileSync(alteredPath, JSON.stringify(alteredManifest));
-    expect(() => verify(altered)).toThrow(/CRITICAL resource/);
-  });
-
-  it('rejects a Nano bundle whose publisher attestation is absent or altered', () => {
-    const out = createPackagedResources(true);
-    const manifestPath = wnanoManifestPath(out);
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      publisherAttestation: { sourceDigest: string } | null;
-    };
-    manifest.publisherAttestation = null;
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
-    expect(() => verify(out)).toThrow(/CRITICAL resource/);
-
-    const altered = createPackagedResources(true);
-    const alteredPath = wnanoManifestPath(altered);
-    const alteredManifest = JSON.parse(fs.readFileSync(alteredPath, 'utf8')) as {
-      publisherAttestation: { sourceDigest: string };
-    };
-    alteredManifest.publisherAttestation.sourceDigest = 'f'.repeat(40);
-    fs.writeFileSync(alteredPath, JSON.stringify(alteredManifest));
-    expect(() => verify(altered)).toThrow(/CRITICAL resource/);
-  });
-
-  it('blocks a package whose bundled wayland-nano runtime is absent', () => {
-    const out = createPackagedResources(true);
-    fs.rmSync(path.join(packagedResourcesPath(out), 'bundled-wayland-nano'), { recursive: true, force: true });
-    expect(() => verify(out)).toThrow(/CRITICAL resource/);
-  });
-
-  it('blocks a local-prebuilt or unverified wayland-nano manifest', () => {
-    const out = createPackagedResources(true);
-    const manifest = wnanoManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.sourceType = 'local-prebuilt';
-    metadata.verified = false;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks wayland-nano binary byte drift even when the manifest is unchanged', () => {
-    const out = createPackagedResources(true);
-    fs.appendFileSync(wnanoBinaryPath(out), 'tampered');
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks undeclared extra wayland-nano runtime content', () => {
-    const out = createPackagedResources(true);
-    const extra = path.join(packagedResourcesPath(out), 'bundled-wayland-nano', 'linux-x64');
-    fs.mkdirSync(extra, { recursive: true });
-    fs.writeFileSync(path.join(extra, 'wayland-nano'), 'unverified-extra-runtime');
-    expect(() => verify(out)).toThrow();
   });
 
   it('rejects a missing or malformed packaged capability seal', () => {
@@ -976,7 +775,7 @@ describe('packaged resource release gate', () => {
   // #1036. A Developer ID signature proves only "Ferrox Labs signed something".
   // prepareConstitutionFs puts the pre-signature digest in the code-signing
   // IDENTIFIER precisely so the signature names the bytes it was minted for, and
-  // wcore/wnano already require that identifier. The Constitution helper asked for
+  // the fuigo bundle already requires that identifier. The Constitution helper asked for
   // no identifier at all, so any other helper we ever signed satisfied its check.
   itAcceptedSweep('binds the Constitution signature check to the identifier minted for those exact bytes', () => {
     const out = createPackagedResources(true);
@@ -1171,62 +970,23 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow();
   });
 
-  it('blocks a local-prebuilt or unverified wayland-core manifest', () => {
+  it('blocks fuigo binary byte drift even when the bundle receipt is unchanged', () => {
     const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.sourceType = 'local-prebuilt';
-    metadata.verified = false;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
+    fs.appendFileSync(fuigoBinaryPath(out), 'tampered');
     expect(() => verify(out)).toThrow();
   });
 
-  it('blocks wayland-core archive provenance drift', () => {
+  it('demands a Developer ID signature once a darwin bundle receipt claims signed staging', () => {
     const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.source.archiveSha256 = `sha256:${'b'.repeat(64)}`;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks a self-asserted wayland-core binary digest', () => {
-    const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.binary.sha256 = `sha256:${'c'.repeat(64)}`;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks wayland-core binary byte drift even when the manifest is unchanged', () => {
-    const out = createPackagedResources(true);
-    fs.appendFileSync(wcoreBinaryPath(out), 'tampered');
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('fails closed on a wayland-core manifest with no staged digest', () => {
-    const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    delete metadata.binary.stagedSha256;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    // Without it there is nothing pinning the shipped bytes, so the gate must
-    // refuse rather than fall back to a laxer comparison.
-    expect(() => verify(out)).toThrow(/CRITICAL resource/);
-  });
-
-  it('demands a Developer ID signature once a darwin manifest claims signed staging', () => {
-    const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
+    const manifest = fuigoManifestPath(out);
     const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
     // Model a signed staging: the staged bytes differ from the pinned upstream
     // bytes, which is only legitimate because we signed them.
-    fs.appendFileSync(wcoreBinaryPath(out), 'signature');
-    metadata.binary.stagedSha256 = `sha256:${crypto
+    fs.appendFileSync(fuigoBinaryPath(out), 'signature');
+    metadata.stagedSha256 = crypto
       .createHash('sha256')
-      .update(fs.readFileSync(wcoreBinaryPath(out)))
-      .digest('hex')}`;
+      .update(fs.readFileSync(fuigoBinaryPath(out)))
+      .digest('hex');
     fs.writeFileSync(manifest, JSON.stringify(metadata));
 
     // Bytes match the staged digest, so only the signature stands between this
@@ -1238,15 +998,15 @@ describe('packaged resource release gate', () => {
     );
   });
 
-  itAcceptedSweep('accepts a darwin manifest claiming signed staging when the signature is valid', () => {
+  itAcceptedSweep('accepts a darwin bundle receipt claiming signed staging when the signature is valid', () => {
     const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
+    const manifest = fuigoManifestPath(out);
     const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    fs.appendFileSync(wcoreBinaryPath(out), 'signature');
-    metadata.binary.stagedSha256 = `sha256:${crypto
+    fs.appendFileSync(fuigoBinaryPath(out), 'signature');
+    metadata.stagedSha256 = crypto
       .createHash('sha256')
-      .update(fs.readFileSync(wcoreBinaryPath(out)))
-      .digest('hex')}`;
+      .update(fs.readFileSync(fuigoBinaryPath(out)))
+      .digest('hex');
     fs.writeFileSync(manifest, JSON.stringify(metadata));
     expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => true })).not.toThrow();
   });
@@ -1274,57 +1034,9 @@ describe('packaged resource release gate', () => {
     ).not.toThrow();
   });
 
-  it('blocks a wayland-core manifest from the wrong release', () => {
-    const out = createPackagedResources(true);
-    const manifest = wcoreManifestPath(out);
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.releaseTag = 'v0.12.24';
-    metadata.version = 'v0.12.24';
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks a package whose valid wayland-core runtime is for the wrong target', () => {
+  it('blocks a package whose valid fuigo runtime is for the wrong target', () => {
     const out = createPackagedResources(true);
     expect(() => verify(out, 'darwin-arm64', 'win32-x64')).toThrow();
-  });
-
-  it('blocks undeclared extra wayland-core runtime content', () => {
-    const out = createPackagedResources(true);
-    const extra = path.join(packagedResourcesPath(out), 'bundled-wayland-core', 'linux-x64');
-    fs.mkdirSync(extra, { recursive: true });
-    fs.writeFileSync(path.join(extra, 'wayland-core'), 'unverified-extra-runtime');
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks stale executables inside the declared wayland-core runtime', () => {
-    const out = createPackagedResources(true);
-    const runtime = path.dirname(wcoreBinaryPath(out));
-    fs.writeFileSync(path.join(runtime, 'wcore'), 'stale-unpinned-fallback');
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks symlinks inside the declared wayland-core runtime', () => {
-    const out = createPackagedResources(true);
-    const runtime = path.dirname(wcoreBinaryPath(out));
-    fs.symlinkSync('wayland-core', path.join(runtime, 'wcore'));
-    expect(() => verify(out)).toThrow();
-  });
-
-  it('blocks an undeclared extra wayland-core runtime even when independently valid', () => {
-    const out = createPackagedResources(true);
-    const resources = packagedResourcesPath(out);
-    const source = path.join(resources, 'bundled-wayland-core', 'darwin-arm64');
-    const extra = path.join(resources, 'bundled-wayland-core', 'linux-x64');
-    fs.cpSync(source, extra, { recursive: true });
-    const manifest = path.join(extra, 'manifest.json');
-    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    metadata.platform = 'linux';
-    metadata.arch = 'x64';
-    metadata.source.asset = testWCoreAuthority.getAssetName('linux', 'x64', TEST_WCORE_RELEASE);
-    metadata.source.url = `https://github.com/FerroxLabs/wayland-core/releases/download/${TEST_WCORE_RELEASE}/${metadata.source.asset}`;
-    fs.writeFileSync(manifest, JSON.stringify(metadata));
-    expect(() => verify(out)).toThrow();
   });
 
   it('blocks undeclared extra OfficeCLI runtime content', () => {
@@ -1387,37 +1099,25 @@ describe('packaged resource release gate', () => {
         argv: ['scripts/verify-packaged-resources.js', '--out', out],
         cwd: process.cwd(),
         logger: silentLogger,
-        wcoreAuthority: testWCoreAuthority,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
       })
     ).toThrow();
   });
 
   // Acceptance path: skipped on Windows like the other accepting specs, because the
   // fixture cannot reproduce the POSIX executable mode that managed-cli-shims needs.
-  itAcceptedSweep('accepts a target that declares it bundles no wayland-nano runtime', () => {
-    // wayland-nano publishes no win32-arm64 build. That target legitimately ships
-    // none, but the absence has to be declared rather than inferred from a missing
-    // flag, which is what --no-wnano-runtime states.
-    const out = createPackagedResources(true, 'darwin-arm64');
-    fs.rmSync(path.join(packagedResourcesPath(out), 'bundled-wayland-nano'), { recursive: true, force: true });
-    const argv = verifyArgs(out).filter(
-      (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
-    );
-    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })).not.toThrow();
-  });
-
-  it('blocks a declared-absent wayland-nano bundle that is actually present', () => {
-    // Opting out is not the same as not looking: a stale or half-copied bundle must
-    // never ride along unverified on the target that says it ships none.
-    const out = createPackagedResources(true, 'darwin-arm64');
-    const argv = verifyArgs(out).filter(
-      (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
-    );
-    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })).toThrow(
-      /bundled-wayland-nano/
-    );
-  });
-
   itAcceptedSweep('accepts a target that declares it bundles no bun runtime', () => {
     // bun publishes no Windows ARM64 build, so that target bundles none and never
     // has. Declaring it keeps the gate honest instead of leaving a binary-less
@@ -1436,16 +1136,7 @@ describe('packaged resource release gate', () => {
     ).toThrow(/bundled-bun/);
   });
 
-  it('rejects declaring both a wayland-nano runtime and no wayland-nano runtime', () => {
-    const out = createPackagedResources(true, 'darwin-arm64');
-    expect(() =>
-      verify(out, 'darwin-arm64', 'darwin-arm64', {
-        argv: [...verifyArgs(out), '--no-wnano-runtime'],
-      })
-    ).toThrow(/cannot be combined/);
-  });
-
-  it('blocks verification when only the OfficeCLI target is declared', () => {
+  it('blocks verification when the OfficeCLI runtime disagrees with the declared target', () => {
     const out = createPackagedResources(true);
     expect(() =>
       verifyPackagedResources({
@@ -1458,13 +1149,25 @@ describe('packaged resource release gate', () => {
           '--target-arch',
           'arm64',
           '--officecli-runtime',
-          'darwin-arm64',
+          'darwin-x64',
         ],
         cwd: process.cwd(),
         logger: silentLogger,
-        wcoreAuthority: testWCoreAuthority,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
       })
-    ).toThrow(/--wcore-runtime/);
+    ).toThrow(/OfficeCLI runtime declarations/);
   });
 
   itAcceptedSweep('selects exactly the requested current app when arm64 and x64 packages coexist', () => {
@@ -1507,7 +1210,19 @@ describe('packaged resource release gate', () => {
         argv: [...verifyArgs(out), '--resources-dir', resources, '--app-executable', x64Executable],
         cwd: process.cwd(),
         logger: silentLogger,
-        wcoreAuthority: testWCoreAuthority,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
       })
     ).toThrow(/does not match darwin-arm64/);
   });
@@ -1521,7 +1236,19 @@ describe('packaged resource release gate', () => {
         argv: [...verifyArgs(out), '--resources-dir', packagedResourcesPath(out), '--app-executable', secondExecutable],
         cwd: process.cwd(),
         logger: silentLogger,
-        wcoreAuthority: testWCoreAuthority,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
         voiceAuthority: TEST_VOICE_AUTHORITY,
         bunAuthority: TEST_BUN_AUTHORITY,
         modelsAuthority: TEST_MODELS_AUTHORITY,

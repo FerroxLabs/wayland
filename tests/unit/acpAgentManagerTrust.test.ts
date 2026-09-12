@@ -8,7 +8,7 @@
  * a card for execute/network — and must prompt for everything when the workspace
  * is untrusted ("chat"). This is the end-to-end proof that the shared decision
  * is wired into the primary ACP gate with the right variable (this.workspace)
- * and the right short-circuit. The Gemini/WCore/OpenClaw gates follow the same
+ * and the right short-circuit. The Gemini/OpenClaw gates follow the same
  * shape (covered by workspaceTrustDecision.test.ts for the decision itself).
  */
 

@@ -154,7 +154,7 @@ export const MAX_RUN_PLAN_ENTRIES = 512;
 export const MAX_RUN_SOURCES = 2048;
 export const MAX_RUN_COST_ROWS = 2048;
 const TERMINAL_STEP = new Set<ActivityNode['status']>(['done', 'failed']);
-const SOURCE_ORDER: readonly ActivitySource[] = ['wcore', 'acp', 'codex', 'gemini'];
+const SOURCE_ORDER: readonly ActivitySource[] = ['native', 'acp', 'codex', 'gemini'];
 
 /** Freeze only the projection-owned graph, iteratively to avoid stack failure. */
 const freezeOwned = <T>(value: T): T => {
@@ -440,7 +440,7 @@ const messageToSteps = (
   let steps: ActivityStep[] = [];
   if (message.type === 'activity') {
     if (!validateNodeForest(message.content.nodes, issues, nodeBudget, message.msg_id)) return [];
-    steps = message.content.nodes.map((node) => nodeToStep(node, 'wcore'));
+    steps = message.content.nodes.map((node) => nodeToStep(node, 'native'));
   } else if (message.type === 'tool_group') {
     if (message.content.length > MAX_RUN_ACTIVITY_NODES - nodeBudget.count) {
       issues.push({
@@ -451,12 +451,12 @@ const messageToSteps = (
       return [];
     }
     if (message.content.some((tool) => !clean(tool.callId))) {
-      issues.push({ code: 'blank_identity', messageId: message.msg_id, detail: 'WCore tool-call id is blank' });
+      issues.push({ code: 'blank_identity', messageId: message.msg_id, detail: 'Native tool-call id is blank' });
       return [];
     }
     const nodes = toolGroupToNodes(message.content);
     if (!validateNodeForest(nodes, issues, nodeBudget, message.msg_id)) return [];
-    steps = nodes.map((node) => nodeToStep(node, 'wcore'));
+    steps = nodes.map((node) => nodeToStep(node, 'native'));
   } else if (message.type === 'acp_tool_call') {
     if (!clean(message.content.update.toolCallId)) {
       issues.push({ code: 'blank_identity', messageId: message.msg_id, detail: 'ACP tool-call id is blank' });
@@ -516,7 +516,7 @@ const messageToSteps = (
     if (!validateNodeForest(message.content.nodes ?? [], issues, nodeBudget, message.msg_id, 2)) {
       return [];
     }
-    steps = [subAgentToStep(message.content, 'wcore')];
+    steps = [subAgentToStep(message.content, 'native')];
   } else if (message.type === 'thinking') {
     if (!consumeNodeBudget(nodeBudget, issues, message.msg_id)) return [];
     steps = [
@@ -719,7 +719,7 @@ const collectStepSources = (
   while (stack.length) {
     const step = stack.pop();
     if (!step) break;
-    const source = step.source ?? 'wcore';
+    const source = step.source ?? 'native';
     for (const item of step.sources ?? []) sourceToContext(item, source, context, budget, issues, messageId);
     for (const child of step.children ?? []) stack.push(child);
   }
@@ -831,7 +831,7 @@ const collectReferences = (
         const id = `${candidate.kind}:${candidate.path}`;
         addOutput(
           outputs,
-          { id, ...candidate, label: candidate.path, state, source: 'wcore', provenance: ['wcore'] },
+          { id, ...candidate, label: candidate.path, state, source: 'native', provenance: ['native'] },
           budget,
           issues,
           message.msg_id
@@ -840,7 +840,7 @@ const collectReferences = (
       if (tool.confirmationDetails?.type === 'info') {
         for (const rawUrl of tool.confirmationDetails.urls ?? []) {
           const url = clean(rawUrl);
-          if (url) sourceToContext({ url }, 'wcore', context, budget, issues, message.msg_id);
+          if (url) sourceToContext({ url }, 'native', context, budget, issues, message.msg_id);
         }
       }
     }

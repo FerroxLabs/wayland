@@ -51,7 +51,7 @@ export type TurnFinish = {
    * session must not inherit the prior session's high-water mark.
    */
   meterId?: string;
-  /** computed path (wcore/gemini): per-turn split. */
+  /** computed path (gemini): per-turn split. */
   inputTokens?: number;
   outputTokens?: number;
   cacheReadTokens?: number;

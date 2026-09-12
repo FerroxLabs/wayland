@@ -29,7 +29,7 @@ describe('darwin staged-binary signing', () => {
 
   it('signs with the hardened runtime and a secure timestamp', () => {
     const execFileSync = vi.fn();
-    signDarwinStagedBinary('/tmp/staged/wayland-core', { execFileSync, identity: 'Developer ID Application: X' });
+    signDarwinStagedBinary('/tmp/staged/fuigo', { execFileSync, identity: 'Developer ID Application: X' });
     const [command, args] = execFileSync.mock.calls[0];
     expect(command).toBe('/usr/bin/codesign');
     // Apple checks all three during notarization.
@@ -45,7 +45,7 @@ describe('darwin staged-binary signing', () => {
       calls.push(args);
       return '';
     });
-    signDarwinStagedBinary('/tmp/staged/wayland-core', { execFileSync, identity: 'Developer ID Application: X' });
+    signDarwinStagedBinary('/tmp/staged/fuigo', { execFileSync, identity: 'Developer ID Application: X' });
     // A signature that silently did not take would surface only at
     // notarization, long after the digest was pinned.
     expect(calls.some((args) => args.includes('--verify') && args.includes('-R'))).toBe(true);
@@ -74,8 +74,8 @@ describe('darwin staged-binary signing', () => {
   });
 
   it('binds the signature to the pinned upstream digest via the identifier', () => {
-    const id = darwinSigningIdentifier('wayland-core', `sha256:${'a'.repeat(64)}`);
-    expect(id).toBe(`wayland-core.${'a'.repeat(64)}`);
+    const id = darwinSigningIdentifier('fuigo', `sha256:${'a'.repeat(64)}`);
+    expect(id).toBe(`fuigo.${'a'.repeat(64)}`);
     const requirement = darwinDeveloperIdRequirementFor(id);
     // The identifier lives inside the signature, so it cannot be edited without
     // the signing key. This is what stops a different - or older, still validly
@@ -87,19 +87,19 @@ describe('darwin staged-binary signing', () => {
 
   it('refuses to sign without a pinned upstream digest', () => {
     // Signing with no binding would produce a signature reusable on any binary.
-    expect(() => darwinSigningIdentifier('wayland-core', '')).toThrow(/pinned upstream sha256/);
-    expect(() => darwinSigningIdentifier('wayland-core', 'not-a-digest')).toThrow(/pinned upstream sha256/);
+    expect(() => darwinSigningIdentifier('fuigo', '')).toThrow(/pinned upstream sha256/);
+    expect(() => darwinSigningIdentifier('fuigo', 'not-a-digest')).toThrow(/pinned upstream sha256/);
   });
 
   it('passes the identifier to codesign when signing', () => {
     const execFileSync = vi.fn();
-    signDarwinStagedBinary('/tmp/staged/wayland-core', {
+    signDarwinStagedBinary('/tmp/staged/fuigo', {
       execFileSync,
       identity: 'Developer ID Application: X',
-      identifier: 'wayland-core.deadbeef',
+      identifier: 'fuigo.deadbeef',
     });
     const args = execFileSync.mock.calls[0][1] as string[];
     expect(args).toContain('--identifier');
-    expect(args[args.indexOf('--identifier') + 1]).toBe('wayland-core.deadbeef');
+    expect(args[args.indexOf('--identifier') + 1]).toBe('fuigo.deadbeef');
   });
 });

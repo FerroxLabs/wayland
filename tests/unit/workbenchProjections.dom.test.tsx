@@ -94,9 +94,9 @@ describe('M6 relevant-only workbench projections', () => {
     expect(deriveWorkbenchProjections(value).map((item) => item.id)).toEqual(['development']);
   });
 
-  it('discloses automation, team, Core, and browser lanes only from canonical scope evidence', () => {
+  it('discloses automation, team, and browser lanes only from canonical scope evidence', () => {
     const value = snapshot({
-      actor: { backend: 'wcore', agentId: 'core' },
+      actor: { backend: 'acp', agentId: 'agent-1' },
       scope: {
         workspaceId: 'workspace-1',
         host: 'desktop',
@@ -109,12 +109,7 @@ describe('M6 relevant-only workbench projections', () => {
       activities: [{ id: 'cron-1', kind: 'system', name: 'Scheduled trigger', status: 'running' }],
     });
 
-    expect(deriveWorkbenchProjections(value).map((item) => item.id)).toEqual([
-      'browser-cua',
-      'automation',
-      'team',
-      'core',
-    ]);
+    expect(deriveWorkbenchProjections(value).map((item) => item.id)).toEqual(['browser-cua', 'automation', 'team']);
   });
 
   it('switches registry-provided lanes and facets without mounting a second host', async () => {
@@ -170,7 +165,7 @@ describe('M6 relevant-only workbench projections', () => {
       };
       renderProjections(
         snapshot({
-          actor: { backend: 'wcore', agentId: 'core' },
+          actor: { backend: 'acp', agentId: 'agent-1' },
           receipts: [receipt],
           outcomes: [{ id: 'artifact-1', kind: 'artifact', label: 'Output', receiptId: receipt.id }],
           outcomeTrust: [{ receiptId: receipt.id, outcomeId: 'artifact-1', artifactDigest: digest, status }],
@@ -183,10 +178,10 @@ describe('M6 relevant-only workbench projections', () => {
     }
   );
 
-  it('refuses a verified display when the canonical trust claim has no matching Core receipt', async () => {
+  it('refuses a verified display when the canonical trust claim has no matching receipt', async () => {
     renderProjections(
       snapshot({
-        actor: { backend: 'wcore', agentId: 'core' },
+        actor: { backend: 'acp', agentId: 'agent-1' },
         outcomes: [{ id: 'artifact-1', kind: 'artifact', label: 'Output', receiptId: 'missing-receipt' }],
         outcomeTrust: [
           { receiptId: 'missing-receipt', outcomeId: 'artifact-1', artifactDigest: digest, status: 'verified' },

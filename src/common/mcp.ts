@@ -14,7 +14,7 @@ import type { AgentBackend } from '@/common/types/acpTypes';
  * is written into an agent CLI's config, and DIFFERENT agents apply DIFFERENT
  * transforms:
  *   - `sanitizeMcpServerName`  (slash -> dash, dots kept) -> `com.notion-notion-mcp`
- *     (Gemini/Qwen/OpenCode/Wayland/WCore configs)
+ *     (Gemini/Qwen/OpenCode/Wayland configs)
  *   - `cliSafeMcpServerName`   (slash AND dot -> dash)    -> `com-notion-notion-mcp`
  *     (Claude/Codex CLIs reject dots in names)
  *

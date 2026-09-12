@@ -6,7 +6,6 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiProviderSource, ProviderSourceError } from '@process/providers/sources/ApiProviderSource';
-import { WaylandCoreSource } from '@process/providers/sources/WaylandCoreSource';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -408,20 +407,5 @@ describe('ApiProviderSource', () => {
 
     const [url] = fetchMock.mock.calls[0] as [string];
     expect(url).toBe('https://api.perplexity.ai/v1/models');
-  });
-});
-
-// ─── WaylandCoreSource ────────────────────────────────────────────────────────
-
-describe('WaylandCoreSource', () => {
-  it('exposes the wcore kind and a wcore provider id', () => {
-    const source = new WaylandCoreSource();
-    expect(source.kind).toBe('wcore');
-    expect(source.providerId).toBe('wcore');
-  });
-
-  it('returns an empty model list - Wayland Core proxies connected providers and owns none', async () => {
-    const models = await new WaylandCoreSource().listModels();
-    expect(models).toEqual([]);
   });
 });

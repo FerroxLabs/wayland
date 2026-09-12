@@ -22,7 +22,7 @@ export interface ConversationTab {
   /** Workspace path */
   workspace: string;
   /** Conversation type */
-  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'remote';
   /** Owning project id, resolved to a name at render (#882). Absent on tabs
    *  restored from localStorage before this field existed - acceptable
    *  graceful degradation; no migration. */

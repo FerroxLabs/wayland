@@ -14,9 +14,6 @@ docs:
   - path: docs/desktop-overhaul-source/wave-0/EXECUTION.md
     type: SPEC
     precedence: 1
-  - path: docs/desktop-overhaul-source/CORE-INTEGRATION-MATRIX.md
-    type: SPEC
-    precedence: 1
   - path: docs/desktop-overhaul-source/MASTER-PLAN-AUDIT.md
     type: DOC
     precedence: 2
@@ -24,9 +21,6 @@ docs:
     type: PRD
     precedence: 3
   - path: docs/desktop-overhaul-source/COWORK-DEEP-DIVE.md
-    type: PRD
-    precedence: 3
-  - path: docs/desktop-overhaul-source/SANDBOX-DEVELOPER-JOURNEY.md
     type: PRD
     precedence: 3
   - path: docs/desktop-overhaul-source/VOICE-CONVERSATION-MODE.md

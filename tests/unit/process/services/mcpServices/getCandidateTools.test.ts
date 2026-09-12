@@ -53,10 +53,10 @@ function sessionFor(
   register: (name: string) => Stage,
   registeredTools: (name: string) => string[] = (name) => (name === 'svc' ? ['a', 'b'] : ['a'])
 ): McpSessionState {
-  const expected = servers.map((s) => createMcpSessionExpectedServer(s, 'wcore', KEY));
+  const expected = servers.map((s) => createMcpSessionExpectedServer(s, 'acp', KEY));
   let state = createMcpSessionState(GENERATION, expected, {
     conversationId: CONVERSATION,
-    backend: 'wcore',
+    backend: 'acp',
   });
   for (const s of servers) {
     const stage = register(s.name);
@@ -73,7 +73,7 @@ function sessionFor(
       data: {
         generation: GENERATION,
         conversationId: CONVERSATION,
-        backend: 'wcore',
+        backend: 'acp',
         runtimeName: s.name,
         definitionDigest: digest,
         tools: stage === 'degraded' ? [] : registeredTools(s.name),
@@ -175,7 +175,7 @@ describe('getCandidateTools receipt-bound gate (MCP-01)', () => {
     // A different current launch: same expected servers, different generation.
     const currentLaunch = createMcpSessionState('launch-2', registered.expectedServers, {
       conversationId: CONVERSATION,
-      backend: 'wcore',
+      backend: 'acp',
     });
     // The stale registered receipts belong to launch-1, but the current state is
     // launch-2 (configured only) — nothing is callable.

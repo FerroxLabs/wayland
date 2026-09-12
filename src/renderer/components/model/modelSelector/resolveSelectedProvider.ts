@@ -27,9 +27,8 @@ export const V2_TAG_PREFIX = 'v2:';
  *    `getAvailableModels`, which would exclude them).
  *  - Everything else: try the exact id first (cheap, correct when registry and
  *    storage ids happen to align), then fall back to the membership join - the
- *    provider whose available models actually include this `modelId`. That join
- *    is the same identity `useWCoreModelSelection` uses for its stale-model
- *    check, so `modelId` is guaranteed to align with `getAvailableModels`.
+ *    provider whose available models actually include this `modelId`, so
+ *    `modelId` is guaranteed to align with `getAvailableModels`.
  *
  * Returns `undefined` only when no connected provider offers the model.
  */

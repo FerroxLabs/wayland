@@ -44,9 +44,6 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
     detectCustomAgents: vi.fn(async () => []),
   },
 }));
-vi.mock('@process/agent/wcore/binaryResolver', () => ({
-  detectWCore: vi.fn(() => ({ version: 'wayland-core 0.0.0', path: '/tmp/wayland-core' })),
-}));
 vi.mock('@process/services/database', () => ({
   getDatabase: vi.fn(async () => ({ getRemoteAgents: () => [] })),
 }));

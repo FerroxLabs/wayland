@@ -4,22 +4,35 @@ import type {
   SessionNotification,
   UsageUpdate,
 } from '@agentclientprotocol/sdk';
+import { RequestError } from '@agentclientprotocol/sdk';
 import * as path from 'node:path';
 import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
+import { isFuigoSessionPromptFile } from '@process/agent/fuigo/launch';
 import { buildAcpAdapterCorruptionGuidance, buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
-import { stripAnsi } from '@process/agent/wcore/stderrLog';
+import { stripAnsi } from '@process/acp/stderrPemHold';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
+import {
+  isAskUserQuestionMethod,
+  parseAskUserQuestionRequest,
+  UserQuestionResolver,
+  type AskUserQuestionResponse,
+} from '@process/acp/session/userQuestion';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
 import { loadWorkspaceApprovals, saveWorkspaceApproval } from '@process/acp/session/ApprovalPersistence';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
 import { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
+import {
+  isFuigoSessionNotificationMethod,
+  parseSubagentLifecycle,
+  SubagentTracker,
+} from '@process/acp/session/subagents';
 import type {
   AgentConfig,
   InitialDesiredConfig,
@@ -86,8 +99,8 @@ function wrapCallbacks(raw: SessionCallbacks): SessionCallbacks {
 }
 
 /**
- * Bound on the scrubbed stderr tail carried into the banner, mirroring
- * `WCORE_STDERR_TAIL_MAX`. `ProcessAcpClient` already caps its ring buffer at 8KB;
+ * Bound on the scrubbed stderr tail carried into the banner.
+ * `ProcessAcpClient` already caps its ring buffer at 8KB;
  * this trims again for a chat row.
  */
 const DISCONNECT_STDERR_TAIL_MAX = 2048;
@@ -171,6 +184,10 @@ export class AcpSession {
   readonly metrics: AcpMetrics;
 
   private readonly permissionResolver: PermissionResolver;
+
+  private readonly userQuestions: UserQuestionResolver;
+
+  private readonly subagents: SubagentTracker;
   private readonly inputPreprocessor: InputPreprocessor;
   private readonly lifecycle: SessionLifecycle;
   private readonly promptExecutor: PromptExecutor;
@@ -187,6 +204,8 @@ export class AcpSession {
     this.configTracker = new ConfigTracker(options?.initialDesired);
     this.messageTranslator = new MessageTranslator(agentConfig.agentId);
     this.inputPreprocessor = new InputPreprocessor((path) => fs.readFileSync(path, 'utf-8'));
+    this.userQuestions = new UserQuestionResolver();
+    this.subagents = new SubagentTracker(agentConfig.agentId);
     this.permissionResolver = new PermissionResolver({
       autoApproveAll: agentConfig.yoloMode ?? false,
       cacheMaxSize: options?.approvalCacheMaxSize,
@@ -275,6 +294,7 @@ export class AcpSession {
   async stop(): Promise<void> {
     this.promptExecutor.stopTimer();
     this.permissionResolver.rejectAll(new Error('Session stopped'));
+    this.userQuestions.cancelAll();
     this.promptExecutor.clearPending();
     this.lifecycle.clearAuthPending();
     await this.lifecycle.teardown();
@@ -329,7 +349,7 @@ export class AcpSession {
     this.promptExecutor.cancelAll();
   }
 
-  /** Send an authenticated Nano wire pause without touching the local permission timer. */
+  /** Send a wire pause without touching the local permission timer. */
   pausePrompt(): void {
     this.lifecycle.pause();
   }
@@ -412,14 +432,28 @@ export class AcpSession {
     }
   }
 
+  /**
+   * The one read allowed outside the workspace: Fuigo's own prompt offload
+   * file under `$FUIGO_HOME/sessions/` (see isFuigoSessionPromptFile). The home
+   * is the exact value Desktop put in the engine's environment at spawn.
+   */
+  private isFuigoPromptOffloadRead(filePath: string): boolean {
+    if (this.agentConfig.agentBackend !== 'fuigo') return false;
+    const home = this.agentConfig.env?.FUIGO_HOME;
+    if (!home) return false;
+    return isFuigoSessionPromptFile(home, filePath);
+  }
+
   // ─── Protocol handlers (glue) ─────────────────────────────────
 
   private buildProtocolHandlers(): ProtocolHandlers {
     return {
       onSessionUpdate: (notification) => this.handleMessage(notification),
       onRequestPermission: (request) => this.handlePermissionRequest(request),
+      onExtMethod: (method, params) => this.handleExtMethod(method, params),
+      onExtNotification: (method, params) => this.handleExtNotification(method, params),
       onReadTextFile: async (req) => {
-        this.assertPathAllowed(req.path);
+        if (!this.isFuigoPromptOffloadRead(req.path)) this.assertPathAllowed(req.path);
         try {
           const content = fs.readFileSync(req.path, 'utf-8');
           return { content };
@@ -445,6 +479,18 @@ export class AcpSession {
 
   private handleMessage(notification: SessionNotification): void {
     const update = notification.update;
+    const isToolActivity = update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update';
+
+    // A Fuigo sub-agent's frames share the pipe under its own session id; they
+    // fold into that sub-agent's card instead of the parent's transcript (and
+    // its config/command updates never reach the parent's trackers).
+    if (this.subagents.isChildSession(notification.sessionId)) {
+      this.promptExecutor.resetTimer();
+      if (isToolActivity) this.promptExecutor.noteToolActivity();
+      const card = this.subagents.onChildUpdate(notification);
+      if (card) this.callbacks.onMessage(card);
+      return;
+    }
 
     switch (update.sessionUpdate) {
       case 'current_mode_update':
@@ -486,7 +532,7 @@ export class AcpSession {
 
     // A tool has run, so this turn is no longer safe to replay wholesale on a
     // transient error (#774) - re-sending the prompt could re-execute it.
-    if (update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update') {
+    if (isToolActivity) {
       this.promptExecutor.noteToolActivity();
     }
 
@@ -494,6 +540,36 @@ export class AcpSession {
     for (const msg of messages) {
       this.callbacks.onMessage(msg);
     }
+  }
+
+  private handleExtNotification(method: string, params: unknown): void {
+    if (!isFuigoSessionNotificationMethod(method)) return;
+    const lifecycle = parseSubagentLifecycle(params);
+    if (!lifecycle) return;
+    const card = this.subagents.onLifecycle(lifecycle);
+    if (card) this.callbacks.onMessage(card);
+  }
+
+  private async handleExtMethod(method: string, params: unknown): Promise<unknown> {
+    if (!isAskUserQuestionMethod(method)) throw RequestError.methodNotFound(method);
+    const request = parseAskUserQuestionRequest(params);
+    if (!request) throw RequestError.invalidParams({ method });
+    // Unattended (no card to show): the honest answer is a cancel, which the
+    // engine treats as a user action, not an error.
+    const show = this.callbacks.onUserQuestion;
+    if (!show) return { outcome: 'cancelled' } satisfies AskUserQuestionResponse;
+    this.promptExecutor.noteToolActivity();
+    this.promptExecutor.pauseTimer();
+    try {
+      return await this.userQuestions.ask(request, show);
+    } finally {
+      this.promptExecutor.resumeTimer();
+    }
+  }
+
+  /** Answer (or cancel, with `null`) one question of an AskUserQuestion request. */
+  answerUserQuestion(callId: string, answer: string | null): boolean {
+    return this.userQuestions.answer(callId, answer);
   }
 
   private async handlePermissionRequest(request: RequestPermissionRequest): Promise<RequestPermissionResponse> {
@@ -538,6 +614,7 @@ export class AcpSession {
         this.emitCrashSignalIfProcessDied(info);
         this.promptExecutor.stopTimer();
         this.permissionResolver.rejectAll(new Error('Process disconnected'));
+        this.userQuestions.cancelAll();
         this.lifecycle.resumeFromDisconnect();
         return;
       }

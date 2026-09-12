@@ -22,7 +22,7 @@
 // Both are fixed HERE rather than at either call site so the two handlers cannot
 // drift apart again.
 
-import { createPemBlockHold, PEM_HELD_UNTERMINATED_MARKER, stripAnsi } from '@process/agent/wcore/stderrLog';
+import { createPemBlockHold, PEM_HELD_UNTERMINATED_MARKER, stripAnsi } from './stderrPemHold';
 import { redactSecrets } from '@process/utils/secretRedaction';
 
 export type AcpStderrLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -38,11 +38,10 @@ const NODE_WARNING_RE = /^\s*(?:\(node:\d+\)\s*)?(?:\[[^\]]*\]\s*)?(?:[A-Z][A-Za
 /**
  * Classify one ACP bridge stderr line.
  *
- * THE DEFAULT IS `info`, and that is the whole reason this is not
- * `wcoreStderrLevel` (which defaults to `warn`). The wcore engine self-labels
- * every line in the Rust `tracing` format, so an UNLABELLED line there is an
- * anomaly - a panic or a raw print - and `warn` is the right floor for it. ACP
- * bridges are ordinary Node programs that label nothing: `Listening on stdio`,
+ * THE DEFAULT IS `info`. A Rust engine self-labels every line in the `tracing`
+ * format, so an UNLABELLED line there is an anomaly - a panic or a raw print -
+ * and `warn` would be the right floor for it. ACP bridges are ordinary Node
+ * programs that label nothing: `Listening on stdio`,
  * a bunx resolution notice and a bridge's own progress output all arrive bare.
  * Defaulting those to `warn` re-tags every benign notice, which is #1041 with a
  * different severity word, and it also destroys the property #1041 actually
@@ -112,11 +111,9 @@ export type AcpStderrReader = {
  *
  * Except one. The PEM rule is the bank's only multi-line rule, and handed a single
  * line it matches nothing but `-----BEGIN` and masks that header to end of line,
- * destroying the anchor while the key body is still arriving (#1065). So the same
- * `createPemBlockHold` the wcore reader uses holds the block here too. Its own
- * severities are discarded and re-derived with {@link acpStderrLevel}, because that
- * hold classifies with `wcoreStderrLevel` and its `warn` default is exactly what
- * this reader must not inherit - with the ONE exception of its unterminated marker,
+ * destroying the anchor while the key body is still arriving (#1065). So
+ * `createPemBlockHold` holds the block here. Every emitted line is classified
+ * with {@link acpStderrLevel} - with the ONE exception of the unterminated marker,
  * which stays `warn` because a key block that never closed is a genuine anomaly.
  *
  * NOTHING here touches the caller's diagnostic buffers. `ProcessAcpClient`'s ring is
@@ -133,10 +130,10 @@ export function createAcpStderrReader(sink: (line: string, level: AcpStderrLevel
   let resyncing = false;
 
   const emit = (rawLine: string): void => {
-    for (const emission of hold.push(stripAnsi(rawLine))) {
-      if (!emission.text.trim()) continue;
-      const level = emission.text === PEM_HELD_UNTERMINATED_MARKER ? 'warn' : acpStderrLevel(emission.text);
-      sink(redactSecrets(emission.text), level);
+    for (const text of hold.push(stripAnsi(rawLine))) {
+      if (!text.trim()) continue;
+      const level = text === PEM_HELD_UNTERMINATED_MARKER ? 'warn' : acpStderrLevel(text);
+      sink(redactSecrets(text), level);
     }
   };
 

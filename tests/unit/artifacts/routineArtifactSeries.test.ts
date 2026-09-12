@@ -43,12 +43,12 @@ function jobWithSeries(series?: string): CronJob {
     metadata: {
       conversationId: '',
       conversationTitle: '',
-      agentType: 'wcore',
+      agentType: 'fuigo',
       createdBy: 'agent',
       createdAt: 0,
       updatedAt: 0,
       agentConfig: {
-        backend: 'wcore',
+        backend: 'fuigo',
         name: 'A task',
         configOptions: series ? { kind: 'routine', artifactSeries: series } : { kind: 'routine' },
       },
@@ -119,13 +119,13 @@ describe('a routine publishes into the series its own prompt already names', () 
 
 /**
  * The spawn-site assertion that used to live here was a `readFileSync` +
- * `toContain` grep over `wcore/index.ts`. It has been replaced by two tests
+ * `toContain` grep over the engine spawn module. It was replaced by two tests
  * that EXECUTE the path instead:
  *
- *   - `wcoreSpawnRunOutputDir.test.ts` drives the real `WCoreAgent.start()` and
+ *   - a spawn test drove the real engine `start()` and
  *     reads `WAYLAND_OUTPUT_DIR` off the real `spawn` call;
- *   - `wcoreManagerRunOutputHandoff.test.ts` drives the real
- *     `WCoreManager.start()` and pins the conversation id it hands down.
+ *   - a manager test drove the real manager `start()` and pinned the
+ *     conversation id it handed down.
  *
  * A source-text assertion cannot tell a working wiring from a plausible-looking
  * one, and goes green again the moment the line it greps for is reformatted.

@@ -18,7 +18,8 @@
   },
   "launchError": "Workflow konnte nicht gestartet werden: {{msg}}",
   "picker": {
-    "noAgent": "Kein Backend ausgewählt"
+    "noAgent": "Kein Backend ausgewählt",
+    "approvalForNewRun": "Freigabe für neue Ausführungen"
   },
   "import": {
     "placeholder": "Die Import-Anbindung folgt als Nächstes: Ordner / Git-URL / SKILL.md mit automatisch über Frontmatter erkanntem type:workflow, von Skill Guard gescannt und als source:imported registriert."
@@ -37,8 +38,5 @@
   },
   "whatHappens": "Was passiert beim Start",
   "bodyFallback": "Der Agent lädt diesen Workflow als erste Anweisung und führt dich Schritt für Schritt hindurch. Du kannst ihn jederzeit unterbrechen oder die Richtung ändern.",
-  "noDescription": "Keine Beschreibung angegeben.",
-  "launch": {
-    "placeholder": "Die Start-Anbindung ist in Arbeit. Bald wählst du eine Engine (Wayland Core / Gemini / Claude / Codex), und der Workflow wird in einem neuen Chat als erste Anweisung des Agenten geladen."
-  }
+  "noDescription": "Keine Beschreibung angegeben."
 }

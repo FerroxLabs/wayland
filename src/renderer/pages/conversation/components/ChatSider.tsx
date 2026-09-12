@@ -47,16 +47,6 @@ const ChatSider: React.FC<{
         teamId={teamId}
       ></ChatWorkspace>
     );
-  } else if (conversation?.type === 'wcore' && conversation.extra?.workspace) {
-    workspaceNode = (
-      <ChatWorkspace
-        conversation_id={conversation.id}
-        workspace={conversation.extra.workspace}
-        eventPrefix='wcore'
-        messageApi={messageApi}
-        teamId={teamId}
-      ></ChatWorkspace>
-    );
   }
 
   if (!workspaceNode) {
