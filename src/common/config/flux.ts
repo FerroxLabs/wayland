@@ -84,3 +84,20 @@ export function isFluxProvider(providerId: string | undefined | null): boolean {
 export function isFluxModelId(modelId: string | undefined | null): boolean {
   return typeof modelId === 'string' && (FLUX_MODEL_IDS as readonly string[]).includes(modelId);
 }
+
+/**
+ * Backends whose OWN provider is FluxRouter. Fuigo authenticates with the Flux
+ * key directly (FUIGO_API_KEY) and lists the Flux tiers in the model catalog it
+ * advertises on session/new (`currentModelId: 'flux-auto'`, verified live on
+ * 1.0.13), so for it a Flux id is an ordinary in-place `session/set_model`,
+ * not a spawn-env pin. Every "skip set_model for a Flux id" guard (written for
+ * the claude bridge, which rejects an unlisted id with -32601) must consult
+ * this: otherwise a Fuigo chat's tier pick is persisted and shown in the picker
+ * while the live session keeps running the engine's default tier, and Flux
+ * bills the tier that actually arrives.
+ */
+export const FLUX_NATIVE_BACKENDS = ['fuigo'] as const;
+
+export function isFluxNativeBackend(backend: string | undefined | null): boolean {
+  return typeof backend === 'string' && (FLUX_NATIVE_BACKENDS as readonly string[]).includes(backend);
+}

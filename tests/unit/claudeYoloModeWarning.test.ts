@@ -26,8 +26,16 @@ describe('#749 claude full-auto is the internal guarded mode (warning is cosmeti
     expect(isAutoGuardedMode(getFullAutoMode('claude'))).toBe(true);
   });
 
+  // Fuigo speaks Claude Code's mode vocabulary but advertises no `modes` on
+  // session/new, so any advertised-mode lookup misses; its full-auto is the same
+  // client-enforced guarded mode, and the warning would be the same false alarm.
+  it("fuigo's full-auto is the internal autoGuarded mode -> warning suppressed", () => {
+    expect(getFullAutoMode('fuigo')).toBe('autoGuarded');
+    expect(isAutoGuardedMode(getFullAutoMode('fuigo'))).toBe(true);
+  });
+
   it('backends with a real advertised full-auto mode still warn on a genuine miss', () => {
-    for (const backend of ['gemini', 'qwen', 'fuigo']) {
+    for (const backend of ['gemini', 'qwen', 'snow']) {
       expect(isAutoGuardedMode(getFullAutoMode(backend))).toBe(false);
     }
   });

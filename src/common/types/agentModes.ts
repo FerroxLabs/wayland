@@ -40,6 +40,12 @@ export const ACP_AUTO_GUARDED_MODE = 'autoGuarded';
 
 const FULL_AUTO_MODE: Record<string, string> = {
   claude: ACP_AUTO_GUARDED_MODE,
+  // Fuigo speaks Claude Code's permission-mode vocabulary (default, acceptEdits,
+  // plan, auto, dontAsk, bypassPermissions) over session/set_mode but advertises
+  // no `modes` on session/new (verified live on 1.0.13), so its full-auto is the
+  // same client-enforced guarded mode as claude's; blind auto is Autopilot
+  // ('bypassPermissions'), which the engine accepts as a set_mode id.
+  fuigo: ACP_AUTO_GUARDED_MODE,
   qwen: 'yolo',
   opencode: 'build',
   gemini: 'yolo',
@@ -125,7 +131,7 @@ export function getFullAutoMode(backend: string | undefined): string {
 /** Safe per-run defaults; full-auto is never inferred from a backend name. */
 export function getDefaultUnattendedMode(backend: string | undefined): string {
   if (backend === 'gemini') return 'autoEdit';
-  if (backend === 'claude') return 'acceptEdits';
+  if (backend === 'claude' || backend === 'fuigo') return 'acceptEdits';
   if (backend === 'codex') return CODEX_MODE_AUTO_EDIT;
   if (backend === 'opencode') return 'build';
   if (backend === 'cursor') return 'agent';
@@ -135,7 +141,7 @@ export function getDefaultUnattendedMode(backend: string | undefined): string {
 /** Only a declared bypass mode authorizes the host's blanket-approval flag. */
 export function isExplicitUnattendedFullAuto(backend: string | undefined, declaredMode: string | undefined): boolean {
   const mode = declaredMode?.trim();
-  if (backend === 'claude') return mode === 'bypassPermissions';
+  if (backend === 'claude' || backend === 'fuigo') return mode === 'bypassPermissions';
   if (backend === 'codex') return mode === CODEX_MODE_FULL_AUTO || mode === CODEX_MODE_FULL_AUTO_NO_SANDBOX;
   return ['gemini', 'qwen', 'snow'].includes(backend ?? '') && mode === 'yolo';
 }

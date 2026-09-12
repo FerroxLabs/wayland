@@ -2560,6 +2560,12 @@ const migration_v58: IMigration = {
  *   - conversations.extra.presetContext:   <- extra.presetRules when absent
  *   - cron_jobs.agent_type:                'wcore' -> 'fuigo'
  *   - cron_jobs.agent_config.backend:      'wcore' -> 'fuigo'
+ *   - conversations.extra.sessionMode and cron_jobs.agent_config.mode on the
+ *     migrated rows: Core's vocabulary -> Fuigo's (Claude Code's):
+ *     'auto_edit' -> 'acceptEdits', 'yolo' | 'force' -> 'bypassPermissions'.
+ *     Left as-is, a migrated Autopilot routine would fail
+ *     `isExplicitUnattendedFullAuto` and hold on its first tool call, and the
+ *     engine would reject the unknown mode id on session/set_mode.
  *
  * Follows v30 (aionrs -> wcore) for the json_set rewrites. The conversation
  * statement runs as ONE update so no row can end up `acp` without a backend:
@@ -2591,9 +2597,30 @@ const migration_v59: IMigration = {
           "WHERE agent_config IS NOT NULL AND json_valid(agent_config) AND json_extract(agent_config, '$.backend') = 'wcore'"
       )
       .run();
+    // Only a Core row can carry these values under backend 'fuigo', so filtering
+    // on the legacy value alone keeps this idempotent and leaves native Fuigo
+    // rows untouched.
+    const r4 = db
+      .prepare(
+        "UPDATE conversations SET extra = json_set(extra, '$.sessionMode', " +
+          "  CASE json_extract(extra, '$.sessionMode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+          "WHERE type = 'acp' AND extra IS NOT NULL AND json_valid(extra) " +
+          "  AND json_extract(extra, '$.backend') = 'fuigo' " +
+          "  AND json_extract(extra, '$.sessionMode') IN ('auto_edit', 'yolo', 'force')"
+      )
+      .run();
+    const r5 = db
+      .prepare(
+        "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.mode', " +
+          "  CASE json_extract(agent_config, '$.mode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+          "WHERE agent_type = 'fuigo' AND agent_config IS NOT NULL AND json_valid(agent_config) " +
+          "  AND json_extract(agent_config, '$.mode') IN ('auto_edit', 'yolo', 'force')"
+      )
+      .run();
     console.log(
       `[Migration v59] Fuigo cutover: conversations wcore->acp/fuigo=${r1.changes}, ` +
-        `cron_jobs.agent_type=${r2.changes}, cron_jobs.agent_config.backend=${r3.changes}`
+        `cron_jobs.agent_type=${r2.changes}, cron_jobs.agent_config.backend=${r3.changes}, ` +
+        `sessionMode remapped=${r4.changes}, cron mode remapped=${r5.changes}`
     );
   },
   down: (_db) => {

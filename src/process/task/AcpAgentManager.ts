@@ -39,7 +39,7 @@ import type {
   AcpSessionConfigOption,
 } from '@/common/types/acpTypes';
 import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/common/types/acpTypes';
-import { isFluxModelId } from '@/common/config/flux';
+import { isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
@@ -1300,6 +1300,7 @@ ${collectedResponses.join('\n')}`;
     if (legacyYoloMode && this.currentMode === 'default' && !data.sessionMode) {
       const yoloModeValues: Record<string, string> = {
         claude: 'bypassPermissions',
+        fuigo: 'bypassPermissions',
         qwen: 'yolo',
         codex: 'yolo',
       };
@@ -2564,8 +2565,11 @@ ${collectedResponses.join('\n')}`;
     // Claude is excluded — its pick is a cc-switch / native slot that is
     // normalized and persisted by respawnForRoutingChange below, and writing the
     // raw registry id here would fight that. Flux ids are carried by the spawn
-    // env and persisted by their own branch below, so they skip the early write.
-    const earlyPersistEligible = this.options.backend !== 'claude' && !isFluxModelId(modelId);
+    // env and persisted by their own branch below, so they skip the early write
+    // - except on a Flux-native engine (fuigo), where a tier is a catalog model
+    // set in place like any other and takes the durable-first path.
+    const fluxNative = isFluxNativeBackend(this.options.backend);
+    const earlyPersistEligible = this.options.backend !== 'claude' && (!isFluxModelId(modelId) || fluxNative);
     if (earlyPersistEligible) {
       this.persistedModelId = modelId;
       this.options.currentModelId = modelId;
@@ -2612,8 +2616,11 @@ ${collectedResponses.join('\n')}`;
     // Same-routing switch TO a Flux id (e.g. the chat is already flux-routed and
     // the user re-picks Flux Auto): the model is carried by the spawn env
     // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto). The claude bridge rejects an
-    // unlisted id via set_model, so persist + skip the in-place call.
-    if (isFluxModelId(modelId)) {
+    // unlisted id via set_model, so persist + skip the in-place call. A
+    // Flux-native engine (fuigo) has no spawn env for the tier - session/set_model
+    // against its own catalog is the switch - so it falls through to the
+    // in-place call below.
+    if (isFluxModelId(modelId) && !fluxNative) {
       // Switching BETWEEN Flux tiers does not cross the native<->flux boundary, so
       // the check above lets it through - but every Flux surface selects its model
       // at SPAWN time (ANTHROPIC_MODEL/OPENAI_MODEL in env; `model =` in the scoped

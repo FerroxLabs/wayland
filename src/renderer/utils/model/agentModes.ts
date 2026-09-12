@@ -37,8 +37,9 @@ export interface AgentModeOption {
  * - OpenCode: plan/build modes via ACP session/set_mode (no autopilot support)
  * - Gemini: supports default/autoEdit/autopilot (auto-approve at manager layer, not via ACP)
  * - Codex: default modes stay sandboxed; a dedicated unsafe full-auto mode disables the sandbox
- * - Wayland Nano: ACP session/set_mode with model selection via session/set_model.
- *   The agent advertises exactly one mode today (default) - see nano-protocol acp.rs.
+ * - Fuigo: Claude Code's permission-mode vocabulary over ACP session/set_mode
+ *   (default, acceptEdits, plan, auto, bypassPermissions, dontAsk). It advertises
+ *   no `modes` on session/new, so this static list IS the picker for it.
  * - Goose: mode set at startup only, not during session
  * - Cursor: agent/plan/ask modes via ACP session/set_mode (verified via `agent acp` session/new response)
  *
@@ -48,6 +49,13 @@ export interface AgentModeOption {
  */
 export const AGENT_MODES: Record<string, AgentModeOption[]> = {
   claude: [
+    { value: 'default', label: 'Default' },
+    { value: 'acceptEdits', label: 'Accept Edits', description: 'Auto-approve file edits, prompt for commands' },
+    { value: 'plan', label: 'Plan' },
+    { value: 'bypassPermissions', label: 'Autopilot' },
+    { value: 'dontAsk', label: "Don't Ask", description: 'Block all actions except pre-approved rules' },
+  ],
+  fuigo: [
     { value: 'default', label: 'Default' },
     { value: 'acceptEdits', label: 'Accept Edits', description: 'Auto-approve file edits, prompt for commands' },
     { value: 'plan', label: 'Plan' },

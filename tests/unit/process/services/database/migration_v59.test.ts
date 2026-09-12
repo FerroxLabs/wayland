@@ -105,8 +105,25 @@ describe('Migration v59 - Fuigo cutover', () => {
       presetRules: 'You are Concierge.',
       presetContext: 'You are Concierge.',
       presetAssistantId: 'concierge',
-      sessionMode: 'auto_edit',
+      sessionMode: 'acceptEdits',
     });
+  });
+
+  it("maps Core's session modes onto Fuigo's vocabulary and leaves a native Fuigo chat alone", () => {
+    insertConversation(driver, 'core-yolo', 'wcore', { workspace: '/ws', sessionMode: 'yolo' });
+    insertConversation(driver, 'core-force', 'wcore', { workspace: '/ws', sessionMode: 'force' });
+    insertConversation(driver, 'core-default', 'wcore', { workspace: '/ws', sessionMode: 'default' });
+    insertConversation(driver, 'core-nomode', 'wcore', { workspace: '/ws' });
+    insertConversation(driver, 'fuigo-plan', 'acp', { workspace: '/ws', backend: 'fuigo', sessionMode: 'plan' });
+    insertConversation(driver, 'claude-yolo', 'acp', { workspace: '/ws', backend: 'claude', sessionMode: 'yolo' });
+    runMigrations(driver, 58, 59);
+
+    expect(readConversation(driver, 'core-yolo').extra.sessionMode).toBe('bypassPermissions');
+    expect(readConversation(driver, 'core-force').extra.sessionMode).toBe('bypassPermissions');
+    expect(readConversation(driver, 'core-default').extra.sessionMode).toBe('default');
+    expect(readConversation(driver, 'core-nomode').extra).not.toHaveProperty('sessionMode');
+    expect(readConversation(driver, 'fuigo-plan').extra.sessionMode).toBe('plan');
+    expect(readConversation(driver, 'claude-yolo').extra.sessionMode).toBe('yolo');
   });
 
   it('does not overwrite an existing presetContext, and adds no presetContext when there were no rules', () => {
@@ -144,13 +161,26 @@ describe('Migration v59 - Fuigo cutover', () => {
 
     expect(readCronJob(driver, 'job-core')).toEqual({
       agentType: 'fuigo',
-      agentConfig: { backend: 'fuigo', name: 'Fuigo', mode: 'auto_edit' },
+      agentConfig: { backend: 'fuigo', name: 'Fuigo', mode: 'acceptEdits' },
     });
     expect(readCronJob(driver, 'job-claude')).toEqual({
       agentType: 'claude',
       agentConfig: { backend: 'claude', name: 'Claude' },
     });
     expect(readCronJob(driver, 'job-noconfig')).toEqual({ agentType: 'fuigo', agentConfig: null });
+  });
+
+  it("maps a Core routine's Autopilot mode onto bypassPermissions so it still runs unattended", () => {
+    insertCronJob(driver, 'job-yolo', 'wcore', { backend: 'wcore', mode: 'yolo' });
+    insertCronJob(driver, 'job-force', 'wcore', { backend: 'wcore', mode: 'force' });
+    insertCronJob(driver, 'job-default', 'wcore', { backend: 'wcore', mode: 'default' });
+    insertCronJob(driver, 'job-claude-yolo', 'claude', { backend: 'claude', mode: 'yolo' });
+    runMigrations(driver, 58, 59);
+
+    expect(readCronJob(driver, 'job-yolo').agentConfig).toEqual({ backend: 'fuigo', mode: 'bypassPermissions' });
+    expect(readCronJob(driver, 'job-force').agentConfig).toEqual({ backend: 'fuigo', mode: 'bypassPermissions' });
+    expect(readCronJob(driver, 'job-default').agentConfig).toEqual({ backend: 'fuigo', mode: 'default' });
+    expect(readCronJob(driver, 'job-claude-yolo').agentConfig).toEqual({ backend: 'claude', mode: 'yolo' });
   });
 
   it('is idempotent - a second run changes nothing', () => {

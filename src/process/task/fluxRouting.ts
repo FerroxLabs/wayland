@@ -3,7 +3,7 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  */
-import { FLUX_AUTO_MODEL, FLUX_SURFACE, isFluxModelId } from '@/common/config/flux';
+import { FLUX_AUTO_MODEL, FLUX_SURFACE, isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 
 /** Every native provider key var (OPENROUTER_API_KEY, GROQ_API_KEY, ...) -- stripped
@@ -163,6 +163,16 @@ const UNKNOWN = (): FluxRoutingResult => ({ routing: 'unknown', env: {}, stripKe
  * apply the surface to them in Phase 1) so the routing badge tells the truth.
  */
 export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
+  // Flux-native (fuigo): FluxRouter IS the engine's provider. The key travels as
+  // FUIGO_API_KEY (injected by AcpAgentManager's fuigo block, not here), and the
+  // tier is an in-place session/set_model against the catalog the engine
+  // advertises, so there is no spawn env to inject and no `fluxModelId` to pin -
+  // leaving it undefined is what keeps `needsRespawnForFluxTier` from tearing
+  // the session down for a switch the engine applies live. Reported as 'flux'
+  // unconditionally: the routing badge describes where the traffic goes, and a
+  // missing key is an auth failure, not a different route.
+  if (isFluxNativeBackend(ctx.backend)) return { routing: 'flux', env: {}, stripKeys: [] };
+
   const isOpenAi = (GENERIC_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isAnthropic = (ANTHROPIC_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isResponses = (RESPONSES_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);

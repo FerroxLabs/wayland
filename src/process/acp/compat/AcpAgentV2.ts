@@ -2,7 +2,7 @@
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMessageAcpToolCall, TMessage } from '@/common/chat/chatLib';
 import { NavigationInterceptor } from '@/common/chat/navigation';
-import { isFluxModelId } from '@/common/config/flux';
+import { isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
 import type { AcpLaunchSpec, AcpModelInfo, AcpResult, AcpSessionConfigOption } from '@/common/types/acpTypes';
 import {
   AcpErrorType,
@@ -912,8 +912,15 @@ export class AcpAgentV2 {
       // to recover from CLI-internal state loss (e.g. Claude compaction).
       // EXCEPT a Flux id: it is carried by the spawn env (ANTHROPIC_MODEL=
       // flux-auto) and pushing it through set_model makes the claude binary
-      // reject it (JSON-RPC -32601). Skip the re-assert for Flux ids (mirrors V1).
-      if (this.userModelOverride && !isFluxModelId(this.userModelOverride) && this.session) {
+      // reject it (JSON-RPC -32601). Skip the re-assert for Flux ids (mirrors V1)
+      // - unless the engine is Flux-native (fuigo), where the tier IS a catalog
+      // model and the re-assert is what keeps it pinned across the engine's own
+      // compaction/rebuild.
+      if (
+        this.userModelOverride &&
+        (!isFluxModelId(this.userModelOverride) || isFluxNativeBackend(this.agentConfig.agentBackend)) &&
+        this.session
+      ) {
         const currentModel = this.cachedModelInfo?.currentModelId;
         if (currentModel !== this.userModelOverride) {
           try {
@@ -1020,10 +1027,13 @@ export class AcpAgentV2 {
     // was honored for. When we hold an override the cached list still offers (or
     // the list is empty), report the override instead of the reverted default so
     // a codex pick sticks. Flux ids ride the spawn env and are surfaced by the
-    // renderer's flux pin, so they are intentionally not overlaid here.
+    // renderer's flux pin, so they are intentionally not overlaid here - except
+    // on a Flux-native engine (fuigo), whose catalog lists the tiers and whose
+    // pick is therefore an ordinary override like any other.
     const override = this.userModelOverride;
     const cached = this.cachedModelInfo;
-    if (override && !isFluxModelId(override) && cached && cached.currentModelId !== override) {
+    const overlayable = !isFluxModelId(override) || isFluxNativeBackend(this.agentConfig.agentBackend);
+    if (override && overlayable && cached && cached.currentModelId !== override) {
       const models = cached.availableModels ?? [];
       if (models.length === 0 || models.some((m) => m.id === override)) {
         const selected = models.find((m) => m.id === override);
@@ -1047,7 +1057,9 @@ export class AcpAgentV2 {
     // flux-auto), not by an in-place set_model. Pushing it through the bridge
     // makes the claude binary validate it against its catalog and reject it
     // (JSON-RPC -32601). Record the override and skip the call (mirrors V1).
-    if (isFluxModelId(modelId)) {
+    // A Flux-native engine (fuigo) advertises the tiers in its catalog, so for
+    // it the call below is the only thing that changes the tier that runs.
+    if (isFluxModelId(modelId) && !isFluxNativeBackend(this.agentConfig.agentBackend)) {
       return this.cachedModelInfo;
     }
     // Queue model switch notice for Claude (ACP set_model is silent, AI doesn't know)

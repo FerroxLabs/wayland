@@ -1,5 +1,5 @@
 import { getFullAutoMode, isAutoGuardedMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
-import { isFluxModelId } from '@/common/config/flux';
+import { isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
 import { assertAcpProtocolVersion, parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
 import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
@@ -377,8 +377,11 @@ export class SessionLifecycle {
       // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto), not by an in-place set_model.
       // Pushing it through session/set_model makes the claude binary validate it
       // against its native catalog and reject it (JSON-RPC -32601). Mark it as
-      // applied so it isn't re-queued, but skip the bridge call.
-      if (isFluxModelId(pending.model)) {
+      // applied so it isn't re-queued, but skip the bridge call. A Flux-native
+      // engine (fuigo) lists the tiers in its own catalog, so for it this IS the
+      // call that selects the tier - skipping it would leave every chat on the
+      // engine default (flux-auto) while the picker showed the user's pick.
+      if (isFluxModelId(pending.model) && !isFluxNativeBackend(this.host.agentConfig.agentBackend)) {
         this.host.configTracker.setCurrentModel(pending.model);
       } else {
         try {
