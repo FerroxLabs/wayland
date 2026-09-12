@@ -52,5 +52,5 @@ describe('main-process entry loads the IPC bridge module', () => {
   it('importing src/process/index.ts loads initBridge (the side-effect that registers every handler)', async () => {
     await import('@process/index');
     expect(initBridgeLoaded).toHaveBeenCalledTimes(1);
-  });
+  }, 60_000); // Imports the whole main-process graph; 9.1s on windows-2022 CI, over the 10s default.
 });
