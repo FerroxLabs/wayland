@@ -229,6 +229,10 @@ export function fuigoCompatIsolationEnv(): Record<string, string> {
   const env: Record<string, string> = {};
   for (const vendor of FUIGO_COMPAT_VENDORS)
     for (const surface of FUIGO_COMPAT_SURFACES) env[`FUIGO_${vendor}_${surface}_ENABLED`] = '0';
+  // The cross-vendor `~/.agents/skills` root is scanned unconditionally by
+  // 1.0.14/1.0.15 (every session listed the user's ~200 personal skills on top
+  // of the workspace ones); 1.0.16 gates it behind this cell (fuigo#16).
+  env.FUIGO_AGENTS_SKILLS_ENABLED = '0';
   return env;
 }
 
