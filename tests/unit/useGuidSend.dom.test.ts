@@ -320,11 +320,11 @@ describe('useGuidSend', () => {
       expect(result.current.isButtonDisabled).toBe(false);
     });
 
-    it('is true when no model is configured on a model-gated backend (wcore)', () => {
+    it('is true when no model is configured on a model-gated backend (gemini)', () => {
       const deps = makeDeps({
         input: 'hello',
-        selectedAgent: 'wcore',
-        currentEffectiveAgentInfo: { agentType: 'wcore', isAvailable: true },
+        selectedAgent: 'gemini',
+        currentEffectiveAgentInfo: { agentType: 'gemini', isAvailable: true },
         currentModel: undefined,
         isGoogleAuth: false,
       });
@@ -410,12 +410,12 @@ describe('useGuidSend', () => {
   });
 
   describe('customWorkspace flag (project vs user-picked folder)', () => {
-    // wcore create call carries extra.customWorkspace directly, so assert on it.
-    const MODEL = { useModel: 'test-model', name: 'Test', platform: 'wcore' } as unknown as TProviderWithModel;
+    // The gemini create call carries extra.customWorkspace directly, so assert on it.
+    const MODEL = { useModel: 'test-model', name: 'Test', platform: 'gemini' } as unknown as TProviderWithModel;
 
     it('does NOT flag customWorkspace when the dir is the auto-filled project workspace', async () => {
       const deps = makeDeps({
-        selectedAgent: 'wcore',
+        selectedAgent: 'gemini',
         currentModel: MODEL,
         dir: '/Docs/Wayland/Proj',
         projectId: 'p1',
@@ -427,7 +427,7 @@ describe('useGuidSend', () => {
       });
       expect(mockCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'wcore',
+          type: 'gemini',
           extra: expect.objectContaining({ customWorkspace: false, projectId: 'p1' }),
         })
       );
@@ -435,7 +435,7 @@ describe('useGuidSend', () => {
 
     it('flags customWorkspace when the user picked a folder different from the project workspace', async () => {
       const deps = makeDeps({
-        selectedAgent: 'wcore',
+        selectedAgent: 'gemini',
         currentModel: MODEL,
         dir: '/some/other/folder',
         projectId: 'p1',
@@ -454,7 +454,7 @@ describe('useGuidSend', () => {
 
     it('flags customWorkspace for a non-project chat with a chosen dir', async () => {
       const deps = makeDeps({
-        selectedAgent: 'wcore',
+        selectedAgent: 'gemini',
         currentModel: MODEL,
         dir: '/some/folder',
       });

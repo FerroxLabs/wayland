@@ -77,7 +77,7 @@ describe('usageBridge - startup race (Gemini-HIGH)', () => {
     // Renderer fires the cold-boot foreground event (and a couple more)
     // before the logger has been initialised.
     await providerCallback!({ eventType: 'guid.foreground' });
-    await providerCallback!({ eventType: 'guid.cli_selected', cliBackend: 'wcore' });
+    await providerCallback!({ eventType: 'guid.cli_selected', cliBackend: 'fuigo' });
     await providerCallback!({ eventType: 'launchpad.card_clicked', anchorId: 'cowork' });
 
     const { logger, recorded } = makeLogger();
@@ -93,7 +93,7 @@ describe('usageBridge - startup race (Gemini-HIGH)', () => {
       'guid.cli_selected',
       'launchpad.card_clicked',
     ]);
-    expect(recorded[1].cliBackend).toBe('wcore');
+    expect(recorded[1].cliBackend).toBe('fuigo');
     expect(recorded[2].anchorId).toBe('cowork');
   });
 

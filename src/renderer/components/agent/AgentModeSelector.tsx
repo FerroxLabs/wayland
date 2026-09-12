@@ -148,13 +148,9 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   const validInitialMode = initialMode && modes.some((m) => m.value === initialMode) ? initialMode : defaultMode;
   const [currentMode, setCurrentMode] = useState<string>(validInitialMode);
   const [isLoading, setIsLoading] = useState(false);
-  const pendingSwitch = useRef(false);
   const modeChangeEpoch = useRef(0);
-  const confirmedModeConversation = useRef<string | null>(null);
   useEffect(() => {
     modeChangeEpoch.current += 1;
-    pendingSwitch.current = false;
-    confirmedModeConversation.current = null;
     setIsLoading(false);
     return () => {
       modeChangeEpoch.current += 1;
@@ -174,12 +170,11 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   // Validate against available modes to handle backends with non-standard default
   // (e.g. opencode uses 'build' instead of 'default').
   useEffect(() => {
-    if (backend === 'wcore' && conversationId && confirmedModeConversation.current === conversationId) return;
     if (initialMode !== undefined) {
       const valid = modes.some((m) => m.value === initialMode) ? initialMode : defaultMode;
       setCurrentMode(valid);
     }
-  }, [initialMode, modes, defaultMode, conversationId, backend]);
+  }, [initialMode, modes, defaultMode]);
 
   // Sync mode from backend when mounting or switching conversation tabs
   useEffect(() => {
@@ -199,37 +194,16 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
             result.data?.initialized !== false &&
             result.data
           ) {
-            if (backend === 'wcore') confirmedModeConversation.current = conversationId;
             setCurrentMode(result.data.mode);
           }
         })
         .catch(() => {});
     };
     refresh();
-    const unsubscribe =
-      backend === 'wcore'
-        ? ipcBridge.conversation.responseStream.on((event) => {
-            if (
-              event.conversation_id !== conversationId ||
-              !['set_mode_refused', 'config_changed', 'execution_policy'].includes(event.type)
-            )
-              return;
-            refresh();
-            if (event.type === 'set_mode_refused' && !pendingSwitch.current) {
-              Message.warning(
-                t('agentMode.coreModeRefused', {
-                  defaultValue:
-                    'Core kept the current approval mode. Automatic approval requires permission when Core starts; this refusal does not disable tools.',
-                })
-              );
-            }
-          })
-        : undefined;
     return () => {
       cancelled = true;
-      unsubscribe?.();
     };
-  }, [conversationId, canSwitchMode, backend, t]);
+  }, [conversationId, canSwitchMode]);
 
   const handleModeChange = useCallback(
     async (mode: string) => {
@@ -249,7 +223,6 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
       if (!conversationId) return;
 
       setIsLoading(true);
-      pendingSwitch.current = true;
       const epoch = modeChangeEpoch.current;
       try {
         const result = await ipcBridge.acpConversation.setMode.invoke({
@@ -259,19 +232,11 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
 
         if (epoch !== modeChangeEpoch.current) return;
         if (result.success) {
-          if (backend === 'wcore') confirmedModeConversation.current = conversationId;
           setCurrentMode(result.data?.mode ?? mode);
           onModeChanged?.(result.data?.mode ?? mode);
           Message.success('Mode switched');
         } else {
-          if (backend === 'wcore' && result.data?.mode) setCurrentMode(result.data.mode);
-          const errorMsg =
-            result.data?.refusalCode === 'local_opt_in_required'
-              ? t('agentMode.coreModeRefused', {
-                  defaultValue:
-                    'Core kept the current approval mode. Automatic approval requires permission when Core starts; this refusal does not disable tools.',
-                })
-              : result.msg || 'Switch failed';
+          const errorMsg = result.msg || 'Switch failed';
           console.warn('[AgentModeSelector] Mode switch failed:', errorMsg);
           Message.warning(errorMsg);
         }
@@ -281,12 +246,11 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
         Message.error('Switch failed');
       } finally {
         if (epoch === modeChangeEpoch.current) {
-          pendingSwitch.current = false;
           setIsLoading(false);
         }
       }
     },
-    [conversationId, currentMode, onModeSelect, backend, onModeChanged, t]
+    [conversationId, currentMode, onModeSelect, onModeChanged]
   );
 
   const renderLogo = () => (

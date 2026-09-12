@@ -10,8 +10,10 @@ Section 4(a) is met by the included licence text (`notices/Apache-2.0.txt`), whi
 copy of the Apache License, Version 2.0.
 
 Of the Apache-2.0 upstreams below, OfficeCLI distributes a NOTICE file; its attribution notices
-are reproduced verbatim in `notices/OfficeCLI-NOTICE.txt`. AionUi, aionrs and Gemini CLI do not
-distribute one, so Section 4(d) imposes no further obligation in respect of those three.
+are reproduced verbatim in `notices/OfficeCLI-NOTICE.txt`. Fuigo distributes its own NOTICE and
+third-party notices, which ship inside the app next to the engine binary (see the Fuigo entry
+below). AionUi and Gemini CLI do not distribute one, so Section 4(d) imposes no further
+obligation in respect of those two.
 
 Restoration of upstream per-file copyright notices under Section 4(c), and of the changed-file
 notices required by Section 4(b), is in progress and is not yet complete. This file records the
@@ -43,21 +45,20 @@ currently complete.
   establishing which of those are Ferrox Labs originals and which require the upstream notice
   restored is part of the attribution work described above.
 
-## Wayland-Core (fork of aionrs)
+## Fuigo (fork of Grok Build)
 
-- **Project:** Wayland-Core, a Ferrox Labs maintained fork of aionrs
-- **Upstream source:** https://github.com/iOfficeAI/aionrs
+- **Project:** Fuigo, a Ferrox Labs maintained fork of Grok Build, xAI's command-line coding agent
+- **Upstream source:** https://github.com/xai-org/grok-build
+- **Upstream revision:** `bb7f39d5858cbf5e00de639367f59debbdcb0138`
 - **License:** Apache License, Version 2.0
-- **Copyright:** Copyright 2025 aionrs contributors (upstream); modifications and all
-  subsequently added crates Copyright 2026 Ferrox Labs
-- **Use in Wayland:** Wayland bundles Wayland-Core as its Rust engine. Wayland-Core began as a
-  fork of aionrs and the workspace has since grown well beyond it; most of its crates are
-  Ferrox Labs originals with no upstream counterpart.
-- **Modifications:** Per Apache-2.0 Section 4(b), the upstream aionrs source has been
-  substantively modified by Ferrox Labs, including renamed workspace crates, a renamed
-  compiled binary, renamed configuration files and directories, and new environment
-  variables and template tokens that retain the upstream forms as backward-compatible
-  aliases.
+- **Copyright:** Copyright 2023-2026 SpaceXAI (upstream); modifications Copyright 2026 Ferrox Labs
+- **Use in Wayland:** Wayland bundles Fuigo as its engine, staged per target from the published
+  npm release (`fuigo`) by `scripts/fuigo/prepare.cjs` into `Resources/bundled-fuigo/<runtime>/`.
+- **Notices:** Fuigo's own `LICENSE`, `NOTICE` (its Apache-2.0 Section 4(b) statement of
+  modification) and `THIRD_PARTY_NOTICES` (the notices of the projects Fuigo itself ports and
+  bundles) are copied verbatim from the release tarball into
+  `Resources/bundled-fuigo/<runtime>/notices/` by the same staging step, so every packaged
+  build carries the notices for the exact engine build it ships.
 
 ## OpenClaw
 

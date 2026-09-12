@@ -23,11 +23,12 @@ const root = process.cwd();
 const bridgeRoot = path.join(root, 'src/process/channels/whatsapp-bridge');
 const rootRequire = createRequire(path.join(root, 'package.json'));
 const bridgeRequire = createRequire(path.join(bridgeRoot, 'package.json'));
-const nycRequire = createRequire(rootRequire.resolve('@istanbuljs/load-nyc-config/package.json'));
+// 2026-09-12: the `js-yaml` override lifts every consumer - including the 3.x
+// range under @istanbuljs/load-nyc-config, which only babel-plugin-istanbul
+// reaches - onto the root 4.3.2 copy, so there are two parser copies, not three.
 const copies = [
-  { name: 'root v4', require: rootRequire, version: '4.3.1' },
-  { name: 'load-nyc-config v3', require: nycRequire, version: '3.15.1' },
-  { name: 'external bridge v4', require: bridgeRequire, version: '4.3.1' },
+  { name: 'root v4', require: rootRequire, version: '4.3.2' },
+  { name: 'external bridge v4', require: bridgeRequire, version: '4.3.2' },
 ].map((copy) => ({
   ...copy,
   packagePath: copy.require.resolve('js-yaml/package.json'),
@@ -68,9 +69,7 @@ describe('installed js-yaml API-line inventory', () => {
       const range = metadata.dependencies?.['js-yaml'] ?? metadata.optionalDependencies?.['js-yaml'];
       if (!range) continue;
       const resolved = createRequire(file)('js-yaml/package.json') as Package;
-      expect(resolved.version, `${metadata.name} at ${file} requires ${range}`).toBe(
-        range.startsWith('^3.') ? '3.15.1' : '4.3.1'
-      );
+      expect(resolved.version, `${metadata.name} at ${file} requires ${range}`).toBe('4.3.2');
       consumers += 1;
     }
     expect(consumers).toBeGreaterThanOrEqual(10);
@@ -177,7 +176,10 @@ if (mode === 'omap') {
   }
   let reason = '';
   try { yaml.load(source); } catch (error) { reason = String(error.message); }
-  if (!reason.includes('maxTotalMergeKeys')) throw new Error('default merge-key bound was not enforced: ' + reason);
+  // 4.3.2 trips its merge-sequence size guard before the merge-key total for a
+  // repeated alias; either is the upstream bound doing its job.
+  if (!reason.includes('maxTotalMergeKeys') && !reason.includes('abnormal merge sequence size'))
+    throw new Error('default merge-key bound was not enforced: ' + reason);
   process.stdout.write(JSON.stringify({bounded: true, mergeLimitRejected: true}));
 }
 `;

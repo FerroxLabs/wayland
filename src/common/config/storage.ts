@@ -10,7 +10,6 @@ import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import type { HostedVoiceConsent } from '@/common/types/voiceConsent';
-import type { McpSessionState } from '@/common/mcp/sessionReceipt';
 // C1: route through wrapped buildStorage so every namespace's storage.{get,set,clear,remove}
 // wire key is recorded in the bridge allowlist. The raw `storage.buildStorage` from
 // @office-ai/platform bypasses the allowlist and causes "Bridge event not allowed"
@@ -243,11 +242,8 @@ export interface IConfigStorageRefer {
   'css.themes': ICssTheme[]; // Custom CSS themes list
   'css.activeThemeId': string; // Currently active theme ID
   'gemini.defaultModel': string | { id: string; useModel: string; accountId?: string };
-  'wcore.config'?: {
-    /** Preferred session mode for new conversations */
-    preferredMode?: string;
-  };
-  'wcore.defaultModel'?: { id: string; useModel: string; accountId?: string };
+  /** Default model for the bundled Fuigo engine. */
+  'fuigo.defaultModel'?: { id: string; useModel: string; accountId?: string };
   /**
    * SBX-02 — purpose-scoped Project localhost/toolchain grants. Fail-closed:
    * absence means every Project-scoped exception stays blocked. Shape defined by
@@ -309,6 +305,12 @@ export interface IConfigStorageRefer {
   'migration.promptsI18nAdded'?: boolean;
   /** Migration flag: split 'assistants' into presets-only + 'acp.customAgents' (user-defined customs). */
   'migration.assistantsSplitCustom'?: boolean;
+  /**
+   * Migration flag: Fuigo cutover. The retired Core engine's default-model pick
+   * was carried over to `fuigo.defaultModel` and a persisted last-selected
+   * agent naming a retired engine was re-pointed at `fuigo`.
+   */
+  'migration.fuigoCutover'?: boolean;
   /**
    * Migration flag: stale pre-#275 bundled-extension copies removed from
    * <userData>/extensions (#718). Builds before #275 copied the bundled packs
@@ -468,28 +470,6 @@ export interface IConfigStorageRefer {
    * src/common/config stays free of chat-feature deps.
    */
   'slash.customCommands'?: import('@/common/chat/slash/userCommands').UserSlashCommand[];
-  /**
-   * Wayland Core "raw engine mode" power-user toggle. When true, the embedded
-   * engine should run on its OWN `config.toml` and NOT be overridden with
-   * Desktop's per-session model / skills / overlay injection. Off by default.
-   *
-   * NOTE: this flag only PERSISTS the preference. The spawn seam in
-   * WCoreManager must read it to actually skip injection (see the
-   * `TODO(orchestrator)` marker there).
-   */
-  'wcore.rawEngineMode'?: boolean;
-  /**
-   * #468 — desktop "Output budget" preference. `auto` (default / key absent)
-   * omits `--max-tokens` and lets the engine size the budget per-model (#456) —
-   * EXCEPT reasoning models, which the engine still gives a reasoning-aware cap
-   * (and Anthropic still gets its required value); omit ≠ "no budget" there.
-   * `fixed` passes `value` (clamped to `MIN_FIXED_BUDGET`) as the per-call
-   * `--max-tokens` (via buildSpawnConfig); a `fixed` entry with no positive
-   * `value` is treated as `auto`. RuntimePane persists it; `WCoreManager` reads
-   * it at spawn to enact it. Engine `[models] output_budget` config-key parity
-   * is a separate Core seam (wayland-core #112).
-   */
-  'wcore.outputBudget'?: { mode: 'auto' | 'fixed'; value?: number };
 }
 
 export interface IEnvStorageRefer {
@@ -719,34 +699,6 @@ export type TChatConversation =
     >
   | Omit<
       IChatConversation<
-        'nanobot',
-        {
-          workspace?: string;
-          customWorkspace?: boolean;
-          /** Enabled skills list */
-          enabledSkills?: string[];
-          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
-          activeMcpServers?: string[];
-          /** Snapshot of actually loaded skills */
-          loadedSkills?: Array<{ name: string; description: string }>;
-          /** Preset assistant ID */
-          presetAssistantId?: string;
-          /** Whether this conversation is pinned */
-          pinned?: boolean;
-          /** Pin timestamp in milliseconds */
-          pinnedAt?: number;
-          /** Explicit marker for temporary health-check conversations */
-          isHealthCheck?: boolean;
-          /** Cron job ID that spawned this conversation */
-          cronJobId?: string;
-          /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
-          projectId?: string;
-        }
-      >,
-      'model'
-    >
-  | Omit<
-      IChatConversation<
         'remote',
         {
           workspace?: string;
@@ -776,47 +728,6 @@ export type TChatConversation =
         }
       >,
       'model'
-    >
-  // Wayland-Core engine conversation variant.
-  | IChatConversation<
-      'wcore',
-      {
-        workspace: string;
-        customWorkspace?: boolean;
-        proxy?: string;
-        /** System rules injected at initialization */
-        presetRules?: string;
-        /** Enabled skills list */
-        enabledSkills?: string[];
-        /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
-        activeMcpServers?: string[];
-        /** Named tools/failure receipts from this exact Desktop-managed Core launch. */
-        mcpSessionState?: McpSessionState;
-        /** Snapshot of actually loaded skills */
-        loadedSkills?: Array<{ name: string; description: string }>;
-        /** Preset assistant ID */
-        presetAssistantId?: string;
-        /** Whether this conversation is pinned */
-        pinned?: boolean;
-        /** Pin timestamp in milliseconds */
-        pinnedAt?: number;
-        /** Max tokens per response */
-        maxTokens?: number;
-        /** Max agentic turns */
-        maxTurns?: number;
-        /** Persisted session mode for resume support */
-        sessionMode?: string;
-        /** Explicit marker for temporary health-check conversations */
-        isHealthCheck?: boolean;
-        /** Last token usage stats */
-        lastTokenUsage?: TokenUsageData;
-        /** Cron job ID that spawned this conversation */
-        cronJobId?: string;
-        /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
-        projectId?: string;
-        /** Per-conversation reasoning effort (WCore `set_config.effort`). Absent => backend default. */
-        effort?: 'low' | 'medium' | 'high';
-      }
     >;
 
 export type IChatConversationRefer = {

@@ -21,7 +21,7 @@ Code is written, unit-green, AND now adversarially cross-audited end-to-end. But
 
 **What still makes it ~80%, not done:**
 
-- **Nothing live-verified in a running app.** No real "what can you do?" turn, no real `[CONCIERGE_PROPOSE]` → card → apply, no packaged diag-subprocess spawn. Local harness can't run wcore agent turns (memory `local-harness-cannot-run-wcore-tasks`) → route to **Overwatch/Windows**.
+- **Nothing live-verified in a running app.** No real "what can you do?" turn, no real `[CONCIERGE_PROPOSE]` → card → apply, no packaged diag-subprocess spawn. Local harness can't run engine agent turns → route to **Overwatch/Windows**.
 - **Open fast-follows** (flagged in PR #439): diag persona-gating + 3 low redaction refinements (SEC-1/SEC-2/NR-1); residual coverage (initStorage seed path, Gemini/ACP-native wiring tests).
 - **2b medium polish** still open: Edit affordance is dropped (bridge supports `action:'edit'`, card doesn't offer it — dead branch or implement); parseError card path is still unreachable (detector drops bad-value blocks rather than carding them).
 
@@ -44,7 +44,7 @@ Code is written, unit-green, AND now adversarially cross-audited end-to-end. But
 The 2b cross-audit is DONE and its critical is FIXED+pushed (see §1). Remaining work, in order:
 
 1. **LIVE-VERIFY (Overwatch is driving this).** This is the only thing between ~80% and done; the local
-   harness can't run wcore agent turns, so it MUST be a real app:
+   harness can't run engine agent turns, so it MUST be a real app:
    - P1: "what can you do?" in a native + an ACP chat → real counts; "how do I connect a provider?" →
      correct steps + one offer. Cold-start panel renders translated text (not raw `concierge.*` keys);
      Settings default-persona toggle + panel dismiss persist.

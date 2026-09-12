@@ -17,11 +17,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { SessionLifecycle, type LifecycleHost } from '../../src/process/acp/session/SessionLifecycle';
 import { ConfigTracker } from '../../src/process/acp/session/ConfigTracker';
 
-function makeLifecycle(desiredModelId: string) {
+function makeLifecycle(desiredModelId: string, agentBackend = 'claude') {
   const configTracker = new ConfigTracker({ model: desiredModelId });
 
   const host = {
-    agentConfig: { agentBackend: 'claude' },
+    agentConfig: { agentBackend },
     configTracker,
     callbacks: { onModelUpdate: vi.fn(), onModeUpdate: vi.fn() },
   } as unknown as LifecycleHost;
@@ -56,5 +56,19 @@ describe('SessionLifecycle.reassertConfig() - Flux model guard', () => {
 
     expect(setModel).toHaveBeenCalledOnce();
     expect(setModel).toHaveBeenCalledWith('sess-1', 'opus');
+  });
+
+  // Fuigo's own catalog lists the Flux tiers and session/new defaults to
+  // flux-auto; this replay after session creation is the ONLY place the user's
+  // persisted tier reaches the live session. Skipping it here left every Fuigo
+  // chat on the engine default while the picker showed the pick.
+  it('DOES call client.setModel for a Flux model id on a Flux-native engine (fuigo)', async () => {
+    const { lifecycle, setModel, configTracker } = makeLifecycle('flux-reasoning', 'fuigo');
+
+    await lifecycle.reassertConfig();
+
+    expect(setModel).toHaveBeenCalledOnce();
+    expect(setModel).toHaveBeenCalledWith('sess-1', 'flux-reasoning');
+    expect(configTracker.getPendingChanges().model).toBeNull();
   });
 });

@@ -13,7 +13,6 @@ import type {
 } from '@agentclientprotocol/sdk';
 import { ClientSideConnection, PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
-import type { SignedWaylandNanoActivation } from '@process/agent/activation/types';
 
 // ─── Protocol-layer Params ────────────────────────────────────
 
@@ -21,7 +20,7 @@ export type CreateSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
-  /** Untrusted caller metadata; reserved Nano authority keys are always removed. */
+  /** Untrusted caller metadata, forwarded as the request `_meta`. */
   metadata?: Readonly<Record<string, unknown>>;
 };
 
@@ -30,25 +29,20 @@ export type LoadSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
-  /** Untrusted caller metadata; reserved Nano authority keys are always removed. */
+  /** Untrusted caller metadata, forwarded as the request `_meta`. */
   metadata?: Readonly<Record<string, unknown>>;
 };
 
-const RESERVED_NANO_METADATA = new Set(['waylandNanoActivation', 'waylandNanoControl']);
 const RESERVED_SESSION_METHODS = new Set(['session/new', 'session/load', 'session/cancel', 'session/pause']);
 
 /** Sole closed projection from untrusted caller metadata to final ACP session metadata. */
 export function projectSessionMetadata(
-  metadata: Readonly<Record<string, unknown>> | undefined,
-  activation?: SignedWaylandNanoActivation
+  metadata: Readonly<Record<string, unknown>> | undefined
 ): Record<string, unknown> | undefined {
   const projected: Record<string, unknown> = {};
   if (metadata && typeof metadata === 'object' && !Array.isArray(metadata)) {
-    for (const [key, value] of Object.entries(metadata)) {
-      if (!RESERVED_NANO_METADATA.has(key)) projected[key] = value;
-    }
+    Object.assign(projected, metadata);
   }
-  if (activation) projected.waylandNanoActivation = activation;
   return Object.keys(projected).length > 0 ? projected : undefined;
 }
 

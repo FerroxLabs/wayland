@@ -6,7 +6,6 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import type { WCoreWorkspacePolicy } from '../../process/agent/wcore/protocol';
 import type { IConfirmation } from '@/common/chat/chatLib';
 import type { OpenDialogOptions } from 'electron';
 // C1: wrap platform builders so each provider/emitter key is recorded in the
@@ -17,16 +16,11 @@ import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
 import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
 import type { MicPermissionStatus } from '../../process/services/macPermissions/micPermission';
 import type { DoctorReport } from '../../process/doctor/types';
-import type {
-  EngineConfigInspection,
-  EngineConfigRecoveryResult,
-} from '../../process/agent/wcore/engineConfigRecovery';
-import type { WCoreTurnRecoveryView } from '../../process/agent/wcore/protocol';
+import type { FuigoEngineStatus } from '../../process/agent/fuigo/runtime';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
-import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type {
   ArtifactForgetResult,
@@ -65,12 +59,6 @@ import type {
   UpdateDownloadResult,
   AutoUpdateStatus,
 } from '../update/updateTypes';
-import type {
-  WCoreInstallRequest,
-  WCoreInstallResult,
-  WCoreUpdateCheck,
-  WCoreUpdateProgress,
-} from '../update/wcoreUpdateTypes';
 import type {
   ChatGptOAuthResult,
   ConnectFluxResult,
@@ -293,13 +281,6 @@ export const conversation = {
   confirmMessage: buildProvider<IBridgeResponse, IConfirmMessageParams>('conversation.confirm.message'), // Generic confirm message
   responseStream: buildEmitter<IResponseMessage>('chat.response.stream'), // Receive messages (unified interface)
   turnCompleted: buildEmitter<IConversationTurnCompletedEvent>('conversation.turn.completed'),
-  /**
-   * The runaway circuit-breaker (Phase 2) stopped a turn that was looping
-   * (re-reading the same content / a command failing repeatedly). Carries the
-   * conversation + reason so the renderer can explain why it stopped.
-   */
-  runawayHalted:
-    buildEmitter<import('@process/services/runaway/RunawayMonitor').RunawayHalted>('conversation.runaway-halted'),
   listChanged: buildEmitter<IConversationListChangedEvent>('conversation.list-changed'),
   getWorkspace: buildProvider<
     IDirOrFile[],
@@ -488,22 +469,6 @@ export const autoUpdate = {
    * the renderer should surface this so users know auto-updates are disabled until next launch.
    */
   getStatus: buildProvider<{ available: boolean; error?: string }, void>('auto-update.get-status'),
-};
-
-// In-app updater for the bundled Wayland Core engine binary (HUMAN-only;
-// remote-denied in bridgeAllowlist - install downloads + stages a native binary).
-export const wcoreUpdate = {
-  /** Check GitHub releases for a newer wayland-core than the installed binary. */
-  check: buildProvider<WCoreUpdateCheck, void>('wcoreUpdate.check'),
-  /** Download, SHA-256 verify, and install a release tag into the override dir. */
-  install: buildProvider<WCoreInstallResult, WCoreInstallRequest>('wcoreUpdate.install'),
-  /** Install progress (download percent + phase) emitted by the main process. */
-  progress: buildEmitter<WCoreUpdateProgress>('wcoreUpdate.progress'),
-};
-
-export const wcoreRecovery = {
-  get: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.get'),
-  abandon: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.abandon'),
 };
 
 export const starOffice = {
@@ -1060,6 +1025,11 @@ export const acpConversation = {
   // configured" from "agent loading failed". Sibling to getAvailableAgents
   // so 10+ existing consumers of getAvailableAgents.data stay unchanged.
   getLoadErrors: buildProvider<IBridgeResponse<string[]>, void>('acp.get-load-errors'),
+  // Settings → Agents Fuigo card: receipt-verified state, receipt version and
+  // the Desktop-managed engine home. Never `--version` output.
+  getFuigoEngineStatus: buildProvider<IBridgeResponse<FuigoEngineStatus & { homeDir: string }>, void>(
+    'acp.get-fuigo-engine-status'
+  ),
   refreshCustomAgents: buildProvider<IBridgeResponse, void>('acp.refresh-custom-agents'),
   testCustomAgent: buildProvider<
     IBridgeResponse<{ step: 'cli_check' | 'acp_initialize'; error?: string }>,
@@ -1075,10 +1045,9 @@ export const acpConversation = {
     { conversationId: string; mode: string }
   >('acp.set-mode'),
   // Get current session mode for ACP agents
-  getMode: buildProvider<
-    IBridgeResponse<{ mode: string; initialized: boolean; workspacePolicy?: WCoreWorkspacePolicy | null }>,
-    { conversationId: string }
-  >('acp.get-mode'),
+  getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
+    'acp.get-mode'
+  ),
   // Get model info for ACP agents (model name and available models).
   // `backend` is optional and only consulted before a task exists, so the
   // process can derive a backend's cold-start catalog (e.g. Claude Code's
@@ -1495,33 +1464,6 @@ export const doctor = {
   copyText: buildProvider<void, { text: string }>('doctor.copy-text'),
 };
 
-/**
- * #1024 - in-app recovery for an engine `config.toml` that is not valid TOML.
- *
- * The renderer supplies NO path on any of these: the main process resolves the
- * active profile's `config.toml` itself. That is deliberate - it means there is
- * no renderer-controlled filesystem target to confine or smuggle, and `reveal`
- * can therefore point at the engine config dir (which is NOT one of
- * `pathConfinement`'s authorized roots, so the generic `show-item-in-folder`
- * channel would reject it) without widening that surface by a single byte.
- *
- * `inspect` returns the path plus LINE and COLUMN numbers and a scrubbed
- * one-line reason - never file content. See `engineConfigRecovery.ts` for why.
- *
- * The WHOLE namespace is remote-denied by PREFIX in bridgeAllowlist - three of
- * these move a credential-bearing file on the host and `inspect` discloses the
- * host's config path and posture, so a future channel added here must not be one
- * omission away from being remotely reachable.
- */
-export const engineConfigRecovery = {
-  inspect: buildProvider<EngineConfigInspection, void>('engine-config-recovery.inspect'),
-  repair: buildProvider<EngineConfigRecoveryResult, void>('engine-config-recovery.repair'),
-  // `confirmed` is carried explicitly so the destructive path cannot be reached
-  // by an empty/absent payload; the main process re-checks it (never assumed).
-  regenerate: buildProvider<EngineConfigRecoveryResult, { confirmed: boolean }>('engine-config-recovery.regenerate'),
-  reveal: buildProvider<ShellOpenResult, void>('engine-config-recovery.reveal'),
-};
-
 // Flux compatibility-layer connectors (opencode, etc.)
 export const fluxConnector = {
   opencodeStatus: buildProvider<OpencodeStatusResult, void>('flux-connector:opencode-status'),
@@ -1868,15 +1810,6 @@ export interface ICronJob {
   name: string;
   description?: string;
   enabled: boolean;
-  /**
-   * Which scheduler actually holds this job. Absent means Desktop's own
-   * `cron_jobs` table, so every existing caller and stored row is unchanged.
-   * `'engine'` rows are surfaced read-only from `<engine home>/cron/jobs.json`
-   * so a user can SEE a job the assistant scheduled through the engine's
-   * `cronjob` tool - without this they were promised a job that appeared
-   * nowhere in the UI.
-   */
-  origin?: 'desktop' | 'engine';
   schedule: ICronSchedule;
   target: {
     payload: { kind: 'message'; text: string };
@@ -1968,7 +1901,7 @@ export interface IConfirmMessageParams {
 }
 
 export interface ICreateConversationParams {
-  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'remote';
   id?: string;
   name?: string;
   model: TProviderWithModel;
@@ -2032,9 +1965,9 @@ export interface ICreateConversationParams {
      * that flag is persisted and four other subsystems read it as "temporary
      * folder" (Doctor's workspace check, the concierge diagnostics server, the
      * managed-workspace inventory, and `desc`). This one only decides whether
-     * the workspace gets its `.wayland-core/skills` laid down - which a
-     * scheduled run cannot function without, because the engine sandboxes on
-     * the workspace and a skill outside it is refused, not merely absent.
+     * the workspace gets its skills laid down - which a scheduled run cannot
+     * function without, because the engine sandboxes on the workspace and a
+     * skill outside it is refused, not merely absent.
      */
     appCreatedWorkspace?: boolean;
     /**
@@ -2045,7 +1978,7 @@ export interface ICreateConversationParams {
     sessionSkills?: string[];
     /**
      * Per-conversation reasoning effort for effort-capable backends
-     * (Codex / WCore / Claude-ACP). Persisted on the conversation and read by
+     * (Codex / Claude-ACP). Persisted on the conversation and read by
      * each backend's config builder on the next turn. Absent => backend default.
      */
     effort?: 'low' | 'medium' | 'high';
@@ -2095,8 +2028,8 @@ export interface IResponseMessage {
   conversation_id: string;
   hidden?: boolean;
   /**
-   * Identity of one ordered transcript segment within a turn. WCore keeps the
-   * turn's msg_id across prose/tool/prose boundaries, so msg_id alone cannot
+   * Identity of one ordered transcript segment within a turn. An engine may keep
+   * the turn's msg_id across prose/tool/prose boundaries, so msg_id alone cannot
    * decide whether a text delta extends an existing bubble.
    */
   segment_id?: string;
@@ -2109,8 +2042,8 @@ export interface IResponseMessage {
    * (arriving after the agent was re-woken) can't collapse the re-wake's fresh
    * dedup window. Two producers:
    *  - the real ACP signal finish carries the engine's per-turn `turn_id` (a
-   *    string uuid = the turn's `msg_id`, stamped by wayland-core on the
-   *    `Done`/`Error` terminal frames, wired through here from AcpConnection);
+   *    string uuid = the turn's `msg_id`, stamped by the engine on the
+   *    terminal frames, wired through here from AcpConnection);
    *  - the desktop-synthesized fallback finishes carry the local sequential
    *    `beginTrackedTurn()` id (a number).
    * Both are stable-per-turn and distinct-across-turns, which is all the dedup
@@ -2756,7 +2689,7 @@ export type IModelRegistryChatStartPayload = {
    * Legacy `IProvider.platform` string the main-process dispatch expects (e.g.
    * `'openai'`, `'anthropic'`, `'gemini'`, `'bedrock'`, `'gemini-with-google-auth'`).
    * Severs the chat-start dependency on the legacy `model.config` lookup without
-   * changing the wcore envBuilder / Gemini-manager signatures.
+   * changing the Gemini-manager signatures.
    */
   platform: string;
   /** The model id the user picked - written verbatim into `useModel`. */
@@ -2929,201 +2862,6 @@ export const modelRegistry = {
   // Emitted once after every successful refreshAll / manual per-provider refresh
   // so an open picker / the Models page can re-fetch curated views live.
   listChanged: buildEmitter<void>('modelRegistry.list-changed'),
-};
-
-/**
- * Presence-only view of one engine tool-backend key. The plaintext key is NEVER
- * sent to the renderer - `wcoreToolKeys.list` returns only whether a key is
- * stored for each backend.
- */
-export type IWcoreToolKeyPresence = {
-  /** Canonical tool-backend id (e.g. `brave`, `tavily`, `exa`, `firecrawl`). */
-  id: string;
-  /** Whether an encrypted key is stored for this backend. */
-  hasKey: boolean;
-};
-
-/**
- * Wayland Core tool-backend keys (web-search providers). HUMAN/RENDERER ONLY -
- * `set`/`delete` mutate credential material for the engine tool sandbox and are
- * remote-denied; `list` returns presence ONLY (never the plaintext key).
- */
-export const wcoreToolKeys = {
-  // Store (insert or replace) the encrypted key for a tool backend.
-  set: buildProvider<{ ok: boolean }, { id: string; key: string }>('wcoreToolKeys.set'),
-  // Presence-only metadata for every supported tool backend (never the key).
-  list: buildProvider<IWcoreToolKeyPresence[], void>('wcoreToolKeys.list'),
-  // Remove a stored tool-backend key.
-  delete: buildProvider<{ ok: boolean }, { id: string }>('wcoreToolKeys.delete'),
-};
-
-/**
- * Wayland Core engine `config.toml` sections (tools / security / memory /
- * profiles, ...). HUMAN/RENDERER ONLY - `patchField` mutates a closed subset of
- * the engine's security-load-bearing runtime config. It is remote-denied in
- * `bridgeAllowlist.ts` and must NEVER be
- * exposed to the agent/engine tool surface: an agent that could call it could
- * rewrite its own allow-list and escape the sandbox (SEC-6).
- *
- * The patcher always targets the active profile's real `config.toml` (no
- * caller-supplied path) and honours the engine's config invariants (atomic,
- * lossless, single-flight) via `configBridge.mutateConfig`.
- */
-export const wcoreConfig = {
-  // Read one top-level `config.toml` section (e.g. `tools`, `security`),
-  // or undefined when the section is absent.
-  getSection: buildProvider<IWcoreConfigSectionResult, { section: IWcoreReadableConfigSection }>(
-    'wcoreConfig.getSection'
-  ),
-  patchField: buildProvider<IWcoreConfigMutationResult, { patch: IWcoreConfigFieldPatch }>('wcoreConfig.patchField'),
-  /** Requested Browser policy plus explicit absence of producer-enforced evidence. */
-  getBrowserPolicy: buildProvider<IWcoreBrowserPolicyResult, void>('wcoreConfig.getBrowserPolicy'),
-  setBrowserPolicy: buildProvider<IWcoreConfigMutationResult, { policy: IWcoreBrowserPolicy }>(
-    'wcoreConfig.setBrowserPolicy'
-  ),
-  /** Exact config/profile identity currently selected for Desktop-launched Core sessions. */
-  getEffectiveRuntime: buildProvider<IWcoreEffectiveRuntimeResult, void>('wcoreConfig.getEffectiveRuntime'),
-  /** Local-only transactional raw-mode preference update. */
-  setRawEngineMode: buildProvider<{ ok: boolean; error?: string }, { enabled: boolean }>(
-    'wcoreConfig.setRawEngineMode'
-  ),
-  /** Read/write the main-process output-budget preference with explicit failure truth. */
-  getOutputBudget: buildProvider<IWcoreOutputBudgetResult, void>('wcoreConfig.getOutputBudget'),
-  setOutputBudget: buildProvider<{ ok: boolean; error?: string }, { value: OutputBudget }>(
-    'wcoreConfig.setOutputBudget'
-  ),
-  /** Local-only authoritative folder action; accepts no renderer path. */
-  openEffectiveRuntimeFolder: buildProvider<{ ok: boolean; error?: string }, { target: IWcoreRuntimeFolderTarget }>(
-    'wcoreConfig.openEffectiveRuntimeFolder'
-  ),
-};
-
-export type IWcoreRuntimeFolderTarget = 'core-config' | 'desktop-config';
-
-export type IWcoreConfigSectionResult =
-  | { ok: true; value: Record<string, unknown> | undefined }
-  | { ok: false; error: string };
-
-export type IWcoreReadableConfigSection = 'tools' | 'builtin_tools' | 'default' | 'memory';
-
-export type IWcoreConfigMutationResult = { ok: true } | { ok: false; error: string };
-
-export type IWcoreBrowserPolicy = {
-  defaultAction: 'deny' | 'allow' | 'ask';
-  allowedOrigins: string[];
-  deniedOrigins: string[];
-};
-
-export type IWcoreBrowserPolicyProjection = {
-  schemaVersion: 1;
-  coreVersion: '0.12.25';
-  /** Exact config authority inspected for this projection, even when policy is absent. */
-  source: {
-    mode: 'desktop-managed' | 'raw-engine';
-    profile: string | null;
-    engineConfigPath: string;
-    desktopConfigPath: string;
-  };
-  requested: null | {
-    policy: IWcoreBrowserPolicy;
-  };
-  /** No v0.12.25 producer receipt exists for current-session enforcement. */
-  effective: null;
-  effectiveState: 'producer-evidence-unavailable';
-  restartState: 'unknown';
-};
-
-export type IWcoreBrowserPolicyResult =
-  | { ok: true; projection: IWcoreBrowserPolicyProjection }
-  | { ok: false; error: string };
-
-/** Closed set of renderer-editable Core fields, merged atomically by main. */
-export type IWcoreConfigFieldPatch =
-  | { section: 'tools'; field: 'allow_list'; value: string[] }
-  | { section: 'builtin_tools'; field: 'script.enabled' | 'repomap.enabled'; value: boolean }
-  | { section: 'default'; field: 'approval_mode'; value: 'default' | 'auto-edit' | 'force' }
-  | { section: 'memory'; field: 'enabled'; value: boolean };
-
-export type IWcoreOutputBudgetResult = { ok: true; value: OutputBudget | undefined } | { ok: false; error: string };
-
-export type IWcoreEffectiveRuntimeResult = { ok: true; runtime: IWcoreEffectiveRuntime } | { ok: false; error: string };
-
-export type IWcoreEffectiveRuntime = {
-  mode: 'desktop-managed' | 'raw-engine';
-  /** Active Desktop profile, or null when raw mode intentionally bypasses it. */
-  profile: string | null;
-  profileApplied: boolean;
-  waylandHomeInjected: boolean;
-  desktopModelOverrideApplied: boolean;
-  desktopPromptOverlayApplied: boolean;
-  /** Policy authority for selected user connectors; observed launch is tested separately. */
-  selectedConnectorsAuthority: 'desktop' | 'core';
-  /** Launch policy: host-owned team coordination stdio is preserved in either mode. */
-  teamBridgePolicy: 'host-preserved';
-  /** Launch policy: only allowlisted Desktop tool credentials may be forwarded. */
-  toolCredentialPolicy: 'allowlisted-host-forwarding';
-  /** Protocol authority remains Desktop-owned; this is not a session health claim. */
-  hostProtocolAuthority: 'desktop';
-  engineConfigDir: string;
-  engineConfigPath: string;
-  desktopConfigDir: string;
-  desktopConfigPath: string;
-};
-
-/** A single Wayland Core profile, as listed by `wcoreProfiles.list`. */
-export type IWcoreProfile = {
-  /** Native legacy home or a producer-owned named Core profile. */
-  kind: 'native' | 'named';
-  /** Human-facing label for native, canonical lowercase directory name for named. */
-  name: string;
-  /** Whether this profile is the active one. */
-  active: boolean;
-  /**
-   * Best-effort stats read from the profile's OWN config tree. Every field is
-   * OMITTED (not zeroed) when absent - a brand-new profile legitimately has no
-   * stats yet, and we never fabricate a count.
-   */
-  /** Model declared in the profile's `[default].model` (engine config.toml). */
-  model?: string;
-  /** Number of allow-listed tools in the profile's `[tools].allow_list`. */
-  tools?: number;
-  /** Number of skills installed in the profile's `skills/` dir. */
-  skills?: number;
-  /** `config.toml` last-modified time (epoch ms), for an "updated …" chip. */
-  updatedAt?: number;
-  /**
-   * Absolute config dir the engine actually reads for this profile. The tagged
-   * native entry maps to `dirs::config_dir()/wayland-core`; named profiles map
-   * to Core's `<os-config>/wayland-core-profiles/<name>/` control plane.
-   */
-  dir?: string;
-};
-
-export type IWcoreProfileSelector = { kind: 'native' } | { kind: 'named'; name: string };
-
-export type IWcoreProfileListResult = { ok: true; profiles: IWcoreProfile[] } | { ok: false; error: string };
-
-/**
- * Wayland Core profile directories (`<os-config>/wayland-core-profiles/<name>/`). HUMAN-ONLY -
- * create/clone/delete do filesystem mutation under the profiles root with a
- * strict name sanitizer + realpath containment (SEC-4); they are remote-denied.
- */
-export const wcoreProfiles = {
-  // List all profiles (name + active flag).
-  list: buildProvider<IWcoreProfileListResult, void>('wcoreProfiles.list'),
-  // Create an empty profile directory (sanitized name).
-  create: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.create'),
-  // Clone an existing profile's config into a new one.
-  clone: buildProvider<{ ok: boolean; error?: string }, { from: IWcoreProfileSelector; to: string }>(
-    'wcoreProfiles.clone'
-  ),
-  // Activate a profile (persists the active marker). NOTE: the engine must be
-  // respawned for an active-profile switch to take effect (SEC-3).
-  activate: buildProvider<{ ok: boolean; error?: string }, { selector: IWcoreProfileSelector }>(
-    'wcoreProfiles.activate'
-  ),
-  // Soft-delete a profile (moves it to a `.trash` sibling under the root).
-  remove: buildProvider<{ ok: boolean; error?: string }, { kind: 'named'; name: string }>('wcoreProfiles.remove'),
 };
 
 // Team Mode API
@@ -3334,36 +3072,6 @@ export const workspaceRetention = {
 };
 
 /**
- * The boundary axis in Settings: "Folders this workspace may reach".
- *
- * SECURITY: every key is namespaced `workspaceFolderGrants.*` so bridgeAllowlist's
- * `workspaceFolderGrants.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket
- * peer from reaching ANY of them, and each shipped key is ALSO listed exactly in
- * REMOTE_DENIED_KEYS so narrowing that prefix later cannot silently re-open it.
- * `add` mints an AI agent standing read access to a folder outside its workspace
- * and `remove` withdraws it; `list` discloses the absolute path of every folder
- * the user has ever consented to. A WebSocket token proves a paired BROWSER, not
- * the human at the desktop window - which is the same finding that closed the
- * `confirmation.confirm` path-boundary hole (#1099). This is a LOCAL control only.
- *
- * `add` takes NO path. The renderer names a workspace; the main process opens the
- * native directory picker itself and grants what the human chose there, so there
- * is no renderer-supplied path for an XSS to substitute.
- */
-export const workspaceFolderGrants = {
-  list: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantListResult, void>(
-    'workspaceFolderGrants.list'
-  ),
-  remove: buildProvider<
-    import('@/common/workspace/folderGrantsIpc').FolderGrantRemoveResult,
-    { workspaceId: string; grantId: string }
-  >('workspaceFolderGrants.remove'),
-  add: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantPickResult, { workspaceId: string }>(
-    'workspaceFolderGrants.add'
-  ),
-};
-
-/**
  * Local-human Wayland instance transfer surface. The first shipped operation
  * is deliberately read-only: it inventories what a future encrypted transfer
  * can include and reports every blocker before an export is offered.
@@ -3404,7 +3112,7 @@ export const workflow = {
   // Launch-target params (all required; the main process must not fall back to
   // any hardcoded default - the renderer resolves the target before calling):
   //   workflow_name      - slug of the workflow skill to launch
-  //   backend            - provider type: 'claude' | 'codex' | 'gemini' | 'wcore' | 'custom' | 'remote'
+  //   backend            - provider type: 'claude' | 'codex' | 'gemini' | 'fuigo' | 'custom' | 'remote'
   //   cliPath            - absolute path to the CLI binary; undefined for non-CLI backends
   //   model              - full provider+model record from AgentRegistry/ModelCatalog
   //   agentName          - display name of the preset assistant when launching via one (or undefined)

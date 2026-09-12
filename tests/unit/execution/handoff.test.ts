@@ -10,17 +10,17 @@ import { createExecutionHandoff } from '@/common/execution';
 const identity = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 
 describe('provider handoff contract', () => {
-  it('records WCore to ACP continuity, capability delta, losses, and unresolved side effects', () => {
+  it('records Gemini to ACP continuity, capability delta, losses, and unresolved side effects', () => {
     const handoff = createExecutionHandoff({
       id: 'handoff-1',
       identity,
-      from: 'wcore',
+      from: 'gemini',
       to: 'acp',
       checkpoint: 'checkpoint-7',
       preserved: ['project', 'workspace', 'outcomes', 'receipts', 'project'],
       lost: ['backend-session', 'in-flight-plan'],
       capabilityAdded: ['native-cli-tools'],
-      capabilityRemoved: ['wcore-scheduler'],
+      capabilityRemoved: ['gemini-scheduler'],
       unresolvedSideEffects: ['email-send:unknown', 'email-send:unknown'],
       receiptId: 'receipt-handoff-1',
     });
@@ -29,12 +29,12 @@ describe('provider handoff contract', () => {
     expect(handoff.requiresFreshRun).toBe(true);
   });
 
-  it('requires a fresh run for ACP to WCore even when no side effect is unresolved', () => {
+  it('requires a fresh run for ACP to Gemini even when no side effect is unresolved', () => {
     const handoff = createExecutionHandoff({
       id: 'handoff-2',
       identity,
       from: 'acp',
-      to: 'wcore',
+      to: 'gemini',
       checkpoint: 'checkpoint-8',
       preserved: ['project', 'workspace'],
       lost: [],

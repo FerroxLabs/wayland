@@ -20,7 +20,7 @@ import { ProcessConfig } from '@process/utils/initStorage';
  * installs now.
  *
  * The busy signal is {@link cronBusyGuard}, which every agent manager
- * (WCore/ACP/Gemini/Remote/NanoBot/OpenClaw) already feeds — and because team
+ * (ACP/Gemini/Remote/OpenClaw) already feeds — and because team
  * wakes and cron runs funnel through those managers, one registry answers "is
  * anything working right now" across chat + cron + team.
  */

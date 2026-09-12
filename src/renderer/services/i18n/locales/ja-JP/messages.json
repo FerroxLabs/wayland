@@ -52,6 +52,7 @@
   "export.unavailable": "現在、会話をエクスポートできません",
   "unknownMessageType": "不明なメッセージタイプ: {{type}}",
   "permissionRequest": "権限リクエスト",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "The agent is requesting permission.",
   "command": "コマンド:",
   "chooseAction": "操作を選択してください:",
@@ -87,10 +88,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "エージェントより",
-    "preview": "プレビュー",
-    "truncated": "切り詰められました — 大きすぎるため全体を表示できません。"
   }
 }

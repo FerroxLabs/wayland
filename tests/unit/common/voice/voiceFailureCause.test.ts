@@ -10,14 +10,14 @@ import { describeVoiceFailureCause } from '@/common/voice/voiceFailureCause';
 describe('describeVoiceFailureCause', () => {
   it('leads with the first sentence and keeps the whole refusal behind it', () => {
     const raw =
-      'Agent failed to start: wcore refused to start: WARNING: [storage.credentials] backend = "plaintext" is ' +
+      'Agent failed to start: engine refused to start: WARNING: [storage.credentials] backend = "plaintext" is ' +
       'configured. Secrets are written UNENCRYPTED to /Users/owner/.wayland/credentials.toml. Remove the setting ' +
       'to use the OS keyring or the encrypted vault instead.';
 
     const cause = describeVoiceFailureCause(raw);
 
     expect(cause?.summary).toBe(
-      'Agent failed to start: wcore refused to start: WARNING: [storage.credentials] backend = "plaintext" is configured.'
+      'Agent failed to start: engine refused to start: WARNING: [storage.credentials] backend = "plaintext" is configured.'
     );
     expect(cause?.full).toBe(raw);
   });
@@ -29,9 +29,9 @@ describe('describeVoiceFailureCause', () => {
   });
 
   it('folds a newline-wrapped engine dump into one readable line', () => {
-    const cause = describeVoiceFailureCause('wcore refused to start:\n\n  backend = "plaintext"\n  is configured.');
+    const cause = describeVoiceFailureCause('engine refused to start:\n\n  backend = "plaintext"\n  is configured.');
 
-    expect(cause?.summary).toBe('wcore refused to start: backend = "plaintext" is configured.');
+    expect(cause?.summary).toBe('engine refused to start: backend = "plaintext" is configured.');
   });
 
   it('clips a run-on with no sentence break at a word boundary rather than mid-word', () => {

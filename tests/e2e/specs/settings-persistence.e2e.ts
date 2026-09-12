@@ -251,7 +251,7 @@ test.describe('Settings persistence across app restart', () => {
   });
 
   // ── Models Settings ────────────────────────────────────────────────────────
-  // `src/renderer/pages/Settings/GeminiSettings.tsx` and `WCoreSettings.tsx`
+  // `src/renderer/pages/Settings/GeminiSettings.tsx`
   // write the model.config / gemini.defaultModel keys. We pick a shape that
   // matches IProvider[] minimally so the persistence layer doesn't reject it.
   test('Models: model.config (provider list) survives restart', async () => {
@@ -386,7 +386,7 @@ test.describe('Settings persistence across app restart', () => {
         createTime: 1_700_000_000_000,
         modifyTime: 1_700_000_000_000,
         name: 'E2E persistence conversation',
-        type: 'wcore' as const,
+        type: 'acp' as const,
         model: {
           id: 'e2e-provider-1',
           platform: 'openai',
@@ -402,7 +402,7 @@ test.describe('Settings persistence across app restart', () => {
       expect(Array.isArray(actual), 'chat.history is an array').toBe(true);
       const arr = actual as typeof history;
       expect(arr).toHaveLength(1);
-      expect(arr[0]).toMatchObject({ id: 'e2e-conv-1', name: 'E2E persistence conversation', type: 'wcore' });
+      expect(arr[0]).toMatchObject({ id: 'e2e-conv-1', name: 'E2E persistence conversation', type: 'acp' });
       expect(arr[0]?.extra).toMatchObject({ workspace: '/tmp/e2e-workspace' });
     });
   });

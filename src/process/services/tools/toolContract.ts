@@ -23,7 +23,7 @@ import type { McpSessionState } from '@/common/mcp/sessionReceipt';
  *
  * Relevance ranking + the provider tool-array cap are NOT done here: per the
  * #344 architecture decision (Sean ratified), Wayland Core owns smart curation
- * (BM25 + provider-aware cap, wayland-core#86/#359), so every host (CLI,
+ * (BM25 + provider-aware cap), so every host (CLI,
  * desktop, json-stream) gets identical behaviour. The dormant desktop BM25
  * selector that previously lived alongside this contract was retired under #360.
  */

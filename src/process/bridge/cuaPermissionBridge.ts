@@ -8,8 +8,8 @@
  * #466 Computer-Use macOS permission onboarding - IPC bridge.
  *
  * Exposes a non-prompting status read and a deep-link opener to the renderer
- * onboarding card. Detection here stays silent; the engine (wayland-core #114)
- * owns the actual OS permission prompt, so the two never double-fire.
+ * onboarding card. Detection here stays silent; the engine owns the actual OS
+ * permission prompt, so the two never double-fire.
  */
 
 import { ipcBridge } from '@/common';

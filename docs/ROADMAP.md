@@ -54,7 +54,7 @@ parallel branches that converged on 2026-05-17:
 
 Pre-existing minor work in the same arc: Gemini retry-noise fix (`d0f2fad1d`),
 ACP wrapper-version self-healing replay (`2af06c844` + `43c03ecf1`), DB
-migrations v30-v32 for legacy `aionrs` → `wcore` rows + stale ACP state + Gemini
+migrations v30-v32 for legacy `aionrs` engine rows + stale ACP state + Gemini
 retry-noise tip purge.
 
 ---
@@ -94,13 +94,13 @@ In-flight Wave A dispatch artifacts (M1 closeout):
 
 ## Milestone overview
 
-| ID | Tag | Theme | Status |
-|----|-----|-------|--------|
-| M1 | `v0.2.0-wayland-base` | Phase 1 channels closeout - packaged builds work | SHIPPED 2026-05-17 |
-| M2 | `v0.3.0-wayland-base` | Phase 2 channels - Email + Matrix (+ Signal if scope) | SHIPPED 2026-05-17 (Signal deferred to M2.5) |
-| M3 | `v0.4.0-wayland-base` | Gemini A2A migration + Teams Library Phase 1b/1c | PLANNED |
-| M4 | `v0.5.0-wayland-base` | Phase 3 channels (tier-3) + packaging hardening | PLANNED |
-| M5 | `v0.6.0-wayland-base` | Productization - sync, multi-device, plugin marketplace MVP | VISION |
+| ID  | Tag                   | Theme                                                       | Status                                       |
+| --- | --------------------- | ----------------------------------------------------------- | -------------------------------------------- |
+| M1  | `v0.2.0-wayland-base` | Phase 1 channels closeout - packaged builds work            | SHIPPED 2026-05-17                           |
+| M2  | `v0.3.0-wayland-base` | Phase 2 channels - Email + Matrix (+ Signal if scope)       | SHIPPED 2026-05-17 (Signal deferred to M2.5) |
+| M3  | `v0.4.0-wayland-base` | Gemini A2A migration + Teams Library Phase 1b/1c            | PLANNED                                      |
+| M4  | `v0.5.0-wayland-base` | Phase 3 channels (tier-3) + packaging hardening             | PLANNED                                      |
+| M5  | `v0.6.0-wayland-base` | Productization - sync, multi-device, plugin marketplace MVP | VISION                                       |
 
 No calendar dates. Dependencies and dispatch graph order, per the
 `feedback-no-week-months-pacing` principle in project memory.
@@ -140,7 +140,7 @@ identically in a packaged production build, not just dev. Cut the mainline
   the engine roadmap), verify `gh release view v0.2.0-wayland-base` asset count
   matches the release matrix before declaring shipped. The app's release flow
   is electron-builder for macOS / Windows / Linux; smoke = each artifact opens
-  + the four Tier 1 channels round-trip a test message.
+  - the four Tier 1 channels round-trip a test message.
 
 ### Dependencies
 
@@ -285,10 +285,10 @@ entries.
   - Gate: `wc -l ~/dev/waylandteams/contributes/assistants.json` shows ≥ 13
     entries (was 4 at pause). If still 4, Teams scope slips to M4.
   - Implement the `/teams` sidebar route + `teamPresets` contribution point
-    + Connection Card pattern. v3 mockup at
-    `~/dev/wayland/app/.planning/brainstorm/teams-library-mockup.html` is the
-    visual spec. Build the v4 mockup against the full 13 entries first; ship
-    code against v4.
+    - Connection Card pattern. v3 mockup at
+      `~/dev/wayland/app/.planning/brainstorm/teams-library-mockup.html` is the
+      visual spec. Build the v4 mockup against the full 13 entries first; ship
+      code against v4.
   - First-class extension manifest schema for `teamPresets` so future
     third-party assistant bundles can register through the same path.
 
@@ -372,7 +372,7 @@ deletion that M3's Gemini A2A migration unblocked.
   - `src/process/task/GeminiAgentManager.ts`
   - `@office-ai/aioncli-core` from `package.json`
   - Codemod ~20 import sites - most are `import { AuthType } from
-    '@office-ai/aioncli-core'`. Replace with a local `AuthType` enum in
+'@office-ai/aioncli-core'`. Replace with a local `AuthType` enum in
     `src/common/types/auth.ts`.
   - Bundle size verification confirms ~7.7 MB saved.
 
@@ -397,8 +397,8 @@ deletion that M3's Gemini A2A migration unblocked.
   with the X DMs entry showing a "Premium API required - $200/mo" gated
   state per memory.
 - ≥ 28 of 33 actually round-trip a test message; the remaining ≤ 5 (X DMs
-  + any that hit provider provisioning lead time) document the blocker in
-  their ConfigForm.
+  - any that hit provider provisioning lead time) document the blocker in
+    their ConfigForm.
 - Packaged builds on all three platforms install with zero security prompts
   beyond the standard "first-run open from unknown developer" macOS dialog
   (which should NOT appear given notarization succeeded).
@@ -499,21 +499,20 @@ the v1 direction, not a commitment. Some items may move to v0.7.
 
 Items explicitly NOT on this roadmap:
 
-- **Engine work.** `~/dev/wayland/engine` (wayland-core, the Rust runtime)
-  has its own roadmap at `docs/specs/roadmap-v2.md` in that repo (engine M1
-  v0.3.0 shipped, M2 v0.3.1 shipped, M3 v0.4.0 shipped, M4 v0.5.0 shipped per
-  memory's `v0.5.0-shipped` entry). Per `feedback-repo-boundary-app-only`:
-  this CLI session works on `~/dev/wayland/app` only.
+- **Engine work.** Fuigo (the bundled Rust engine, Apache-2.0, a fork of
+  xai-org/grok-build) lives in its own repo with its own roadmap. Per
+  `feedback-repo-boundary-app-only`: this CLI session works on
+  `~/dev/wayland/app` only.
 - **Engine memory substrate** (IJFW + dream cycle + skills prioritizer +
-  embedder backends + sqlite-vec). Engine M3/M4 work; the app consumes via the
-  wcore-protocol RPC surface, doesn't implement.
+  embedder backends + sqlite-vec). Engine work; the app consumes it over ACP,
+  doesn't implement it.
 - **Engine permissions / ACL / token system.** Engine M1 (v0.3.0) work.
 - **Skills lifecycle and learning loop.** Engine territory per
   `feedback-dont-overextend-locked-decisions` - IJFW substrate locks storage
   only; GEPA evolution and Honcho user modeling are peers, not subsets, and
   they live in the engine.
 - **Wayland-Hermes, wayland-design, wayland-legacy, waylandllm, waylandskills,
-  aion.** Abandoned per `feedback-wcore-scope-discipline`. Hermes-Agent
+  aion.** Abandoned per the engine scope-discipline rule. Hermes-Agent
   remains reference-only.
 - **`aionrs` brand work.** The rebrand chain (v0.1.0 → v0.1.3) closed that.
   No further aionrs touches.
@@ -536,4 +535,3 @@ Items explicitly NOT on this roadmap:
   when first needed).
 - This file is owned by the orchestrator. Sub-agents don't touch it during
   execute-dispatches; they propose edits via the Wave dispatch handoff.
-

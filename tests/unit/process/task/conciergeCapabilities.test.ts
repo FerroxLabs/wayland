@@ -153,11 +153,11 @@ describe('resolveCapabilitiesManifest', () => {
     const out = await resolveCapabilitiesManifest({
       presetAssistantId: BUILTIN_COWORK_ASSISTANT_ID,
       userText: 'write me a poem',
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
 
     expect(out).toBe('MANIFEST_BODY');
-    expect(manifestState.options).toEqual([{ agentKey: 'wcore', includeOfficeAuthoring: true }]);
+    expect(manifestState.options).toEqual([{ agentKey: 'fuigo', includeOfficeAuthoring: true }]);
   });
 
   it('returns undefined for a non-Concierge assistant on a non-capability turn', async () => {
@@ -193,7 +193,7 @@ describe('buildTurnSkillContext capability manifest', () => {
   it('surfaces the manifest on a capability turn for a non-Concierge assistant, even with no skill hits', async () => {
     const ctx = await buildTurnSkillContext('what can you do?', {
       assistantId: 'builtin-word-creator',
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
     expect(ctx.advert).toContain('Wayland capabilities (live)');
     expect(ctx.advert).toContain('MANIFEST_BODY');
@@ -202,7 +202,7 @@ describe('buildTurnSkillContext capability manifest', () => {
   it('skips the manifest for the Concierge assistant (it rides the system prompt)', async () => {
     const ctx = await buildTurnSkillContext('what can you do?', {
       assistantId: BUILTIN_CONCIERGE_ASSISTANT_ID,
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
     expect(ctx.advert).not.toContain('MANIFEST_BODY');
     expect(manifestState.calls).toBe(0);
@@ -211,7 +211,7 @@ describe('buildTurnSkillContext capability manifest', () => {
   it('skips the turn advert for Cowork because the manifest rides its system prompt', async () => {
     const ctx = await buildTurnSkillContext('what can you do?', {
       assistantId: BUILTIN_COWORK_ASSISTANT_ID,
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
     expect(ctx.advert).not.toContain('MANIFEST_BODY');
     expect(manifestState.calls).toBe(0);
@@ -220,7 +220,7 @@ describe('buildTurnSkillContext capability manifest', () => {
   it('does not surface the manifest on a non-capability turn', async () => {
     const ctx = await buildTurnSkillContext('write me a poem about the sea', {
       assistantId: 'builtin-word-creator',
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
     expect(ctx.advert).not.toContain('MANIFEST_BODY');
   });
@@ -229,7 +229,7 @@ describe('buildTurnSkillContext capability manifest', () => {
     configState.capabilityInjection = false;
     const ctx = await buildTurnSkillContext('what can you do?', {
       assistantId: 'builtin-word-creator',
-      agentKey: 'wcore',
+      agentKey: 'fuigo',
     });
     expect(ctx.advert).not.toContain('MANIFEST_BODY');
   });

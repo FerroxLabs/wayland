@@ -10,13 +10,6 @@
  * applies over the child's environment, so a key present here is a key the
  * agent can spend.
  *
- * #1039 (money): Wayland Nano advertises every connected provider, and
- * `buildConnectedProviderEnv` used to hand it every connected provider's API
- * key. A user who connected an Anthropic key for Claude Code therefore had Nano
- * spend it, without choosing Anthropic for Nano and with nothing in the UI
- * saying so. Nano's credentials must be scoped to the provider the user
- * actually directed at it - the provider that owns the chat's selected model.
- *
  * #1027: user-level Claude Code hooks are deliberately NOT seeded into the
  * Flux-scoped CLAUDE_CONFIG_DIR (see claudeConfig.ts - a Flux turn must not run
  * the user's arbitrary hook commands). Silently dropping a policy the user
@@ -27,7 +20,6 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 const {
   mockGet,
   mockIsCliAvailable,
-  mockResolveWNanoBinary,
   mockReadConnectedFluxKey,
   mockAddMessage,
   mockMaterializeFluxClaudeConfigDir,
@@ -36,7 +28,6 @@ const {
 } = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockIsCliAvailable: vi.fn(),
-  mockResolveWNanoBinary: vi.fn(),
   mockReadConnectedFluxKey: vi.fn(),
   mockAddMessage: vi.fn(),
   mockMaterializeFluxClaudeConfigDir: vi.fn(),
@@ -50,7 +41,6 @@ const {
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp/wayland-test-userdata' } }));
 vi.mock('@process/agent/acp/AcpDetector', () => ({ acpDetector: { isCliAvailable: mockIsCliAvailable } }));
-vi.mock('@process/agent/wnano/binaryResolver', () => ({ resolveWNanoBinary: mockResolveWNanoBinary }));
 vi.mock('@process/connectors/fluxKey', () => ({ readConnectedFluxKey: mockReadConnectedFluxKey }));
 // Only the two functions that touch the real filesystem are stubbed - the
 // notice builder stays REAL, so this file asserts the sentence the user
@@ -70,15 +60,6 @@ vi.mock('@process/task/codexConfig', () => ({
   normalizeCodexSandboxMode: vi.fn(() => 'workspace-write'),
 }));
 vi.mock('@process/task/hermesConfig', () => ({ materializeFluxHermesHome: vi.fn(async () => '/tmp/hermes-home') }));
-vi.mock('@process/task/wnano', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    writeWnanoFluxKeyFile: vi.fn(async () => '/tmp/flux-key-file'),
-    cleanupWnanoFluxKeyFile: vi.fn(async () => undefined),
-    buildWnanoOAuthBearerEnv: vi.fn(async () => ({})),
-  };
-});
 vi.mock('@process/providers/storage/ProviderRepository', () => ({
   ProviderRepository: class {
     listRegistryProviders() {
@@ -187,7 +168,6 @@ describe('ACP spawn env scope', () => {
     vi.clearAllMocks();
     mockGet.mockResolvedValue(undefined);
     mockIsCliAvailable.mockReturnValue(true);
-    mockResolveWNanoBinary.mockReturnValue('/opt/wayland-nano');
     mockReadConnectedFluxKey.mockResolvedValue(undefined);
     mockMaterializeFluxClaudeConfigDir.mockResolvedValue('/tmp/flux-claude-home');
     mockReadDroppedUserHookEvents.mockResolvedValue([]);
@@ -199,34 +179,9 @@ describe('ACP spawn env scope', () => {
     repoState.catalog = { anthropic: ['claude-opus-4-8'], openai: ['gpt-5.6-terra'] };
   });
 
-  // ── #1039 ────────────────────────────────────────────────────────────────
-  it('does not hand Nano the Anthropic key when the chat is bound to an OpenAI model', async () => {
-    const env = await spawnEnv({ backend: 'wnano', currentModelId: 'openai:gpt-5.6-terra' });
-
-    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
-    expect(env.OPENAI_API_KEY).toBe('sk-openai-user-key');
-  });
-
-  it('hands Nano the Anthropic key only when the chat is bound to an Anthropic model', async () => {
-    const env = await spawnEnv({ backend: 'wnano', currentModelId: 'anthropic:claude-opus-4-8' });
-
-    expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-user-key');
-    expect(env.OPENAI_API_KEY).toBeUndefined();
-  });
-
-  it('hands Nano no third-party provider key at all when no model has been picked', async () => {
-    // The reported case: a fresh Nano chat, no explicit pick, and the user's
-    // Anthropic key silently paying for it.
-    const env = await spawnEnv({ backend: 'wnano' });
-
-    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
-    expect(env.OPENAI_API_KEY).toBeUndefined();
-  });
-
-  it('leaves every OTHER backend on the full connected-provider env', async () => {
-    // Control: the scoping is wnano-only. A claude spawn must still receive the
-    // registry key that overrides a stale shell export - delete the backend
-    // guard and this is the assertion that fails.
+  it('hands a native backend the full connected-provider env', async () => {
+    // A claude spawn must receive the registry key that overrides a stale
+    // shell export.
     const env = await spawnEnv({ backend: 'claude', currentModelId: 'claude-opus-4-8' });
 
     expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-user-key');

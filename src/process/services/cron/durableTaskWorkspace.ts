@@ -10,7 +10,7 @@
  * Recurrence implies durability. A `new_conversation` job carries no
  * `agentConfig.workspace`, so `buildConversationForJob` persists
  * `extra.workspace = ''` and `buildWorkspaceWidthFiles` mints a fresh
- * `wcore-temp-<ts>` on every fire. Run 2 therefore cannot see run 1's output,
+ * temp workspace on every fire. Run 2 therefore cannot see run 1's output,
  * which is exactly what a routine that diffs against its own history needs.
  * All 12 bundled routines are seeded in that mode.
  *
@@ -79,8 +79,8 @@ export type JobWorkspaceProblem = Readonly<{
 /**
  * P2-10: stat the job's workspace before every run and compare its identity.
  *
- * `agentConfig.workspace` is validated nowhere and `WCoreManager` has no mkdir
- * or existsSync at all, so a run against a deleted folder behaves however the
+ * `agentConfig.workspace` is validated nowhere and the agent managers have no
+ * mkdir or existsSync at all, so a run against a deleted folder behaves however the
  * engine happens to behave, and a run against a REPLACED folder writes into a
  * stranger's directory. Both matter here because the folder is the user's, in
  * their Documents, holding the reports the task exists to produce.

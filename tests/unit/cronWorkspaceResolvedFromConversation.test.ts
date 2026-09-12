@@ -12,7 +12,7 @@
  * job HAD no copy: `config.workspace || ''` turns "this job expresses no
  * opinion" into "the workspace is now empty", `workspaceChanged` fires, and the
  * run is rehomed into a brand-new conversation with `workspace: ''` - a fresh
- * `wcore-temp-<ts>` that cannot see a single previous run.
+ * `acp-temp-<ts>` that cannot see a single previous run.
  *
  * That is the exact shape of the `extra.backend` defect one field over: an
  * agentConfig synthesised by `backfillCronJobIdOnConversations` carries a
@@ -98,7 +98,7 @@ const createConversationMock = vi.fn(async (params: any) => {
   // Mirror the real factories: an empty `extra.workspace` becomes a throwaway
   // `<agent>-temp-<ts>` directory, which is exactly the failure symptom.
   const id = `conv-created-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/acp-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -106,7 +106,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    // wcore's factory whitelist drops `backend`; ConversationServiceImpl then
+    // gemini's factory whitelist drops `backend`; ConversationServiceImpl then
     // merges back only the keys the factory did not produce.
     extra: { ...params.extra, workspace },
   };
@@ -156,7 +156,7 @@ function makeExistingModeJob(agentConfig: CronJob['metadata']['agentConfig']): C
     metadata: {
       conversationId: 'conv-child',
       conversationTitle: 'Morning Brief',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'user',
       createdAt: 1000,
       updatedAt: 1000,
@@ -170,7 +170,7 @@ function makeExistingModeJob(agentConfig: CronJob['metadata']['agentConfig']): C
 function seedDurableChild(cronWorkspace: string) {
   conversationStore.set('conv-child', {
     id: 'conv-child',
-    type: 'wcore',
+    type: 'acp',
     name: 'Morning Brief - 08/19 07:00',
     createTime: 5000,
     modifyTime: 5000,
@@ -178,7 +178,7 @@ function seedDurableChild(cronWorkspace: string) {
       workspace: DURABLE_WORKSPACE,
       cronWorkspace,
       cronJobId: 'job-brief',
-      backend: 'wcore',
+      backend: 'fuigo',
     },
   });
 }
@@ -195,14 +195,14 @@ function seedDurableChild(cronWorkspace: string) {
 function seedChildMissingWorkspace(cronWorkspace: string) {
   conversationStore.set('conv-child', {
     id: 'conv-child',
-    type: 'wcore',
+    type: 'acp',
     name: 'Morning Brief - 08/18 07:00',
     createTime: 4000,
     modifyTime: 4000,
     extra: {
       cronWorkspace,
       cronJobId: 'job-brief',
-      backend: 'wcore',
+      backend: 'fuigo',
     },
   });
 }
@@ -234,7 +234,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
     seedDurableChild(DURABLE_WORKSPACE);
     // What `backfillCronJobIdOnConversations` synthesises after a restart:
     // a backend, and no workspace at all.
-    const job = makeExistingModeJob({ backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
+    const job = makeExistingModeJob({ backend: 'fuigo' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
 
     const resolved = await makeRealExecutor().prepareConversation(job);
 
@@ -245,7 +245,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
 
   it('leaves an existing conversation workspace exactly as it was', async () => {
     seedDurableChild(DURABLE_WORKSPACE);
-    const job = makeExistingModeJob({ backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
+    const job = makeExistingModeJob({ backend: 'fuigo' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
 
     await makeRealExecutor().prepareConversation(job);
 
@@ -265,7 +265,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
   it('backfills the workspace onto an older conversation from the job that names one', async () => {
     seedChildMissingWorkspace(DURABLE_WORKSPACE);
     const job = makeExistingModeJob({
-      backend: 'wcore' as CronJob['metadata']['agentType'],
+      backend: 'fuigo' as CronJob['metadata']['agentType'],
       name: 'Morning Brief',
       workspace: DURABLE_WORKSPACE,
     });
@@ -285,7 +285,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
     // backend and no workspace at all. `config.workspace || ''` used to turn
     // that non-answer into "the workspace is now empty" and persist it, which
     // makes the store and the job disagree about which one holds the truth.
-    const job = makeExistingModeJob({ backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
+    const job = makeExistingModeJob({ backend: 'fuigo' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
 
     const resolved = await makeRealExecutor().prepareConversation(job);
 
@@ -300,7 +300,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
   it('STILL rehomes when the user repoints the job at a different workspace', async () => {
     seedDurableChild(DURABLE_WORKSPACE);
     const job = makeExistingModeJob({
-      backend: 'wcore' as CronJob['metadata']['agentType'],
+      backend: 'fuigo' as CronJob['metadata']['agentType'],
       name: 'Morning Brief',
       workspace: OTHER_WORKSPACE,
     });

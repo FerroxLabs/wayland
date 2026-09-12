@@ -82,7 +82,7 @@ describe('<ConciergeConfigCard>', () => {
       <ConciergeConfigCard
         message={msg({
           kind: 'set_default_model',
-          engine: 'wcore',
+          engine: 'fuigo',
           modelId: 'm',
           useModel: 'u',
           label: 'X',

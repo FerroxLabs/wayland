@@ -26,9 +26,9 @@ import { ProviderRepository } from '@process/providers/storage/ProviderRepositor
 import { ConnectionTester } from '@process/providers/detection/ConnectionTester';
 import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
-import { detectWCore, resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
-import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
-import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
+import fuigoAuthority from '../../../scripts/fuigo/authority.json';
+import { fuigoHomeDir } from '@process/agent/fuigo/launch';
 import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { getConstitutionFsService } from '@process/services/constitution/constitutionFsService';
@@ -39,29 +39,21 @@ import { projectServiceSingleton } from '@process/services/projectServiceSinglet
 import { conversationServiceSingleton } from '@process/services/conversationServiceSingleton';
 import { defaultWorkspaceBaseDir } from '@process/services/projectWorkspace';
 import type { DoctorCheck } from './types';
-import { extractFromFile } from './fileMarker';
 
-/**
- * The contract schema digest a Core binary advertises, as embedded in its own
- * manifest. Verified against the real binary: the manifest is compact JSON, so
- * the digest appears exactly once in `"key":"value"` form. The string
- * `schema_digest` also occurs twice more as an interned Rust string-table
- * entry (`schema_digestsource_inputs_digestavailable…`), which is why the
- * pattern requires the full JSON shape rather than just the key name.
- */
-const SCHEMA_DIGEST_PATTERN = /"schema_digest"\s*:\s*"(sha256:[0-9a-f]{64})"/;
-
-/** Comfortably longer than the ~90-character match, so no boundary can split it. */
-const SCHEMA_DIGEST_LOOKBACK = 256;
 import { checkProviderConnectivity, checkModelRegistrySanity } from './checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from './checks/engineChecks';
+import {
+  checkEngineReachable,
+  checkEngineRouting,
+  checkEngineContractPin,
+  fuigoContractPinProbe,
+  fuigoEngineDetection,
+} from './checks/engineChecks';
 import { checkMcpServers } from './checks/mcpChecks';
 import { checkBackends } from './checks/backendChecks';
 import { checkWorkspaceDrift, checkWorkspaceConfigured } from './checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
+import { checkSecretStorage, checkConfigPaths } from './checks/configChecks';
 import { checkAppArchitecture } from './checks/platformChecks';
 import { checkConstitutionActive, type ConstitutionCapability } from './checks/constitutionChecks';
-import { probeEngineConfig } from './engineConfigProbe';
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from './workspaceInventory';
 import type { WorkspaceInventoryDeps } from './workspaceInventory';
 
@@ -178,27 +170,17 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'engine.reachable',
       titleKey: 'settings.doctor.checks.engineReachable',
       category: 'engine',
-      run: () => checkEngineReachable(detectWCore),
+      // The bundled Fuigo engine, verified against its bundle receipt. No
+      // `--version` spawn: the receipt carries the version.
+      run: () => checkEngineReachable(() => fuigoEngineDetection(resolveFuigoBinary())),
     },
     {
       id: 'engine.contractPin',
       titleKey: 'settings.doctor.checks.engineContractPin',
       category: 'engine',
-      run: () => {
-        // `resolveWCoreBinary`, not `detectWCore`: the latter shells out to the
-        // engine with `--version` on every call, and this check needs the PATH
-        // twice. Two redundant synchronous spawns on the main process for a
-        // string we do not use is a poor trade.
-        const binary = resolveWCoreBinary();
-        return checkEngineContractPin(
-          {
-            binaryPath: () => binary ?? undefined,
-            advertisedSchemaDigest: () =>
-              binary ? extractFromFile(binary, SCHEMA_DIGEST_PATTERN, SCHEMA_DIGEST_LOOKBACK) : Promise.resolve(null),
-          },
-          DESKTOP_CORE_V1_PIN.schemaDigest
-        );
-      },
+      // The staged bundle's version against the version the Fuigo authority
+      // file pins for this Desktop build.
+      run: () => checkEngineContractPin(fuigoContractPinProbe(resolveFuigoBinary()), fuigoAuthority.version),
     },
     {
       id: 'engine.routing',
@@ -259,7 +241,8 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'config.paths',
       titleKey: 'settings.doctor.checks.configPaths',
       category: 'config',
-      run: () => checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: nativeConfigDir }),
+      run: () =>
+        checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: () => fuigoHomeDir(app.getPath('userData')) }),
     },
     {
       // Grouped under `config` deliberately: it belongs with the other
@@ -305,17 +288,6 @@ export function buildDoctorChecks(): DoctorCheck[] {
       titleKey: 'settings.doctor.checks.secretStorage',
       category: 'config',
       run: () => checkSecretStorage(isEncryptionAvailable),
-    },
-    {
-      id: 'config.engineConfig',
-      titleKey: 'settings.doctor.checks.engineConfig',
-      category: 'config',
-      // `probeEngineConfig`, not an inline read: it is the sanitisation point
-      // for GHSA-2g2m-r86j-jg6h (the raw `smol-toml` message echoes the user's
-      // own config lines, `api_key`s included, and Doctor reports get copied
-      // into support threads), and it lives in its own Electron-free module so
-      // that boundary is reachable from a unit test.
-      run: () => checkEngineConfigIntegrity(() => probeEngineConfig()),
     },
   ];
 }

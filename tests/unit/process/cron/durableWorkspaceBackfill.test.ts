@@ -10,7 +10,7 @@
  * `durableWorkspaceMetadataForJob` is reached from exactly two places: `addJob`,
  * and the disabled-to-enabled transition in `updateJob`. A recurring task that
  * was ALREADY enabled when durable workspaces shipped passes through neither,
- * so every fire mints a fresh `wcore-temp-<ts>`, run 2 cannot see run 1, and the
+ * so every fire mints a fresh `acp-temp-<ts>`, run 2 cannot see run 1, and the
  * whole milestone is invisible to the users most likely to have a routine
  * running. Nothing in the product would ever have repaired it - the user would
  * have to toggle the task off and on again, and nothing tells them to.
@@ -81,12 +81,12 @@ function armedJob(over: Partial<CronJob> = {}): CronJob {
     metadata: {
       conversationId: '',
       conversationTitle: 'Morning Brief',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: 'Morning Brief',
         mode: 'bypassPermissions',
         configOptions: { kind: 'routine', routineId: 'weekday-morning-report', artifactSeries: 'market' },
@@ -220,7 +220,7 @@ describe('a task that was already enabled gets a durable workspace at its first 
     // opt-in that earns a folder in the user's Documents. Verified against the
     // real app, that was backwards: all twelve bundled routines seed PAUSED, so
     // pressing Run-now on a switched-off routine is the single most common way
-    // anyone first runs one - and it wrote the brief into `wcore-temp-<ts>` for
+    // anyone first runs one - and it wrote the brief into `acp-temp-<ts>` for
     // the cleaner to take, which is the exact defect this milestone exists to
     // fix. A run that is about to write a report earns the folder; `enabled`
     // was never the question.

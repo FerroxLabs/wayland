@@ -90,7 +90,7 @@ export const useGuidAgentSelection = ({
   resetAssistant,
   locationKey,
 }: UseGuidAgentSelectionOptions): GuidAgentSelectionResult => {
-  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('wcore');
+  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('fuigo');
   const [availableAgents, setAvailableAgents] = useState<AvailableAgent[]>();
   const [selectedMode, _setSelectedMode] = useState<string>('default');
   // Track whether mode was loaded from preferences to avoid overwriting during initial load
@@ -196,7 +196,7 @@ export const useGuidAgentSelection = ({
       const assistant = customAgents.find((a) => idCandidates.has(a.id));
       if (assistant) {
         return {
-          // #380: an assistant with no preset type runs on the bundled WCore
+          // #380: an assistant with no preset type runs on the bundled Fuigo
           // engine, not Gemini CLI.
           backend: resolveConfiguredPresetAgentType(assistant.presetAgentType),
           name: assistant.name,
@@ -208,7 +208,7 @@ export const useGuidAgentSelection = ({
         };
       }
       // Defensive (#380): a `custom:` key that resolves to no known record must
-      // still run on the bundled WCore engine - never fall through to a bare
+      // still run on the bundled Fuigo engine - never fall through to a bare
       // `custom` ACP backend, which dies on spawn with "No CLI path for backend
       // 'custom'". Only synthesize once a registry has actually loaded, so a
       // transient empty list during boot doesn't strip a real assistant's
@@ -277,7 +277,7 @@ export const useGuidAgentSelection = ({
     if (resetAssistant && !resetHandledRef.current) {
       resetHandledRef.current = true;
       const firstCliAgent = availableAgents.find((a) => !a.isPreset);
-      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
+      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'fuigo';
       _setSelectedAgentKey(fallbackKey);
       ConfigStorage.set('guid.lastSelectedAgent', fallbackKey).catch((error) => {
         console.error('Failed to save reset agent key:', error);
@@ -493,9 +493,6 @@ export const useGuidAgentSelection = ({
           const config = await ConfigStorage.get('gemini.config');
           preferred = config?.preferredMode;
           yoloMode = config?.yoloMode ?? false;
-        } else if (configKey === 'wcore') {
-          const config = await ConfigStorage.get('wcore.config');
-          preferred = config?.preferredMode;
         } else {
           const config = await ConfigStorage.get('acp.config');
           const backendConfig = config?.[configKey as AcpBackendAll] as Record<string, unknown> | undefined;
@@ -583,7 +580,7 @@ export const useGuidAgentSelection = ({
   // Key of the first non-preset CLI agent (used as fallback when leaving preset mode)
   const defaultAgentKey = useMemo(() => {
     const firstCliAgent = availableAgents?.find((a) => !a.isPreset);
-    return firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
+    return firstCliAgent ? getAgentKey(firstCliAgent) : 'fuigo';
   }, [availableAgents]);
 
   /**
@@ -600,7 +597,7 @@ export const useGuidAgentSelection = ({
    */
   const selectPresetAssistant = useCallback(
     (preset: { id: string; presetAgentType?: string }) => {
-      // #380: default a typeless preset onto the bundled WCore engine, not Gemini.
+      // #380: default a typeless preset onto the bundled engine (DEFAULT_PRESET_AGENT_TYPE), not Gemini.
       const backend = resolveConfiguredPresetAgentType(preset.presetAgentType) as AcpBackend;
       const key = getAgentKey({ backend, customAgentId: preset.id });
       setSelectedAgentKey(key);

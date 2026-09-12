@@ -1,8 +1,8 @@
 {
   "contract": "wayland-accepted-dependency-advisories/1.0",
-  "reviewedOn": "2026-09-04",
-  "reviewedUntil": "2026-09-18",
-  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed. 2026-09-06: Browserslist 4.28.7 and nanoid 5.1.16/3.3.18 clear all seven corresponding advisory entries; those entries were removed after consumer-relative resolution and audit confirmation. The earlier nanoid remediation versions in this historical rationale were superseded by these fixes. The review deadline for all remaining entries is unchanged. 2026-09-06: The compatible brace-expansion 2.1.4, PostCSS 8.5.18, socket.io-parser 4.2.7 and ip-address 10.3.1 cohort clears its seven High advisory entries in both dependency roots. Those entries were removed; other findings and the remaining review deadline are unchanged.",
+  "reviewedOn": "2026-09-12",
+  "reviewedUntil": "2026-11-12",
+  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed. 2026-09-06: Browserslist 4.28.7 and nanoid 5.1.16/3.3.18 clear all seven corresponding advisory entries; those entries were removed after consumer-relative resolution and audit confirmation. The earlier nanoid remediation versions in this historical rationale were superseded by these fixes. The review deadline for all remaining entries is unchanged. 2026-09-06: The compatible brace-expansion 2.1.4, PostCSS 8.5.18, socket.io-parser 4.2.7 and ip-address 10.3.1 cohort clears its seven High advisory entries in both dependency roots. Those entries were removed; other findings and the remaining review deadline are unchanged. 2026-09-12: the week's new High advisories were remediated by bumping @tiptap/* to 3.31.3, @xmldom/xmldom to 0.8.15, js-yaml to 4.3.2 (root, bridge, and an override for the electron-builder/aioncli copies; the 3.x copy under @istanbuljs/load-nyc-config moves to 4.x too - it is reached only through babel-plugin-istanbul, which the v8 coverage runner never loads), multer to 2.3.0, nodemailer to 9.1.x, sharp to 0.35.4 (root and the @huggingface/transformers copy), smol-toml to 1.8.0. sharp 1124066 no longer resolves and was removed. extract-zip 1193685 (symlink entries, GHSA-7pqw-9j4j-h8q3) has no fixed release - 2.0.1 is the latest - and joins 1139346 as accepted; extract-zip is reached only through electron-builder's tooling at build time, never in the shipped app. reviewedUntil restored to the usual two months.",
   "accepted": [
     {
       "package": "@opentelemetry/propagator-jaeger",
@@ -61,14 +61,6 @@
       "vulnerableVersions": ">=5.6.83 <6.2.108"
     },
     {
-      "package": "sharp",
-      "id": 1124066,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
-      "vulnerableVersions": "<0.35.0",
-      "note": "Root sharp is NOT reachable: no first-party source imports it, and electron-builder.yml:75-76 strips @img from app.asar (verified: the built asar contains 0 @img entries), so the shipped root copy has no native binding and cannot load libvips. The copy that DOES ship and process image bytes is src/process/channels/whatsapp-bridge, which was moved to sharp 0.35.4 / libvips 8.18.6 - above the fixed versions for all four CVEs (8.18.1 / 8.18.2 / 8.18.3). The root range stays on 0.34.x because @huggingface/transformers@4.2.0 requires sharp ^0.34.5; raising it would either break electron-builder dependency-tree traversal or nest a second sharp. Re-evaluate when transformers accepts 0.35.x."
-    },
-    {
       "package": "tar",
       "id": 1123940,
       "severity": "critical",
@@ -81,6 +73,13 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
       "vulnerableVersions": "<=7.5.17"
+    },
+    {
+      "package": "extract-zip",
+      "id": 1193685,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3",
+      "vulnerableVersions": "<=2.0.1"
     }
   ]
 }

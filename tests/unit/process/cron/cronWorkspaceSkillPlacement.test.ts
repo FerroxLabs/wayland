@@ -11,7 +11,7 @@
  * (`~/Documents/Wayland/Tasks/<name>`). `buildWorkspaceWidthFiles` infers
  * `customWorkspace = !!workspace`, so it comes out `true`, and
  * `setupWorkspaceSkills` returns early for a custom non-project workspace - the
- * folder gets no `.wayland-core/skills` at all. The engine sandboxes on the
+ * folder gets no `.wayland/skills` at all. The engine sandboxes on the
  * workspace, so the bundled scanner (which lives in the app's config dir,
  * outside every workspace) is unreachable and the run dies on
  * `Glob refused: path ... is outside sandbox root`.
@@ -19,7 +19,7 @@
  * NOTHING HERE IS HAND-BUILT. The job comes from the REAL `seedBuiltinRoutines`
  * reading the shipped `routines.json`; the extra bag comes from the REAL
  * `WorkerTaskManagerJobExecutor.buildConversationForJob`; and the conversation
- * factory is the REAL `createWCoreAgent` writing to a REAL filesystem with only
+ * factory is the REAL `createAcpAgent` writing to a REAL filesystem with only
  * the app's storage directories redirected. A hand-copied extra bag is exactly
  * the fixture shape that let `tests/unit/execution/adapters.test.ts:43-47` stay
  * green through a real bug for months.
@@ -160,13 +160,13 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const capturedParams: any[] = [];
 const conversationStore = new Map<string, any>();
 vi.mock('@process/services/conversationServiceSingleton', async () => {
-  const { createWCoreAgent } = await import('@process/utils/initAgent');
+  const { createAcpAgent } = await import('@process/utils/initAgent');
   return {
     conversationServiceSingleton: {
       getConversation: vi.fn(async (id: string) => conversationStore.get(id)),
       createConversation: vi.fn(async (params: any) => {
         capturedParams.push(params);
-        const conv: any = await createWCoreAgent(params);
+        const conv: any = await createAcpAgent(params);
         const factoryExtra = conv.extra as Record<string, unknown>;
         for (const [key, value] of Object.entries(params.extra ?? {})) {
           if (value !== undefined && !(key in factoryExtra)) factoryExtra[key] = value;
@@ -205,8 +205,10 @@ import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitte
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
 import { loadBundledRoutines, seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
-import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import type { IMcpServer } from '@/common/mcp';
+
+const ACP_CAPS = { stdio: true, http: true, sse: true } as const;
 
 const MORNING_ROUTINE_ID = 'weekday-morning-report';
 
@@ -313,7 +315,7 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
 
     await executor.prepareConversation(job);
 
-    const skillsDir = path.join(workspace, '.wayland-core', 'skills');
+    const skillsDir = path.join(workspace, '.wayland', 'skills');
     // `depends: morning-prep` in bundled-workflows/index.json. morning-prep
     // ships exactly one file, so its SKILL.md IS the whole declared skill.
     const declaredSkill = path.join(skillsDir, 'morning-prep', 'SKILL.md');
@@ -388,14 +390,14 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
       transport: { type: 'stdio', command: 'bun', args: [] },
     } as unknown as IMcpServer;
 
-    // Through the REAL selector the wcore launch profile uses.
-    const selected = buildWCoreSessionMcpServers([userServer], conv.extra.activeMcpServers);
+    // Through the REAL selector the ACP session/new path uses.
+    const selected = buildAcpSessionMcpServers([userServer], ACP_CAPS, conv.extra.activeMcpServers);
     expect(selected.map((s) => s.name)).toEqual([]);
 
     // KNOWN-POSITIVE CONTROL: the same selector, same server, with no selection
     // - which is what the cron bag sends today - DOES hand it to the engine. If
     // this ever goes red the assertion above is measuring nothing.
-    expect(buildWCoreSessionMcpServers([userServer], undefined).map((s) => s.name)).toEqual(['tvcontrol']);
+    expect(buildAcpSessionMcpServers([userServer], ACP_CAPS, undefined).map((s) => s.name)).toEqual(['tvcontrol']);
   });
 
   it('NO shipped routine names a connector, so an unattended run is granted nothing', async () => {
@@ -416,9 +418,8 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     // replaced rather than kept.
     //
     // WHY THE ANSWER IS STILL `[]`, even though the routine now genuinely wants
-    // chart access: the grant is SERVER-level, not per-tool. `toWCoreConfig`
-    // emits no tool key and the engine's curation is `off | top_k`, a ranking -
-    // so naming tvcontrol hands an unattended `{yoloMode:true}` 07:00 run its
+    // chart access: the grant is SERVER-level, not per-tool. The ACP
+    // `session/new` descriptor carries no per-tool field - so naming tvcontrol hands an unattended `{yoloMode:true}` 07:00 run its
     // WHOLE tool inventory, including `watchlist_remove_bulk`, `alert_delete`,
     // `draw_clear`, `pine_save` and `tv_launch`, against a real trading account,
     // with model behaviour as the only thing in between.
@@ -451,8 +452,8 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
   it('hands the shipped morning run NOTHING, through the REAL executor, with tvcontrol installed', async () => {
     // RETARGETED alongside the corpus assertion above, to the safety property
     // rather than the grant. Same end-to-end chain - the shipped routines.json,
-    // the real seeder, the real `buildConversationForJob`, the real wcore
-    // launch selector - and the same two installed connectors. What changed is
+    // the real seeder, the real `buildConversationForJob`, the real ACP
+    // session selector - and the same two installed connectors. What changed is
     // that the shipped routine declares none, so an unattended 07:00 run gets
     // neither of them. The grant path itself keeps its coverage in
     // `routineConnectorAllowlist.test.ts`, over a fixture declaration.
@@ -490,17 +491,20 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     const conv = conversationStore.get(conversationId);
 
     expect(conv.extra.activeMcpServers).toEqual([]);
-    const selected = buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], conv.extra.activeMcpServers);
+    const selected = buildAcpSessionMcpServers(
+      mcpConfigRef.value as IMcpServer[],
+      ACP_CAPS,
+      conv.extra.activeMcpServers
+    );
     expect(selected.map((s) => s.name)).toEqual([]);
 
     // KNOWN-POSITIVE CONTROL, and the reason the empty array above means
     // something: the SAME selector over the SAME two installed connectors, with
     // no selection - which is what a cron bag sent before this narrowing - hands
     // the engine both of them.
-    expect(buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], undefined).map((s) => s.name)).toEqual([
-      'tvcontrol',
-      'slack',
-    ]);
+    expect(
+      buildAcpSessionMcpServers(mcpConfigRef.value as IMcpServer[], ACP_CAPS, undefined).map((s) => s.name)
+    ).toEqual(['tvcontrol', 'slack']);
   });
 
   it('grants nothing to a routine that names no connector, even with tvcontrol installed', async () => {
@@ -536,7 +540,9 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
 
     expect(conv.extra.activeMcpServers).toEqual([]);
     expect(
-      buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], conv.extra.activeMcpServers).map((s) => s.name)
+      buildAcpSessionMcpServers(mcpConfigRef.value as IMcpServer[], ACP_CAPS, conv.extra.activeMcpServers).map(
+        (s) => s.name
+      )
     ).toEqual([]);
   });
 

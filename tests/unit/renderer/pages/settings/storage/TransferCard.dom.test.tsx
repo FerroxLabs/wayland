@@ -144,7 +144,7 @@ describe('TransferCard', () => {
       'Files, outputs, and receipts',
       'Cloud and WebUI state',
       'Settings and preferences',
-      'Wayland Core memory and profiles',
+      'Engine memory and state',
       'Connected agents and backends',
       'Credentials and secrets',
       'App update state',

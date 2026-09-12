@@ -18,7 +18,6 @@ const {
   inspectExecutable,
   verifyPackagedResources,
 } = require('./verify-packaged-resources.js');
-const { isSupportedWNanoTarget } = require('./prepareWaylandNano.js');
 const { isSupportedBunTarget } = require('./prepareBundledBun.js');
 
 const TAG = '[platform-package-smoke]';
@@ -1564,17 +1563,8 @@ export async function runSmoke(options, dependencies = {}) {
           candidate.resourceDir,
           '--app-executable',
           candidate.executablePath,
-          '--wcore-runtime',
-          `${options.targetPlatform}-${options.targetArch}`,
           '--officecli-runtime',
           `${options.targetPlatform}-${options.targetArch}`,
-          // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
-          // identity, so the installed-payload smoke declares it like the others. A
-          // target wayland-nano does not publish (win32-arm64) declares that instead of
-          // staying silent, and the verifier then requires the bundle to be absent.
-          ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
-            ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
-            : ['--no-wnano-runtime']),
           // bun publishes no win32-arm64 runtime, so that target bundles none.
           ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
         ],

@@ -32,17 +32,6 @@ const thinkingEvent = (): IResponseMessage => ({
   data: { content: 'weighing options', status: 'thinking' },
 });
 
-const subAgentEvent = (agentName: string, toolName: string): IResponseMessage => ({
-  type: 'sub_agent_event',
-  msg_id: 'turn1',
-  conversation_id: 'conv1',
-  data: {
-    parentCallId: `p:${agentName}`,
-    agentName,
-    inner: { type: 'tool_running', call_id: `x:${toolName}`, tool_name: toolName },
-  },
-});
-
 describe('foldConversationActivity - top-level tool activity', () => {
   it('projects the last running tool_group item into a humanized label + glyph', () => {
     const snap = foldConversationActivity(null, toolGroupEvent());
@@ -56,35 +45,6 @@ describe('foldConversationActivity - top-level tool activity', () => {
     const snap = foldConversationActivity(null, thinkingEvent());
     expect(snap!.label).toBe('Reasoning');
     expect(snap!.glyph).toBe('reasoning');
-  });
-});
-
-describe('foldConversationActivity - sub-agent tree', () => {
-  it('surfaces a spawned sub-agent with its current inner action', () => {
-    const snap = foldConversationActivity(null, subAgentEvent('researcher', 'web_search'));
-    expect(snap!.agents).toHaveLength(1);
-    expect(snap!.agents[0]).toMatchObject({
-      name: 'researcher',
-      label: 'Searching the web',
-      glyph: 'web',
-      status: 'running',
-    });
-    // Top-level label reflects the active sub-agent's real action.
-    expect(snap!.label).toBe('Searching the web');
-  });
-
-  it('tracks multiple concurrent sub-agents as distinct tree entries', () => {
-    let snap = foldConversationActivity(null, subAgentEvent('researcher', 'web_search'));
-    snap = foldConversationActivity(snap, subAgentEvent('coder', 'Read'));
-    expect(snap!.agents).toHaveLength(2);
-    expect(snap!.agents.map((a) => a.name).toSorted()).toEqual(['coder', 'researcher']);
-  });
-
-  it('updates an existing sub-agent in place when its action changes (no duplicate)', () => {
-    let snap = foldConversationActivity(null, subAgentEvent('researcher', 'web_search'));
-    snap = foldConversationActivity(snap, subAgentEvent('researcher', 'Read'));
-    expect(snap!.agents).toHaveLength(1);
-    expect(snap!.agents[0].label).toBe('Reading a file');
   });
 });
 

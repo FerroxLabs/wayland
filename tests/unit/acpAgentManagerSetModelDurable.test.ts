@@ -220,6 +220,37 @@ describe('AcpAgentManager.setModel durable persistence (codex / ACP)', () => {
     };
     expect(agent.setModelByConfigOption).not.toHaveBeenCalled();
   });
+
+  it('sends a flux tier pick in place on fuigo (Flux-native: the tier is a catalog model)', async () => {
+    const live: AcpModelInfo = {
+      currentModelId: 'flux-reasoning',
+      currentModelLabel: 'flux-reasoning',
+      availableModels: [{ id: 'flux-reasoning', label: 'flux-reasoning' }],
+      canSwitch: true,
+      source: 'models',
+    } as AcpModelInfo;
+    const manager = makeManager('fuigo', {
+      withAgent: {
+        setModelByConfigOption: vi.fn(() => Promise.resolve(live)),
+        getModelInfo: vi.fn(() => live),
+      },
+    });
+    // What resolveFluxRouting reports for fuigo: flux both before and after, so
+    // no routing-boundary respawn; the switch is in place.
+    (manager as unknown as ManagerInternals).computeFluxRouting = vi.fn().mockResolvedValue({ routing: 'flux' });
+    (manager as unknown as ManagerInternals).lastRouting = 'flux';
+
+    const out = await manager.setModel('flux-reasoning');
+
+    // Durable-first like any catalog model, then the live set_model - the only
+    // thing that changes the tier Fuigo actually runs (and Flux bills).
+    expect(persistedModelIds()).toContain('flux-reasoning');
+    const agent = (manager as unknown as ManagerInternals).agent as {
+      setModelByConfigOption: ReturnType<typeof vi.fn>;
+    };
+    expect(agent.setModelByConfigOption).toHaveBeenCalledWith('flux-reasoning');
+    expect(out?.currentModelId).toBe('flux-reasoning');
+  });
 });
 
 /**

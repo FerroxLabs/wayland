@@ -54,8 +54,7 @@ export function workbenchSectionForActivity(entry: LedgerEntry): string | undefi
   if (entry.provenance.kind === 'workflow' || entry.provenance.kind === 'schedule-run') {
     return 'projection:automation';
   }
-  if (entry.provenance.kind === 'team' || entry.provenance.kind === 'sub-agent') return 'projection:team';
-  if (entry.provenance.origin === 'core') return 'projection:core';
+  if (entry.provenance.kind === 'team') return 'projection:team';
   return 'workspace';
 }
 
@@ -188,7 +187,6 @@ function sourceLabel(source: LedgerSource): string {
     'desktop-teams': 'Desktop team',
     'desktop-workflows': 'Desktop workflow',
     scheduler: 'Schedule',
-    'core-execution': 'Wayland Core',
     approvals: 'Approval',
   };
   return labels[source];

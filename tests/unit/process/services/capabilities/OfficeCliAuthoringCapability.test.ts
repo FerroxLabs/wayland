@@ -82,8 +82,8 @@ function createInstalledFixture(prefix: string) {
 
 async function probeInstalledFixture(bundledDir: string, skillsRoot: string) {
   return probeOfficeCliAuthoringEvidence({
-    correlationId: 'capabilities:wcore',
-    backend: 'wcore',
+    correlationId: 'capabilities:acp',
+    backend: 'fuigo',
     platform: 'darwin',
     arch: 'arm64',
     bundledDir,
@@ -169,8 +169,8 @@ describe('OfficeCLI target-exact evidence producer', () => {
 
   it('does not use an arbitrary PATH executable when the bundle is absent', async () => {
     const evidence = await probeOfficeCliAuthoringEvidence({
-      correlationId: 'capabilities:wcore',
-      backend: 'wcore',
+      correlationId: 'capabilities:acp',
+      backend: 'fuigo',
       now: 1000,
       platform: 'darwin',
       arch: 'arm64',
@@ -222,8 +222,8 @@ describe('OfficeCLI target-exact evidence producer', () => {
     }
     fs.chmodSync(path.join(bundledDir, 'officecli'), 0o644);
     const evidence = await probeOfficeCliAuthoringEvidence({
-      correlationId: 'capabilities:wcore',
-      backend: 'wcore',
+      correlationId: 'capabilities:acp',
+      backend: 'fuigo',
       platform: 'darwin',
       arch: 'arm64',
       bundledDir,
@@ -375,8 +375,8 @@ describe('OfficeCLI target-exact evidence producer', () => {
         await import('@process/services/capabilities/OfficeCliAuthoringCapability');
 
       const evidence = await probeWithRace({
-        correlationId: 'capabilities:wcore',
-        backend: 'wcore',
+        correlationId: 'capabilities:acp',
+        backend: 'fuigo',
         platform: 'darwin',
         arch: 'arm64',
         bundledDir: fixture.bundledDir,
@@ -414,8 +414,8 @@ describe('OfficeCLI target-exact evidence producer', () => {
         await import('@process/services/capabilities/OfficeCliAuthoringCapability');
 
       const evidence = await probeWithRace({
-        correlationId: 'capabilities:wcore',
-        backend: 'wcore',
+        correlationId: 'capabilities:acp',
+        backend: 'fuigo',
         platform: 'darwin',
         arch: 'arm64',
         bundledDir: fixture.bundledDir,
@@ -453,8 +453,8 @@ describe('OfficeCLI target-exact evidence producer', () => {
         await import('@process/services/capabilities/OfficeCliAuthoringCapability');
 
       const evidence = await probeWithRace({
-        correlationId: 'capabilities:wcore',
-        backend: 'wcore',
+        correlationId: 'capabilities:acp',
+        backend: 'fuigo',
         platform: 'darwin',
         arch: 'arm64',
         bundledDir: fixture.bundledDir,

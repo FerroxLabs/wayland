@@ -27,8 +27,8 @@ import {
 } from '@/renderer/hooks/chat/useSendBoxDraft';
 
 const STORAGE_PREFIX = 'wayland:sendbox-draft:';
-const emptyWcoreDraft = { _type: 'wcore' as const, content: '', atPath: [], uploadFile: [] };
-const useWcoreDraft = getSendBoxDraftHook('wcore', emptyWcoreDraft);
+const emptyAcpDraft = { _type: 'acp' as const, content: '', atPath: [], uploadFile: [] };
+const useAcpDraft = getSendBoxDraftHook('acp', emptyAcpDraft);
 
 beforeEach(() => {
   // Drop any debounced writes still pending from a prior test before wiping state,
@@ -41,7 +41,7 @@ beforeEach(() => {
 describe('send-box draft persistence (#412)', () => {
   it('mirrors typed content to localStorage on mutate (write-through)', async () => {
     const id = 'conv-write-through';
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
 
     act(() => {
       result.current.mutate((prev) => ({ ...prev, content: 'half-written message' }));
@@ -49,7 +49,7 @@ describe('send-box draft persistence (#412)', () => {
     // The durable write is debounced; flush it so we can assert synchronously.
     act(() => __flushPersistedDraftWritesForTests());
 
-    const raw = localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`);
+    const raw = localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`);
     expect(raw).toBeTruthy();
     expect(JSON.parse(raw as string).content).toBe('half-written message');
   });
@@ -59,38 +59,38 @@ describe('send-box draft persistence (#412)', () => {
     // Seed storage as if a prior session had saved a draft; the in-memory Map
     // has no entry for this id (fresh session), so getDraft must read storage.
     localStorage.setItem(
-      `${STORAGE_PREFIX}wcore:${id}`,
-      JSON.stringify({ _type: 'wcore', content: 'survived the restart', atPath: [], uploadFile: [] })
+      `${STORAGE_PREFIX}acp:${id}`,
+      JSON.stringify({ _type: 'acp', content: 'survived the restart', atPath: [], uploadFile: [] })
     );
 
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
 
     await waitFor(() => expect(result.current.data?.content).toBe('survived the restart'));
   });
 
   it('clears the persisted draft once the content is emptied (e.g. after send)', async () => {
     const id = 'conv-clear';
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
 
     act(() => {
       result.current.mutate((prev) => ({ ...prev, content: 'about to send' }));
     });
     act(() => __flushPersistedDraftWritesForTests());
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeTruthy();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`)).toBeTruthy();
 
     // Emptying the draft must clear the key immediately, with no debounce window
     // in which just-sent text lingers on disk.
     act(() => {
       result.current.mutate((prev) => ({ ...prev, content: '' }));
     });
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeNull();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`)).toBeNull();
   });
 
   it('survives a full reload: typed via the hook, unmounted, in-memory wiped, then restored on remount', () => {
     const id = 'conv-reload-roundtrip';
 
     // Session 1: type through the real hook (write-through to localStorage + in-memory).
-    const session1 = renderHook(() => useWcoreDraft(id));
+    const session1 = renderHook(() => useAcpDraft(id));
     act(() => {
       session1.result.current.mutate((prev) => ({ ...prev, content: 'a half-finished thought' }));
     });
@@ -99,21 +99,21 @@ describe('send-box draft persistence (#412)', () => {
 
     // Simulate a renderer reload: the in-memory store is gone, localStorage remains.
     __clearInMemoryDraftsForTests();
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeTruthy();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`)).toBeTruthy();
 
     // Session 2 (cold in-memory): remounting the same conversation restores the text.
-    const session2 = renderHook(() => useWcoreDraft(id));
+    const session2 = renderHook(() => useAcpDraft(id));
     expect(session2.result.current.data?.content).toBe('a half-finished thought');
   });
 
   it('exposes the persisted draft synchronously so a mount-time partial update cannot clobber it', () => {
     const id = 'conv-race';
     localStorage.setItem(
-      `${STORAGE_PREFIX}wcore:${id}`,
-      JSON.stringify({ _type: 'wcore', content: 'precious unsent text', atPath: [], uploadFile: [] })
+      `${STORAGE_PREFIX}acp:${id}`,
+      JSON.stringify({ _type: 'acp', content: 'precious unsent text', atPath: [], uploadFile: [] })
     );
 
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
     // fallbackData makes the saved draft present on the FIRST render - there is
     // no undefined window where a partial update would rebuild from empty.
     expect(result.current.data?.content).toBe('precious unsent text');
@@ -124,17 +124,17 @@ describe('send-box draft persistence (#412)', () => {
       result.current.mutate((prev) => ({ ...prev, atPath: ['/some/file'] }));
     });
     act(() => __flushPersistedDraftWritesForTests());
-    expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`) as string).content).toBe(
+    expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`) as string).content).toBe(
       'precious unsent text'
     );
   });
 
   it('ignores a persisted entry whose _type does not match (schema drift guard)', async () => {
     const id = 'conv-drift';
-    localStorage.setItem(`${STORAGE_PREFIX}wcore:${id}`, JSON.stringify({ _type: 'gemini', content: 'wrong type' }));
+    localStorage.setItem(`${STORAGE_PREFIX}acp:${id}`, JSON.stringify({ _type: 'gemini', content: 'wrong type' }));
 
-    const { result } = renderHook(() => useWcoreDraft(id));
-    // Give SWR a tick; the mismatched entry must NOT surface as wcore data.
+    const { result } = renderHook(() => useAcpDraft(id));
+    // Give SWR a tick; the mismatched entry must NOT surface as acp data.
     await waitFor(() => expect(result.current.data).toBeUndefined());
   });
 });
@@ -143,7 +143,7 @@ describe('send-box draft hardening (#432)', () => {
   it('debounces the durable write: rapid keystrokes coalesce into a single setItem', () => {
     const id = 'conv-debounce';
     const setItemSpy = vi.spyOn(localStorage, 'setItem');
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
 
     // Three quick keystrokes in a row.
     act(() => result.current.mutate((prev) => ({ ...prev, content: 'a' })));
@@ -156,7 +156,7 @@ describe('send-box draft hardening (#432)', () => {
     act(() => __flushPersistedDraftWritesForTests());
     // The three keystrokes coalesced into a single durable write of the final value.
     expect(setItemSpy).toHaveBeenCalledTimes(1);
-    expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`) as string).content).toBe('abc');
+    expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`) as string).content).toBe('abc');
 
     setItemSpy.mockRestore();
   });
@@ -168,7 +168,7 @@ describe('send-box draft hardening (#432)', () => {
       throw new DOMException('exceeded the quota', 'QuotaExceededError');
     });
 
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
     // Typing never throws even though the durable write will fail - the in-memory
     // store is updated independently of localStorage.
     act(() => result.current.mutate((prev) => ({ ...prev, content: 'a very large draft' })));
@@ -185,40 +185,40 @@ describe('send-box draft hardening (#432)', () => {
     const target = 'conv-deleted';
     const other = 'conv-kept';
     localStorage.setItem(
-      `${STORAGE_PREFIX}wcore:${target}`,
-      JSON.stringify({ _type: 'wcore', content: 'gone soon', atPath: [], uploadFile: [] })
+      `${STORAGE_PREFIX}acp:${target}`,
+      JSON.stringify({ _type: 'acp', content: 'gone soon', atPath: [], uploadFile: [] })
     );
     localStorage.setItem(
       `${STORAGE_PREFIX}codex:${target}`,
       JSON.stringify({ _type: 'codex', content: 'also gone', atPath: [], uploadFile: [] })
     );
     localStorage.setItem(
-      `${STORAGE_PREFIX}wcore:${other}`,
-      JSON.stringify({ _type: 'wcore', content: 'untouched', atPath: [], uploadFile: [] })
+      `${STORAGE_PREFIX}acp:${other}`,
+      JSON.stringify({ _type: 'acp', content: 'untouched', atPath: [], uploadFile: [] })
     );
 
     clearPersistedDraftsForConversation(target);
 
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${target}`)).toBeNull();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${target}`)).toBeNull();
     expect(localStorage.getItem(`${STORAGE_PREFIX}codex:${target}`)).toBeNull();
     // An unrelated conversation's draft must survive.
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${other}`)).toBeTruthy();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${other}`)).toBeTruthy();
   });
 
   it('deleting a conversation within the debounce window does not re-persist its draft', () => {
     const id = 'conv-delete-in-window';
-    const { result } = renderHook(() => useWcoreDraft(id));
+    const { result } = renderHook(() => useAcpDraft(id));
 
     // Type a draft - the durable write is scheduled but not yet flushed, so the
     // key is not on disk for clearPersistedDraftsForConversation's scan to find.
     act(() => result.current.mutate((prev) => ({ ...prev, content: 'typed then deleted' })));
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeNull();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`)).toBeNull();
 
     // Delete the conversation while the write is still pending, then let any
     // trailing timer flush. The pending write must have been cancelled.
     clearPersistedDraftsForConversation(id);
     act(() => __flushPersistedDraftWritesForTests());
 
-    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeNull();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}acp:${id}`)).toBeNull();
   });
 });

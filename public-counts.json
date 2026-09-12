@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-09-07",
+  "measuredAt": "2026-09-12",
   "skills": 1974,
   "agentProfiles": 25,
   "skillsLibraryEntries": 2106,
@@ -7,5 +7,5 @@
   "workflowsBundled": 71,
   "workflows": 178,
   "assistants": 88,
-  "acpBackends": 19
+  "acpBackends": 18
 }

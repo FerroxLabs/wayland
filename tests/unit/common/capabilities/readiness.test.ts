@@ -17,7 +17,7 @@ const context = {
   correlationId: 'turn:1',
   platform: 'darwin',
   arch: 'arm64',
-  backend: 'wcore',
+  backend: 'acp',
   now: NOW,
 } as const;
 function evidence(overrides: Partial<CapabilityEvidence> = {}): CapabilityEvidence {
@@ -36,7 +36,7 @@ function evidence(overrides: Partial<CapabilityEvidence> = {}): CapabilityEviden
     expiresAt: NOW + 1000,
     platform: 'darwin',
     arch: 'arm64',
-    backend: 'wcore',
+    backend: 'acp',
     executionMode: 'local-binary',
     status: 'available',
     operations: OFFICECLI_CAPABILITY.operations,

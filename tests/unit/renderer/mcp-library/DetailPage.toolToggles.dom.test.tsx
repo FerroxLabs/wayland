@@ -193,7 +193,7 @@ test('the tools panel states which engines actually enforce the switches', async
 
   const notice = await screen.findByText(/enforced on/i);
   expect(notice.textContent).toContain('Codex, Gemini');
-  expect(notice.textContent).toContain('Wayland Core');
+  expect(notice.textContent).toContain('Fuigo');
   expect(notice.textContent).toMatch(/still callable there/i);
 });
 

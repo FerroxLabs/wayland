@@ -12,19 +12,13 @@
  * `WorkerTaskManagerJobExecutor` scopes every user connector OUT of it
  * (`activeMcpServers: []`). That narrowing is correct and stays the default:
  * `isServerActiveForSession` reads an ABSENT selection as "every enabled
- * server", and server-level selection is all the wcore launch path has, so
- * whatever survives reaches the engine with its FULL tool inventory (#998).
+ * server", so whatever survives reaches the engine with its FULL tool
+ * inventory (#998).
  *
- * But it leaves a routine with NO ROUTE TO ITS DATA. The scheduled run's shell
- * has no network at all — measured on the pinned v0.13.4 engine:
- *
- *     $ wayland-core sandbox exec --workspace /private/tmp/rc2-ws \
- *         'curl -sS -m 8 https://query1.finance.yahoo.com/...'
- *     curl: (6) Could not resolve host: query1.finance.yahoo.com
- *     $ ...same command on the host: http=429   <- known-positive control
- *
- * and raw-IP TCP and 127.0.0.1:9222 are refused from inside the same sandbox
- * too, so it is a whole-network deny, not a DNS one.
+ * But it leaves a routine with NO ROUTE TO ITS DATA when the engine sandbox
+ * denies the scheduled run's shell any network (measured on the retired
+ * engine: DNS, raw-IP TCP and 127.0.0.1:9222 all refused from inside the
+ * sandbox while the same command on the host got a response).
  *
  * WHAT THIS IS NOT. It is not a data route for any shipped routine, and
  * nothing shipped uses it. The host-side daily-bars prefetch that once fed the
@@ -70,15 +64,10 @@
  * check is the local half; that denial is the remote half. Neither is
  * sufficient alone.
  *
- * SERVER-LEVEL, AND SAYING SO. There is no per-tool narrowing available on
- * this path and this module does not pretend otherwise. Proven by executing
- * both production writers over the SAME server carrying
- * `allowedTools: ['quote_batch']`: the codex writer emits
- * `enabled_tools = ["quote_batch"]`, the wcore writer emits no tool key at
- * all; the engine's own `McpServerConfig` has no tool field (its tool curation
- * is `off | top_k`, a ranking, not an allowlist); and `WCoreManager` answers
- * every `approval_required` in a `yoloMode` session with `true`. So a routine
- * that names a connector gets that connector's WHOLE inventory. Name the
+ * SERVER-LEVEL, AND SAYING SO. Desktop enforces a connector's `allowedTools`
+ * subset through its filtering shim on the ACP session path, but a yolo
+ * session auto-approves every tool call, so a routine that names a connector
+ * gets that connector's WHOLE surface for unattended use. Name the
  * smallest set that does the job, and never a connector whose mutating tools
  * you would not hand an unattended process.
  */

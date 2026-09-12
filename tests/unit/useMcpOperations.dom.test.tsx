@@ -45,7 +45,7 @@ describe('useMcpOperations publication evidence', () => {
       success: true,
       data: [
         { backend: 'claude', name: 'Claude', supportedTransports: ['stdio'] },
-        { backend: 'wcore', name: 'Wayland Core', supportedTransports: ['stdio'] },
+        { backend: 'fuigo', name: 'Fuigo', supportedTransports: ['stdio'] },
       ],
     });
   });
@@ -147,7 +147,7 @@ describe('useMcpOperations publication evidence', () => {
       data: {
         results: [
           { agent: 'claude:Claude', success: true },
-          { agent: 'wcore:Wayland Core', success: true },
+          { agent: 'fuigo:Fuigo', success: true },
           { agent: 'kimi:Kimi CLI', success: false, unsupported: true, error: 'not supported for backend "kimi"' },
         ],
       },

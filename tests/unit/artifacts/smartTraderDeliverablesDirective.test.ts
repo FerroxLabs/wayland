@@ -15,18 +15,18 @@
  *
  * `smart-trader.md` carried the SAME defect in a DIFFERENT namespace and was
  * owned by the other lane, so neither lane could close it. In an interactive
- * chat there is no run, so `buildEngineSpawnEnv` selects the CHAT namespace -
- * `<workspace>/artifacts/chat/<conversationId>` - and `buildOutputDirective`
- * names exactly that directory on `--system-prompt`. The persona's own command
+ * chat there is no run, so `resolveOutputDir` selects the CHAT namespace -
+ * `<workspace>/artifacts/chat/<conversationId>` - which is the directory the
+ * turn-end sweep collects from. The persona's own command
  * block pinned `OUT="$PWD/artifacts/market"`, which resolves to
  * `<workspace>/artifacts/market`: a real, correctly-anchored, WORKSPACE-visible
  * directory that the chat this brief was produced in never collects from. The
  * brief is written, it is not hidden, and no artifact card ever appears.
  *
  * NOTHING HERE IS SPELLED BY THE TEST. The destination is read off the REAL
- * `buildEngineSpawnEnv` for a real temp workspace, the candidate is read off the
+ * `resolveOutputDir` for a real temp workspace, the candidate is read off the
  * SHIPPED markdown, and the shipped `OUT=` line is EXECUTED by bash with
- * `cwd: workspace` - the same cwd `WCoreAgent` spawns the engine with - rather
+ * `cwd: workspace` - the same cwd the engine is spawned with - rather
  * than pattern-matched. A document that takes the directory it is handed
  * computes nothing at all, and that is the passing state.
  */
@@ -37,7 +37,7 @@ import os from 'os';
 import path from 'path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { buildEngineSpawnEnv, buildOutputDirective } from '../../../src/process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '../../../src/process/services/artifacts/runOutputDir';
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
 const SMART_TRADER = path.join(REPO_ROOT, 'src/process/resources/assistant/smart-trader/smart-trader.md');
@@ -91,7 +91,7 @@ function posixBash(): string {
  * is the only shape that cannot resolve somewhere the host does not collect.
  *
  * Executed with `cwd: workspace` because that is where the engine child starts
- * (`src/process/agent/wcore/index.ts` spawns with `cwd: workspace`), which is
+ * (the engine spawns with `cwd: workspace`), which is
  * what makes `$PWD` on the first line the workspace root.
  */
 function resolvedDestination(outLine: string, workspace: string): string | null {
@@ -117,8 +117,7 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
   let workspace: string;
 
   beforeAll(() => {
-    // Realpath'd: a non-raw spawn runs under `withWCoreProjectConfigLease`,
-    // which hands `start()` the canonical workspace, so `/var/...` becomes
+    // Realpath'd: the spawn hands the agent the canonical workspace, so `/var/...` becomes
     // `/private/var/...` on macOS and the lexical spelling would compare unequal
     // to a working spawn.
     workspace = realpathSync(mkdtempSync(path.join(os.tmpdir(), 'wl-c2-ws-')));
@@ -129,11 +128,7 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
   });
 
   it('KNOWN-POSITIVE CONTROL: the predicate bites on the line that shipped', () => {
-    const chatDir = buildEngineSpawnEnv({
-      providerEnv: {},
-      workspace,
-      conversationId: CONVERSATION,
-    }).WAYLAND_OUTPUT_DIR;
+    const chatDir = resolveOutputDir(workspace, undefined, CONVERSATION);
     // The control resolves to a real, workspace-visible, correctly-anchored
     // directory - and it is still the WRONG one, which is the whole point.
     const resolved = resolvedDestination(SHIPPED_DEFECT_LINE, workspace);
@@ -142,15 +137,9 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
   });
 
   it('the chat namespace really is where a chat deliverable is collected', () => {
-    // Read off the production env builder, then off the production directive.
-    // Neither half is rebuilt by this test; the assertion is that they AGREE.
-    const chatDir = buildEngineSpawnEnv({
-      providerEnv: {},
-      workspace,
-      conversationId: CONVERSATION,
-    }).WAYLAND_OUTPUT_DIR;
+    // Read off the production resolver, never rebuilt by this test.
+    const chatDir = resolveOutputDir(workspace, undefined, CONVERSATION);
     expect(chatDir).toBe(path.join(workspace, 'artifacts', 'chat', CONVERSATION));
-    expect(buildOutputDirective(chatDir)).toContain(chatDir);
   });
 
   it('the shipped persona computes no destination of its own', () => {
@@ -160,11 +149,7 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
     // must fail rather than quietly assert nothing.
     expect(anchors.length).toBeGreaterThanOrEqual(1);
 
-    const chatDir = buildEngineSpawnEnv({
-      providerEnv: {},
-      workspace,
-      conversationId: CONVERSATION,
-    }).WAYLAND_OUTPUT_DIR;
+    const chatDir = resolveOutputDir(workspace, undefined, CONVERSATION);
 
     const offenders: string[] = [];
     for (const anchor of anchors) {

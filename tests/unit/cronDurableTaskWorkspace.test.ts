@@ -9,7 +9,7 @@
  * `new_conversation` jobs (the Create-Task dialog's second mode, and all 12
  * bundled routines) carry no `agentConfig.workspace`, so `buildConversationForJob`
  * persists `workspace: ''` and `buildWorkspaceWidthFiles` mints a brand new
- * `wcore-temp-<ts>` for run 2 that cannot see run 1's output. The Morning Brief
+ * `acp-temp-<ts>` for run 2 that cannot see run 1's output. The Morning Brief
  * has never once seen yesterday's brief.
  *
  * The fix is a durable workspace allocated at FIRST ENABLE - not at seed time,
@@ -68,12 +68,12 @@ function makeRoutineJob(overrides?: Partial<CronJob>): CronJob {
     target: { payload: { kind: 'message', text: 'run it' }, executionMode: 'new_conversation' },
     metadata: {
       conversationId: '',
-      agentType: 'wcore',
+      agentType: 'fuigo',
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore',
+        backend: 'fuigo',
         name: 'Morning Brief',
         mode: 'bypassPermissions',
         configOptions: { kind: 'routine', routineId: 'morning-brief' },
@@ -130,10 +130,10 @@ const baseParams: CreateCronJobParams = {
   schedule: { kind: 'cron', expr: '0 8 * * *', description: '0 8 * * *' },
   prompt: 'go',
   conversationId: '',
-  agentType: 'wcore',
+  agentType: 'fuigo',
   createdBy: 'user',
   executionMode: 'new_conversation',
-  agentConfig: { backend: 'wcore', name: 'Daily Digest' },
+  agentConfig: { backend: 'fuigo', name: 'Daily Digest' },
 };
 
 beforeEach(() => {
@@ -247,7 +247,7 @@ describe('P2-2 allocation at creation vs at seed', () => {
       ...baseParams,
       createdBy: 'agent',
       agentConfig: {
-        backend: 'wcore',
+        backend: 'fuigo',
         name: 'Morning Brief',
         configOptions: { kind: 'routine', routineId: 'morning-brief' },
       },

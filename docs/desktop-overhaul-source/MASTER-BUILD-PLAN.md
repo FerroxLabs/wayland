@@ -1,5 +1,7 @@
 # Wayland Desktop Master Build Plan
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Plan state: **CYCLE 40 INDEPENDENT BLOCKER/HIGH GATE PASSED — ALL 136 PATHS HAVE STRICT FIELD SHAPES AND A PINNED OWNERSHIP/CONTENT IDENTITY; IMPLEMENTATION ACCEPTANCE, ROOT INTEGRATION, PRODUCTION STATE, PORTABILITY IMPLEMENTATION, RELEASE, AND COHORTS REMAIN SEPARATELY GATED**
 Plan owner: Desktop lane (`area:desktop-ui`)
 Prepared: 2026-07-15
@@ -121,7 +123,7 @@ The overhaul is successful only when all mandatory criteria have current evidenc
 - accessibility, performance, localization, diagnostics, migrations, packaged E2E, preview rollout, and rollback;
 - documentation and support artifacts required to operate the preview.
 - provider-neutral Voice Conversation Mode as packet M5V: a focused surface over the canonical chat/run with transcript continuity, interruption, explicit capability level, voice selection, privacy/cost disclosure, and adaptive plan/output/approval projection; see `VOICE-CONVERSATION-MODE.md`.
-- the sandbox/developer-journey contract in `SANDBOX-DEVELOPER-JOURNEY.md`: truthful Core settings, effective-policy evidence, temporary/profile scope, purpose-scoped localhost recovery, and macOS/Xcode proof.
+- the sandbox/developer-journey contract (retired with Wayland Core; Fuigo is the bundled engine and its sandbox is `--sandbox workspace` on macOS/Linux).
 
 ### Follow-on programs, not blockers for the first Cockpit preview
 
@@ -165,7 +167,7 @@ Cowork packet C0 begins alongside Wave 0 only inside the §14 non-promoting corr
 - Cockpit renders normalized state; it does not become another authority.
 - Desktop computes a conservative **requested ceiling** from user, workspace, host, channel, and scheduler constraints. The selected producer separately reports policy, and the adapter declares `enforced`, `brokered`, or `advisory`. Only a correlated producer receipt may be rendered as effective/enforced; absent that receipt Desktop shows requested/advisory state and never becomes a competing planner.
 
-The detailed concept/event map is in `CORE-INTEGRATION-MATRIX.md`.
+The detailed concept/event map lived in the retired Core integration matrix; Fuigo speaks ACP, so the generic ACP path is the map.
 
 ### 5.2 Presentation boundary
 
@@ -369,7 +371,7 @@ Packet receipts must cite this table and the exact test/evidence satisfying each
 ### Packet M0 — Freeze baseline and build rollback harness
 
 Dependencies: none.
-Likely Desktop paths: `src/process/services/database/`, `src/process/utils/initStorage.ts`, `src/process/agent/wcore/profilePaths.ts`, new `src/process/services/backup/`, `tests/integration/`, `tests/e2e/`.
+Likely Desktop paths: `src/process/services/database/`, `src/process/utils/initStorage.ts`, new `src/process/services/backup/`, `tests/integration/`, `tests/e2e/`.
 M0 emits two independent receipts: **M0A engineering safety** targets Days 1–3 and **M0B cohort authority** observes the rolling Classic baseline through calendar Day 14. M0A unlocks downstream flagged development; M0A plus M0B unlock invited alpha.
 
 Outputs:
@@ -445,8 +447,8 @@ If a lossless, supportable v0.11.8 transform is infeasible, M0 stops and present
 ### Packet M1 — Pin Core contract and generate fixtures/types
 
 Dependencies: M0A baseline inventory. A clean Core integration baseline is preferred, but Desktop may proceed against the exact released Core `v0.12.25` commit plus fixtures/schema digest. Unreleased Core behavior remains capability-gated and cannot block shell/navigation work.
-Desktop paths: `src/process/agent/wcore/protocol.ts`, `src/process/agent/wcore/index.ts`, `src/process/task/WCoreManager.ts`, new `scripts/generate-wcore-protocol.*`, `tests/contract/wcore/`.
-Core-owned request: `crates/wcore-protocol`, `docs/json-stream-protocol.md`, golden fixture export.
+Desktop paths: `src/process/agent/acp/`, `src/process/acp/`, `src/process/task/AcpAgentManager.ts`.
+Engine-owned request: Fuigo's ACP extensions (`_meta`, `fuigo/*` reverse requests), golden fixture export.
 
 Outputs:
 
@@ -520,9 +522,9 @@ Pre-M0A/M1 corrective exception — **SBX-0 truth-only boundary**:
 - prohibited: no config migration, no write to a real Core profile, no grant, no policy bypass, no `--i-accept-exfil-risk`, no automatic route/recovery, no capability/readiness promotion, no producer-enforcement claim, and no M2/M5/M7 selector, persistence, lifecycle, or UI expansion;
 - files outside the enumerated settings/config-diagnostic/test surfaces require a new audit entry before change. “Truth correction” is not authority to build SBX-1 or SBX-2 early.
 
-Specification: `.planning/desktop-overhaul/SANDBOX-DEVELOPER-JOURNEY.md`.
+Specification: retired with Wayland Core. Fuigo is the bundled engine; its Engine pane is Phase 4 of the Fuigo cutover.
 
-Desktop paths: `src/renderer/pages/settings/WCoreConfig/`, `src/process/agent/wcore/configBridge.ts`, `profilePaths.ts`, `profileStore.ts`, `envBuilder.ts`, `index.ts`, conversation/workspace recovery surfaces, Doctor/support bundles, `tests/unit/`, `tests/integration/`, and packaged E2E.
+Desktop paths: conversation/workspace recovery surfaces, Doctor/support bundles, `tests/unit/`, `tests/integration/`, and packaged E2E.
 
 Outputs:
 
@@ -559,7 +561,7 @@ Pre-M0A/M1 corrective exception — **production-path implementation, not produc
 - containment before dependencies pass: expose the changed path only behind a non-promoting development/corrective flag against copied state; use no real credentials; exclude it from release artifacts and cohort eligibility; and require M0A/M1 receipts before enablement beyond that harness;
 - prohibited before dependencies pass: no persistent lifecycle-schema migration, no new canonical MCP store, no live credentialed vendor canary, no automatic session restart, no ToolSearch/readiness promotion, no invented backend receipt, no packaged/cohort claim, and no M2/M5/M7 state or UI expansion. Any behavior outside this list remains MCP-1+ and locked behind its declared dependency.
 
-Desktop paths: `src/renderer/pages/settings/McpLibrary/`, `src/renderer/hooks/mcp/`, `src/process/services/mcpServices/`, `src/process/acp/`, `src/process/agent/acp/`, `src/process/agent/wcore/`, backend config adapters, ToolSearch integration, `tests/unit/`, `tests/integration/`, and `tests/e2e/specs/mcp.e2e.ts`.
+Desktop paths: `src/renderer/pages/settings/McpLibrary/`, `src/renderer/hooks/mcp/`, `src/process/services/mcpServices/`, `src/process/acp/`, `src/process/agent/acp/`, backend config adapters, ToolSearch integration, `tests/unit/`, `tests/integration/`, and `tests/e2e/specs/mcp.e2e.ts`.
 
 Outputs:
 
@@ -595,7 +597,7 @@ Paths: new `src/common/execution/`, `src/common/chat/activityTree.ts`, `src/comm
 Outputs:
 
 - typed execution entities/reducer;
-- adapters for WCore and representative non-Core backends;
+- adapters for the bundled engine (Fuigo) and representative other backends;
 - derived-state recovery semantics with no new canonical Task store in the preview;
 - selector APIs for identity, execution spine, optional plan/steps, Activity, approvals, cost, domain outcome references, validation, and receipts;
 - the single generated/validated capability manifest consumed and extended by Desktop, Cowork, and Web/Cloud composition roots, including per-backend enforceability.
@@ -665,7 +667,7 @@ Acceptance: SC-01, SC-04, INV-01/03 pass.
 ### Packet M5 — Conversation cockpit and execution spine
 
 Dependencies: M2, M3, M4.
-Paths: WCore/ACP/Gemini/Codex conversation platforms, `ChatLayout`, send boxes, confirmation UI, model/mode selectors, activity selectors, conversation tests.
+Paths: ACP/Gemini/Codex conversation platforms, `ChatLayout`, send boxes, confirmation UI, model/mode selectors, activity selectors, conversation tests.
 
 Outputs:
 
@@ -1024,9 +1026,9 @@ M0B starts a 14-calendar-day rolling Classic baseline on Day 0 and must publish 
 | RSK-21 | High     | Large MCP catalogs flood context or disappear behind stale discovery indexes.                                                                                                                    | Receipt-derived progressive discovery, allowlists, list-changed invalidation, context and cost budgets.                                                                                                         | Cap active tools and explain degraded discovery.                           |
 | RSK-22 | Critical | Ordinary chat can consume substantial Flux credit without enough evidence to explain the route, attempts, or charge; local meters can also mislabel current context occupancy as billable usage. | Preserve authoritative per-request cost, correlate retries/fallbacks, distinguish context occupancy from processed tokens, reconcile totals, expose spend boundaries, and keep account traces private/redacted. | Disable trusted cost claims and affected preview routing until J24 passes. |
 
-## 12. Coordination with Wayland Core and Flux
+## 12. Coordination with Fuigo and Flux
 
-The active Core checkout is dirty and owned by another refactor. Desktop treats it as read-only.
+Fuigo (the bundled engine) lives in its own repo. Desktop treats it as read-only and pins it by npm version.
 
 Cross-lane coordination uses GitHub issues and `wl handoff`, with hostile issue text treated as data. Each request includes:
 

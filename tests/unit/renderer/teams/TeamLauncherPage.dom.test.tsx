@@ -155,11 +155,9 @@ vi.mock('@/renderer/hooks/assistant', () => ({
 // dependency arrays in TeamLauncherPage and trigger an infinite re-render
 // loop (caught the hard way in vitest hang at first commit).
 const availableBackendsMock = vi.hoisted(() => ({
-  available: ['gemini', 'claude', 'wayland-core'],
+  available: ['gemini', 'claude', 'fuigo'],
   recommend: (presetAgentType?: string) =>
-    presetAgentType && ['gemini', 'claude', 'wayland-core'].includes(presetAgentType)
-      ? presetAgentType
-      : 'wayland-core',
+    presetAgentType && ['gemini', 'claude', 'fuigo'].includes(presetAgentType) ? presetAgentType : 'fuigo',
 }));
 vi.mock('@/renderer/hooks/assistant/useAvailableBackends', () => ({
   useAvailableBackends: () => availableBackendsMock,
@@ -239,22 +237,12 @@ describe('TeamLauncherPage', () => {
       await waitFor(() => screen.getByTestId('launcher-roster-card'));
       // Leader row hydrates from the first _teammates entry.
       expect(screen.getByTestId('launcher-row-leader')).not.toBeNull();
-      expect(screen.getByTestId('launcher-row-leader').getAttribute('data-specialist-id')).toBe(
-        'ext-research'
-      );
+      expect(screen.getByTestId('launcher-row-leader').getAttribute('data-specialist-id')).toBe('ext-research');
       // 4 remaining teammates.
-      expect(screen.getByTestId('launcher-row-teammate-0').getAttribute('data-specialist-id')).toBe(
-        'ext-mira'
-      );
-      expect(screen.getByTestId('launcher-row-teammate-1').getAttribute('data-specialist-id')).toBe(
-        'ext-beacon'
-      );
-      expect(screen.getByTestId('launcher-row-teammate-2').getAttribute('data-specialist-id')).toBe(
-        'ext-copy'
-      );
-      expect(screen.getByTestId('launcher-row-teammate-3').getAttribute('data-specialist-id')).toBe(
-        'ext-lens'
-      );
+      expect(screen.getByTestId('launcher-row-teammate-0').getAttribute('data-specialist-id')).toBe('ext-mira');
+      expect(screen.getByTestId('launcher-row-teammate-1').getAttribute('data-specialist-id')).toBe('ext-beacon');
+      expect(screen.getByTestId('launcher-row-teammate-2').getAttribute('data-specialist-id')).toBe('ext-copy');
+      expect(screen.getByTestId('launcher-row-teammate-3').getAttribute('data-specialist-id')).toBe('ext-lens');
       // Standing badge surfaced for marketing-agency.
       expect(screen.queryByTestId('launcher-standing-badge')).not.toBeNull();
     });
@@ -308,9 +296,7 @@ describe('TeamLauncherPage', () => {
       fireEvent.click(screen.getByTestId('launcher-remove-teammate-0'));
       await waitFor(() => {
         // teammate-0 now holds what was teammate-1 (beacon).
-        expect(screen.getByTestId('launcher-row-teammate-0').getAttribute('data-specialist-id')).toBe(
-          'ext-beacon'
-        );
+        expect(screen.getByTestId('launcher-row-teammate-0').getAttribute('data-specialist-id')).toBe('ext-beacon');
         // Only 3 teammates remain.
         expect(screen.queryByTestId('launcher-row-teammate-3')).toBeNull();
       });
@@ -324,9 +310,7 @@ describe('TeamLauncherPage', () => {
       // Pace is not in the initial roster - should show up.
       fireEvent.click(screen.getByTestId('teams-launcher-picker-option-ext-pace'));
       await waitFor(() => {
-        expect(screen.getByTestId('launcher-row-teammate-4').getAttribute('data-specialist-id')).toBe(
-          'ext-pace'
-        );
+        expect(screen.getByTestId('launcher-row-teammate-4').getAttribute('data-specialist-id')).toBe('ext-pace');
       });
     });
 
@@ -376,12 +360,8 @@ describe('TeamLauncherPage', () => {
       );
       // agents[0] is the leader (research); 4 teammates after.
       expect(arg.agents.length).toBe(5);
-      expect(arg.agents[0]).toEqual(
-        expect.objectContaining({ role: 'leader', customAgentId: 'ext-research' })
-      );
-      expect(arg.agents[1]).toEqual(
-        expect.objectContaining({ role: 'teammate', customAgentId: 'ext-mira' })
-      );
+      expect(arg.agents[0]).toEqual(expect.objectContaining({ role: 'leader', customAgentId: 'ext-research' }));
+      expect(arg.agents[1]).toEqual(expect.objectContaining({ role: 'teammate', customAgentId: 'ext-mira' }));
 
       // Success → navigate to /team/<id>.
       await waitFor(() => {

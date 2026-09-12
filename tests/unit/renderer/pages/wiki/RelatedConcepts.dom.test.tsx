@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe('RelatedConcepts', () => {
-  const concepts = ['TurnElement enum', 'File-per-backend pattern', 'wcore Crate System'];
+  const concepts = ['TurnElement enum', 'File-per-backend pattern', 'Fuigo Crate System'];
 
   it('renders all concept chips', () => {
     render(<RelatedConcepts concepts={concepts} />);
@@ -29,7 +29,7 @@ describe('RelatedConcepts', () => {
     render(<RelatedConcepts concepts={concepts} />);
     expect(screen.getByText('TurnElement enum')).toBeTruthy();
     expect(screen.getByText('File-per-backend pattern')).toBeTruthy();
-    expect(screen.getByText('wcore Crate System')).toBeTruthy();
+    expect(screen.getByText('Fuigo Crate System')).toBeTruthy();
   });
 
   it('fires onNavigate with concept name when chip is clicked', () => {

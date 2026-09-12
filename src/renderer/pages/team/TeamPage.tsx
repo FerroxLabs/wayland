@@ -18,8 +18,6 @@ import { useTeamConversation } from './hooks/useTeamConversation';
 import AcpModelSelector from '@/renderer/components/agent/AcpModelSelector';
 import GeminiModelSelector from '@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector';
 import { useGeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
-import WCoreModelSelector from '@/renderer/pages/conversation/platforms/wcore/WCoreModelSelector';
-import { useWCoreModelSelection } from '@/renderer/pages/conversation/platforms/wcore/useWCoreModelSelection';
 import TeamTabs from './components/TeamTabs';
 import TeamChatView from './components/TeamChatView';
 import TeamAgentIdentity from './components/TeamAgentIdentity';
@@ -46,23 +44,6 @@ type TeamPageContentProps = {
   onRenameTeam: (newName: string) => Promise<boolean>;
 };
 
-/** Compact Wayland Core model selector for the agent header */
-const WCoreHeaderModelSelector: React.FC<{ conversationId: string; initialModel?: TProviderWithModel }> = ({
-  conversationId,
-  initialModel,
-}) => {
-  const onSelectModel = useCallback(
-    async (_provider: IProvider, modelName: string) => {
-      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
-      const ok = await ipcBridge.conversation.update.invoke({ id: conversationId, updates: { model: selected } });
-      return Boolean(ok);
-    },
-    [conversationId]
-  );
-  const modelSelection = useWCoreModelSelection({ initialModel, onSelectModel });
-  return <WCoreModelSelector selection={modelSelection} conversationId={conversationId} />;
-};
-
 /** Fetches conversation for a single agent and renders TeamChatView */
 const AgentChatSlot: React.FC<{
   agent: TeamAgent;
@@ -81,7 +62,6 @@ const AgentChatSlot: React.FC<{
   // a stale cache left them showing different "active models" (#736).
   const { data: conversation } = useTeamConversation(agent.conversationId);
 
-  const isWCore = conversation?.type === 'wcore';
   const initialModelId = (conversation?.extra as { currentModelId?: string })?.currentModelId;
   const isAcpLike = agent.conversationType === 'acp' || agent.conversationType === 'codex';
   const isGemini = agent.conversationType === 'gemini';
@@ -143,7 +123,7 @@ const AgentChatSlot: React.FC<{
               Hides itself when fewer than 2 backends are installed and
               surfaces same-conversationType-only constraints via toast. */}
           <AgentBackendPill teamId={teamId} slotId={agent.slotId} agentType={agent.agentType} />
-          {agent.conversationId && !isWCore && isAcpLike && (
+          {agent.conversationId && isAcpLike && (
             <div className='min-w-0 max-w-140px [&_button]:max-w-full [&_button_span]:truncate'>
               <AcpModelSelector
                 key={agent.conversationId}
@@ -156,15 +136,6 @@ const AgentChatSlot: React.FC<{
           {agent.conversationId && isGemini && (
             <div className='min-w-0 max-w-140px [&_button]:max-w-full [&_button_span]:truncate'>
               <GeminiModelSelector selection={geminiModelSelection} />
-            </div>
-          )}
-          {isWCore && agent.conversationId && (
-            <div className='min-w-0 max-w-140px [&_button]:max-w-full [&_button_span]:truncate'>
-              <WCoreHeaderModelSelector
-                key={agent.conversationId}
-                conversationId={agent.conversationId}
-                initialModel={conversation?.model as TProviderWithModel | undefined}
-              />
             </div>
           )}
           {!isLeader && onRemove && (

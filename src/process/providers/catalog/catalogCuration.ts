@@ -1,7 +1,7 @@
 /**
  * Pure curation filter for the engine's bundled provider catalog.
  *
- * Ports the exclusion rules documented in `wcore-config`'s `data/providers.toml`
+ * Ports the exclusion rules documented in the vendored engine `providers.toml`
  * header so the desktop surfaces exactly the providers the engine considers
  * selectable. Every function here is pure over its argument: no disk reads, no
  * network, no globals beyond the static native-id set.

@@ -15,9 +15,9 @@ import type {
   WriteTextFileRequest,
   WriteTextFileResponse,
 } from '@agentclientprotocol/sdk';
-import type { ResolvedWaylandNanoActivationInput, WaylandNanoConnectionMode } from '@process/agent/acp/AcpConnection';
 import type { IMcpServer } from '@/common/config/storage';
 import type { McpConfigProjection, McpConfigPublicationRequest } from '@process/acp/session/McpConfig';
+import type { UserQuestionUIData } from '@process/acp/session/userQuestion';
 // ─── Agent Identity & Config ────────────────────────────────────
 
 export type AgentSource = 'builtin' | 'extension' | 'custom' | 'remote';
@@ -41,11 +41,6 @@ export type AgentConfig = {
   remoteUrl?: string;
   remoteHeaders?: Record<string, string>;
 
-  /** Owner-resolved Nano authority and one-use verified executable identity. */
-  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
-  /** Explicit result of the owner-binding resolution seam. */
-  waylandNanoMode?: WaylandNanoConnectionMode;
-
   // Process options
   processOptions?: {
     gracePeriodMs?: number; // Phase 1 wait time for three-phase shutdown, default 100ms
@@ -65,6 +60,11 @@ export type AgentConfig = {
   /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
   activeMcpServers?: string[];
   additionalDirectories?: string[];
+  /**
+   * Backend-specific `_meta` for `session/new` / `session/load` (e.g. Fuigo's
+   * `startupHints`). Forwarded as the request `_meta` by `projectSessionMetadata`.
+   */
+  sessionMetadata?: Record<string, unknown>;
 
   // Optional presets (from relate_type = 'assistant')
   presetPrompts?: string[];
@@ -146,6 +146,8 @@ export type ContextUsage = {
   total: number;
   percentage: number;
   cost?: { amount: number; currency: string };
+  /** Identity of the cumulative cost gauge when the backend keeps it itself. */
+  meterId?: string;
 };
 
 export type ConfigOption = {
@@ -208,6 +210,8 @@ export type SessionCallbacks = {
   onModeUpdate: (mode: ModeSnapshot) => void;
   onContextUsage: (usage: ContextUsage) => void;
   onPermissionRequest: (data: PermissionUIData) => void;
+  /** One question of a Fuigo AskUserQuestion request; absent = unattended, answered `cancelled`. */
+  onUserQuestion?: (data: UserQuestionUIData) => void;
   onSignal: (event: SessionSignal) => void;
 };
 
@@ -237,11 +241,15 @@ export type ProtocolHandlers = {
   onReadTextFile: (request: ReadTextFileRequest) => Promise<ReadTextFileResponse>;
   onWriteTextFile: (request: WriteTextFileRequest) => Promise<WriteTextFileResponse>;
   /**
-   * Vendor ext notifications (`_wayland/session/*`). Optional: without it the
-   * SDK answers `methodNotFound` and logs on EVERY frame, which is how Nano's
-   * cost metering used to fill the log without ever reaching us.
+   * Vendor ext notifications. Optional: without it the SDK answers
+   * `methodNotFound` and logs on EVERY frame.
    */
   onExtNotification?: (method: string, params: unknown) => void;
+  /**
+   * Vendor ext REQUESTS (Fuigo's `fuigo/ask_user_question`). Optional: without
+   * it the SDK answers `methodNotFound` and the engine-side tool fails.
+   */
+  onExtMethod?: (method: string, params: unknown) => Promise<unknown>;
 };
 
 /** No-op handlers for ephemeral AcpClient usage (e.g. connection tests, health checks). */

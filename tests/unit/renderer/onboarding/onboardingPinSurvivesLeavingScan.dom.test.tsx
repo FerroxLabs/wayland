@@ -15,7 +15,7 @@
  * the state updates, and the composer fell through to the cold-start resolver.
  *
  * Measured, not reasoned: 1 run in 10 of a fresh Flux-connected profile
- * finished onboarding with `wcore.defaultModel` undefined and the composer on
+ * finished onboarding with `fuigo.defaultModel` undefined and the composer on
  * `flux-auto`. `cancelled` is there to suppress stale RENDERS - a config write
  * is idempotent and is what the user asked for by connecting a provider.
  */
@@ -86,7 +86,7 @@ describe('onboarding — the default-model pin survives leaving the scan screen'
   });
   afterEach(() => cleanup());
 
-  it('still writes wcore.defaultModel when the user advances before the scan settles', async () => {
+  it('still writes fuigo.defaultModel when the user advances before the scan settles', async () => {
     // Start ON the scan screen, so the effect under test runs on mount.
     localStorage.setItem(PROGRESS_KEY, JSON.stringify({ screen: 'scan', name: 'Matty' }));
     const { unmount } = render(<OnboardingFlow detection={fluxDetection()} onFinish={vi.fn()} />);
@@ -102,7 +102,7 @@ describe('onboarding — the default-model pin survives leaving the scan screen'
       await new Promise((r) => setTimeout(r, 2_000));
     });
 
-    const pinned = setSpy.mock.calls.filter(([key]: [string]) => key === 'wcore.defaultModel');
+    const pinned = setSpy.mock.calls.filter(([key]: [string]) => key === 'fuigo.defaultModel');
     expect(pinned.length).toBeGreaterThan(0);
     expect(pinned[0][1]).toMatchObject({ useModel: 'flux-reasoning' });
   }, 15_000);

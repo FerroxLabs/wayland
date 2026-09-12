@@ -249,7 +249,7 @@ test.describe('Team Blitz - input edge cases', () => {
           slotId: '',
           conversationId: '',
           role: 'leader',
-          agentType: 'wayland-core',
+          agentType: 'fuigo',
           agentName: 'Leader',
           conversationType: 'acp',
           status: 'pending',

@@ -49,12 +49,10 @@ function passesCapabilityFilter(provider: IProvider, modelName: string): boolean
  * Resolution order:
  * 1. ACP backends (claude, codex, qwen, etc.) -> read from acp.cachedModels[backend].availableModels
  * 2. Gemini -> Google Auth models (if authenticated) + ALL enabled providers' models
- * 3. WCore -> all enabled providers (except gemini-with-google-auth) with capability filtering
- * 4. Others -> empty list (no model switching)
+ * 3. Others -> empty list (no model switching)
  *
  * The Gemini list mirrors what useModelProviderList() returns:
  * Google Auth provider (auto/auto-gemini-2.5/manual-subModels) + ALL configured providers.
- * The WCore list mirrors useWCoreModelSelection: same as above minus Google Auth.
  */
 export function getTeamAvailableModels(
   backend: string,
@@ -91,7 +89,7 @@ export function getTeamAvailableModels(
 
     // ALL enabled providers' models with capability filtering, EXCEPT the
     // ChatGPT-subscription provider (#555): a Gemini-CLI teammate cannot use the
-    // ChatGPT OAuth route (it's keyless - only the wcore engine can auth it), so
+    // ChatGPT OAuth route (it's keyless - no bundled engine can auth it), so
     // a subscription-ONLY model id (e.g. gpt-5.3-codex-spark) is unrunnable here
     // and must not be offered. Ids the subscription shares with a metered
     // provider (e.g. gpt-5.5 on the direct OpenAI provider) are still presented
@@ -108,24 +106,6 @@ export function getTeamAvailableModels(
     }
 
     return merged;
-  }
-
-  // Wcore: all enabled providers' enabled models (deduplicated), excluding google-auth platform
-  if (backend === 'wcore') {
-    const seen = new Set<string>();
-    const result: TeamAvailableModel[] = [];
-    const enabledProviders = (providers || []).filter(
-      (p) => p.enabled !== false && p.model?.length && !p.platform?.includes('gemini-with-google-auth')
-    );
-    for (const provider of enabledProviders) {
-      for (const m of provider.model) {
-        if (provider.modelEnabled?.[m] !== false && !seen.has(m) && passesCapabilityFilter(provider, m)) {
-          seen.add(m);
-          result.push({ id: m, label: m });
-        }
-      }
-    }
-    return result;
   }
 
   return [];

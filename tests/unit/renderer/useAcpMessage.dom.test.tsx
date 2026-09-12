@@ -346,4 +346,25 @@ describe('useAcpMessage - seeds the model from the conversation row (#733)', () 
     await waitFor(() => expect(result.current.hasHydratedRunningState).toBe(true));
     expect(result.current.currentModelId).toBeNull();
   });
+
+  // A Fuigo chat is Flux-routed by construction, and its first request_trace
+  // fires while the renderer is still on the page that created the chat, so the
+  // badge read "Routing unknown" until the second turn.
+  it('seeds the routing badge to flux for a Flux-native engine (fuigo)', async () => {
+    mockConversationGetInvoke.mockResolvedValue({ status: 'idle', type: 'acp', extra: { backend: 'fuigo' } });
+
+    const { result } = renderHook(() => useAcpMessage('conv-seed-5'));
+
+    await waitFor(() => expect(result.current.hasHydratedRunningState).toBe(true));
+    expect(result.current.routing).toBe('flux');
+  });
+
+  it('leaves the routing badge unknown for a backend whose route is only known at spawn (claude)', async () => {
+    mockConversationGetInvoke.mockResolvedValue({ status: 'idle', type: 'acp', extra: { backend: 'claude' } });
+
+    const { result } = renderHook(() => useAcpMessage('conv-seed-6'));
+
+    await waitFor(() => expect(result.current.hasHydratedRunningState).toBe(true));
+    expect(result.current.routing).toBe('unknown');
+  });
 });

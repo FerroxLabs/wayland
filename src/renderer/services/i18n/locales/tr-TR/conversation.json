@@ -402,7 +402,6 @@
     "title": "{{backend}} burada oturum açamıyor",
     "subscriptionExplainer": "Sağlayıcı, bunun gibi üçüncü taraf araçlar içinde abonelikle oturum açmayı engeller. {{backend}}'i burada kullanmaya devam etmek için Flux Router üzerinden yönlendirin, bir sağlayıcı API anahtarı ekleyin veya doğrudan CLI'da oturum açın.",
     "genericExplainer": "{{backend}} kimlik doğrulaması yapılamadı. Bunu düzeltmek için Flux Router üzerinden yönlendirin, bir sağlayıcı API anahtarı ekleyin veya CLI'da oturum açın.",
-    "wcoreExplainer": "Wayland Core kimlik doğrulaması yapılamadı. Çıkarım sağlayıcısı API anahtarını reddetti (401). Claude Code'un aksine Wayland Core'un geri dönülebilecek bir abonelik oturumu yoktur; bu nedenle çalışan bir sağlayıcı anahtarı ekleyin veya Flux Router üzerinden yönlendirin.",
     "flux": {
       "label": "Flux üzerinden yönlendir",
       "sublabel": "Akıllı yönlendirme her görev için doğru modeli seçer. 1 $ kredi ile ücretsiz başlayın, ardından kullandıkça ödeyin veya bir plan seçin.",
@@ -422,33 +421,6 @@
     },
     "dismiss": "Kapat",
     "recommended": "(önerilen)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -514,64 +486,9 @@
       "body": "{{title}} bir hatayla durdu. {{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Wayland Core’un ayar dosyasının düzeltilmesi gerekiyor",
-    "explainer": "Motor kendi ayar dosyasını okuyamadı, bu yüzden aracı başlatılamıyor. Hiçbir şey değiştirilmedi — sağlayıcılarınız, anahtarlarınız ve ayarlarınız hâlâ dosyanın içinde.",
-    "dismiss": "Kapat",
-    "details": "Teknik ayrıntılar",
-    "checking": "Ayar dosyası kontrol ediliyor…",
-    "location": "Sorun {{line}}. satırda, {{column}}. sütunda.",
-    "noProblem": "Ayar dosyası artık sorunsuz okunuyor. Mesajınızı yeniden gönderin.",
-    "unreadable": "Wayland ayar dosyasını okuyamadı. Neden: {{reason}}",
-    "repair": {
-      "label": "{{line}}. satırı benim için düzelt",
-      "sublabel": "Önce dosyanın yedeğini alır, sonra eksik satır sonunu ekler. Dosyada başka hiçbir şey değişmez.",
-      "action": "Düzelt",
-      "unavailable": "{{line}}. satırdaki sorun için insan gözü gerekiyor — Wayland tahmin yürütmez. Aşağıdan dosyayı açın ya da varsayılan ayarlarla baştan başlayın.",
-      "notTextUnavailable": "Wayland tam olarak okuyamadığı bir dosyanın üzerine yazmaz, bu yüzden burada otomatik bir düzeltme yok. Aşağıdan dosyayı açın ya da varsayılan ayarlarla baştan başlayın."
-    },
-    "reveal": {
-      "label": "Dosyayı bana göster",
-      "sublabel": "Dosyanın bulunduğu klasörü açar, böylece yolu aramak zorunda kalmazsınız.",
-      "action": "Göster"
-    },
-    "regenerate": {
-      "label": "Varsayılan ayarlarla baştan başla",
-      "sublabel": "Son çare. Mevcut dosyanızın önce yedeği alınır, sonra motorun yenisini yazabilmesi için silinir.",
-      "action": "Baştan başla",
-      "confirmTitle": "Varsayılan ayarlarla baştan başlanılsın mı?",
-      "confirmBody": "Bu işlem motor ayar dosyanızı siler. Sağlayıcı listesini, dosyada saklanan API anahtarlarını ve bellek ile beceri ayarlarınızı kaybedersiniz; bunları yeniden kurmanız gerekir.\n\nÖnce özgün dosyanın yanına zaman damgalı bir yedek kaydedilir. Bu yedek doğrulanamazsa hiçbir şey silinmez.",
-      "confirmAction": "Yedekle ve baştan başla"
-    },
-    "result": {
-      "repaired": "Düzeltildi. Özgün dosyanın yedeği {{name}} olarak kaydedildi.",
-      "regenerated": "Tamamlandı. Eski ayarlarınız {{name}} olarak kaydedildi.",
-      "backupFailed": "Wayland doğrulanmış bir yedek oluşturamadı, bu yüzden hiçbir şey değiştirilmedi. Neden: {{reason}}",
-      "writeFailed": "Değişiklik tamamlanamadı. Neden: {{reason}}",
-      "writeFailedWithBackup": "Değişiklik tamamlanamadı. Neden: {{reason}} Hiçbir şey kaybolmadı: özgün ayarlarınız {{name}} içinde.",
-      "notARegularFile": "Bu ayar dosyası başka bir dosyaya giden bir bağlantı, bu yüzden Wayland onu değiştirmeyecek. “Dosyayı bana göster”i kullanıp dosyayı gerçekte bulunduğu yerde düzenleyin.",
-      "revealFailed": "Wayland klasörü açamadı. Neden: {{reason}}"
-    },
-    "notText": "Wayland bu dosyayı metin olarak okuyamıyor — bazı baytları, ayar biçiminin gerektirdiği geçerli UTF-8 değil. Hiçbir şey değiştirilmedi."
-  },
   "turnRecovery": {
     "outcomeUnknown": "Sonuç bilinmiyor",
-    "lastRecordedAction": "Son kaydedilen işlem: {{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "Son kaydedilen işlem: {{action}}"
   },
   "artifactCard": {
     "title": "Çalışma alanınıza kaydedildi",
@@ -600,14 +517,5 @@
     "rejectedUnreadable_other": "{{count}} tanesi okunamadı",
     "more": "ve Çıktılar bölümünde {{count}} tane daha",
     "more_other": "ve Çıktılar bölümünde {{count}} tane daha"
-  },
-  "workspacePolicy": {
-    "title": "Çalışma alanı erişimi",
-    "scope": "Etkin Core oturumunun bildirdiği dosya sistemi erişimi. Araç onayı, kimlik bilgileri ve kayıt birbirinden ayrıdır.",
-    "readable": "Okunabilir klasörler",
-    "writable": "Yazılabilir klasörler",
-    "executables": "Çalıştırılabilir yetenekler ve salt okunur klasörler",
-    "none": "Bildirilmedi",
-    "unknown": "Core bu konuşma için etkin çalışma alanı erişimini henüz bildirmedi."
   }
 }

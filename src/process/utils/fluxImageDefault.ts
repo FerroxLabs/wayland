@@ -17,7 +17,7 @@
 
 import type { IProvider, IConfigStorageRefer } from '@/common/config/storage';
 import { FLUX_SURFACE } from '@/common/config/flux';
-import { FLUX_DEFAULT_IMAGE_ARM, isFluxProviderRow } from '@/common/config/imageModels';
+import { FLUX_DEFAULT_IMAGE_ARM, LEGACY_FLUX_IMAGE_ARMS, isFluxProviderRow } from '@/common/config/imageModels';
 
 type ImageGenConfig = IConfigStorageRefer['tools.imageGenerationModel'];
 
@@ -53,4 +53,15 @@ export function resolveFluxImageDefault(deps: FluxImageDefaultDeps): ImageGenCon
     apiKey: fluxKey,
     useModel: FLUX_DEFAULT_IMAGE_ARM,
   };
+}
+
+/**
+ * Remaps a pinned legacy Flux picker id (the pre-2026-09-12 internal arm names,
+ * which customer keys answer with 403) to its customer alias. Returns the
+ * updated config, or null when the current choice needs no remap. Fixes a
+ * choice that can no longer work; it never changes a working one.
+ */
+export function remapLegacyFluxImageArm(current: ImageGenConfig | undefined): ImageGenConfig | null {
+  const alias = current?.useModel ? LEGACY_FLUX_IMAGE_ARMS[current.useModel] : undefined;
+  return current && alias ? { ...current, useModel: alias } : null;
 }

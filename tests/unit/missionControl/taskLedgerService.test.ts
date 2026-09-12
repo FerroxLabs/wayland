@@ -90,10 +90,10 @@ function makeCronJob(over: Record<string, unknown>) {
 function observation(overrides: Partial<ActivityObservation> = {}): ActivityObservation {
   return {
     sourceId: 'shared',
-    provenance: { origin: 'core', kind: 'workflow' },
-    title: 'Core workflow',
-    status: 'running',
-    action: { kind: 'navigate', path: '/conversation/core', label: 'Open Core workflow' },
+    provenance: { origin: 'desktop', kind: 'approval' },
+    title: 'Approval',
+    status: 'pending',
+    action: { kind: 'navigate', path: '/conversation/shared', label: 'Answer approval' },
     startedAt: 1,
     updatedAt: 2,
     ...overrides,
@@ -143,16 +143,8 @@ describe('TaskLedgerService.snapshot', () => {
           interactivity: 'step',
         },
       ],
-      listCoreActivity: async () => ({ observations: [observation()], status: 'ok' }),
       listPendingApprovals: async () => ({
-        observations: [
-          observation({
-            sourceId: 'approval-1',
-            provenance: { origin: 'core', kind: 'approval' },
-            title: 'Approve command',
-            status: 'pending',
-          }),
-        ],
+        observations: [observation({ sourceId: 'approval-1', title: 'Approve command' })],
       }),
     });
 
@@ -165,47 +157,10 @@ describe('TaskLedgerService.snapshot', () => {
     expect(byId['desktop:schedule:j1']).toMatchObject({ group: 'upcoming', action: { path: '/scheduled/j1' } });
     expect(byId['desktop:schedule-run:j1:900']).toMatchObject({ group: 'recent', status: 'done' });
     expect(byId['desktop:schedule-run:j2:800']).toMatchObject({ group: 'needs-you', status: 'failed' });
-    expect(byId['core:workflow:shared']).toMatchObject({ group: 'running', source: 'core-execution' });
-    expect(byId['core:approval:approval-1']).toMatchObject({ group: 'needs-you', source: 'approvals' });
-    expect(snap.groupCounts).toEqual({ 'needs-you': 4, running: 2, upcoming: 2, recent: 2 });
+    expect(byId['desktop:approval:approval-1']).toMatchObject({ group: 'needs-you', source: 'approvals' });
+    expect(snap.groupCounts).toEqual({ 'needs-you': 4, running: 1, upcoming: 2, recent: 2 });
     expect(snap.completeness).toBe('partial');
     expect(snap.sourceHealth).toContainEqual(expect.objectContaining({ source: 'scheduler', status: 'partial' }));
-  });
-
-  it('keeps Desktop Workflow and Core workflow identities separate even with the same source id', async () => {
-    const ledger = new TaskLedgerService({ listTeams: vi.fn(async () => []), listTasksForTeam: vi.fn() } as never, {
-      listDesktopWorkflows: async () => [
-        {
-          id: 'shared',
-          workflow_name: 'desktop',
-          workflow_title: 'Desktop workflow',
-          conversation_id: 'desktop',
-          current_step: 1,
-          total_steps: 1,
-          steps: [],
-          skills: [],
-          asks: [],
-          status: 'active',
-          palette: null,
-          category: null,
-          created_at: 1,
-          updated_at: 2,
-          completed_at: null,
-          begin_sent_at: 1,
-          run_mode: 'running',
-          interactivity: 'auto',
-        },
-      ],
-      listCoreActivity: async () => ({ observations: [observation()] }),
-      listPendingApprovals: async () => ({ observations: [] }),
-    });
-    listJobs.mockResolvedValue([]);
-
-    const snap = await ledger.snapshot('user1');
-    expect(snap.entries.map((entry) => entry.id)).toEqual(['core:workflow:shared', 'desktop:workflow:shared']);
-    expect(new Set(snap.entries.map((entry) => entry.action.path))).toEqual(
-      new Set(['/conversation/core', '/conversation/desktop'])
-    );
   });
 
   it('reports partial and failed sources instead of returning a false healthy empty state', async () => {
@@ -222,7 +177,6 @@ describe('TaskLedgerService.snapshot', () => {
     };
     const ledger = new TaskLedgerService(teams as never, {
       listDesktopWorkflows: async () => [],
-      listCoreActivity: async () => ({ observations: [], status: 'partial', detail: 'child events unavailable' }),
     });
 
     const snap = await ledger.snapshot('user1');
@@ -232,20 +186,19 @@ describe('TaskLedgerService.snapshot', () => {
       expect.arrayContaining([
         expect.objectContaining({ source: 'desktop-teams', status: 'partial' }),
         expect.objectContaining({ source: 'scheduler', status: 'error', detail: 'scheduler down' }),
-        expect.objectContaining({ source: 'core-execution', status: 'partial', detail: 'child events unavailable' }),
         expect.objectContaining({ source: 'approvals', status: 'unavailable' }),
       ])
     );
   });
 
   it('never invents running or upcoming progress from an unknown observation', () => {
-    const unknown = observation({ status: 'unknown' });
+    const unknown = observation({ status: 'unknown', provenance: { origin: 'desktop', kind: 'workflow' } });
     expect(classify(unknown)).toBe('recent');
     expect(classify({ ...unknown, status: 'pending', nextRunAtMs: undefined })).toBe('recent');
     expect(classify({ ...unknown, status: 'pending', nextRunAtMs: 100 })).toBe('upcoming');
   });
 
-  it('keeps a scheduled run separate from a same-named Core workflow and preserves failed outcome', async () => {
+  it('keeps a scheduled run separate from a same-named approval and preserves failed outcome', async () => {
     listJobs.mockResolvedValue([
       makeCronJob({ id: 'job', name: 'Shared', enabled: true, state: { nextRunAtMs: 200 } }),
     ]);
@@ -265,13 +218,12 @@ describe('TaskLedgerService.snapshot', () => {
           },
         ],
       }),
-      listCoreActivity: async () => ({ observations: [observation({ sourceId: 'shared' })] }),
-      listPendingApprovals: async () => ({ observations: [] }),
+      listPendingApprovals: async () => ({ observations: [observation({ sourceId: 'shared' })] }),
     });
 
     const snap = await ledger.snapshot('user1');
     expect(snap.entries.map((entry) => entry.id)).toEqual(
-      expect.arrayContaining(['desktop:schedule-run:shared', 'core:workflow:shared'])
+      expect.arrayContaining(['desktop:schedule-run:shared', 'desktop:approval:shared'])
     );
     expect(snap.entries.find((entry) => entry.id === 'desktop:schedule-run:shared')).toMatchObject({
       status: 'failed',

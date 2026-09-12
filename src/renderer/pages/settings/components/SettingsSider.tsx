@@ -64,7 +64,6 @@ export const LEGACY_ANCHOR_REMAP: Record<string, string> = {
 const GROUP_HEADER_BEFORE: Record<string, string> = {
   assistants: 'settings.sider.groupWorkspace',
   models: 'settings.sider.groupAiModels',
-  wcore: 'settings.sider.groupEngine',
   webui: 'settings.sider.groupIntegrations',
   theme: 'settings.sider.groupAppearance',
   general: 'settings.sider.groupSystem',
@@ -118,12 +117,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         label: t('settings.sider.constitution', { defaultValue: 'Constitution' }),
         icon: <ScrollText />,
         path: 'constitution',
-      },
-      wcore: {
-        id: 'wcore',
-        label: t('settings.wcoreConfig.navLabel', { defaultValue: 'Wayland Core' }),
-        icon: <Cpu />,
-        path: 'wcore-config',
       },
       agents: {
         id: 'agents',
@@ -247,8 +240,8 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       },
     };
 
-    // #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
-    // clients so the rail never offers a destination the router refuses.
+    // #997: desktop-only surfaces are dropped for WebUI/remote clients so the
+    // rail never offers a destination the router refuses.
     const result: SiderItem[] = visibleSettingsNavigationIds(isDesktop).map((id) => ({
       ...builtinMap[id],
       path: SETTINGS_ROUTE_PATHS[id],

@@ -38,7 +38,7 @@ vi.mock('@/common', () => ({
 }));
 
 vi.mock('@/renderer/hooks/context/ConversationContext', () => ({
-  useConversationContextSafe: () => ({ type: 'wcore' }),
+  useConversationContextSafe: () => ({ type: 'acp' }),
 }));
 
 vi.mock('@/renderer/utils/common', () => ({
@@ -130,7 +130,7 @@ describe('ConversationChatConfirm — AskUserQuestion (#504)', () => {
 });
 
 /**
- * #610: the wcore/acp mapper puts the REAL command into the approval prompt's
+ * #610: the acp mapper puts the REAL command into the approval prompt's
  * title/description ("Execute: <cmd>"). Inline credentials in that command must
  * be masked before they render — this is the approval-card leg of the timeline
  * redaction, caught by live-verify after the activity-step leg was already fixed.

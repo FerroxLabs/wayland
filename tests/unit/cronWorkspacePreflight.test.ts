@@ -5,7 +5,7 @@
  *
  * P2-10 - missing / replaced workspace handling.
  *
- * `agentConfig.workspace` is validated nowhere and `WCoreManager` has no mkdir
+ * `agentConfig.workspace` is validated nowhere and the agent manager has no mkdir
  * or existsSync at all, so a scheduled run against a folder the user deleted
  * behaves however the engine happens to behave, and a run against a folder the
  * user REPLACED writes into a stranger's directory. Neither is acceptable for
@@ -93,7 +93,7 @@ const createConversationMock = vi.fn(async (params: any) => {
   // Mirror the real factories: an empty `extra.workspace` becomes a throwaway
   // `<agent>-temp-<ts>` directory, which is exactly the failure symptom.
   const id = `conv-created-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/acp-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -101,7 +101,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    // wcore's factory whitelist drops `backend`; ConversationServiceImpl then
+    // gemini's factory whitelist drops `backend`; ConversationServiceImpl then
     // merges back only the keys the factory did not produce.
     extra: { ...params.extra, workspace },
   };
@@ -146,7 +146,7 @@ function makeTaskJob(agentConfig: CronJob['metadata']['agentConfig']): CronJob {
     target: { payload: { kind: 'message', text: 'brief me' }, executionMode: 'new_conversation' },
     metadata: {
       conversationId: '',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
@@ -174,7 +174,7 @@ describe('P2-10 preflightJobWorkspace', () => {
     await writeWorkspaceMarker(ws, marker);
 
     const result = await preflightJobWorkspace(
-      makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: marker.workspaceId })
+      makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: marker.workspaceId })
     );
     expect(result).toBe(null);
   });
@@ -182,7 +182,7 @@ describe('P2-10 preflightJobWorkspace', () => {
   it('reports the deleted folder without recreating it', async () => {
     const ws = pathMod.join(tmp, 'Deleted Brief');
     const result = await preflightJobWorkspace(
-      makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' })
+      makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' })
     );
     expect(result?.status).toBe('missing');
     expect(result?.workspace).toBe(ws);
@@ -197,7 +197,7 @@ describe('P2-10 preflightJobWorkspace', () => {
       buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-other', displayName: 'Somebody Else' })
     );
     const result = await preflightJobWorkspace(
-      makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' })
+      makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' })
     );
     expect(result?.status).toBe('mismatch');
   });
@@ -206,7 +206,7 @@ describe('P2-10 preflightJobWorkspace', () => {
     const ws = pathMod.join(tmp, 'Unmarked');
     await fsp.mkdir(ws);
     const result = await preflightJobWorkspace(
-      makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' })
+      makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' })
     );
     expect(result?.status).toBe('unmarked');
   });
@@ -214,12 +214,12 @@ describe('P2-10 preflightJobWorkspace', () => {
   it('invents no failure for a workspace allocated before markers existed', async () => {
     const ws = pathMod.join(tmp, 'Legacy');
     await fsp.mkdir(ws);
-    const result = await preflightJobWorkspace(makeTaskJob({ backend: 'wcore', name: 'x', workspace: ws }));
+    const result = await preflightJobWorkspace(makeTaskJob({ backend: 'fuigo', name: 'x', workspace: ws }));
     expect(result).toBe(null);
   });
 
   it('has nothing to check when the job names no workspace', async () => {
-    expect(await preflightJobWorkspace(makeTaskJob({ backend: 'wcore', name: 'x' }))).toBe(null);
+    expect(await preflightJobWorkspace(makeTaskJob({ backend: 'fuigo', name: 'x' }))).toBe(null);
     expect(await preflightJobWorkspace(makeTaskJob(undefined))).toBe(null);
   });
 });
@@ -237,7 +237,7 @@ describe('P2-10 the run refuses to start', () => {
   it('throws instead of running, and neither resurrects the folder nor builds a conversation', async () => {
     const ws = pathMod.join(tmp, 'Gone');
     const { executor, getOrBuildTask } = makeExecutor();
-    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
+    const job = makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
 
     await expect(executor.executeJob(job)).rejects.toThrow(/workspace/i);
 
@@ -253,7 +253,7 @@ describe('P2-10 the run refuses to start', () => {
     // failure to nobody.
     const ws = pathMod.join(tmp, 'Gone Too');
     const { executor } = makeExecutor();
-    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
+    const job = makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
 
     await expect(executor.prepareConversation(job)).rejects.toThrow(/workspace/i);
     expect(createConversationMock).not.toHaveBeenCalled();
@@ -273,7 +273,7 @@ describe('P2-10 the run refuses to start', () => {
   it('classifies a missing workspace so the bridge can render the right message', async () => {
     const ws = pathMod.join(tmp, 'Gone Classified');
     const { executor } = makeExecutor();
-    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
+    const job = makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
 
     const thrown = await executor.prepareConversation(job).then(
       () => null,
@@ -295,7 +295,7 @@ describe('P2-10 the run refuses to start', () => {
       buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-other', displayName: 'Tax Returns' })
     );
     const { executor } = makeExecutor();
-    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' });
+    const job = makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' });
 
     const thrown = await executor.executeJob(job).then(
       () => null,
@@ -316,7 +316,7 @@ describe('P2-10 the run refuses to start', () => {
       buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-other', displayName: 'Tax Returns' })
     );
     const { executor, getOrBuildTask } = makeExecutor();
-    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' });
+    const job = makeTaskJob({ backend: 'fuigo', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' });
 
     await expect(executor.executeJob(job)).rejects.toThrow(/workspace/i);
     expect(getOrBuildTask).not.toHaveBeenCalled();

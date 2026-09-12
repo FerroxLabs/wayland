@@ -23,10 +23,6 @@ import {
   connectCodebuddy,
   connectCodex,
   spawnGenericBackend,
-  waylandNanoAuthenticatedArgs,
-  waylandNanoAuthenticatedEnvironment,
-  waylandNanoNonpersistentArgs,
-  waylandNanoNonpersistentEnvironment,
   type NpxConnectHooks,
   type SpawnResult,
 } from '@process/agent/acp/acpConnectors';
@@ -48,7 +44,6 @@ export class LegacyConnectorFactory implements ClientFactory {
     return new ProcessAcpClient(spawnFn, {
       backend: config.agentBackend,
       handlers,
-      ...(config.waylandNanoActivation && { waylandNanoActivation: config.waylandNanoActivation }),
     });
   }
 }
@@ -61,47 +56,6 @@ export class LegacyConnectorFactory implements ClientFactory {
 async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
   const backend = config.agentBackend;
   const cwd = config.cwd;
-
-  if (backend === 'wnano') {
-    const activation = config.waylandNanoActivation;
-    const mode = config.waylandNanoMode ?? (activation ? 'authenticated' : 'nonpersistent');
-    if (mode === 'authenticated' && !activation) {
-      throw new AcpError('CONNECTION_FAILED', 'Authenticated Wayland Nano requires owner-resolved authority', {
-        retryable: false,
-      });
-    }
-    if (mode === 'nonpersistent' && activation) {
-      await activation.binary.dispose();
-      throw new AcpError('CONNECTION_FAILED', 'Nonpersistent Wayland Nano cannot consume persistent authority', {
-        retryable: false,
-      });
-    }
-    if (!activation) {
-      if (!config.command) {
-        throw new AcpError('CONNECTION_FAILED', 'No CLI path for bounded nonpersistent Wayland Nano', {
-          retryable: false,
-        });
-      }
-      const result = await spawnGenericBackend(
-        backend,
-        config.command,
-        cwd,
-        waylandNanoNonpersistentArgs(),
-        waylandNanoNonpersistentEnvironment(config.env)
-      );
-      return result.child;
-    }
-    const result = await spawnGenericBackend(
-      backend,
-      activation.binary.canonicalPath,
-      cwd,
-      waylandNanoAuthenticatedArgs(),
-      waylandNanoAuthenticatedEnvironment(activation.spawnEnv),
-      undefined,
-      activation.binary
-    );
-    return result.child;
-  }
 
   // Shape-checked, not merely truthy: `launch` reaches here from the persisted
   // conversation `extra`, which is untyped JSON at runtime. A malformed descriptor

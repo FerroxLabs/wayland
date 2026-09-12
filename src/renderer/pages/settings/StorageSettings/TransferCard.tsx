@@ -42,7 +42,7 @@ const FAMILY_LABELS = {
   },
   'core.engine-state': {
     key: 'settings.storagePage.transfer.families.coreEngine',
-    fallback: 'Wayland Core memory and profiles',
+    fallback: 'Engine memory and state',
   },
   'external.backend-handles': {
     key: 'settings.storagePage.transfer.families.backends',

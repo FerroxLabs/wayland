@@ -62,13 +62,12 @@ export function trustedWorkspaceAutoApprovesAcpKind(kind: string | undefined | n
 }
 
 /**
- * True when a trusted-edits workspace should auto-approve this Gemini/WCore
- * confirmation `type`. ONLY `'edit'` is auto-approved on these backends.
+ * True when a trusted-edits workspace should auto-approve this Gemini
+ * confirmation `type`. ONLY `'edit'` is auto-approved on this backend.
  *
  * `'info'` is deliberately NOT auto-approved: unlike the ACP `read` kind, the
- * Gemini/WCore `info` category is an engine-assigned CATCH-ALL (WCore routes
- * unrecognized categories to `info`; Gemini's info-confirmation shape carries
- * `urls` for network fetches). Auto-approving `info` under trust would silently
+ * Gemini `info` category is an engine-assigned CATCH-ALL (Gemini's
+ * info-confirmation shape carries `urls` for network fetches). Auto-approving `info` under trust would silently
  * auto-approve network/unclassified tools — exactly the "prompt on network"
  * contract we must keep. Genuine file reads on these backends generally do not
  * raise a confirmation at all, so restricting to `edit` costs little and keeps

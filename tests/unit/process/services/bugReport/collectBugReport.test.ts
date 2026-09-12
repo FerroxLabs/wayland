@@ -16,7 +16,7 @@ import type { ConciergeDiagOverview } from '@process/resources/builtinMcp/concie
 
 const capturePageMock = vi.hoisted(() => vi.fn());
 const writeImageMock = vi.hoisted(() => vi.fn());
-const detectWCoreMock = vi.hoisted(() => vi.fn());
+const resolveFuigoBinaryMock = vi.hoisted(() => vi.fn());
 const overviewMock = vi.hoisted(() => vi.fn());
 
 vi.mock('electron', () => ({
@@ -26,7 +26,7 @@ vi.mock('electron', () => ({
   clipboard: { writeImage: writeImageMock },
 }));
 
-vi.mock('@process/agent/wcore/binaryResolver', () => ({ detectWCore: detectWCoreMock }));
+vi.mock('@process/agent/fuigo/runtime', () => ({ resolveFuigoBinary: resolveFuigoBinaryMock }));
 
 vi.mock('@process/resources/builtinMcp/conciergeDiagServer', () => ({
   createConciergeDiagServer: () => ({ overview: overviewMock }),
@@ -96,9 +96,9 @@ describe('collectBugReport', () => {
   beforeEach(() => {
     capturePageMock.mockReset();
     writeImageMock.mockReset();
-    detectWCoreMock.mockReset();
+    resolveFuigoBinaryMock.mockReset();
     overviewMock.mockReset();
-    detectWCoreMock.mockReturnValue({ available: true, version: 'v0.12.20' });
+    resolveFuigoBinaryMock.mockReturnValue({ path: '/bundle/fuigo', version: '1.0.13' });
     overviewMock.mockReturnValue(emptyOverview());
   });
 
@@ -111,7 +111,7 @@ describe('collectBugReport', () => {
   it('captures the window, copies ONLY to clipboard (no temp file), and gathers versions', async () => {
     const data = await collectBugReport(makeWin());
     expect(data.appVersion).toBe('0.13.0');
-    expect(data.engineVersion).toBe('v0.12.20');
+    expect(data.engineVersion).toBe('1.0.13');
     expect(data.platform).toBe(process.platform);
     expect(data.screenshotCopied).toBe(true);
     expect(writeImageMock).toHaveBeenCalledOnce();
@@ -136,7 +136,7 @@ describe('collectBugReport', () => {
   });
 
   it('degrades engineVersion to null when detection throws', async () => {
-    detectWCoreMock.mockImplementation(() => {
+    resolveFuigoBinaryMock.mockImplementation(() => {
       throw new Error('no binary');
     });
     const data = await collectBugReport(makeWin());

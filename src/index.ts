@@ -945,20 +945,6 @@ const handleAppReady = async (): Promise<void> => {
 
   _sentry?.setUser({ id: getOrCreateAnalyticsId() });
 
-  // Activate a staged engine update from a previous session BEFORE the engine
-  // subsystem initializes and can spawn (and re-lock) the binary. The in-app
-  // engine update stages to `<binary>.pending` when the live binary is locked
-  // (Windows, where the running engine holds an exclusive handle); this swaps it
-  // into place while no engine is running yet.
-  try {
-    const { applyPendingWCoreUpdate } = await import('./process/agent/wcore/wcoreUpdater');
-    if (applyPendingWCoreUpdate().applied) {
-      console.log('[Wayland] applied staged engine update on startup');
-    }
-  } catch (err) {
-    console.error('[Wayland] applyPendingWCoreUpdate failed:', err);
-  }
-
   try {
     await initializeProcess();
     mark('initializeProcess');
@@ -1292,7 +1278,7 @@ type CleanupModules = {
   // #139: reap webhook tunnel CLIs (cloudflared/ngrok/tailscale) on quit so
   // their long-lived child processes don't orphan past the app.
   tunnel: typeof import('@process/channels/tunnel');
-  // #443: last-resort reaper for wayland-core / ACP engine children. Runs after
+  // #443: last-resort reaper for ACP engine children. Runs after
   // the graceful per-agent kill to force-kill any child left over (e.g. when the
   // per-step budget truncates a slow kill), so engine processes never orphan.
   agentChildren: typeof import('@process/agent/agentChildRegistry');
@@ -1569,15 +1555,6 @@ async function performBeforeQuitCleanup(): Promise<void> {
     // await per-agent kill() with its own 3.5s bound).
     const workerStep = () => withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
 
-    const waylandNanoOwnerStep = () =>
-      withTimeout(
-        'disposeWaylandNanoActivationOwner',
-        import('@process/utils/initBridge').then(({ disposeWaylandNanoActivationOwner }) =>
-          disposeWaylandNanoActivationOwner()
-        ),
-        PER_STEP_TIMEOUT_MS
-      );
-
     const ambientStep = () =>
       withTimeout(
         'destroyAmbientWindow',
@@ -1665,7 +1642,6 @@ async function performBeforeQuitCleanup(): Promise<void> {
       );
 
     await cronStep();
-    await waylandNanoOwnerStep();
     await Promise.allSettled([workerStep(), teamStep()]);
     await Promise.allSettled([
       ambientStep(),
@@ -1679,7 +1655,7 @@ async function performBeforeQuitCleanup(): Promise<void> {
 
     // #443: last-resort engine-child reaper. Runs AFTER the graceful path above
     // (workerStep -> WorkerTaskManager.clear() -> per-agent kill), so normally
-    // there is nothing left. It force-kills any wayland-core / ACP child still
+    // there is nothing left. It force-kills any ACP engine child still
     // alive - e.g. when a per-agent graceful kill was truncated by its 2s budget,
     // or a child was spawned outside a tracked manager - so engine processes
     // never orphan past the app (the "two sets of Wayland" report).

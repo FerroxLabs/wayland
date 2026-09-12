@@ -32,6 +32,8 @@ import { useUsageTelemetry } from '@/renderer/hooks/usage/useUsageTelemetry';
 import { useUserDisplayName } from '@/renderer/hooks/system/useUserDisplayName';
 import { useKickoff } from '@/renderer/hooks/kickoff/useKickoff';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
+import { resolveAcpBackendAlias } from '@/common/utils/buildAgentConversationParams';
 import AgentPillBar from './components/AgentPillBar';
 import { AgentPillBarSkeleton } from './components/GuidSkeleton';
 import GuidActionRow from './components/GuidActionRow';
@@ -146,9 +148,7 @@ const GuidPage: React.FC = () => {
   }, []);
 
   // --- Hooks ---
-  // Track which provider-based agent is selected so model selection persists per agent type
-  const [providerAgentKey, setProviderAgentKey] = useState<'gemini' | 'wcore'>('wcore');
-  const modelSelection = useGuidModelSelection(providerAgentKey);
+  const modelSelection = useGuidModelSelection('gemini');
 
   const resetAssistantRequested = (location.state as { resetAssistant?: boolean } | null)?.resetAssistant === true;
   const agentSelection = useGuidAgentSelection({
@@ -205,14 +205,6 @@ const GuidPage: React.FC = () => {
     setHasInteractedWithAgentSelection(launched);
   }, [location.key]);
   const showPresetHero = agentSelection.isPresetAgent && hasInteractedWithAgentSelection;
-
-  // Sync providerAgentKey when selected agent changes
-  useEffect(() => {
-    const agent = agentSelection.selectedAgent;
-    if (agent === 'gemini' || agent === 'wcore') {
-      setProviderAgentKey(agent);
-    }
-  }, [agentSelection.selectedAgent]);
 
   const guidInput = useGuidInput({
     locationState: location.state as { workspace?: string; paletteInitialPrompt?: string } | null,
@@ -571,7 +563,7 @@ const GuidPage: React.FC = () => {
       } else {
         // Extension-bundle assistants follow the same Rory rule. When no user
         // backend pill is active, presetAgentType is left undefined and
-        // selectPresetAssistant defaults to wcore (Wayland Core, the native engine).
+        // selectPresetAssistant defaults to the bundled engine (DEFAULT_PRESET_AGENT_TYPE).
         agentSelection.selectPresetAssistant({
           id: prompt.targetAssistantId,
           presetAgentType: userBackend,
@@ -766,7 +758,7 @@ const GuidPage: React.FC = () => {
     return () => observer.disconnect();
   }, [agentSelection.isPresetAgent, selectedAssistantDescription]);
 
-  const currentPresetAgentType = selectedAssistantRecord?.presetAgentType || 'wcore';
+  const currentPresetAgentType = resolvePresetAgentType(selectedAssistantRecord?.presetAgentType);
   const agentSwitcherItems = useMemo(() => {
     if (!agentSelection.availableAgents) return [];
     // Build from detected execution engines, excluding preset assistants and remote agents
@@ -832,27 +824,21 @@ const GuidPage: React.FC = () => {
     ? agentSelection.currentEffectiveAgentInfo.agentType
     : agentSelection.selectedAgent;
 
-  // `agent-profile` (vendored specialist assistants) and the literal
-  // `wayland-core` both run on the WCore engine, NOT an ACP CLI - the send path
-  // already collapses them to `wcore` (getConversationTypeForBackend in
-  // buildAgentConversationParams). The model picker must use the SAME mapping or
-  // it queries `curatedForAgent('agent-profile')`, gets an empty catalog, and
-  // shows a dead Flux-only / "no models" picker that can never hold a pick
-  // (#380, assistant model picker + persistence). Map at the picker boundary so
-  // assistants surface the Wayland Core catalog and default to a WCore model.
-  const WCORE_ALIAS_TYPES = new Set(['agent-profile', 'wayland-core']);
-  const effectiveAgentType = WCORE_ALIAS_TYPES.has(effectiveAgentTypeRaw) ? 'wcore' : effectiveAgentTypeRaw;
+  // `agent-profile` (vendored specialist assistants) and the legacy engine
+  // alias both run on the bundled Fuigo engine - the send path already
+  // collapses them via resolveAcpBackendAlias (buildAgentConversationParams).
+  // The model picker must use the SAME mapping or it queries
+  // `curatedForAgent('agent-profile')`, gets an empty catalog, and shows a dead
+  // Flux-only / "no models" picker that can never hold a pick (#380, assistant
+  // model picker + persistence). Map at the picker boundary so assistants
+  // surface the Fuigo catalog and default to a Fuigo model.
+  const effectiveAgentType = resolveAcpBackendAlias(effectiveAgentTypeRaw);
 
   // Agents that use configured model providers instead of ACP probe-based models
-  const PROVIDER_BASED_AGENTS = new Set(['gemini', 'wcore']);
+  const PROVIDER_BASED_AGENTS = new Set(['gemini']);
   const isGeminiMode =
     PROVIDER_BASED_AGENTS.has(effectiveAgentType) &&
-    // WCore-alias presets always resolve to the always-present bundled engine, so
-    // the per-agent `isAvailable` probe (keyed on the raw preset type, which is
-    // never a detected backend) must not gate them out of the provider picker.
-    (!agentSelection.isPresetAgent ||
-      agentSelection.currentEffectiveAgentInfo.isAvailable ||
-      WCORE_ALIAS_TYPES.has(effectiveAgentTypeRaw));
+    (!agentSelection.isPresetAgent || agentSelection.currentEffectiveAgentInfo.isAvailable);
 
   // Build the mention dropdown node
   const mentionDropdownNode = (

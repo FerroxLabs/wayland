@@ -109,11 +109,11 @@ describe('configureConsoleLog', () => {
 
       expect(mockLog.hooks.length).toBeGreaterThan(0);
       const hook = mockLog.hooks[mockLog.hooks.length - 1];
-      const out = hook({ level: 'info', data: ['[wcore]', SECRET_LINE] }, {}, 'file');
+      const out = hook({ level: 'info', data: ['[engine]', SECRET_LINE] }, {}, 'file');
 
       expect(out).not.toBe(false);
       const data = (out as LogMessage).data;
-      expect(data[0]).toBe('[wcore]');
+      expect(data[0]).toBe('[engine]');
       expect(String(data[1])).not.toContain('sk-live-ABCDEFGHIJKLMNOP0123456789');
       expect(String(data[1])).toContain('[redacted]');
     });

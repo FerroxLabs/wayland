@@ -178,7 +178,7 @@ test.describe('Team MCP - team_describe_assistant', () => {
       expect(describeText).toContain(presetId!);
       // team_describe_assistant reports the PRESET's backend, not the team
       // leader's. `cowork` declares no presetAgentType, so it resolves to
-      // DEFAULT_PRESET_AGENT_TYPE ('wcore') by design - a typeless preset must
+      // DEFAULT_PRESET_AGENT_TYPE ('fuigo') by design - a typeless preset must
       // start on the bundled engine rather than a third-party CLI.
       expect(describeText).toMatch(/^Backend: \S+$/m);
       expect(describeText).toContain('## Description');

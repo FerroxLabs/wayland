@@ -19,7 +19,7 @@
  * §0 invariant holds end-to-end - a remote session can plant or remove config
  * but can never exfiltrate a key.
  *
- * Gates (the toolKeyRoutes / providerKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` (per-route rate limit) + `validateApiAccess` (token auth).
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verb.
  *  - `requireSecureConfigWrite` (W0 shared guard): refuses a config write over

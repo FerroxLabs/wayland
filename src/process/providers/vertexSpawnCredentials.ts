@@ -1,6 +1,6 @@
 /**
  * Main-process-only carrier for Vertex credentials between registry hydration
- * and the WCore spawn. The symbol property is non-enumerable so it cannot enter
+ * and the engine spawn. The symbol property is non-enumerable so it cannot enter
  * persisted model JSON or renderer IPC by an incidental object spread.
  */
 import type { TProviderWithModel } from '@/common/config/storage';

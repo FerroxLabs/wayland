@@ -2,7 +2,7 @@
  * Catalog provider domain types.
  *
  * The desktop consumes the engine's bundled OpenAI-compatible provider catalog
- * (`wcore-config`'s `data/providers.toml`). The engine serializes each row in
+ * (the vendored engine `providers.toml`). The engine serializes each row in
  * snake_case ({@link RawCatalogEntry}); the desktop works in camelCase
  * ({@link CatalogProviderEntry}). {@link normalizeCatalogEntry} is the single
  * pure mapping between the two. Eligibility/curation lives in
@@ -12,7 +12,7 @@
 
 /**
  * One catalog row exactly as the engine emits it (snake_case, mirrors
- * `wcore-config`'s `CatalogEntry`). `base_url` has no trailing slash.
+ * the engine's `CatalogEntry`). `base_url` has no trailing slash.
  */
 export type RawCatalogEntry = {
   /** CLI id for `--provider <id>`. Unique across the catalog. */

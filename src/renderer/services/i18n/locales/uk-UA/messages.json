@@ -51,6 +51,7 @@
   "export.unavailable": "Експорт діалогу недоступний",
   "unknownMessageType": "Невідомий тип повідомлення: {{type}}",
   "permissionRequest": "Запит на дозвіл",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "Агент запитує дозвіл.",
   "command": "Команда:",
   "chooseAction": "Виберіть дію:",
@@ -89,10 +90,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "Від агента",
-    "preview": "Перегляд",
-    "truncated": "Обрізано — завеликий, щоб показати повністю."
   }
 }

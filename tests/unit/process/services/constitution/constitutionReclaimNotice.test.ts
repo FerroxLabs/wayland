@@ -11,7 +11,7 @@
  * silence.
  *
  * This exercises the seam every backend shares. `composePrompt` is what
- * wayland-core, native ACP (Claude Code / Codex), Gemini, non-native ACP and
+ * native ACP (Claude Code / Codex / Fuigo), Gemini, non-native ACP and
  * Team role prompts all call to resolve the Constitution, so a notice emitted
  * there reaches all of them; the previous version of this test lived inside one
  * manager and mocked the Constitution service wholesale, which meant it could

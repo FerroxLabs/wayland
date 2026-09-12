@@ -196,25 +196,6 @@ export function rowToConversation(row: IConversationRow): TChatConversation {
     } as TChatConversation;
   }
 
-  // Nanobot type
-  if (row.type === 'nanobot') {
-    return {
-      ...base,
-      type: 'nanobot' as const,
-      extra: JSON.parse(row.extra),
-    } as TChatConversation;
-  }
-
-  // Wcore type has model field.
-  if (row.type === 'wcore' && row.model) {
-    return {
-      ...base,
-      type: 'wcore' as const,
-      extra: JSON.parse(row.extra),
-      model: JSON.parse(row.model),
-    } as TChatConversation;
-  }
-
   // Remote type
   if (row.type === 'remote') {
     return {

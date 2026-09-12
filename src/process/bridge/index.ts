@@ -59,7 +59,6 @@ import { startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
 import { initImportBridge } from './importBridge';
 import { initMigrationBridge } from './migrationBridge';
 import { initWorkspaceTrustBridge } from './workspaceTrustBridge';
-import { initWorkspaceFolderGrantsBridge } from './workspaceFolderGrantsBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
@@ -86,12 +85,8 @@ import type { TeamSessionService } from '@process/team/TeamSessionService';
 import type { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import type { ConstitutionArchiveRecoveryService } from '@process/services/constitution/constitutionArchiveRecoveryService';
 import { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
-import { initWcoreToolKeyIpc } from '@process/agent/wcore/toolKeyIpc';
-import { initWcoreConfigBridge } from './wcoreConfigBridge';
-import { initWcoreUpdateBridge } from './wcoreUpdateBridge';
 import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
-import { initEngineConfigRecoveryBridge } from './engineConfigRecoveryBridge';
 import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
 import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
 import { loadManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
@@ -104,7 +99,7 @@ import { loadRetentionWindowMs } from '@/common/types/workspaceRetentionSettings
 import { getDataPath } from '@process/utils';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
-import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
+import { legacyCoreDefaultProfileRoot, legacyCoreNamedProfilesRoot } from '@process/services/recovery/legacyCoreRoots';
 import { getReleaseTrack } from '@/common/releaseTrack';
 import { app } from 'electron';
 import path from 'node:path';
@@ -172,7 +167,6 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initImportBridge();
   initMigrationBridge();
   initWorkspaceTrustBridge();
-  initWorkspaceFolderGrantsBridge();
   initAmbientBridge();
   initNotificationBridge();
   initTaskCompletionNotifier({
@@ -201,9 +195,6 @@ export function initAllBridges(deps: BridgeDependencies): void {
   void initModelRegistryIpc().catch((error) => {
     console.error('[modelRegistry] Failed to initialize IPC:', error);
   });
-  initWcoreToolKeyIpc();
-  initWcoreConfigBridge();
-  initWcoreUpdateBridge();
   initPendingSendBridge();
   initStorageBridge();
   // P2-9: Open / Reveal / Save a copy, addressed by artifact id. Registered
@@ -227,14 +218,14 @@ export function initAllBridges(deps: BridgeDependencies): void {
     },
   });
   initWaylandTransferBridge(async (request) => {
-    const namedProfilesRoot = profilesRoot();
+    const namedProfilesRoot = legacyCoreNamedProfilesRoot();
     const projects = await projectServiceSingleton.listProjects();
     return buildWaylandTransferInventoryPreflight({
       request,
       inventory: {
         userDataRoot: app.getPath('userData'),
         constitutionRoot: path.dirname(namedProfilesRoot),
-        coreDefaultProfileRoot: nativeConfigDir(),
+        coreDefaultProfileRoot: legacyCoreDefaultProfileRoot(),
         coreNamedProfilesRoot: namedProfilesRoot,
         externalWorkspaces: projects
           .filter((project) => Boolean(project.workspace))
@@ -261,7 +252,6 @@ export function initAllBridges(deps: BridgeDependencies): void {
   );
   initOnboardingBridge();
   initDoctorBridge();
-  initEngineConfigRecoveryBridge();
 }
 
 /**
@@ -332,9 +322,7 @@ export {
   initImportBridge,
   initMigrationBridge,
   initWorkspaceTrustBridge,
-  initWorkspaceFolderGrantsBridge,
   initDoctorBridge,
-  initEngineConfigRecoveryBridge,
 };
 export { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 export { disposeAllSnapshots } from './workspaceSnapshotBridge';

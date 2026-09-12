@@ -41,15 +41,15 @@ test.describe('Team page layout - C1', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
     });
     if (!created?.id) {
-      throw new Error('team.create returned null - required backend (wcore) not installed');
+      throw new Error('team.create returned null - required backend (fuigo) not installed');
     }
     const teamId = created.id;
 
@@ -57,7 +57,7 @@ test.describe('Team page layout - C1', () => {
     await page.waitForURL(new RegExp(`/team/${teamId}`), { timeout: 15_000 });
 
     // Header - the ChatLayout renders the team name as the title; the
-    // backend rollup ("1 × wcore") appears in TeamHeaderBadges next to it.
+    // backend rollup ("1 × fuigo") appears in TeamHeaderBadges next to it.
     await expect(page.locator('[data-testid="team-header-badges"]')).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('[data-testid="team-header-backend-rollup"]')).toBeVisible({ timeout: 10_000 });
 

@@ -43,9 +43,8 @@ describe('windows signing exclusions', () => {
       `${UNPACKED}\\resources\\bundled-bun\\win32-arm64\\bun.exe`,
       `${UNPACKED}\\resources\\bundled-officecli\\win32-x64\\officecli.exe`,
       `${UNPACKED}\\resources\\bundled-officecli\\win32-arm64\\officecli.exe`,
-      `${UNPACKED}\\resources\\bundled-wayland-core\\win32-x64\\wayland-core.exe`,
-      `${UNPACKED}\\resources\\bundled-wayland-core\\win32-arm64\\wayland-core.exe`,
-      `${UNPACKED}\\resources\\bundled-wayland-nano\\win32-x64\\wayland-nano.exe`,
+      `${UNPACKED}\\resources\\bundled-fuigo\\win32-x64\\fuigo.exe`,
+      `${UNPACKED}\\resources\\bundled-fuigo\\win32-arm64\\fuigo.exe`,
     ];
     for (const file of pinned) {
       expect(wouldSign(file, signExts), `${file} must not be re-signed`).toBe(false);

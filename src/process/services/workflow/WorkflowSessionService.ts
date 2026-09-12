@@ -106,8 +106,6 @@ export type TurnState = 'ai_waiting_input' | 'stopped' | 'error';
  */
 const agentTypeForBackend = (backend: string): AgentType => {
   if (backend === 'gemini') return 'gemini';
-  if (backend === 'wcore') return 'wcore';
-  if (backend === 'nanobot') return 'nanobot';
   if (backend === 'openclaw-gateway' || backend === 'openclaw') return 'openclaw-gateway';
   if (backend === 'remote') return 'remote';
   // All Claude / Codex / ACP-protocol backends route through 'acp'.

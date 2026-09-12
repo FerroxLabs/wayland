@@ -13,12 +13,7 @@ import { SqliteChannelRepository } from '@process/services/database/SqliteChanne
 import { SqliteConversationRepository } from '@process/services/database/SqliteConversationRepository';
 import { ConversationServiceImpl } from '@process/services/ConversationServiceImpl';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import {
-  installProductionWaylandNanoActivationOwner,
-  workerTaskManager,
-} from '@process/task/workerTaskManagerSingleton';
-import { loadWaylandNanoActivationOwnerOptions } from '@process/agent/activation/waylandNanoActivationOwner';
-import type { WaylandNanoSafeStorage } from '@process/agent/activation/waylandNanoActivationKeyStore';
+import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
 import { TeamSessionService, SqliteTeamRepository } from '@process/team';
 import { initTeamGuideService } from '@process/team/mcp/guide/teamGuideSingleton';
 import { CronRitualScheduler, makeExtensionRegistryRitualsResolver } from '@process/team/ritualScheduler';
@@ -61,7 +56,7 @@ import { addMessage, flushConversationMessages } from '@process/utils/message';
 import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
-import { app, safeStorage } from 'electron';
+import { app } from 'electron';
 import path from 'node:path';
 import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
@@ -76,36 +71,6 @@ import { createProductionConstitutionClassicRecoveryService } from '@process/ser
 import { setConstitutionClassicRecoveryServiceReady } from '@process/services/constitution/constitutionClassicRecoveryService';
 
 logger.config({ print: true });
-
-let waylandNanoOwnerStartup: Promise<void> | null = null;
-let disposeWaylandNanoOwner: (() => Promise<void>) | null = null;
-
-/** Install the default-off Nano owner only after Electron and storage are ready. */
-export function initializeWaylandNanoActivationOwner(): Promise<void> {
-  if (waylandNanoOwnerStartup) return waylandNanoOwnerStartup;
-  waylandNanoOwnerStartup = (async () => {
-    const storage: WaylandNanoSafeStorage = {
-      isEncryptionAvailable: () => safeStorage.isEncryptionAvailable(),
-      getSelectedStorageBackend: () => safeStorage.getSelectedStorageBackend(),
-      encryptString: (value) => safeStorage.encryptString(value),
-      decryptString: (value) => safeStorage.decryptString(value),
-    };
-    const options = await loadWaylandNanoActivationOwnerOptions(app.getPath('userData'), storage);
-    if (!options) return;
-    disposeWaylandNanoOwner = await installProductionWaylandNanoActivationOwner(options);
-  })();
-  return waylandNanoOwnerStartup;
-}
-
-/** Uninstall authority before workers drain and dispose held retry/binary state. */
-export async function disposeWaylandNanoActivationOwner(): Promise<void> {
-  const startup = waylandNanoOwnerStartup;
-  if (startup) await startup;
-  const dispose = disposeWaylandNanoOwner;
-  disposeWaylandNanoOwner = null;
-  waylandNanoOwnerStartup = null;
-  await dispose?.();
-}
 
 const repo = new SqliteConversationRepository();
 const conversationServiceImpl = new ConversationServiceImpl(repo);
@@ -170,7 +135,7 @@ initAllBridges({
 // Initialize cron service (load jobs from database and start timers).
 // Once jobs are loaded, pre-warm the AI SDKs referenced by enabled jobs
 // so scheduled tasks don't pay the lazy-load latency on first fire.
-// Backends with no in-process SDK (ACP CLIs, wcore, remote, etc.) are
+// Backends with no in-process SDK (ACP CLIs, remote, etc.) are
 // no-ops in the pre-warmer - see prewarmProviders.ts.
 //
 // v0.4.7.1 (G-M-2) - also publish the cron readiness promise via
@@ -345,19 +310,10 @@ void getDatabase()
     // handler can reuse it; the parent driver loop below shares it too. Sent
     // `hidden` so the control prompt never appears in the chat tape.
     //
-    // #723: delegates to the reset-aware send module. On a wcore advance it
-    // respawns the backend session (skipCache) and re-seeds only the
-    // immediately-prior deliverable (per-step hard reset), dropping the
-    // accumulated 1..N-1 context; non-wcore (ACP) keeps today's exact behavior.
-    // The visible SQLite transcript is untouched (directive sent hidden; the
-    // reset only reads the message store).
+    // #723: delegates to the reset-aware send module.
     const sendWorkflowDirective = (conversationId: string, directive: string): Promise<void> =>
       sendWorkflowAdvanceDirective(conversationId, directive, {
         getOrBuildTask: (id, opts) => workerTaskManager.getOrBuildTask(id, opts),
-        getConversationType: async (id) => {
-          const conv = await conversationServiceImpl.getConversation(id);
-          return conv?.type ?? null;
-        },
       });
     initWorkflowBridge(workflowService, {
       conversationService: conversationServiceImpl,

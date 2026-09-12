@@ -237,14 +237,6 @@ vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection'
   useGeminiModelSelection: () => ({}),
 }));
 
-vi.mock('@/renderer/pages/conversation/platforms/wcore/WCoreModelSelector', () => ({
-  default: () => null,
-}));
-
-vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreModelSelection', () => ({
-  useWCoreModelSelection: () => ({}),
-}));
-
 vi.mock('@/renderer/pages/team/components/agentSelectUtils', () => ({
   agentFromKey: () => undefined,
   resolveConversationType: () => 'acp',

@@ -16,7 +16,7 @@ import {
 const identity = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const seed: ExecutionSeed = {
   identity,
-  actor: { backend: 'wcore', agentId: 'core', providerId: 'openai', modelId: 'gpt-test' },
+  actor: { backend: 'gemini', agentId: 'gemini', providerId: 'openai', modelId: 'gpt-test' },
   scope: { projectId: 'project-1', workspaceId: 'workspace-1', host: 'desktop', trust: 'trusted', scheduled: false },
   requestedGovernance: { mode: 'autopilot', enforceability: 'enforced' },
 };

@@ -23,7 +23,7 @@
  * stays denial-only. These HTTP routes are a NEW sibling that bypasses the WS
  * bridge entirely; they must NOT be re-allowed in the WS allowlist.
  *
- * Gates (the providerKeyRoutes / toolKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` (per-route rate limit) + `validateApiAccess` (token auth),
  *    wired as route middleware here.
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verb.

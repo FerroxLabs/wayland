@@ -254,7 +254,7 @@ function readAuthorityFile(authorityPath: string, backend: ConstitutionArchiveSe
     // Never let the raw crypto failure escape. It is thrown on every read of a
     // foreign-identity authority, and unclassified it travels the whole
     // readAuthorityFile -> load -> readConstitution -> composePrompt ->
-    // WCoreManager.start chain to land in the user's chat as a bare
+    // agent start chain to land in the user's chat as a bare
     // "Error while decrypting the ciphertext provided to safeStorage" with no
     // remedy attached.
     throw new Error(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED, { cause: error });

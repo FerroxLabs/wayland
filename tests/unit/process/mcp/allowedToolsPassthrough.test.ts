@@ -7,14 +7,10 @@
 /**
  * #1167/#998 - tool selections must survive every enforceable Desktop boundary.
  *
- * There are THREE of them and they live in two files, which is why a partial fix
- * reads as "the switch doesn't work" on some backends and works on others:
+ * The boundary that remains since the Fuigo cutover:
  *   1.  buildAcpSessionMcpServers()      - ACP stdio, via the filter shim
  *   1b. buildAcpSessionMcpServers()      - hosted subsets are refused because
  *                                          standard ACP has no selection field
- *   2.  buildWCoreUserStdioMcpServers()  - the wcore `add_mcp_server` runtime path
- *   3.  toWCoreConfig()                  - the config.toml [mcp.servers] table,
- *                                          and the ONLY path hosted connectors take
  *
  * THE POLARITY TRAP, which is what these tests exist for: this is an ALLOW-list
  * and `[]` is meaningful. Absent means every tool; `[]` means none. Any encoder
@@ -24,12 +20,7 @@
  * path therefore gets its own `[]` assertion rather than one shared one.
  */
 import { describe, expect, it } from 'vitest';
-import {
-  UnsupportedHostedAcpToolSelectionError,
-  buildAcpSessionMcpServers,
-  buildWCoreUserStdioMcpServers,
-} from '@process/agent/acp/mcpSessionConfig';
-import { toMcpServer, toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
+import { UnsupportedHostedAcpToolSelectionError, buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import type { IMcpServer } from '@/common/config/storage';
 
 const ALL: { stdio: true; http: true; sse: true } = { stdio: true, http: true, sse: true };
@@ -99,89 +90,5 @@ describe('#1167 path 1b - ACP session descriptors, hosted http/sse', () => {
 
   it.each(['http', 'sse'] as const)('THE EMPTY CASE on %s: withholds the server', (type) => {
     expect(buildAcpSessionMcpServers([httpServer([], type)], ALL)).toEqual([]);
-  });
-});
-
-describe('#1167 path 2 - the wcore add_mcp_server runtime path', () => {
-  it('omits the key when unset', () => {
-    const [server] = buildWCoreUserStdioMcpServers([stdioServer(undefined)]);
-    expect('allowedTools' in server).toBe(false);
-  });
-
-  it('carries an explicit subset through untransformed', () => {
-    const [server] = buildWCoreUserStdioMcpServers([stdioServer(['alpha'])]);
-    expect(server.allowedTools).toEqual(['alpha']);
-  });
-
-  it('THE EMPTY CASE: withholds the server', () => {
-    expect(buildWCoreUserStdioMcpServers([stdioServer([])])).toEqual([]);
-  });
-});
-
-describe('#1167 path 3 - the config.toml [mcp.servers] table', () => {
-  // This path filters on `enabled` ONLY - there is no `contributesTools` here -
-  // so unlike paths 1 and 2 an empty allow-list really does reach the wire, and
-  // it has to arrive as an empty array rather than as a missing key.
-  it('omits the key when unset', () => {
-    expect('allowedTools' in toWCoreConfig(stdioServer(undefined))).toBe(false);
-  });
-
-  it('carries an explicit subset through untransformed', () => {
-    expect(toWCoreConfig(stdioServer(['alpha'])).allowedTools).toEqual(['alpha']);
-  });
-
-  it('THE EMPTY CASE: emits an empty array, NOT a missing key', () => {
-    const config = toWCoreConfig(stdioServer([]));
-    expect('allowedTools' in config).toBe(true);
-    expect(config.allowedTools).toEqual([]);
-  });
-
-  it('THE EMPTY CASE on a hosted connector, which has no other enforcement route', () => {
-    const config = toWCoreConfig(httpServer([]));
-    expect('allowedTools' in config).toBe(true);
-    expect(config.allowedTools).toEqual([]);
-  });
-
-  it('does not copy the truthiness guard the sibling env/headers fields use', () => {
-    // `env` and `headers` are written only when non-empty. Applying that shape to
-    // an allow-list is the polarity trap: it would erase the difference between
-    // "no opinion" and "nothing allowed".
-    const withEmptyEnv = { ...stdioServer([]), transport: { type: 'stdio', command: 'x', args: [], env: {} } };
-    const config = toWCoreConfig(withEmptyEnv as unknown as IMcpServer);
-    expect('env' in config).toBe(false); // the guard is correct for env...
-    expect(config.allowedTools).toEqual([]); // ...and must NOT be applied here
-  });
-});
-
-describe('#1167 path 3b - reading that same table BACK', () => {
-  /**
-   * The write had no matching read, so the round trip FAILED OPEN.
-   *
-   * `toWCoreConfig` emits `allowedTools`; `toMcpServer` - which is what
-   * `detectMcpServers` builds every server from when it imports an existing
-   * wayland-core config - dropped it. So a user who had switched tools off,
-   * then re-detected their config, silently got every tool back, with the UI
-   * showing the full list as though that had always been the setting.
-   */
-  it('carries an allow-list back off the config', () => {
-    const config = toWCoreConfig(stdioServer(['alpha', 'beta']));
-    expect(toMcpServer('demo', config).allowedTools).toEqual(['alpha', 'beta']);
-  });
-
-  it('carries an EMPTY allow-list back, which means none rather than all', () => {
-    const config = toWCoreConfig(stdioServer([]));
-    expect(toMcpServer('demo', config).allowedTools).toEqual([]);
-  });
-
-  it('leaves the key absent when the config never had one', () => {
-    // Absent still means "all tools" - the migration-free default. Inventing a
-    // `[]` here would switch every tool OFF for every pre-existing server.
-    const config = toWCoreConfig(stdioServer(undefined));
-    expect('allowedTools' in toMcpServer('demo', config)).toBe(false);
-  });
-
-  it('round-trips over http too', () => {
-    const config = toWCoreConfig(httpServer(['only-this']));
-    expect(toMcpServer('demo-http', config).allowedTools).toEqual(['only-this']);
   });
 });

@@ -5,11 +5,11 @@
  */
 
 /**
- * Scheduling by chat was unreachable on the Wayland Core backend - the default
+ * Scheduling by chat was unreachable on the bundled engine backend - the default
  * one Concierge runs on.
  *
  * The `[Scheduling (CRITICAL)]` directive lived only in the ACP prompt builder.
- * The WCore/Gemini builder never carried it, `[LOAD_SKILL:]` was advertised but
+ * The prompt-injection builder never carried it, `[LOAD_SKILL:]` was advertised but
  * intercepted only by GeminiAgentManager, and `wayland_search_skills` reads the
  * skill LIBRARY rather than the `_builtin` store - whose nearest cron entry is
  * `cron-scheduler`, generic crontab/systemd advice and precisely the behaviour
@@ -43,8 +43,8 @@ import { buildSystemInstructionsWithSkillsIndex } from '@process/task/agentUtils
 import { buildSkillsIndexText } from '@process/task/AcpSkillManager';
 
 describe('scheduling directive', () => {
-  it('reaches the WCore backend with the parseable block inlined', async () => {
-    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'wcore' } as never)) ?? '';
+  it('reaches the bundled engine backend with the parseable block inlined', async () => {
+    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'fuigo' } as never)) ?? '';
 
     expect(out).toContain('[Scheduling (CRITICAL)]');
     // The exact markers CronCommandDetector matches - a directive that named a
@@ -65,7 +65,7 @@ describe('scheduling directive', () => {
   });
 
   it('does not point at a SKILL.md path these backends cannot read', async () => {
-    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'wcore' } as never)) ?? '';
+    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'fuigo' } as never)) ?? '';
     expect(out).not.toMatch(/cron\/SKILL\.md/);
   });
 });
@@ -78,8 +78,8 @@ describe('[LOAD_SKILL:] is advertised only where a handler exists', () => {
     expect(out).toContain('[LOAD_SKILL:');
   });
 
-  it('is NOT advertised for WCore, where nothing consumes it', async () => {
-    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'wcore' } as never)) ?? '';
+  it('is NOT advertised for the bundled engine, where nothing consumes it', async () => {
+    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'fuigo' } as never)) ?? '';
     expect(out).not.toContain('[LOAD_SKILL:');
   });
 

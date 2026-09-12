@@ -40,9 +40,9 @@ test.describe('Right rail - add teammate (C2)', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
@@ -88,9 +88,9 @@ test.describe('Right rail - add teammate (C2)', () => {
     await page.locator('[data-testid="team-activity-tab-button"]').click();
     const activity = page.locator('[data-testid="team-activity-tab"]');
     await expect(activity).toBeVisible({ timeout: 5_000 });
-    await expect(activity.locator('[data-testid="team-activity-event"][data-event-type="spawn"]').first()).toBeVisible(
-      { timeout: 10_000 }
-    );
+    await expect(activity.locator('[data-testid="team-activity-event"][data-event-type="spawn"]').first()).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Cleanup.
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});

@@ -157,13 +157,13 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const capturedParams: any[] = [];
 const conversationStore = new Map<string, any>();
 vi.mock('@process/services/conversationServiceSingleton', async () => {
-  const { createWCoreAgent } = await import('@process/utils/initAgent');
+  const { createAcpAgent } = await import('@process/utils/initAgent');
   return {
     conversationServiceSingleton: {
       getConversation: vi.fn(async (id: string) => conversationStore.get(id)),
       createConversation: vi.fn(async (params: any) => {
         capturedParams.push(params);
-        const conv: any = await createWCoreAgent(params);
+        const conv: any = await createAcpAgent(params);
         const factoryExtra = conv.extra as Record<string, unknown>;
         for (const [key, value] of Object.entries(params.extra ?? {})) {
           if (value !== undefined && !(key in factoryExtra)) factoryExtra[key] = value;
@@ -202,8 +202,6 @@ import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitte
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
 import { loadBundledRoutines, seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
-import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
-import type { IMcpServer } from '@/common/mcp';
 
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
 
@@ -312,8 +310,8 @@ function userCronJob(workspace: string, conversationId: string): CronJob {
     metadata: {
       conversationId,
       agentConfig: {
-        backend: 'wcore',
-        name: 'wcore',
+        backend: 'fuigo',
+        name: 'fuigo',
         workspace,
         configOptions: {},
       },
@@ -370,7 +368,16 @@ describe('a seeded routine is never asked to write its own SKILL_SUGGEST', () =>
     job.metadata.conversationId = convId;
     await executor.executeJob(job);
 
+    // On an ACP backend the ask is a hidden follow-up sent after the first
+    // finish, not inlined in the task prompt: the watcher is registered with
+    // an onFirstFinish callback, and firing it sends the SKILL_SUGGEST request.
     expect(sent.length).toBe(1);
-    expect(sent[0]).toContain('SKILL_SUGGEST');
+    expect(sent[0]).not.toContain('SKILL_SUGGEST');
+    expect(skillSuggestWatcher.register).toHaveBeenCalledTimes(1);
+    const onFirstFinish = vi.mocked(skillSuggestWatcher.register).mock.calls[0][3];
+    expect(typeof onFirstFinish).toBe('function');
+    await onFirstFinish!();
+    expect(sent.length).toBe(2);
+    expect(sent[1]).toContain('SKILL_SUGGEST');
   });
 });

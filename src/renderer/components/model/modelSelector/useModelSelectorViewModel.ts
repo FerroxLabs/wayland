@@ -24,7 +24,7 @@ import { sortModelsNewestFirst } from '@renderer/utils/model/modelOrder';
 import type { ModelRow, ModelSelectorViewModel, ModelZone } from './modelSelectorTypes';
 
 /** Backends whose config supports an effort/reasoning knob. */
-const EFFORT_BACKENDS = new Set(['codex', 'wcore', 'claude']);
+const EFFORT_BACKENDS = new Set(['codex', 'claude']);
 
 /** Cap on the recently-used zone (Claude-style short list). */
 const RECENT_LIMIT = 4;

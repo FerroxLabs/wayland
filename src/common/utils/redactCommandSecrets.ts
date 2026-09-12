@@ -21,7 +21,7 @@
  *   - URL userinfo passwords (`scheme://user:PASSWORD@host`).
  *
  * This is the command/args RENDER side on desktop; tool OUTPUT redaction is
- * handled separately at the engine emit choke point (wayland-core #584).
+ * handled separately at the engine emit choke point.
  */
 
 /** What a masked secret renders as. Fixed bullets - no last-4, this is a UI display. */

@@ -103,7 +103,7 @@ describe('McpSessionRebindCoordinator', () => {
     await expect(
       coordinator.getOrRebind({
         conversationId: 'chat-1',
-        taskType: 'wcore',
+        taskType: 'acp',
         appliedFingerprint: 'same',
         currentFingerprint: 'same',
         build,

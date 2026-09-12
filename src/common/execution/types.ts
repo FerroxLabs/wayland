@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type ExecutionBackend = 'wcore' | 'acp' | 'gemini';
+export type ExecutionBackend = 'acp' | 'gemini';
 export type ExecutionHost = 'desktop' | 'web' | 'community-cloud' | 'hosted-pro';
 export type ExecutionTrust = 'trusted' | 'untrusted' | 'unknown';
 export type ExecutionLifecycle = 'queued' | 'running' | 'waiting' | 'blocked' | 'completed' | 'failed' | 'cancelled';
@@ -82,7 +82,7 @@ export type ExecutionActivity = Readonly<{
    * declares one. ACP types every tool call `read | edit | execute`
    * (`ToolCallUpdate.update.kind`), while its `title` is a sentence the agent
    * writes - so for ACP this is the only structured identity available, and
-   * `name` is free text. WCore names a registry tool instead and declares no
+   * `name` is free text. Gemini names a registry tool instead and declares no
    * kind, so it leaves this unset and is classified by `name`.
    *
    * Producer-declared, never inferred from arguments or output.

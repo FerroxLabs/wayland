@@ -66,8 +66,8 @@ describe('BaseAgentManager with injected emitter', () => {
     expect(emitter.emitConfirmationUpdate).toHaveBeenCalledWith('conv-acp', confirmation);
   });
 
-  it('addConfirmation works for nanobot agent type', () => {
-    const { agent, emitter } = makeAgent('nanobot');
+  it('addConfirmation works for remote agent type', () => {
+    const { agent, emitter } = makeAgent('remote');
     agent.testAdd({ id: 'conf2', callId: 'call2', options: [] });
     expect(emitter.emitConfirmationAdd).toHaveBeenCalledOnce();
   });
@@ -173,8 +173,8 @@ describe('BaseAgentManager with injected emitter', () => {
     });
   });
 
-  it('sendMessage() works for nanobot agent type', async () => {
-    const { agent } = makeAgent('nanobot');
+  it('sendMessage() works for remote agent type', async () => {
+    const { agent } = makeAgent('remote');
     const spy = vi.spyOn(agent as any, 'postMessagePromise').mockResolvedValue(undefined);
     await agent.sendMessage({ content: 'hi' });
     expect(spy).toHaveBeenCalledWith('send.message', { content: 'hi' });

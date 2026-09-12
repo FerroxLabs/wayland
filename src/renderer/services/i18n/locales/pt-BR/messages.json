@@ -52,6 +52,7 @@
   "export.unavailable": "A exportação da conversa não está disponível",
   "unknownMessageType": "Tipo de mensagem desconhecido: {{type}}",
   "permissionRequest": "Solicitação de Permissão",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "O agente está solicitando permissão.",
   "command": "Comando:",
   "chooseAction": "Escolha uma ação:",
@@ -87,10 +88,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "Do agente",
-    "preview": "Pré-visualizar",
-    "truncated": "Truncado — grande demais para exibir por completo."
   }
 }

@@ -52,7 +52,6 @@ vi.mock('../../src/process/utils/shellEnv', () => ({
   getEnhancedEnv: vi.fn(() => ({})),
 }));
 
-import NanoBotAgentManager from '../../src/process/task/NanoBotAgentManager';
 import OpenClawAgentManager from '../../src/process/task/OpenClawAgentManager';
 import RemoteAgentManager from '../../src/process/task/RemoteAgentManager';
 import { GeminiAgentManager } from '../../src/process/task/GeminiAgentManager';
@@ -71,7 +70,6 @@ function managerStub(extra: Record<string, unknown> = {}) {
 type TurnEndHandler = (outcome: 'ok' | 'aborted' | 'error') => void;
 
 const GATEWAY_MANAGERS = [
-  { name: 'NanoBotAgentManager', proto: NanoBotAgentManager.prototype },
   { name: 'OpenClawAgentManager', proto: OpenClawAgentManager.prototype },
   { name: 'RemoteAgentManager', proto: RemoteAgentManager.prototype },
 ] as const;

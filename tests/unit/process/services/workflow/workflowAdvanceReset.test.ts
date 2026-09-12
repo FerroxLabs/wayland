@@ -5,25 +5,17 @@
  */
 
 /**
- * #723 in-place per-step context reset - unit tests for the extracted
- * reset-aware advance HAND (`sendWorkflowAdvanceDirective`).
+ * #723 workflow advance - unit tests for the extracted advance HAND
+ * (`sendWorkflowAdvanceDirective`).
  *
- * These prove, without spawning a process, the three-part acceptance:
- *  - step-N model input is bounded (a wcore advance RESPAWNS the backend
- *    session with `skipCache: true` and a carry-forward-bounded seed), AND
- *  - the visible transcript is intact (the directive is sent `hidden: true`
- *    and the reset path never mutates the message store), AND
- *  - dependent steps still work (the bound is threaded so the fresh session
- *    is seeded with the immediately-prior deliverable).
- *
- * The scope gate (wcore-only) and the safe fallback on a type-lookup failure
- * are proven here too - a launch failure must never break the parent chat.
+ * These prove, without spawning a process, that the visible transcript is
+ * intact (the directive is sent `hidden: true` and the send path never mutates
+ * the message store) and that advances on one conversation never interleave.
  */
 
 import { describe, expect, it, vi } from 'vitest';
 import {
   sendWorkflowAdvanceDirective,
-  WORKFLOW_RESET_SEED_BOUND,
   type WorkflowAdvanceResetDeps,
 } from '@process/services/workflow/workflowAdvanceReset';
 
@@ -32,36 +24,19 @@ import {
  * standalone message-store surface (`deleteMessage`/`updateMessage`) that the
  * reset must NEVER touch - the automated proxy for "visible transcript intact".
  */
-function makeDeps(conversationType: string | null | (() => never)) {
+function makeDeps() {
   const sendMessage = vi.fn().mockResolvedValue(undefined);
   const getOrBuildTask = vi.fn().mockResolvedValue({ sendMessage });
-  const getConversationType = vi.fn().mockImplementation(async () => {
-    if (typeof conversationType === 'function') return conversationType();
-    return conversationType;
-  });
   // A message-mutation surface the module is NOT given and must never reach for.
   const deleteMessage = vi.fn();
   const updateMessage = vi.fn();
-  const deps: WorkflowAdvanceResetDeps = { getOrBuildTask, getConversationType };
-  return { deps, getOrBuildTask, getConversationType, sendMessage, deleteMessage, updateMessage };
+  const deps: WorkflowAdvanceResetDeps = { getOrBuildTask };
+  return { deps, getOrBuildTask, sendMessage, deleteMessage, updateMessage };
 }
 
-describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
-  it('1. wcore advance respawns with the carry-forward bound (skipCache + seed, yoloMode preserved)', async () => {
-    const { deps, getOrBuildTask } = makeDeps('wcore');
-
-    await sendWorkflowAdvanceDirective('conv-1', 'Proceed to step 2: Draft', deps);
-
-    expect(getOrBuildTask).toHaveBeenCalledTimes(1);
-    expect(getOrBuildTask).toHaveBeenCalledWith('conv-1', {
-      yoloMode: true,
-      skipCache: true,
-      workflowResetSeed: WORKFLOW_RESET_SEED_BOUND,
-    });
-  });
-
+describe('sendWorkflowAdvanceDirective (#723 workflow advance)', () => {
   it('2. the directive is still sent hidden (control prompt never enters the visible transcript)', async () => {
-    const { deps, sendMessage } = makeDeps('wcore');
+    const { deps, sendMessage } = makeDeps();
 
     await sendWorkflowAdvanceDirective('conv-1', 'Proceed to step 2: Draft', deps);
 
@@ -78,8 +53,8 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     expect(String(arg.msg_id)).toContain('workflow-advance-conv-1-');
   });
 
-  it('3. scope gate: a non-wcore (ACP) advance keeps today’s exact behavior - no skipCache, no seed', async () => {
-    const { deps, getOrBuildTask, sendMessage } = makeDeps('acp');
+  it('3. builds the live task in yolo mode without respawning it', async () => {
+    const { deps, getOrBuildTask, sendMessage } = makeDeps();
 
     await sendWorkflowAdvanceDirective('conv-acp', 'Proceed to step 2: Draft', deps);
 
@@ -87,12 +62,10 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     expect(getOrBuildTask).toHaveBeenCalledWith('conv-acp', { yoloMode: true });
     const opts = getOrBuildTask.mock.calls[0][1];
     expect(opts).not.toHaveProperty('skipCache');
-    expect(opts).not.toHaveProperty('workflowResetSeed');
-    // Directive still sent hidden on the ACP path.
     expect(sendMessage).toHaveBeenCalledWith(expect.objectContaining({ hidden: true }));
   });
 
-  it('4. serializes concurrent advances on the same conversation (destructive respawn cannot race)', async () => {
+  it('4. serializes concurrent advances on the same conversation (sends cannot race)', async () => {
     const order: string[] = [];
     let spawnCount = 0;
     let sendCount = 0;
@@ -110,8 +83,7 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
       order.push(`spawn${++spawnCount}`);
       return { sendMessage };
     });
-    const getConversationType = vi.fn().mockResolvedValue('wcore');
-    const deps: WorkflowAdvanceResetDeps = { getOrBuildTask, getConversationType };
+    const deps: WorkflowAdvanceResetDeps = { getOrBuildTask };
 
     const p1 = sendWorkflowAdvanceDirective('conv-1', 'step 2', deps);
     const p2 = sendWorkflowAdvanceDirective('conv-1', 'step 3', deps);
@@ -124,7 +96,7 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     await Promise.all([p1, p2]);
 
     // The second respawn happened strictly AFTER the first send completed - the
-    // destructive skipCache respawns never interleaved.
+    // sends never interleaved.
     expect(order.indexOf('spawn2')).toBeGreaterThan(order.indexOf('send1-end'));
     expect(order).toEqual(['spawn1', 'send1-start', 'send1-end', 'spawn2', 'send2-start', 'send2-end']);
   });
@@ -140,8 +112,7 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
         if (gate) await gate;
       });
       const getOrBuildTask = vi.fn().mockResolvedValue({ sendMessage });
-      const getConversationType = vi.fn().mockResolvedValue('wcore');
-      return { deps: { getOrBuildTask, getConversationType } as WorkflowAdvanceResetDeps, sendMessage };
+      return { deps: { getOrBuildTask } as WorkflowAdvanceResetDeps, sendMessage };
     };
     const a = makeGated(aGate);
     const b = makeGated(null);
@@ -153,20 +124,5 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     expect(b.sendMessage).toHaveBeenCalledTimes(1);
     releaseA();
     await pa;
-  });
-
-  it('5. type-lookup failure is safe: falls back to the non-reset send, never crashes the advance', async () => {
-    const throwing = makeDeps(() => {
-      throw new Error('conversation lookup exploded');
-    });
-    await expect(sendWorkflowAdvanceDirective('conv-1', 'Proceed to step 2', throwing.deps)).resolves.toBeUndefined();
-    // On a lookup failure we take the safe (non-reset) path, not the respawn.
-    expect(throwing.getOrBuildTask).toHaveBeenCalledWith('conv-1', { yoloMode: true });
-    expect(throwing.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ hidden: true }));
-
-    // A null type (no such conversation / unknown) is treated the same way.
-    const nul = makeDeps(null);
-    await sendWorkflowAdvanceDirective('conv-2', 'Proceed to step 2', nul.deps);
-    expect(nul.getOrBuildTask).toHaveBeenCalledWith('conv-2', { yoloMode: true });
   });
 });

@@ -6,10 +6,7 @@
 
 // src/process/task/agentTypes.ts
 
-import type { ResumeSeedOptions } from '@process/task/resumeSeed';
-
-// 'wcore' targets the Wayland-Core Rust engine.
-export type AgentType = 'gemini' | 'acp' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+export type AgentType = 'gemini' | 'acp' | 'openclaw-gateway' | 'remote';
 export type AgentStatus = 'pending' | 'running' | 'finished';
 
 export const CHANNEL_CONVERSATIONAL_POLICY = 'channel-conversational' as const;
@@ -35,12 +32,4 @@ export interface BuildConversationOptions {
    * always strictly under the time to that conversation's next scheduled run.
    */
   unattendedHoldDeadlineMs?: number;
-  /**
-   * #723 per-step context reset: when present, the wcore spawn seeds only this
-   * bounded carry-forward (the immediately-prior deliverable) instead of the
-   * default resume seed. Threaded verbatim as `WCoreManagerData.workflowResetSeed`
-   * into `WCoreManager.start()`. Absent => seeding is byte-identical to today.
-   * The field name is identical at every hop (INVARIANT, see workflowAdvanceReset.ts).
-   */
-  workflowResetSeed?: ResumeSeedOptions;
 }

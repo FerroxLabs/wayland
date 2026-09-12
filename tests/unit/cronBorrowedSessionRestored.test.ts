@@ -7,7 +7,7 @@
  * `extra.currentModelId`, the model row, and `setMode -> saveSessionMode`. Two
  * things survived it:
  *
- *  1. THE BORROWED LIVE SESSION IS NEVER RESTORED. `WCoreManager` has no
+ *  1. THE BORROWED LIVE SESSION IS NEVER RESTORED. The retired Core manager had no
  *     `ensureYoloMode` override, so `BaseAgentManager`'s `false` makes the
  *     executor kill the user's task and rebuild it with `yoloMode: true`; then
  *     `applyAgentSettings` sets `currentMode = 'yolo'` on it (live only). That
@@ -68,7 +68,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    extra: { ...params.extra, workspace: params.extra?.workspace || `/tmp/wcore-temp-${Date.now()}` },
+    extra: { ...params.extra, workspace: params.extra?.workspace || `/tmp/acp-temp-${Date.now()}` },
   };
   conversationStore.set(id, conv);
   return conv;
@@ -108,12 +108,12 @@ function makeUiCreatedJob(overrides?: Partial<NonNullable<CronJob['metadata']['a
     target: { payload: { kind: 'message', text: 'summarise' }, executionMode: 'existing' },
     metadata: {
       conversationId: 'conv-source',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'acp' as CronJob['metadata']['agentType'],
       createdBy: 'user',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: 'Wayland',
         mode: 'yolo',
         modelId: 'model-cron',
@@ -140,11 +140,11 @@ function makeChatProposeJob(): CronJob {
 function seedUserChat() {
   conversationStore.set('conv-source', {
     id: 'conv-source',
-    type: 'wcore',
+    type: 'acp',
     name: 'My project chat',
     createTime: 1000,
     modifyTime: 1000,
-    model: { id: 'm', name: 'm', useModel: 'model-user', platform: 'wcore', baseUrl: '', apiKey: '' },
+    model: { id: 'm', name: 'm', useModel: 'model-user', platform: 'fuigo', baseUrl: '', apiKey: '' },
     extra: {
       workspace: USER_WORKSPACE,
       customWorkspace: true,
@@ -159,16 +159,16 @@ function seedUserChat() {
 function seedCronChild() {
   conversationStore.set('conv-child', {
     id: 'conv-child',
-    type: 'wcore',
+    type: 'acp',
     name: 'Nightly summary - 08/19 09:00',
     createTime: 5000,
     modifyTime: 5000,
-    model: { id: 'm', name: 'm', useModel: 'model-cron', platform: 'wcore', baseUrl: '', apiKey: '' },
+    model: { id: 'm', name: 'm', useModel: 'model-cron', platform: 'fuigo', baseUrl: '', apiKey: '' },
     extra: {
-      workspace: '/tmp/wcore-temp-1755000000000',
+      workspace: '/tmp/acp-temp-1755000000000',
       cronWorkspace: '',
       cronJobId: 'job-ui',
-      backend: 'wcore',
+      backend: 'fuigo',
       sessionMode: 'default',
     },
   });
@@ -181,7 +181,7 @@ function seedCronChild() {
  */
 function makeTask(opts?: { canEnableYolo?: boolean }) {
   return {
-    type: 'wcore',
+    type: 'acp',
     workspace: USER_WORKSPACE,
     sendMessage: vi.fn(async () => {}),
     setMode: vi.fn(async () => ({ success: true })),
@@ -241,7 +241,7 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     expect(taskManager.kill).toHaveBeenLastCalledWith('conv-source');
   });
 
-  it('releases it just the same when wcore could not enable yolo dynamically (the real path)', async () => {
+  it('releases it just the same when the engine could not enable yolo dynamically (the real path)', async () => {
     seedUserChat();
     // All scheduled runs now recreate the runtime with their declared policy,
     // regardless of the retired manager's old blanket-enable capability.
@@ -351,7 +351,7 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
 
     await executor.executeJob(makeUiCreatedJob());
 
-    live.set('conv-source', { ...makeTask(), type: 'wcore-successor' });
+    live.set('conv-source', { ...makeTask(), type: 'acp-successor' });
     busyGuard.setProcessing('conv-source', false);
     await flushMacrotasks();
 

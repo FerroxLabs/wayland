@@ -14,7 +14,7 @@ import { describe, expect, it } from 'vitest';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 import { DEFAULT_PRESET_AGENT_TYPE, resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import {
-  adaptWCoreMessages,
+  adaptGeminiMessages,
   evaluateArtifactDelivery,
   projectExecution,
   selectCitationLedger,
@@ -23,8 +23,16 @@ import {
   type TrustedArtifactReceipt,
 } from '@/common/execution';
 import { deriveWorkbenchProjections } from '@/renderer/pages/conversation/components/WorkbenchHost/projections/model';
-import { assertCitedText } from '../../e2e/cowork/replayContract';
 import type { TMessage } from '@/common/chat/chatLib';
+
+function assertCitedText(text: string, requiredMarkers: readonly string[]): void {
+  const canonical = text.replace(/\s+/g, ' ').trim().toLocaleLowerCase('en');
+  for (const marker of requiredMarkers) {
+    if (!canonical.includes(marker.toLocaleLowerCase('en'))) {
+      throw new Error(`M8_CITATION_OR_CONTENT_MISSING:${marker}`);
+    }
+  }
+}
 
 const identity = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const now = 9_000;
@@ -32,7 +40,7 @@ const digest = (char: string): `sha256:${string}` => `sha256:${char.repeat(64)}`
 const artifactDigest = digest('a');
 const seed: ExecutionSeed = {
   identity,
-  actor: { backend: 'wcore', agentId: 'core' },
+  actor: { backend: 'gemini', agentId: 'gemini' },
   scope: { projectId: 'project-1', workspaceId: 'workspace-1', host: 'desktop', trust: 'trusted', scheduled: false },
   requestedGovernance: { mode: 'trusted-edits', enforceability: 'enforced' },
 };
@@ -164,7 +172,7 @@ describe('COW-06 ordinary-composer source-to-delivery journey', () => {
     // No dedicated agent type: Cowork is a preset over the same chat route/kernel.
     expect(cowork?.presetAgentType).toBeUndefined();
     expect(resolvePresetAgentType(cowork?.presetAgentType)).toBe(DEFAULT_PRESET_AGENT_TYPE);
-    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('wcore');
+    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('fuigo');
   });
 
   it('projects one canonical history that carries steer, citations, validation, and a verified receipt', () => {
@@ -233,7 +241,7 @@ describe('COW-06 ordinary-composer source-to-delivery journey', () => {
     ]);
   });
 
-  it('populates the type-aware validation slot from a real officecli-validate tool run (no Core change)', () => {
+  it('populates the type-aware validation slot from a real officecli-validate tool run (no engine change)', () => {
     const messages = [
       {
         id: 'user-1',
@@ -257,7 +265,7 @@ describe('COW-06 ordinary-composer source-to-delivery journey', () => {
         createdAt: now,
       },
     ] as TMessage[];
-    const events = adaptWCoreMessages(messages, { identity, observedAt: now });
+    const events = adaptGeminiMessages(messages, { identity, observedAt: now });
     const snapshot = projectExecution(seed, events, { now });
     expect(snapshot.validation).toMatchObject({ status: 'valid', declaredType: 'docx', method: 'officecli' });
     expect(

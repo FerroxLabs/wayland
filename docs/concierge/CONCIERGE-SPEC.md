@@ -64,7 +64,7 @@ Integration points re-verified live on this base (see `CONTRACT.md` for exact si
 - **Model/provider catalog** — `src/process/providers/ipc/modelRegistryIpc.ts`:
   `getProviderCatalog()` is a **direct main-callable export** (~100 providers); curated models per
   agent via the function behind `curatedForAgent`.
-- **System-prompt assembly (native Wayland Core)** — `src/process/task/agentUtils.ts`
+- **System-prompt assembly (bundled Fuigo engine)** — `src/process/task/agentUtils.ts`
   `buildSystemInstructionsWithSkillsIndex(config: FirstMessageConfig)`. Block order:
   presetContext → skills index → team guide → workflow protocol, then `composePrompt` prepends the
   Constitution.
@@ -179,7 +179,7 @@ skill. Pinned first; default landing persona behind `concierge.defaultPersona`.
 
 ### 1.7 Phase 1 acceptance
 
-- Native Wayland Core chat AND a Claude Code/Codex ACP chat: "what can you do?" returns an accurate
+- Bundled Fuigo engine chat AND a Claude Code/Codex ACP chat: "what can you do?" returns an accurate
   summary (real skill/workflow counts, real connected providers); "how do I connect Claude /
   schedule a task?" returns correct steps + one offer.
 - Default home lands on Concierge (with setting ON); pill surfaces live-state suggestions.
@@ -253,7 +253,7 @@ remains; otherwise its seams are in place and it is the immediate next slice (no
 
 - No changes to the release lanes, the `wl` board, or other instances' work — Concierge is isolated
   in this worktree until Sean lands it. No new model runtime. No telemetry beyond what exists.
-- Wayland Core (engine repo) changes are NOT expected; flag immediately if any surface requires one.
+- Fuigo (engine repo) changes are NOT expected; flag immediately if any surface requires one.
 
 ## 6. Build sequence (one day)
 

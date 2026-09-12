@@ -134,7 +134,7 @@ describe('useAutoTitle', () => {
    * first message to derive from. The path still must not be the title.
    */
   it('falls back to the default title when a path-named chat has no messages yet', async () => {
-    const workspace = '/Users/sean/.wayland-dev/wcore-temp-1786444628540';
+    const workspace = '/Users/sean/.wayland-dev/acp-temp-1786444628540';
     conversationGetMock.mockResolvedValue({
       id: 'conv-1',
       name: workspace,

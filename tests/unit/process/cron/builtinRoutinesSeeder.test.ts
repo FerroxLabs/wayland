@@ -89,7 +89,10 @@ describe('built-in routines seeder', () => {
     expect(jobs.size).toBe(routines.length);
     const stillEnabled = [...jobs.values()].filter((j) => j.enabled).map((j) => j.routineId);
     expect(stillEnabled).toEqual([]);
-    expect([...jobs.values()].every((job) => job.mode === 'auto_edit')).toBe(true);
+    // The seeder pins Fuigo's unattended-safe mode (acceptEdits: edits
+    // auto-approved, commands still surface) - never a blanket full-auto mode
+    // inferred from the backend name.
+    expect([...jobs.values()].every((job) => job.mode === 'acceptEdits')).toBe(true);
   });
 
   it('is idempotent, so reboots never stack duplicates', async () => {

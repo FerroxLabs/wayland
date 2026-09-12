@@ -275,7 +275,7 @@ describe('F2b — a bare @wayland filename is expanded ONLY on catalog provenanc
   });
 
   it('applyBuiltinMcpRuntime reads provenance off the record itself', () => {
-    // The publication chokepoints (McpService, AcpAgentManager, WCoreManager)
+    // The publication chokepoints (McpService, AcpAgentManager)
     // hand over a whole IMcpServer and pass no deps, so the record must carry it.
     const installed = { ...stdioServer('node', ['builtin-mcp-apple.mjs']), libraryEntryId: APPLE_ENTRY };
     expect(applyBuiltinMcpRuntime(installed, deps()).transport).toEqual({

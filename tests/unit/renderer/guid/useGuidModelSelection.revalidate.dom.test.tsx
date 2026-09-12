@@ -18,7 +18,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * `modelRegistry.listChanged`, but the home picker's SWR view
  * (`model.config.welcome`) used to ignore that event, so its cache stayed on
  * the empty cold-start snapshot, `currentModel` never resolved, and the first
- * send was silently dropped by the wcore "no model configured" guard.
+ * send was silently dropped by the "no model configured" guard.
  *
  * The fix subscribes the hook to `modelRegistry.listChanged` and revalidates.
  * This test proves that firing the event after a connect resolves
@@ -72,7 +72,7 @@ vi.mock('@/common/config/storage', () => ({
   },
 }));
 
-// No Google Auth in play for the wcore home picker.
+// No Google Auth in play for the home picker.
 vi.mock('@renderer/hooks/agent/useGeminiGoogleAuthModels', () => ({
   useGeminiGoogleAuthModels: () => ({ geminiModeOptions: [], isGoogleAuth: false }),
 }));
@@ -92,7 +92,7 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
   });
 
   it('resolves currentModel to flux-auto after a connect emits modelRegistry.listChanged', async () => {
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
 
     // Brand-new user, model config still empty: no model resolves and the first
     // send would be silently dropped.
@@ -119,7 +119,7 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
     // onboarding Flux connect pins flux-auto + turns routing on. The lock used to
     // keep the stale local pick in-session until an app restart re-read the pin.
     modelConfig = [{ id: 'ollama', platform: 'ollama', model: ['smollm2:135m'] }];
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
 
     // Cold start with only the local model present -> it wins the default.
     await waitFor(() => expect(result.current.currentModel?.useModel).toBe('smollm2:135m'));
@@ -127,7 +127,7 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
     // Onboarding Flux connect: flux-auto becomes available, routing flips on, and
     // the default-model pin is rewritten to flux-auto. Fire listChanged as a real
     // connect does.
-    store.set('wcore.defaultModel', { id: 'flux-router', useModel: 'flux-auto' });
+    store.set('gemini.defaultModel', { id: 'flux-router', useModel: 'flux-auto' });
     routeThroughFlux = true;
     modelConfig = [
       { id: 'ollama', platform: 'ollama', model: ['smollm2:135m'] },
@@ -143,13 +143,13 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
     // The lock-yield must only promote an UNCHOSEN default to flux-auto, never
     // override a model the user actually picked (their saved pin comes first in
     // the resolution order).
-    store.set('wcore.defaultModel', { id: 'openai', useModel: 'gpt-5.5' });
+    store.set('gemini.defaultModel', { id: 'openai', useModel: 'gpt-5.5' });
     routeThroughFlux = true;
     modelConfig = [
       { id: 'openai', platform: 'openai', model: ['gpt-5.5'] },
       { id: 'flux-router', platform: 'flux-router', model: ['flux-auto'] },
     ];
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
 
     await waitFor(() => expect(result.current.currentModel?.useModel).toBe('gpt-5.5'));
     // Give the flux-override path a chance to (wrongly) replace it.
@@ -165,7 +165,7 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
       { id: 'openai', platform: 'openai', model: ['gpt-5.5'], enabled: false },
       { id: 'lmstudio', platform: 'openai-compatible', model: ['local-a'] },
     ];
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
 
     await waitFor(() => expect(result.current.modelList).toHaveLength(1));
     expect(result.current.modelList.map((p) => p.id)).toEqual(['lmstudio']);

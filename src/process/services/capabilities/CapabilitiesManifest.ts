@@ -216,8 +216,8 @@ function buildOfficeAuthoringLine(readiness: CapabilityReadiness): string {
   return `- Native Office authoring: unavailable; ${sanitizeToken(readiness.reason)} Do not guess commands or use a hosted fallback.`;
 }
 
-function normalizeCapabilityBackend(agentKey?: string): 'wcore' | 'gemini' | 'acp' {
-  return agentKey === 'wcore' || agentKey === 'gemini' ? agentKey : 'acp';
+function normalizeCapabilityBackend(agentKey?: string): 'gemini' | 'acp' {
+  return agentKey === 'gemini' ? agentKey : 'acp';
 }
 
 /**

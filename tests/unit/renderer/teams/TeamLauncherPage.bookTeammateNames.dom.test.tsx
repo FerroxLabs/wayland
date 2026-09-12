@@ -102,11 +102,9 @@ vi.mock('@/renderer/hooks/assistant', () => ({
 }));
 
 const availableBackendsMock = vi.hoisted(() => ({
-  available: ['gemini', 'claude', 'wayland-core'],
+  available: ['gemini', 'claude', 'fuigo'],
   recommend: (presetAgentType?: string) =>
-    presetAgentType && ['gemini', 'claude', 'wayland-core'].includes(presetAgentType)
-      ? presetAgentType
-      : 'wayland-core',
+    presetAgentType && ['gemini', 'claude', 'fuigo'].includes(presetAgentType) ? presetAgentType : 'fuigo',
 }));
 vi.mock('@/renderer/hooks/assistant/useAvailableBackends', () => ({
   useAvailableBackends: () => availableBackendsMock,
@@ -187,7 +185,11 @@ describe('TeamLauncherPage - book teammate friendly names (A1)', () => {
     await waitFor(() => expect(teamCreateInvokeMock).toHaveBeenCalledTimes(1));
     const arg = teamCreateInvokeMock.mock.calls[0][0];
     expect(arg.agents[0]).toEqual(
-      expect.objectContaining({ role: 'leader', customAgentId: 'builtin-book-story-architect', agentName: 'Story Architect' })
+      expect.objectContaining({
+        role: 'leader',
+        customAgentId: 'builtin-book-story-architect',
+        agentName: 'Story Architect',
+      })
     );
     expect(arg.agents[1]).toEqual(
       expect.objectContaining({

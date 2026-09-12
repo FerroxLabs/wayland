@@ -37,7 +37,7 @@ import CommandPalette from '@/renderer/components/cmdk/CommandPalette';
 
 const ASSISTANTS = [
   { id: 'cold-outbound', name: 'Cold Outbound', presetAgentType: 'gemini', category: 'builtin' as const },
-  { id: 'code-review', name: 'Code Review', presetAgentType: 'wcore', category: 'builtin' as const },
+  { id: 'code-review', name: 'Code Review', presetAgentType: 'fuigo', category: 'builtin' as const },
   { id: 'marketing', name: 'Marketing Specialist', presetAgentType: 'gemini', category: 'specialist' as const },
 ];
 
@@ -230,7 +230,7 @@ describe('CommandPalette', () => {
   it('keeps colliding assistant and action ids type-safe and activates the exact route action', () => {
     setSources({
       assistants: [
-        { id: 'shared-id', name: 'Shared assistant', presetAgentType: 'wcore', category: 'builtin' as const },
+        { id: 'shared-id', name: 'Shared assistant', presetAgentType: 'fuigo', category: 'builtin' as const },
       ],
       recents: [],
       prompts: [],

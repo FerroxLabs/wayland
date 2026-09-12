@@ -472,27 +472,18 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       .catch(() => setCachedConfigOptions(undefined));
   }, [resolvedBackend]);
 
-  const isGeminiMode = resolvedBackend === 'gemini' || resolvedBackend === 'wcore';
-
-  // WaylandCLI does not support Google Auth - filter it out (mirrors GuidPage.tsx logic)
-  const filteredProviders = useMemo(
-    () =>
-      resolvedBackend === 'wcore'
-        ? providers.filter((p) => !p.platform?.toLowerCase().includes('gemini-with-google-auth'))
-        : providers,
-    [resolvedBackend, providers]
-  );
+  const isGeminiMode = resolvedBackend === 'gemini';
 
   // Build Gemini currentModel from modelId for GuidModelSelector
   const geminiCurrentModel = useMemo<TProviderWithModel | undefined>(() => {
-    if ((resolvedBackend !== 'gemini' && resolvedBackend !== 'wcore') || !modelId) return undefined;
-    for (const p of filteredProviders) {
+    if (resolvedBackend !== 'gemini' || !modelId) return undefined;
+    for (const p of providers) {
       if (getAvailableModels(p).includes(modelId)) {
         return { ...p, useModel: modelId } as TProviderWithModel;
       }
     }
     return undefined;
-  }, [resolvedBackend, modelId, filteredProviders, getAvailableModels]);
+  }, [resolvedBackend, modelId, providers, getAvailableModels]);
 
   const handleGeminiModelSelect = useCallback(
     async (model: TProviderWithModel) => {
@@ -515,7 +506,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   // Load ACP cached model info when backend changes
   useEffect(() => {
-    if (!resolvedBackend || resolvedBackend === 'gemini' || resolvedBackend === 'wcore') {
+    if (!resolvedBackend || resolvedBackend === 'gemini') {
       setAcpCachedModelInfo(null);
       return;
     }
@@ -537,12 +528,6 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           if (preferred) setModelId(preferred);
         })
         .catch((err) => console.warn('[CreateTaskDialog.get gemini.defaultModel]', err));
-    } else if (resolvedBackend === 'wcore') {
-      ConfigStorage.get('wcore.defaultModel')
-        .then((saved) => {
-          if (saved?.useModel) setModelId(saved.useModel);
-        })
-        .catch((err) => console.warn('[CreateTaskDialog.get wcore.defaultModel]', err));
     }
   }, [resolvedBackend, modelId]);
 
@@ -1120,10 +1105,10 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                     </label>
                     <GuidModelSelector
                       isGeminiMode={isGeminiMode}
-                      modelList={filteredProviders}
+                      modelList={providers}
                       currentModel={geminiCurrentModel}
                       setCurrentModel={handleGeminiModelSelect}
-                      agentKey={resolvedBackend ?? 'wcore'}
+                      agentKey={resolvedBackend ?? 'fuigo'}
                       currentAcpCachedModelInfo={acpCachedModelInfo}
                       selectedAcpModel={modelId ?? null}
                       setSelectedAcpModel={handleAcpModelSelect}

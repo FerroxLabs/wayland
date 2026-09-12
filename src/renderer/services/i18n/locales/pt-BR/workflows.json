@@ -38,8 +38,5 @@
   },
   "whatHappens": "Quando você iniciar isto",
   "bodyFallback": "O agente carrega este fluxo de trabalho como sua primeira diretriz e te conduz por ele passo a passo. Você pode interromper ou mudar de direção a qualquer momento.",
-  "noDescription": "Nenhuma descrição fornecida.",
-  "launch": {
-    "placeholder": "A integração de inicialização está a caminho. Em breve você poderá escolher um engine (Wayland Core / Gemini / Claude / Codex), e o fluxo de trabalho será carregado como a primeira diretriz do agente em um chat novo."
-  }
+  "noDescription": "Nenhuma descrição fornecida."
 }

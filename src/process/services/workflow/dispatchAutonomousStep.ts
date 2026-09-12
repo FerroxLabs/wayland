@@ -7,7 +7,7 @@
 /**
  * `dispatchAutonomousStep` - v1 implementation of the Run-autonomously path
  * described in SPEC §11. The original spec assumed a `FleetDispatcher`
- * primitive from `wcore` (the Rust engine); that primitive is NOT available
+ * primitive from the retired Rust engine; that primitive is NOT available
  * in the app's TypeScript layer. The pragmatic v1 here spawns a CHILD
  * conversation scoped to a single step and sends it a focused directive.
  *
@@ -62,7 +62,7 @@ export type AutonomousDispatchDeps = {
   /**
    * Resolver for the model the child conversation should run on. We can't
    * read `parent.model` directly because most conversation backends
-   * (`acp`, `codex`, `openclaw-gateway`, `nanobot`, `remote`, `wcore`) Omit
+   * (`acp`, `codex`, `openclaw-gateway`, `remote`) Omit
    * `model` from `TChatConversation` - the model lives in backend-specific
    * extras instead (e.g. `currentModelId`). The cleanest v1 reuse: the
    * caller supplies the same default-model resolver the workflow service
@@ -150,8 +150,7 @@ export async function dispatchAutonomousStep(
   // in particular) read this at spawn; without it the child worker falls back
   // to the CLI default model (e.g. gpt-5.3-codex), which a ChatGPT-account
   // user cannot use. (GitHub #111.)
-  const inheritedModelId =
-    typeof parentExtra.currentModelId === 'string' ? parentExtra.currentModelId : undefined;
+  const inheritedModelId = typeof parentExtra.currentModelId === 'string' ? parentExtra.currentModelId : undefined;
 
   const dispatchId = randomUUID();
   const childName = `${parent.workflow_title} - Step ${stepN}`;

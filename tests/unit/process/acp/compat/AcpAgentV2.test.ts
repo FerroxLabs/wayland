@@ -1004,6 +1004,33 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
 
       vi.useRealTimers();
     });
+
+    it('skips session.setModel for a Flux tier on claude (env-carried; the bridge rejects it)', async () => {
+      const agent = await createStartedAgent({ backend: 'claude' });
+      capturedCallbacks.onModelUpdate({ currentModelId: 'claude-4', availableModels: [] });
+
+      const result = await agent.setModelByConfigOption('flux-reasoning');
+
+      expect(mockSessionMethods.setModel).not.toHaveBeenCalled();
+      expect(result?.currentModelId).toBe('claude-4');
+    });
+
+    it('sends session.setModel for a Flux tier on fuigo (the tier is a catalog model there)', async () => {
+      const agent = await createStartedAgent({ backend: 'fuigo' });
+      mockSessionMethods.setModel.mockImplementation(() => {
+        setTimeout(() => {
+          capturedCallbacks.onModelUpdate({
+            currentModelId: 'flux-reasoning',
+            availableModels: [{ modelId: 'flux-reasoning', name: 'flux-reasoning', tier: 'premium' }],
+          });
+        }, 0);
+      });
+
+      const result = await agent.setModelByConfigOption('flux-reasoning');
+
+      expect(mockSessionMethods.setModel).toHaveBeenCalledWith('flux-reasoning');
+      expect(result?.currentModelId).toBe('flux-reasoning');
+    });
   });
 
   describe('setMode()', () => {

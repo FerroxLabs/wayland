@@ -30,7 +30,7 @@ function makeJob(overrides: Partial<CronJob> = {}): CronJob {
     metadata: {
       conversationId: 'conversation-1',
       conversationTitle: 'Reports',
-      agentType: 'wcore',
+      agentType: 'fuigo',
       createdBy: 'user',
       createdAt: 1000,
       updatedAt: 1000,

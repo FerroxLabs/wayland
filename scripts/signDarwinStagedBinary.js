@@ -4,7 +4,7 @@
 //
 // Apple refuses to notarize an app that contains an unsigned or merely ad-hoc /
 // linker-signed Mach-O. Several binaries we bundle are exactly that: our own
-// wayland-core, wayland-nano and wayland-constitution-fs ship linker-signed
+// fuigo and wayland-constitution-fs ship linker-signed
 // from their own release pipelines, and the whatsapp-bridge sharp and bare-*
 // natives are unsigned npm artifacts. bundled-bun and bundled-officecli are the
 // exceptions - their publishers sign them properly, so they are left untouched.

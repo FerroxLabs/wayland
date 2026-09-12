@@ -29,7 +29,7 @@ import type { IMcpServer } from '@/common/config/storage';
 const { getAgentMcpConfigs, probeInvoke, getAvailableAgents, listIdentity } = vi.hoisted(() => ({
   getAgentMcpConfigs: vi.fn(async () => ({ success: true, data: [] })),
   probeInvoke: vi.fn(),
-  getAvailableAgents: vi.fn(async () => ({ success: true, data: [{ backend: 'wcore', name: 'Wayland Core' }] })),
+  getAvailableAgents: vi.fn(async () => ({ success: true, data: [{ backend: 'fuigo', name: 'Fuigo' }] })),
   /**
    * `version` is bumped by the test to hand the page a NEW array with
    * IDENTICAL contents — the exact thing a storage read does after any write.

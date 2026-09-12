@@ -20,7 +20,7 @@ const LEVELS: EffortLevel[] = ['low', 'medium', 'high'];
 
 /**
  * Conditional "Effort: <level> >" sub-row shown only for effort-capable backends
- * (Codex / WCore / Claude-ACP). Opens an Arco popover with low/medium/high and
+ * (Codex / Claude-ACP). Opens an Arco popover with low/medium/high and
  * the reasoning descriptors mirrored from `src/process/task/codexConfig.ts`.
  * Mounted by the flyout only when `vm.effortSupported`.
  */

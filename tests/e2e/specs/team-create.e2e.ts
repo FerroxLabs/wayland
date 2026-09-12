@@ -65,7 +65,7 @@ async function primeSiderCreateAffordance(page: Page): Promise<void> {
         slotId: '',
         conversationId: '',
         role: 'leader',
-        agentType: 'wayland-core',
+        agentType: 'fuigo',
         agentName: 'Leader',
         conversationType: 'acp',
         status: 'pending',

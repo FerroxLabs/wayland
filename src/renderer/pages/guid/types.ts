@@ -11,7 +11,7 @@ import type { AcpBackendConfig, AcpModelInfo } from '@/common/types/acpTypes';
 /**
  * Available agent entry returned by the backend.
  * `backend` is typed as `string` because the IPC layer returns plain strings
- * and the superset includes non-ACP values like `'remote'` and `'wcore'`.
+ * and the superset includes non-ACP values like `'remote'`.
  */
 export type AvailableAgent = {
   backend: string;

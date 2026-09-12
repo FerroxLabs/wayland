@@ -125,13 +125,13 @@ describe('TeamSessionService.resolveOwningProviderModelById - backend scoping (#
     expect(owned).toBeNull();
   });
 
-  it('keeps first-match behavior for non-Gemini (wcore) teammates', async () => {
+  it('keeps first-match behavior for non-Gemini (fuigo) teammates', async () => {
     mockConfigGet.mockResolvedValue([
       makeProvider({ platform: 'openrouter', model: ['deepseek-chat'] }),
       makeProvider({ platform: 'deepseek', model: ['deepseek-chat'] }),
     ]);
 
-    const owned = await makeService().resolveOwningProviderModelById('deepseek-chat', 'wcore');
+    const owned = await makeService().resolveOwningProviderModelById('deepseek-chat', 'fuigo');
 
     expect(owned?.platform).toBe('openrouter');
     expect(owned?.useModel).toBe('deepseek-chat');

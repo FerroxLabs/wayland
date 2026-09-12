@@ -10,7 +10,7 @@
     src/process/resources/bundled-workflows/index.json -> 71 workflows
     src/process/resources/builtin-catalog/assistants.json -> 88 assistants
   So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
-  5 memory partitions, 18 ACP backends. (Engine binary is ~84 MB on darwin-arm64 and ~103 MB on linux-x64 at v0.13.11 - re-measure from the npm platform packages, never quote a remembered figure.)
+  5 memory partitions, 18 ACP backends. (Fuigo engine binary is 176,977,424 bytes (~177 MB) on darwin-arm64 at Fuigo 1.0.13 - re-measure from resources/bundled-fuigo/<runtime>/, never quote a remembered figure.)
 
   Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
   drift apart again - which is exactly how this file ended up claiming 177 while
@@ -96,7 +96,7 @@ Grab the latest build for your platform. No account, no sign-up. Every link open
 | **Linux**   | x64 (any distro)                 | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
 | **Linux**   | ARM64 (any distro)               | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
 
-The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
+The installer bundles the Fuigo engine for your platform, so a clean install runs agents the moment you connect a Flux Router key.
 
 ### First launch
 
@@ -150,7 +150,7 @@ Scan the QR from your phone and log in. Reach it over your tailnet (below), not 
 - **Run it 24/7.** `wayland setup` offers to install a systemd service that survives reboots.
 - **No key?** Grab a free [Flux Router](https://fluxrouter.ai) account: one key, every model, best-fit routing.
 
-Cloud self-host runs the headless server and routes through your provider key or Flux. The desktop app, with the bundled Wayland-Core engine, voice, and image generation, ships as the native installers above.
+Cloud self-host runs the headless server and routes through your provider key or Flux. The desktop app, with the bundled Fuigo engine, voice, and image generation, ships as the native installers above.
 
 ## Features
 
@@ -228,7 +228,7 @@ Set your rules once and every agent follows them, no matter which CLI runs the t
 
 ## Supported agents and models
 
-Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you bring the CLI's own auth. The bundled Wayland-Core engine and Gemini run natively.
+Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you bring the CLI's own auth. The bundled Fuigo engine speaks ACP too, with no install and no login of its own; Gemini runs natively.
 
 | Agent                                                                                                    | Command      | Connect with                        |
 | :------------------------------------------------------------------------------------------------------- | :----------- | :---------------------------------- |
@@ -244,9 +244,9 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 | <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
 | <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
-Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 19 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
+Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 18 ACP CLI agents in all, plus native Gemini and the bundled Fuigo engine.
 
-**Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI, each on your provider key. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
+**Engine providers** (Fuigo): one [Flux Router](https://fluxrouter.ai) key reaches every model Flux routes. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 
 ## How it works
 
@@ -254,10 +254,10 @@ Wayland runs a four-step loop on every turn:
 
 - **Perceives** your request and the state of your files, project, and memory.
 - **Reasons** with the best model for the task. A read-only Plan mode can write a structured plan before anything is touched.
-- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside the engine's native per-OS sandbox.
+- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside the engine's workspace sandbox on macOS and Linux.
 - **Evolves**: a loop mutates and scores your skill prompts against an eval harness, keeping a variant only when it beats both the running best and the parent it came from. Winners persist across runs, so the next run starts from the last one's best. Nothing reaches your live library until you promote it.
 
-**Wayland-Core engine.** One self-contained Rust binary, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
+**Fuigo engine.** One self-contained Rust binary, no Node or Python runtime to install. Fuigo is a Ferrox Labs fork of [xai-org/grok-build](https://github.com/xai-org/grok-build) (Apache-2.0), bundled per platform and driven over ACP on stdio. It ships the built-in tools, the MCP client, memory, sub-agents, and a workspace sandbox on macOS and Linux. The same engine powers the standalone `fuigo` CLI and the desktop app: one codebase, two surfaces.
 
 **Flux routing (optional).** Route a backend's traffic through Flux Router to send each task to the best-fit specialist across same-class models and run multi-AI cross-audit, lifting quality while cutting wasted tokens. Opt-in, bring your own key, off by default.
 
@@ -287,18 +287,18 @@ bun run dist:win       # Windows
 bun run dist:linux     # Linux AppImage + deb + rpm
 ```
 
-### Standalone Wayland-Core CLI
+### Standalone Fuigo CLI
 
-The engine ships on npm. The launcher pulls only the binary matching your machine.
+The engine ships on npm as `fuigo`. The launcher pulls only the binary matching your machine.
 
 ```bash
-npm i -g @ferroxlabs/wayland-core
+npm i -g fuigo
 
 # Or run it with no install
-npx @ferroxlabs/wayland-core "Read Cargo.toml and explain the dependencies"
+npx fuigo "Read Cargo.toml and explain the dependencies"
 ```
 
-The CLI self-updates with `npm update -g @ferroxlabs/wayland-core`, independent of the desktop app.
+The CLI updates with `npm update -g fuigo`, independent of the desktop app, which always runs the version it bundled.
 
 ## Configuration and keys
 
@@ -313,7 +313,7 @@ Wayland runs on your provider credentials. There is no required Wayland-hosted b
 | Constitution    | `~/.wayland/CONSTITUTION.md`    | An editable rulebook prepended to every turn, with per-specialist overrides                          |
 | Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk                                                           |
 
-Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then provider-specific env.
+The desktop app hands Fuigo your Flux Router key per spawn (`FUIGO_API_KEY`); the standalone CLI reads its own `config.toml`.
 
 ## FAQ
 
@@ -330,7 +330,7 @@ No. Bring your own provider keys, or use the Claude Code backend with your Claud
 Make sure Ollama is running and reachable on its default port, then refresh the model list in Settings.
 
 **Is it really open source?**
-Yes, both parts. The desktop app is GNU AGPL-3.0 and the Wayland-Core engine is Apache-2.0, so you can embed the engine anywhere.
+Yes, both parts. The desktop app is GNU AGPL-3.0 and the Fuigo engine is Apache-2.0, so you can embed the engine anywhere.
 
 ## Contributing
 
@@ -338,9 +338,9 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 
 ## License & the Wayland name
 
-Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
+Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [Fuigo](https://www.npmjs.com/package/fuigo), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
 
-**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md).
+**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine, Fuigo, is a Ferrox Labs fork of [xai-org/grok-build](https://github.com/xai-org/grok-build) (Apache-2.0), with the upstream copyright and NOTICE preserved in the bundled `notices/`. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md).
 
 **Who builds this.** Ferrox Labs is a small team, and most of us are part-time. We use Wayland to build Wayland, which is why the shipped surface is larger than a headcount would suggest — and why the honest answer to "has this been audited?" is on the [evidence page](https://getwayland.com/built-on), not buried.
 
@@ -352,8 +352,8 @@ The **code** is AGPL; the **name and logo** are trademarks. Fork freely, just gi
 
 ### Approval modes for scheduled tasks and workflows
 
-New scheduled tasks and workflow runs use guarded approval defaults: Auto-Accept Edits for Wayland Core and Gemini, Accept Edits for Claude, and Auto Edit for Codex. Other backends use their normal mode without Desktop enabling blanket auto-approval. Choose the approval mode in the scheduled-task editor or the workflow launch dialog; a global preference from another conversation does not authorize a new workflow to run in Autopilot.
+New scheduled tasks and workflow runs use guarded approval defaults: Auto-Accept Edits for Gemini, Accept Edits for Claude, and Auto Edit for Codex. Other backends use their normal mode without Desktop enabling blanket auto-approval. Choose the approval mode in the scheduled-task editor or the workflow launch dialog; a global preference from another conversation does not authorize a new workflow to run in Autopilot.
 
-For Core, Auto-Accept Edits allows the engine’s built-in Write/Edit behavior and its configured auto-approved tools. Other operations can require a confirmation. Approval mode does not widen workspace filesystem boundaries or disable Core’s allow-listed network tools. Select Autopilot or Full Auto explicitly for a run only when that is the intended policy. Existing tasks retain supported stored modes when edited; review that field when updating an older task. Unrecognized Core mode values, including the old generated `bypassPermissions` token, use ask-first rather than enabling full-auto. Newly seeded Core routines use Auto-Accept Edits.
+Fuigo runs scheduled turns unattended through the same ACP permission model as a chat; approval mode does not widen workspace filesystem boundaries. Select Autopilot or Full Auto explicitly for a run only when that is the intended policy. Existing tasks retain supported stored modes when edited; review that field when updating an older task. Unrecognized mode values, including the old generated `bypassPermissions` token, use ask-first rather than enabling full-auto.
 
 A scheduled turn is not dispatched when its requested settings still fail after a fresh-session retry. Starting a fresh workflow uses the displayed approval choice; resuming an existing workflow returns to that conversation’s current policy.

@@ -108,7 +108,7 @@ describe('projectRunSnapshot', () => {
     ]);
 
     expect(snapshot.status).toBe('running');
-    expect(snapshot.currentStep).toMatchObject({ id: 'wcore:web-1', status: 'running', source: 'wcore' });
+    expect(snapshot.currentStep).toMatchObject({ id: 'native:web-1', status: 'running', source: 'native' });
     expect(snapshot.progress).toMatchObject({
       availability: 'available',
       completed: 1,
@@ -117,7 +117,7 @@ describe('projectRunSnapshot', () => {
       current: { label: 'Write report', status: 'in_progress', priority: 'high' },
     });
     expect(snapshot.outputs).toEqual([
-      expect.objectContaining({ kind: 'diff', path: '/workspace/report.md', source: 'wcore' }),
+      expect.objectContaining({ kind: 'diff', path: '/workspace/report.md', source: 'native' }),
     ]);
     expect(snapshot.context).toEqual([expect.objectContaining({ kind: 'url', value: 'https://example.com/report' })]);
     expect(snapshot.routeFacts).toEqual([
@@ -132,9 +132,9 @@ describe('projectRunSnapshot', () => {
     expect(snapshot.integrity.state).toBe('valid');
   });
 
-  it('accepts WCore, ACP, Codex, and Gemini tool activity into the same canonical shape', () => {
+  it('accepts native, ACP, Codex, and Gemini tool activity into the same canonical shape', () => {
     const snapshot = projectRunSnapshot(RUN, [
-      toolGroup('wcore-1', 'Executing', { name: 'Bash' }),
+      toolGroup('native-1', 'Executing', { name: 'Bash' }),
       base({
         type: 'acp_tool_call',
         content: {
@@ -167,7 +167,7 @@ describe('projectRunSnapshot', () => {
     expect(
       snapshot.activity.map(({ id, kind, status, glyph, source }) => ({ id, kind, status, glyph, source }))
     ).toEqual([
-      { id: 'wcore:wcore-1', kind: 'tool', status: 'running', glyph: 'command', source: 'wcore' },
+      { id: 'native:native-1', kind: 'tool', status: 'running', glyph: 'command', source: 'native' },
       { id: 'acp:acp-1', kind: 'tool', status: 'running', glyph: 'command', source: 'acp' },
       { id: 'codex:codex-1', kind: 'tool', status: 'running', glyph: 'command', source: 'codex' },
       { id: 'gemini:gemini-1', kind: 'tool', status: 'running', glyph: 'command', source: 'gemini' },
@@ -277,7 +277,7 @@ describe('projectRunSnapshot', () => {
     ]);
 
     expect(snapshot.status).toBe('conflicted');
-    expect(snapshot.activity.map((step) => step.id)).toEqual(['wcore:tool-1']);
+    expect(snapshot.activity.map((step) => step.id)).toEqual(['native:tool-1']);
     expect(snapshot.integrity.issues).toContainEqual(expect.objectContaining({ code: 'post_terminal_event' }));
   });
 
@@ -289,7 +289,7 @@ describe('projectRunSnapshot', () => {
     ]);
 
     expect(snapshot.activity).toHaveLength(1);
-    expect(snapshot.activity[0]).toMatchObject({ id: 'wcore:same-call', status: 'done', source: 'wcore' });
+    expect(snapshot.activity[0]).toMatchObject({ id: 'native:same-call', status: 'done', source: 'native' });
     expect(snapshot.integrity.state).toBe('valid');
   });
 
@@ -614,7 +614,7 @@ describe('projectRunSnapshot', () => {
         },
       ]),
     ]);
-    expect(parentRunning.currentStep?.id).toBe('wcore:parent');
+    expect(parentRunning.currentStep?.id).toBe('native:parent');
 
     const childRunning = projectRunSnapshot(RUN, [
       activity([
@@ -627,7 +627,7 @@ describe('projectRunSnapshot', () => {
         },
       ]),
     ]);
-    expect(childRunning.currentStep?.id).toBe('wcore:running-child');
+    expect(childRunning.currentStep?.id).toBe('native:running-child');
   });
 
   it('fails a plan with multiple current items closed', () => {
@@ -649,7 +649,7 @@ describe('projectRunSnapshot', () => {
   });
 
   it('aggregates cross-source activity and output provenance deterministically', () => {
-    const wcore = toolGroup('shared', 'Success', {
+    const native = toolGroup('shared', 'Success', {
       resultDisplay: { fileDiff: '', fileName: '/shared.md' },
     });
     const acp = base({
@@ -666,24 +666,24 @@ describe('projectRunSnapshot', () => {
         },
       },
     });
-    const forward = projectRunSnapshot(RUN, [wcore, acp]);
-    const reverse = projectRunSnapshot(RUN, [acp, wcore]);
+    const forward = projectRunSnapshot(RUN, [native, acp]);
+    const reverse = projectRunSnapshot(RUN, [acp, native]);
 
     expect(forward.activity.map(({ id, provenance }) => ({ id, provenance }))).toEqual([
-      { id: 'wcore:shared', provenance: ['wcore'] },
+      { id: 'native:shared', provenance: ['native'] },
       { id: 'acp:shared', provenance: ['acp'] },
     ]);
     expect(reverse.activity.map(({ id, provenance }) => ({ id, provenance }))).toEqual([
       { id: 'acp:shared', provenance: ['acp'] },
-      { id: 'wcore:shared', provenance: ['wcore'] },
+      { id: 'native:shared', provenance: ['native'] },
     ]);
     expect(forward.outputs.map(({ id, provenance }) => ({ id, provenance }))).toEqual([
-      { id: 'wcore:diff:/shared.md', provenance: ['wcore'] },
+      { id: 'native:diff:/shared.md', provenance: ['native'] },
       { id: 'acp:diff:/shared.md', provenance: ['acp'] },
     ]);
     expect(reverse.outputs.map(({ id, provenance }) => ({ id, provenance }))).toEqual([
       { id: 'acp:diff:/shared.md', provenance: ['acp'] },
-      { id: 'wcore:diff:/shared.md', provenance: ['wcore'] },
+      { id: 'native:diff:/shared.md', provenance: ['native'] },
     ]);
   });
 
@@ -749,14 +749,16 @@ describe('projectRunSnapshot', () => {
       toolGroup(callId, status, { resultDisplay: { fileDiff: '', fileName: '/same.md' } });
 
     const regression = projectRunSnapshot(RUN, [output('first', 'Success'), output('second', 'Executing')]);
-    expect(regression.outputs).toEqual([expect.objectContaining({ id: 'wcore:diff:/same.md', state: 'materialized' })]);
+    expect(regression.outputs).toEqual([
+      expect.objectContaining({ id: 'native:diff:/same.md', state: 'materialized' }),
+    ]);
     expect(regression.status).toBe('conflicted');
     expect(regression.integrity.issues).toContainEqual(
       expect.objectContaining({ code: 'output_lifecycle_regression' })
     );
 
     const conflict = projectRunSnapshot(RUN, [output('first', 'Success'), output('second', 'Error')]);
-    expect(conflict.outputs).toEqual([expect.objectContaining({ id: 'wcore:diff:/same.md', state: 'materialized' })]);
+    expect(conflict.outputs).toEqual([expect.objectContaining({ id: 'native:diff:/same.md', state: 'materialized' })]);
     expect(conflict.integrity.issues).toContainEqual(expect.objectContaining({ code: 'output_lifecycle_conflict' }));
   });
 
@@ -857,9 +859,9 @@ describe('projectRunSnapshot', () => {
   });
 
   it('chooses context title and provenance deterministically across backend order', () => {
-    const wcore = activity([
+    const native = activity([
       {
-        id: 'search-wcore',
+        id: 'search-native',
         kind: 'tool',
         name: 'Search',
         status: 'done',
@@ -877,10 +879,10 @@ describe('projectRunSnapshot', () => {
         data: { results: [{ title: 'Alpha', url: 'https://example.com/shared' }] },
       },
     });
-    const forward = projectRunSnapshot(RUN, [wcore, codex]);
-    const reverse = projectRunSnapshot(RUN, [codex, wcore]);
+    const forward = projectRunSnapshot(RUN, [native, codex]);
+    const reverse = projectRunSnapshot(RUN, [codex, native]);
     expect(forward.context).toEqual([
-      expect.objectContaining({ title: 'Alpha', provenance: ['wcore', 'codex'], source: 'wcore' }),
+      expect.objectContaining({ title: 'Alpha', provenance: ['native', 'codex'], source: 'native' }),
     ]);
     expect(reverse.context).toEqual(forward.context);
   });

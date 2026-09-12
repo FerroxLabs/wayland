@@ -36,7 +36,7 @@ describe('storage calls cannot hang forever', () => {
       set: (k: string, v: unknown) => Promise<unknown>;
     };
 
-    const pending = store.get('wcore.defaultModel');
+    const pending = store.get('fuigo.defaultModel');
     const seen: string[] = [];
     void pending.catch((e: Error) => seen.push(e.message));
 
@@ -49,7 +49,7 @@ describe('storage calls cannot hang forever', () => {
     built.set = () => new Promise(() => undefined);
     const store = buildStorage('agent.config') as unknown as { set: (k: string, v: unknown) => Promise<unknown> };
     const seen: string[] = [];
-    void store.set('wcore.defaultModel', { useModel: 'flux-auto' }).catch((e: Error) => seen.push(e.message));
+    void store.set('fuigo.defaultModel', { useModel: 'flux-auto' }).catch((e: Error) => seen.push(e.message));
     await vi.advanceTimersByTimeAsync(15_001);
     expect(seen).toHaveLength(1);
   });

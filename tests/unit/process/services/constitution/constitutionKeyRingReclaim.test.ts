@@ -160,7 +160,7 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       const service = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
 
       // readWithOverlay is what composePrompt calls, which is what
-      // WCoreManager.start calls. It must return, not throw.
+      // the agent manager start calls. It must return, not throw.
       const composed = service.readWithOverlay(undefined);
       expect(composed.constitution.status).toBe('absent');
       // A usable ring was minted: the revision token is signed and well-formed.

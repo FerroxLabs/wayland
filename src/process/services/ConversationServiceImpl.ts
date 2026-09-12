@@ -14,14 +14,7 @@ import { cronService } from './cron/cronServiceSingleton';
 import { loadGlobalMemoryBlock } from '@process/services/projectKnowledge/knowledge';
 import { appendInjectedBlock, refreshProjectKnowledge } from '@process/services/projectKnowledge/injection';
 import { enforceProjectWorkspace, ensureProjectWorkspace } from '@process/services/projectWorkspace';
-import {
-  createGeminiAgent,
-  createAcpAgent,
-  createOpenClawAgent,
-  createNanobotAgent,
-  createRemoteAgent,
-  createWCoreAgent,
-} from '@process/utils/initAgent';
+import { createGeminiAgent, createAcpAgent, createOpenClawAgent, createRemoteAgent } from '@process/utils/initAgent';
 
 /**
  * Concrete implementation of IConversationService.
@@ -175,7 +168,7 @@ export class ConversationServiceImpl implements IConversationService {
     if (!extra) return;
     // Composed by the shared helper (#999) so creation and every later agent
     // spawn produce the SAME block, and the spawn-time refresh can find and
-    // replace what creation wrote. gemini + wcore read presetRules; acp reads
+    // replace what creation wrote. gemini reads presetRules; acp reads
     // presetContext - the helper sets both, and the unused field is ignored.
     await refreshProjectKnowledge(extra);
     try {
@@ -216,9 +209,9 @@ export class ConversationServiceImpl implements IConversationService {
     // Project knowledge auto-injection. When a chat is created inside a project
     // (extra.projectId), append that project's substantive .wayland/ knowledge to
     // THIS conversation's system-rules channel. Per-conversation, never global,
-    // so it can never leak into non-project chats. Covers gemini + wcore
+    // so it can never leak into non-project chats. Covers gemini
     // (presetRules) and acp/Claude Code/Codex/Qwen (presetContext); backends with
-    // no system-rules channel (openclaw/nanobot/remote) are a documented follow-up.
+    // no system-rules channel (openclaw/remote) are a documented follow-up.
     await this.injectProjectKnowledge(params);
 
     switch (params.type) {
@@ -249,16 +242,8 @@ export class ConversationServiceImpl implements IConversationService {
         conversation = await createOpenClawAgent(params as any);
         break;
       }
-      case 'nanobot': {
-        conversation = await createNanobotAgent(params as any);
-        break;
-      }
       case 'remote': {
         conversation = await createRemoteAgent(params as any);
-        break;
-      }
-      case 'wcore': {
-        conversation = await createWCoreAgent(params as any);
         break;
       }
       default: {

@@ -335,7 +335,7 @@ describe('BackupCard export feedback (F5)', () => {
     mockImportBackup.mockResolvedValue({
       ok: true,
       applied: [],
-      outOfScope: ['database', 'wcore'],
+      outOfScope: ['database', 'engine'],
       keysSkippedNoPassphrase: false,
       fileCount: 3,
     });

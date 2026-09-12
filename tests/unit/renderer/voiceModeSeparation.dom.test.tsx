@@ -41,7 +41,7 @@ const mockTranscribeAudioBlob = vi.fn(async () => ({ text: 'the transcript' }));
 const responseListeners: Array<(message: IResponseMessage) => void> = [];
 
 const sendInvokes = {
-  wcore: vi.fn(async () => ({ success: true })),
+  conversation: vi.fn(async () => ({ success: true })),
   acp: vi.fn(async () => ({ success: true })),
   gemini: vi.fn(async () => ({ success: true })),
   openclaw: vi.fn(async () => ({ success: true })),
@@ -66,7 +66,7 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
     get: { invoke: (...args: unknown[]) => mockConversationGet(...(args as [])) },
     stop: { invoke: vi.fn(async () => ({ success: true })) },
     warmup: { invoke: vi.fn(async () => undefined) },
-    sendMessage: { invoke: (...args: unknown[]) => sendInvokes.wcore(...(args as [])) },
+    sendMessage: { invoke: (...args: unknown[]) => sendInvokes.conversation(...(args as [])) },
     responseStream: {
       on: (listener: (message: IResponseMessage) => void) => {
         responseListeners.push(listener);
@@ -224,9 +224,6 @@ const platformMessageHook = () => ({
   hasThinkingMessage: false,
 });
 
-vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreMessage', () => ({
-  useWCoreMessage: () => platformMessageHook(),
-}));
 vi.mock('@/renderer/pages/conversation/platforms/acp/useAcpMessage', () => ({
   useAcpMessage: () => platformMessageHook(),
 }));
@@ -312,9 +309,6 @@ vi.mock('@/renderer/components/agent/AcpConfigSelector', () => ({
   __esModule: true,
   default: () => React.createElement('div'),
 }));
-// Permission/access presentation is covered by WorkspacePolicyButton's own DOM
-// suite. This harness isolates dictation and voice turn ownership.
-vi.mock('@/renderer/components/agent/WorkspacePolicyButton', () => ({ default: () => null }));
 vi.mock('@/renderer/components/agent/ContextUsageIndicator', () => ({
   __esModule: true,
   default: () => React.createElement('div'),
@@ -427,10 +421,8 @@ vi.mock('@arco-design/web-react', () => ({
 import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
 import { VoiceSessionProvider, useVoiceSessionSafe } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import { __clearInMemoryDraftsForTests } from '@/renderer/hooks/chat/useSendBoxDraft';
-import WCoreSendBox from '@/renderer/pages/conversation/platforms/wcore/WCoreSendBox';
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
 import GeminiSendBox from '@/renderer/pages/conversation/platforms/gemini/GeminiSendBox';
-import NanobotSendBox from '@/renderer/pages/conversation/platforms/nanobot/NanobotSendBox';
 import OpenClawSendBox from '@/renderer/pages/conversation/platforms/openclaw/OpenClawSendBox';
 import RemoteSendBox from '@/renderer/pages/conversation/platforms/remote/RemoteSendBox';
 
@@ -518,24 +510,20 @@ const SessionProbe: React.FC = () => {
   );
 };
 
-type PlatformKey = 'wcore' | 'acp' | 'gemini' | 'nanobot' | 'openclaw' | 'remote';
+type PlatformKey = 'acp' | 'gemini' | 'openclaw' | 'remote';
 
 const DRAFT_TYPE: Record<PlatformKey, string> = {
-  wcore: 'wcore',
   acp: 'acp',
   gemini: 'gemini',
-  nanobot: 'nanobot',
   openclaw: 'openclaw-gateway',
   remote: 'remote',
 };
 
 const SEND_SPY: Record<PlatformKey, ReturnType<typeof vi.fn>> = {
-  wcore: sendInvokes.wcore,
   acp: sendInvokes.acp,
   gemini: sendInvokes.gemini,
-  nanobot: sendInvokes.wcore,
   openclaw: sendInvokes.openclaw,
-  remote: sendInvokes.wcore,
+  remote: sendInvokes.conversation,
 };
 
 const composerFor = (platform: PlatformKey, conversationId: string): React.ReactElement => {
@@ -558,24 +546,10 @@ const composerFor = (platform: PlatformKey, conversationId: string): React.React
           }
         />
       );
-    case 'nanobot':
-      return <NanobotSendBox conversation_id={conversationId} />;
     case 'openclaw':
       return <OpenClawSendBox conversation_id={conversationId} />;
     case 'remote':
       return <RemoteSendBox conversation_id={conversationId} />;
-    default:
-      return (
-        <WCoreSendBox
-          conversation_id={conversationId}
-          modelSelection={
-            {
-              currentModel: { useModel: 'wcore-1' },
-              getDisplayModelName: (modelId: string) => modelId,
-            } as unknown as React.ComponentProps<typeof WCoreSendBox>['modelSelection']
-          }
-        />
-      );
   }
 };
 
@@ -589,7 +563,7 @@ const stageFile = (platform: PlatformKey, conversationId: string, filePath: stri
 
 let conversationCounter = 0;
 
-const renderComposer = (platform: PlatformKey = 'wcore', options: { stagedFile?: string } = {}) => {
+const renderComposer = (platform: PlatformKey = 'acp', options: { stagedFile?: string } = {}) => {
   const conversationId = `conversation-${platform}-${++conversationCounter}`;
   if (options.stagedFile) stageFile(platform, conversationId, options.stagedFile);
 
@@ -794,7 +768,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     vi.unstubAllGlobals();
   });
 
-  const platforms: PlatformKey[] = ['wcore', 'acp', 'gemini', 'nanobot', 'openclaw', 'remote'];
+  const platforms: PlatformKey[] = ['acp', 'gemini', 'openclaw', 'remote'];
 
   it.each(platforms)('%s: sends nothing, keeps the words, keeps the file', async (platform) => {
     const { send } = renderComposer(platform, { stagedFile: '/tmp/photo.png' });
@@ -825,7 +799,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
   });
 
   it('never clears the staged files on a deferred turn', async () => {
-    renderComposer('wcore', { stagedFile: '/tmp/photo.png' });
+    renderComposer('acp', { stagedFile: '/tmp/photo.png' });
     await waitFor(() => expect(screen.getByTestId('staged-file')).toBeInTheDocument());
 
     await speakOneTurn();
@@ -838,7 +812,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     // The control for the control: `clearFiles` is reachable on this harness, so
     // the assertion above is about deferral and not about a spy that is wired to
     // nothing.
-    const { send } = renderComposer('wcore');
+    const { send } = renderComposer('acp');
 
     await speakOneTurn();
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
@@ -846,7 +820,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     expect(mockClearFilesSpy).toHaveBeenCalled();
   });
 
-  // T-B1c: the worst form of this bug. A sentence you SPEAK during a busy wcore
+  // T-B1c: the worst form of this bug. A sentence you SPEAK during a busy engine
   // turn was destroyed outright - no composer to fall back into, and
   // voiceTurnBridge told the voice surface `accepted: true` while doing it.
   it('queues a spoken turn sent mid-turn instead of destroying it', async () => {
@@ -854,7 +828,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     mockVoiceRunning = true;
     mockVoiceEnqueue.mockClear();
     try {
-      renderComposer('wcore');
+      renderComposer('acp');
       await speakOneTurn();
       await waitFor(() => expect(mockVoiceEnqueue).toHaveBeenCalledWith({ input: 'the transcript', files: [] }));
     } finally {
@@ -864,7 +838,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
   });
 
   it('appends to a draft the user already typed rather than destroying it', async () => {
-    const { conversationId } = renderComposer('wcore', { stagedFile: '/tmp/photo.png' });
+    const { conversationId } = renderComposer('acp', { stagedFile: '/tmp/photo.png' });
     await waitFor(() => expect(screen.getByTestId('staged-file')).toBeInTheDocument());
 
     await act(async () => {

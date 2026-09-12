@@ -22,7 +22,7 @@
  * exclusively in the sidebar.
  *
  * Env-aware soft skip: when this env can't bring up a live ACP backend
- * (no wayland-core CLI on PATH, MCP startup failure, etc.), the spec
+ * (no bundled Fuigo engine, MCP startup failure, etc.), the spec
  * falls back to test.fixme rather than asserting on data that can't
  * exist. This is the intentional pattern for backend-dependent specs -
  * NOT a deferral. The token_usage path itself is fully covered at the
@@ -74,14 +74,14 @@ test.describe('Team cost meter - F2', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
     });
-    if (!created?.id) throw new Error('team.create returned null - backend (wcore) not installed');
+    if (!created?.id) throw new Error('team.create returned null - backend (fuigo) not installed');
     const teamId = created.id;
 
     await navigateTo(page, `#/team/${teamId}`);
@@ -121,7 +121,7 @@ test.describe('Team cost meter - F2', () => {
     if (!usage) {
       test.fixme(
         true,
-        `no token_usage event after ${TOKEN_USAGE_TIMEOUT_MS}ms - backend (wcore) did not ` +
+        `no token_usage event after ${TOKEN_USAGE_TIMEOUT_MS}ms - backend (fuigo) did not ` +
           'emit ACP usage frames in this env'
       );
       return;

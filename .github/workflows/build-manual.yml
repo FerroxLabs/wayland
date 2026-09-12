@@ -161,11 +161,13 @@ jobs:
             Get-ChildItem $root -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object FullName | Format-Table -AutoSize
             throw "Wayland.exe not found under $root"
           }
-          # Hash the engine from the INSTALLED tree rather than trusting the
-          # build log: the engine identity is what a chat turn exercises.
-          $eng = Join-Path $root 'resources\bundled-wayland-core\win32-x64\wayland-core.exe'
+          # Hash and poke the engine from the INSTALLED tree rather than trusting
+          # the build log: the engine identity is what a chat turn exercises.
+          $eng = Join-Path $root 'resources\bundled-fuigo\win32-x64\fuigo.exe'
           if (Test-Path $eng) {
             Write-Host "ENGINE_SHA256=$((Get-FileHash $eng -Algorithm SHA256).Hash.ToLower())"
+            & $eng --version
+            Write-Host "ENGINE_VERSION_EXIT=$LASTEXITCODE"
           } else {
             Write-Host 'ENGINE_SHA256=MISSING'
           }

@@ -67,7 +67,7 @@ describe('useModelSelectorViewModel', () => {
     mockUseFluxConnected.mockReturnValue(true);
     mockUsePinnedModels.mockReturnValue({ pinned: new Set(['anthropic:claude-opus-4-8']), toggle: vi.fn() });
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
 
     // Flux makes `empty` false and surfaces the Flux routing zone immediately;
     // wait for the async curated load to add the pinned/provider zones.
@@ -88,7 +88,7 @@ describe('useModelSelectorViewModel', () => {
     mockUseFluxConnected.mockReturnValue(false);
     mockUsePinnedModels.mockReturnValue({ pinned: new Set(['anthropic:claude-opus-4-8']), toggle: vi.fn() });
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
     await waitFor(() => expect(result.current.zones.some((z) => z.id === 'pinned')).toBe(true));
 
     // Pinned zone has no provider header -> descriptor keeps the provider.
@@ -107,7 +107,7 @@ describe('useModelSelectorViewModel', () => {
     mockCuratedForAgent.mockResolvedValue([opus]);
     mockUseFluxConnected.mockReturnValue(true);
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
 
     await waitFor(() => expect(result.current.zones.some((z) => z.id === 'flux')).toBe(true));
 
@@ -124,7 +124,7 @@ describe('useModelSelectorViewModel', () => {
     mockCuratedForAgent.mockResolvedValue([opus, disabledSonnet]);
     mockUseFluxConnected.mockReturnValue(true);
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
 
     await waitFor(() => expect(result.current.zones.some((z) => z.id.startsWith('recommended'))).toBe(true));
 
@@ -139,7 +139,7 @@ describe('useModelSelectorViewModel', () => {
     mockCuratedForAgent.mockResolvedValue([opus]);
     mockUseFluxConnected.mockReturnValue(false);
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
 
     await waitFor(() => expect(result.current.zones.length).toBeGreaterThan(0));
     expect(result.current.zones.some((z) => z.id === 'flux')).toBe(false);
@@ -150,18 +150,18 @@ describe('useModelSelectorViewModel', () => {
     mockCuratedForAgent.mockResolvedValue([]);
     mockUseFluxConnected.mockReturnValue(false);
 
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo'));
 
     await waitFor(() => expect(result.current.empty).toBe(true));
     expect(result.current.fluxHero).toBeUndefined();
     expect(result.current.zones).toEqual([]);
   });
 
-  it('marks effortSupported for codex/wcore/claude only', async () => {
+  it('marks effortSupported for codex/claude only', async () => {
     mockCuratedForAgent.mockResolvedValue([opus]);
-    const { result: wcore } = renderHook(() => useModelSelectorViewModel('wcore'));
-    await waitFor(() => expect(wcore.current.zones.length).toBeGreaterThan(0));
-    expect(wcore.current.effortSupported).toBe(true);
+    const { result: codex } = renderHook(() => useModelSelectorViewModel('codex'));
+    await waitFor(() => expect(codex.current.zones.length).toBeGreaterThan(0));
+    expect(codex.current.effortSupported).toBe(true);
 
     const { result: gemini } = renderHook(() => useModelSelectorViewModel('gemini'));
     await waitFor(() => expect(gemini.current.zones.length).toBeGreaterThan(0));
@@ -170,7 +170,7 @@ describe('useModelSelectorViewModel', () => {
 
   it('resolves activeKey from the passed current model key', async () => {
     mockCuratedForAgent.mockResolvedValue([opus, sonnet]);
-    const { result } = renderHook(() => useModelSelectorViewModel('wcore', 'anthropic:claude-sonnet-4-5'));
+    const { result } = renderHook(() => useModelSelectorViewModel('fuigo', 'anthropic:claude-sonnet-4-5'));
     await waitFor(() => expect(result.current.zones.length).toBeGreaterThan(0));
     expect(result.current.activeKey).toBe('anthropic:claude-sonnet-4-5');
   });

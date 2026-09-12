@@ -7,8 +7,8 @@
 /**
  * Shared secret scrubber for untrusted subprocess output.
  *
- * Extracted verbatim from `@process/agent/wcore/index.ts` (#984): the engine
- * stderr redactor was the only one of its kind and lived inside the wcore agent,
+ * Extracted verbatim from the retired Core engine agent (#984): the engine
+ * stderr redactor was the only one of its kind and lived inside that agent,
  * so every OTHER agent stderr path - notably `AgentStartupError` and the
  * electron-log file transport - surfaced raw child output. The patterns below
  * are unchanged from that original; this module only moves them somewhere every
@@ -326,8 +326,8 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  *        `token_endpoint` next to an unmasked `jwks_uri` reads as an intact
  *        report when it is not.
  *      - `api_key_env=` - an environment-variable NAME, never a value,
- *        validated as one at `@process/agent/wcore/profileStore`
- *        `isCloneSafeSecretNameException`. Masking it turns "which env var did
+ *        validated as one by the retired engine's profile store. Masking it
+ *        turns "which env var did
  *        I misspell" into an unanswerable question.
  *    Both are LISTED rather than EXCLUDED, deliberately. `profileStore` can
  *    carve a field name out because it owns the writer and gates the carve-out
@@ -723,7 +723,7 @@ export function redactSecrets(text: string): string {
  * Deliberately limited to top-level strings: log arguments are arbitrary values
  * and deep-cloning every object on every line would cost more than it buys.
  * Strings are where untrusted subprocess output actually arrives (`console.log
- * ('[wcore]', line)`), so this closes the realistic disk-exposure path without
+ * ('[engine]', line)`), so this closes the realistic disk-exposure path without
  * pretending to be a total guarantee.
  */
 export function redactLogData(data: readonly unknown[]): unknown[] {

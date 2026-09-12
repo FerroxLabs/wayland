@@ -82,12 +82,24 @@ describe('BudgetController (bun:sqlite)', () => {
     });
 
     it('drops scopeKey for global scope', () => {
-      const b = controller.upsert({ scope: 'global', scopeKey: 'ignored', limitUsd: 10, period: 'day', action: 'warn' });
+      const b = controller.upsert({
+        scope: 'global',
+        scopeKey: 'ignored',
+        limitUsd: 10,
+        period: 'day',
+        action: 'warn',
+      });
       expect(b.scopeKey).toBeUndefined();
     });
 
     it('updates in place and preserves createdAt', () => {
-      const created = controller.upsert({ scope: 'model', scopeKey: 'opus-4', limitUsd: 10, period: 'day', action: 'warn' });
+      const created = controller.upsert({
+        scope: 'model',
+        scopeKey: 'opus-4',
+        limitUsd: 10,
+        period: 'day',
+        action: 'warn',
+      });
       const updated = controller.upsert({
         id: created.id,
         scope: 'model',
@@ -128,9 +140,9 @@ describe('BudgetController (bun:sqlite)', () => {
     });
 
     it('backend budget sums only the matching backend', () => {
-      costRepo.insert(costEvent({ costUsd: 2, backend: 'wcore' }));
+      costRepo.insert(costEvent({ costUsd: 2, backend: 'fuigo' }));
       costRepo.insert(costEvent({ costUsd: 5, backend: 'claude' }));
-      controller.upsert({ scope: 'backend', scopeKey: 'wcore', limitUsd: 50, period: 'month', action: 'warn' });
+      controller.upsert({ scope: 'backend', scopeKey: 'fuigo', limitUsd: 50, period: 'month', action: 'warn' });
       expect(controller.listStatus()[0].spentUsd).toBeCloseTo(2, 6);
     });
 

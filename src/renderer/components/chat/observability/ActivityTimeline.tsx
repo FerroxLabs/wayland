@@ -196,7 +196,7 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
   // (only for genuinely multi-step turns; a single action is self-evident).
   const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
 
-  // A group of one is not a group. Each WCore `tool_group` message becomes its
+  // A group of one is not a group. Each engine `tool_group` message becomes its
   // own timeline, so a turn of ten single-tool groups rendered ten identical
   // "Did 1 things" headers, each hiding exactly one row that said more than the
   // header did - and "1 things" is not a sentence in any case. When there is a

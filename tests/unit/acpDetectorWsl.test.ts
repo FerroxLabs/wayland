@@ -171,7 +171,7 @@ describe('AcpDetector WSL fallback (#258)', () => {
     // The sync path is reached via isCliAvailable() (AgentRegistry startup path).
     // None of these CLIs exist on the (mocked) Windows PATH or via PowerShell.
     expect(detector.isCliAvailable('openclaw')).toBe(false);
-    expect(detector.isCliAvailable('nanobot')).toBe(false);
+    expect(detector.isCliAvailable('no-such-cli')).toBe(false);
 
     // No per-CLI WSL `command -v` spawn happened - this is the blocking
     // spawn-storm the fix prevents.

@@ -21,7 +21,7 @@
  * it is not a secret, and is the minimum needed for a remote browser to start the
  * flow (the server cannot open the phone's browser for it).
  *
- * Gates (the toolKeyRoutes / providerKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` (per-route rate limit) + `validateApiAccess` (token auth),
  *    wired as route middleware on the connect verb.
  *  - tiny-csrf (global middleware in setup.ts) covers the connect POST.

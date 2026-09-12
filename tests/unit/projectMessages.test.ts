@@ -85,10 +85,10 @@ describe('projectMessages.acpToolCallToNode', () => {
 });
 
 describe('projectMessages.toolSummaryToSteps', () => {
-  it('projects a mixed wcore + ACP group into humanized steps', () => {
-    const steps = toolSummaryToSteps([toolGroupMsg(), acpMsg()], 'wcore');
+  it('projects a mixed native + ACP group into humanized steps', () => {
+    const steps = toolSummaryToSteps([toolGroupMsg(), acpMsg()], 'native');
     expect(steps).toHaveLength(3);
-    expect(steps[0]).toMatchObject({ id: 'c1', label: 'Reading config.ts', glyph: 'file', source: 'wcore' });
+    expect(steps[0]).toMatchObject({ id: 'c1', label: 'Reading config.ts', glyph: 'file', source: 'native' });
     expect(steps[1].label).toBe('Running a command'); // Bash, no command → humanized fallback
     expect(steps[2].glyph).toBe('web'); // web_search
   });
@@ -132,7 +132,7 @@ describe('projectMessages.toolGroupToNodes command (#520)', () => {
   });
 
   it('surfaces the command as the timeline label (not "Running a command")', () => {
-    const step = toolSummaryToSteps([execToolGroupMsg()], 'wcore')[0];
+    const step = toolSummaryToSteps([execToolGroupMsg()], 'native')[0];
     expect(step.label).toBe('Running echo hi');
     expect(step.glyph).toBe('command');
   });
@@ -147,7 +147,7 @@ describe('projectMessages.subAgentToStep', () => {
       body: 'gathering...',
       nodes: [{ id: 'n1', kind: 'tool', name: 'WebFetch', status: 'done', detail: 'https://apnews.com' }],
     };
-    const step = subAgentToStep(content, 'wcore');
+    const step = subAgentToStep(content, 'native');
     expect(step).toMatchObject({ id: 'p1', kind: 'sub_agent', agent: 'researcher', status: 'running' });
     expect(step.children).toHaveLength(1);
     expect(step.children?.[0].label).toBe('Reading apnews.com');
@@ -174,7 +174,7 @@ describe('projectMessages.activityToSteps', () => {
       nodes: [{ id: 'a1', kind: 'tool', name: 'Grep', status: 'done' }],
       status: 'done',
     };
-    const steps = activityToSteps(content, 'wcore');
+    const steps = activityToSteps(content, 'native');
     expect(steps).toHaveLength(1);
     expect(steps[0]).toMatchObject({ label: 'Searching the codebase', glyph: 'search' });
   });

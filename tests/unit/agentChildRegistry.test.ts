@@ -8,7 +8,7 @@
  * #443: the last-resort engine-child reaper. The graceful per-agent kill
  * (WorkerTaskManager.clear -> manager.kill -> killChild) is the primary path;
  * this registry-backed reaper runs as the final before-quit step and force-kills
- * any wayland-core / ACP child still alive, so engine processes never orphan past
+ * any engine / ACP child still alive, so engine processes never orphan past
  * the app ("two sets of Wayland").
  *
  * These tests spawn REAL child processes (POSIX) to exercise the actual kill,

@@ -85,15 +85,7 @@ const EXCLUSION_INVENTORY = new Map([
       'src/renderer/utils/mcp',
     ],
   ],
-  [
-    'sandbox',
-    [
-      'src/process/extensions/sandbox',
-      'src/process/team/sandbox',
-      'src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx',
-      'src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx',
-    ],
-  ],
+  ['sandbox', ['src/process/extensions/sandbox', 'src/process/team/sandbox']],
   [
     'flux',
     [
@@ -125,10 +117,8 @@ const SUITES = Object.freeze({
   'cowork-office': [
     'tests/unit/coworkAuthorityIsolation.test.ts',
     'tests/unit/coworkContract.test.ts',
-    'tests/unit/coworkReplayContract.test.ts',
     'tests/unit/officecliInstaller.test.ts',
     'tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts',
-    'tests/e2e/cowork/replayContract.test.ts',
   ],
   voice: [
     'tests/unit/common/VoiceSessionMachine.test.ts',
@@ -143,7 +133,6 @@ const SUITES = Object.freeze({
     'tests/unit/process/services/mcpServices/mcpSessionTruthGate.test.ts',
     'tests/unit/process/services/mcpServices/runtimeMcpServers.test.ts',
     'tests/unit/process/bridge/McpSessionRebindCoordinator.test.ts',
-    'tests/unit/process/agent/wcore/desktopMcpProfile.test.ts',
     'tests/integration/mcpAgentConsumption.test.ts',
   ],
   sandbox: [

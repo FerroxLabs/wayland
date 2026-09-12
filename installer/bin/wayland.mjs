@@ -10,8 +10,8 @@
  * Design: the server reads provider credentials from the environment, so the
  * key never touches the OS keychain (which isn't available headless). Flux is
  * an OpenAI-compatible endpoint, so a Flux key is wired as the OpenAI provider
- * pointed at https://api.fluxrouter.ai/v1 with model flux-auto - no wcore binary
- * required. (wcore, if present, is fetched by postinstall as an enhancement.)
+ * pointed at https://api.fluxrouter.ai/v1 with model flux-auto - no native
+ * engine binary required.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -46,19 +46,29 @@ let _stdinEnded = false;
 function rlInstance() {
   if (!_rl) {
     _rl = createInterface({ input: process.stdin, output: process.stdout });
-    _rl.on('close', () => { _stdinEnded = true; });
+    _rl.on('close', () => {
+      _stdinEnded = true;
+    });
   }
   return _rl;
 }
 function closeRl() {
-  if (_rl) { _rl.close(); _rl = null; }
+  if (_rl) {
+    _rl.close();
+    _rl = null;
+  }
 }
 function ask(question) {
   if (_stdinEnded) return Promise.resolve('');
   return new Promise((res) => {
     const rl = rlInstance();
     let done = false;
-    const finish = (v) => { if (!done) { done = true; res(v); } };
+    const finish = (v) => {
+      if (!done) {
+        done = true;
+        res(v);
+      }
+    };
     rl.question(question, (a) => finish(a.trim()));
     rl.once('close', () => finish(''));
   });
@@ -92,7 +102,10 @@ function writeEnvFile(env) {
   const merged = { ...base, ...env };
   const body =
     '# Written by `wayland setup`. Loaded by `wayland start`.\n' +
-    Object.entries(merged).map(([k, v]) => `${k}=${v}`).join('\n') + '\n';
+    Object.entries(merged)
+      .map(([k, v]) => `${k}=${v}`)
+      .join('\n') +
+    '\n';
   writeFileSync(ENV_FILE, body, { mode: 0o600 });
 }
 
@@ -148,33 +161,16 @@ function ensureUnzipCurl() {
   const root = typeof process.getuid === 'function' && process.getuid() === 0;
   const sudo = root ? '' : 'sudo ';
   console.log(c.dim('  Installing prerequisites (unzip, curl)…'));
-  spawnSync('bash', ['-c', `${sudo}apt-get update -qq >/dev/null 2>&1; ${sudo}apt-get install -y -qq unzip curl >/dev/null 2>&1`], { stdio: 'inherit' });
-}
-
-/** The bundled wayland-core engine binary links libasound (ALSA). A minimal
- *  Debian/Ubuntu server image ships without it, so the engine aborts on the
- *  first chat turn with "wcore exited with code 127". Install it the same way we
- *  install bun's unzip/curl prereqs - idempotent, apt-only (other distros: the
- *  user installs the equivalent package). */
-function ensureEngineRuntimeLibs() {
-  if (!has('apt-get')) return; // non-Debian: user handles prereqs
-  const root = typeof process.getuid === 'function' && process.getuid() === 0;
-  const sudo = root ? '' : 'sudo ';
-  console.log(c.dim('  Ensuring engine runtime libraries (libasound2)…'));
-  // libasound2t64 on Ubuntu 24.04+ (the t64 ABI transition); libasound2 elsewhere.
   spawnSync(
     'bash',
-    [
-      '-c',
-      `${sudo}apt-get install -y -qq libasound2t64 >/dev/null 2>&1 || ${sudo}apt-get install -y -qq libasound2 >/dev/null 2>&1`,
-    ],
+    ['-c', `${sudo}apt-get update -qq >/dev/null 2>&1; ${sudo}apt-get install -y -qq unzip curl >/dev/null 2>&1`],
     { stdio: 'inherit' }
   );
 }
 
 async function ensureBun() {
   if (hasBun()) return true;
-  console.log(c.dim('\n  The server runs on the bun runtime, which isn\'t installed.'));
+  console.log(c.dim("\n  The server runs on the bun runtime, which isn't installed."));
   const yes = (await ask('  Install bun now? [Y/n] ')).toLowerCase();
   if (yes === 'n' || yes === 'no') {
     console.log(c.r('\n  Skipped. Install bun (https://bun.sh) then re-run `wayland setup`.'));
@@ -199,10 +195,6 @@ async function setup() {
     process.exit(1);
   }
   if (!(await ensureBun())) process.exit(1);
-
-  // The bundled engine needs ALSA at runtime; install it now so the first chat
-  // turn does not fail with "wcore exited with code 127" on a minimal box.
-  ensureEngineRuntimeLibs();
 
   console.log(c.dim(`  Bring a model. Flux Router is the easy path - one key, every model,`));
   console.log(c.dim(`  best-fit routing. Free account: ${c.o(FLUX_SIGNUP)}\n`));
@@ -332,7 +324,11 @@ function resetpass() {
   env.DATA_DIR = env.DATA_DIR || DATA_DIR;
   env.NODE_ENV = env.NODE_ENV || 'production';
   // Forward any extra args (e.g. a username) after the subcommand.
-  const child = spawn(bunExe, [SERVER, '--resetpass', ...process.argv.slice(3)], { cwd: PAYLOAD, env, stdio: 'inherit' });
+  const child = spawn(bunExe, [SERVER, '--resetpass', ...process.argv.slice(3)], {
+    cwd: PAYLOAD,
+    env,
+    stdio: 'inherit',
+  });
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 

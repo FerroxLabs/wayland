@@ -22,7 +22,7 @@
 
 import { app, clipboard, type BrowserWindow } from 'electron';
 import * as os from 'os';
-import { detectWCore } from '@process/agent/wcore/binaryResolver';
+import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { createConciergeDiagServer } from '@process/resources/builtinMcp/conciergeDiagServer';
 import type { ConciergeDiagOverview } from '@process/resources/builtinMcp/conciergeDiagServer';
 import { resolveConciergeDiagDeps } from '@process/utils/initStorage';
@@ -99,7 +99,7 @@ export async function collectBugReport(win: BrowserWindow | null): Promise<BugRe
 
   let engineVersion: string | null = null;
   try {
-    engineVersion = detectWCore().version ?? null;
+    engineVersion = resolveFuigoBinary()?.version ?? null;
   } catch {
     engineVersion = null;
   }

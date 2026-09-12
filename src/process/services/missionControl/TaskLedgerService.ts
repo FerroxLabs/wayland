@@ -25,8 +25,6 @@ import type {
 export type TaskLedgerSources = {
   listScheduleRuns?: (jobs: readonly ICronJob[]) => Promise<TaskLedgerScheduleRead>;
   listDesktopWorkflows?: () => Promise<WorkflowSession[]>;
-  /** Canonical Core projector. Empty is valid; absence is reported as unavailable. */
-  listCoreActivity?: () => Promise<TaskLedgerSourceRead>;
   /** Pending approvals only. Resolved approvals belong in Recent runtime activity. */
   listPendingApprovals?: () => Promise<TaskLedgerSourceRead>;
 };
@@ -57,7 +55,6 @@ export class TaskLedgerService {
       this.collectTeamEntries(userId),
       this.collectCronEntries(),
       this.collectDesktopWorkflowEntries(),
-      this.collectExternal('core-execution', this.sources.listCoreActivity),
       this.collectExternal('approvals', this.sources.listPendingApprovals),
     ]);
     const entries = results.flatMap((result) => result.entries);
@@ -173,7 +170,7 @@ export class TaskLedgerService {
   }
 
   private async collectExternal(
-    source: 'core-execution' | 'approvals',
+    source: 'approvals',
     reader: (() => Promise<TaskLedgerSourceRead>) | undefined
   ): Promise<SourceResult> {
     const observedAt = Date.now();
@@ -207,7 +204,6 @@ function normalize(observation: ActivityObservation): LedgerEntry {
 
 function sourceFor(provenance: ActivityObservation['provenance']): LedgerSource {
   if (provenance.kind === 'approval') return 'approvals';
-  if (provenance.origin === 'core') return 'core-execution';
   if (provenance.kind === 'team') return 'desktop-teams';
   if (provenance.kind === 'workflow') return 'desktop-workflows';
   return 'scheduler';

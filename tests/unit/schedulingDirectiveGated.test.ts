@@ -8,7 +8,7 @@
  * The scheduling directive is gated on the cron skill actually being present.
  * If the user excluded it there is no scheduling path to point at, and an
  * unconditional push would also stop this builder ever returning `undefined` -
- * the signal WCoreManager uses to preserve "no presetRules" on a fresh install.
+ * the signal the manager uses to preserve "no presetRules" on a fresh install.
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -36,7 +36,7 @@ import { buildSystemInstructionsWithSkillsIndex } from '@process/task/agentUtils
 
 describe('scheduling directive is gated on cron being available', () => {
   it('is omitted when the cron skill is not in the always-on set', async () => {
-    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'wcore' } as never)) ?? '';
+    const out = (await buildSystemInstructionsWithSkillsIndex({ backend: 'fuigo' } as never)) ?? '';
     expect(out).toContain('office-cli');
     expect(out).not.toContain('[CRON_PROPOSE]');
     expect(out).not.toContain('[Scheduling (CRITICAL)]');

@@ -258,11 +258,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
     }
   };
 
-  const enableWeixinPlugin = async (
-    accountId: string,
-    botToken: string,
-    ilinkUserId?: string
-  ) => {
+  const enableWeixinPlugin = async (accountId: string, botToken: string, ilinkUserId?: string) => {
     const enableResult = await channel.enablePlugin.invoke({
       pluginId: 'weixin_default',
       // CRIT-3 (v0.4.3): persist Tencent's ilink_user_id so subsequent restarts
@@ -386,7 +382,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
     }
   };
 
-  const isGeminiAgent = selectedAgent.backend === 'gemini' || selectedAgent.backend === 'wcore';
+  const isGeminiAgent = selectedAgent.backend === 'gemini';
   const agentOptions: Array<{
     backend: string;
     name: string;

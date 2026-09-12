@@ -23,8 +23,8 @@
  *   - two runs on the same DATE both keep their own bytes.
  *
  * Everything is real except the engine itself, Electron, and the conversation
- * store. The stand-in agent writes through `buildEngineSpawnEnv`, the same
- * function the real spawn uses, so "the agent wrote to the right place" is not
+ * store. The stand-in agent writes through `resolveOutputDir`, the same
+ * resolver the real run uses, so "the agent wrote to the right place" is not
  * asserted against a path this test made up.
  */
 
@@ -104,7 +104,7 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const conversationStore = new Map<string, any>();
 const createConversationMock = vi.fn(async (params: any) => {
   const id = `conv-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/fuigo-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -153,7 +153,7 @@ import type { ICronRepository } from '@/process/services/cron/ICronRepository';
 import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitter';
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
-import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { listRuns, readLatest } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
@@ -174,12 +174,12 @@ function seededRoutine(): CronJob {
     metadata: {
       conversationId: '',
       conversationTitle: 'Morning Brief',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: 'Morning Brief',
         mode: 'bypassPermissions',
         // Exactly what BuiltinRoutinesSeeder writes for `weekday-morning-report`,
@@ -236,27 +236,20 @@ function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
   let agent: Agent = async () => {};
   /**
-   * The conversation the task was built for - which is what `WCoreManager`
+   * The conversation the task was built for - which is what the agent manager
    * passes to the engine as `conversationId`, and therefore what the output
    * lookup is keyed on. Captured here rather than assumed, so the harness
    * cannot resolve a run the executor never bound to this spawn.
    */
   let spawnConversationId: string | undefined;
   const task = {
-    type: 'wcore',
+    type: 'acp',
     workspace,
     sendMessage: vi.fn(async () => {
-      // A MIRROR of the spawn call, and only a convenience one: the spawn site
-      // itself is driven for real in `wcoreSpawnRunOutputDir.test.ts` (through
-      // `WCoreAgent.start()` and a real `spawn`) and the manager's half in
-      // `wcoreManagerRunOutputHandoff.test.ts`. What THIS file is proving is
-      // the publication chain around the turn, not the env plumbing.
-      const env = buildEngineSpawnEnv({
-        providerEnv: {},
-        workspace,
-        outputDir: activeRunOutputDir(spawnConversationId),
-      });
-      await agent(env.WAYLAND_OUTPUT_DIR, workspace);
+      // A MIRROR of the spawn-time resolution, and only a convenience one. What
+      // THIS file is proving is the publication chain around the turn, not the
+      // env plumbing.
+      await agent(resolveOutputDir(workspace, activeRunOutputDir(spawnConversationId)), workspace);
     }),
   };
   const taskManager = {
@@ -336,11 +329,7 @@ describe('a scheduled routine publishes a durable, dated, discoverable series', 
     const h = makeHarness(workspace);
     await h.run(jobs[0], async (outputDir) => {
       seen = outputDir;
-      userChatSawDuringRun = buildEngineSpawnEnv({
-        providerEnv: {},
-        workspace,
-        outputDir: activeRunOutputDir('a-chat-the-user-opened-in-this-folder'),
-      }).WAYLAND_OUTPUT_DIR;
+      userChatSawDuringRun = resolveOutputDir(workspace, activeRunOutputDir('a-chat-the-user-opened-in-this-folder'));
       await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'day one', 'utf8');
     });
 

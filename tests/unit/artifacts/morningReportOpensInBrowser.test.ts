@@ -17,7 +17,7 @@
  * shipped `routines.json`; enabling it allocates a REAL durable workspace on a
  * REAL filesystem; the turn runs the shipped SKILL.md's own command block
  * through `bash`, resolving its destination the only way the product lets it
- * (out of the `--system-prompt` deliverables directive); publication is the REAL
+ * (the deliverables directory the run resolves for it); publication is the REAL
  * `commitTaskRun` writing the REAL ledger; and the open is the REAL
  * `openArtifact` with the REAL `confinePath` and the REAL type gate. Only the
  * final `shell.openPath` is a recorder - so "it opened" means the launcher was
@@ -108,7 +108,7 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const conversationStore = new Map<string, any>();
 const createConversationMock = vi.fn(async (params: any) => {
   const id = `conv-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/fuigo-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -162,7 +162,7 @@ import { seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeede
 import { listRuns } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
-import { buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { openArtifact, describeArtifactOpenTarget } from '@process/services/artifacts/artifactActions';
 import { confinePath, registerAuthorizedRoot } from '@process/bridge/pathConfinement';
 import { readRunJournal } from '@process/services/artifacts/artifactRunJournal';
@@ -214,20 +214,19 @@ function makeService(jobs: CronJob[], executor?: ICronJobExecutor): CronService 
 }
 
 /** What the stand-in agent does once the run's engine channels exist. */
-type Agent = (directive: string, workspace: string) => Promise<void>;
+type Agent = (outputDir: string, workspace: string) => Promise<void>;
 
 function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
   let agent: Agent = async () => {};
 
   const buildTask = (conversationId: string) => ({
-    type: 'wcore',
+    type: 'acp',
     workspace,
     sendMessage: vi.fn(async () => {
-      // Mirrors `WCoreAgent.start`: ONE `resolveOutputDir` call, threaded into
-      // the `--system-prompt` directive the agent reads.
+      // ONE `resolveOutputDir` call, handed to the agent as its deliverables directory.
       const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
-      await agent(buildOutputDirective(engineOutputDir), workspace);
+      await agent(engineOutputDir, workspace);
     }),
   });
   const taskManager = {
@@ -284,13 +283,6 @@ function stagingDirBlock(): string {
   return block;
 }
 
-/** The absolute deliverables directory the run's own directive names. */
-function deliverablesDirFromDirective(directive: string): string {
-  const m = directive.match(/Deliverables you want the user to keep go in (.+?)\. Create that directory/);
-  if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
-  return m[1];
-}
-
 /**
  * Execute the shipped block with its one placeholder substituted, then have the
  * shell report the directory the block actually pinned in `$OUT`.
@@ -320,7 +312,7 @@ function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: st
  *
  * It does what the real run now does, in order: execute the shipped body's
  * staging-directory block (substituting the one placeholder out of the run's own
- * directive), then write the brief the model would have written.
+ * deliverables directory), then write the brief the model would have written.
  *
  * Pass `null` for an EMPTY run - the block still executes and creates the
  * directory, but nothing is written into it. That is the honest-tombstone path:
@@ -332,8 +324,7 @@ function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: st
  * would be exercising a channel the product does not have.
  */
 function modelRun(bar: string | null): Agent {
-  return async (directive, ws) => {
-    const dir = deliverablesDirFromDirective(directive);
+  return async (dir, ws) => {
     // Run the shipped block and ask IT where it pinned the output, then write
     // there. Writing to `dir` instead would make the block's CONTENT unasserted:
     // a mutation run proved exactly that - pointing the shipped block at a decoy
@@ -341,7 +332,7 @@ function modelRun(bar: string | null): Agent {
     // the TEST had decided rather than where the BLOCK said. The model in
     // production follows the block, so the test must too.
     const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
-    expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
+    expect(pinned, 'the shipped block must pin the deliverables directory it was told').toBe(dir);
     if (bar === null) return;
     writeFileSync(
       pathMod.join(pinned, 'morning-brief.html'),
@@ -528,11 +519,11 @@ describe('the brief a scheduled run produces can actually be opened', () => {
       {
         getTask: vi.fn(() => undefined),
         getOrBuildTask: vi.fn(async (conversationId: string) => ({
-          type: 'wcore',
+          type: 'acp',
           workspace,
           sendMessage: vi.fn(async () => {
             const dir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
-            await modelRun(null)(buildOutputDirective(dir), workspace);
+            await modelRun(null)(dir, workspace);
           }),
         })),
         kill: vi.fn(),

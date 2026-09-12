@@ -1,5 +1,7 @@
 # Wave 0 execution control
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Native Constitution production authority is additionally governed by
 `NATIVE-CONSTITUTION-V2-ACCEPTANCE.md`. The locally green predecessor
 `991c502e74506ec3702f92e429a8b31b655412ba` is rejected and quarantined until a
@@ -42,7 +44,7 @@ claim.
 - `receipts/M1.json`
 - `receipts/M1F.json`
 - `receipts/WAVE-0.json`
-- `receipts/SBX-0-SETTINGS-TRUTH-CANDIDATE.md` (focused truth correction; not M1S closure)
+- SBX-0 settings-truth receipt (retired with Wayland Core)
 - `receipts/WAVE-0-STRIKE-CHECKPOINT.md` (immutable local source checkpoint; not packet or release acceptance)
 - `HOSTED-CONSTITUTION-REMEDIATION.md` (authorized corrective packet; blocked only on accepted hostile-filesystem dependency)
 - `HOSTED-CONSTITUTION-ACCEPTANCE.md` (bounded pre-v2 renderer behavior
@@ -262,10 +264,10 @@ Receipts are generated only from exact commands and artifacts. An absent or skip
   connectors.
 - The Overview and Profiles panes now show the producer-resolved active Core
   profile path and fail closed to `Path unavailable` instead of fabricating a
-  default-profile or `~/.wayland-core/config.toml` location.
+  default-profile or engine config location.
 - Focused settings/retention proof passes 2 files / 36 tests, targeted lint with
   zero warnings and errors, TypeScript, and `git diff --check`.
-- Receipt: `receipts/SBX-0-SETTINGS-TRUTH-CANDIDATE.md`.
+- Receipt: retired with Wayland Core.
 - Core localhost grants, toolchain roots, workspace retention, packaged updater
   relaunch, and support-context continuation remain open; this correction does
   not represent them as fixed.
@@ -424,28 +426,28 @@ Receipts are generated only from exact commands and artifacts. An absent or skip
 - Packaged-resource verification now requires the exact declared OfficeCLI target runtime (`darwin|linux|win32` plus `x64|arm64`) and matches its manifest platform/architecture. A valid binary for the wrong target, or a verifier invocation without an explicit target, fails closed. Focused preparation/release/verifier proof passes 3 files / 14 tests.
 - A real macOS ARM64 package now preserves the exact OfficeCLI release SHA-256 `b8582853cc464fa0bdb2fabc2803821472c9449c38b365a7be79fcb53d6356e7` and upstream Aion Developer ID signature, retains hardened runtime and only `com.apple.security.cs.allow-jit`, passes deep app-signature validation, and passes all critical resource checks. Focused OfficeCLI/package supply-chain proof passes 2 files / 17 tests. The Wayland app is locally ad-hoc and other package targets remain unproven, so C0 is not release-closed.
 - The same package run exposed a fail-open Core provenance defect. **Closed locally in Cycle 10:** direct packaging now forces exact Core `v0.12.25` preparation with independent archive and extracted-binary pins, prunes stale runtime files, isolates one platform/architecture per invocation, rejects every local/skipped/unverified/mismatched/self-asserted receipt, and replays the actual packaged executable bytes. Focused proof passes 5 files / 46 tests; the bounded Gemini rerun reports zero High. The macOS ARM64 local package is partial evidence only: six-target signed packaging and release receipts remain open in M0A/M8.
-- The fresh post-correction macOS ARM64 package preserved the exact pinned Core SHA-256 `aa818a9492b59fd4402b2d4d451104d88dee5e5c20f05b722a487cdc39a6a382`, contained exactly `wayland-core` plus `manifest.json`, passed the standalone target/release/archive/binary replay, and passed deep strict app-signature validation.
+- The fresh post-correction macOS ARM64 package preserved the exact pinned Core SHA-256 `aa818a9492b59fd4402b2d4d451104d88dee5e5c20f05b722a487cdc39a6a382`, contained exactly the engine executable plus `manifest.json`, passed the standalone target/release/archive/binary replay, and passed deep strict app-signature validation.
 
 ### MCP operational-truth correction
 
 - Direct customer evidence names Tavily, Firecrawl, n8n, and Beeper as configured/enabled in the Library while the active assistant's ToolSearch reports no matching tools. This is P1 release-blocking evidence, not a cosmetic status-label defect.
 - The automatic connector-fingerprint session rebuild and persisted Core session-readiness implementation were outside the pre-M0A/M1 exception. Both are now test-harness-only: activation requires the explicit flag, `NODE_ENV=test`, and authoritative `isPackaged=false`. Development and every packaged application are denied.
 - The composer no longer reloads legacy persisted `mcpSessionState` or synthesizes readiness from uncorrelated raw `mcp_ready`/`mcp_failed` events. Only the preview-gated complete process snapshot can drive the dormant receipt treatment; the ordinary list says “Configured”, the live scope says “Selected for this chat”, and neither phrase claims tool availability.
-- A physical-project Core launch lease resolves and captures one canonical workspace for the lease, temporary `.wcore.toml`, child `cwd`, engine ready, and restore. Symlink aliases serialize and alias retargeting cannot redirect an acquired launch. Atomic journal recovery preserves newer user bytes, flushes rename/unlink metadata in order, and refuses final-component symlinks for the target, marker, and backup.
+- A physical-project Core launch lease resolves and captures one canonical workspace for the lease, temporary project config, child `cwd`, engine ready, and restore. Symlink aliases serialize and alias retargeting cannot redirect an acquired launch. Atomic journal recovery preserves newer user bytes, flushes rename/unlink metadata in order, and refuses final-component symlinks for the target, marker, and backup.
 - Every Core config writer shares one atomic mutation lock. The manager captures one active-profile home before MCP publication and carries it through engine spawn; corrupt or unreadable profile markers fail closed, and marker activation is an atomic synced replacement.
 - Gemini replacement reconstructs its worker fork only after confirmed old-worker exit; Electron timeout/refusal rejects replacement instead of permitting overlap. Unsolicited connector receipts are rejected by both reducer and presentation layers, but definition/session/scope correlation remains MCP-2 and cannot promote any product UI.
-- Latest WCore publication/launch proof passes 7 files / 69 tests and marker/config/lease security proof passes 7 files / 48 tests. Exact-current full proof after the recovery-verifier slice passes 1,294 files / 13,367 tests, with 19 files / 140 tests skipped; typecheck and the production package build pass. Independent Claude and Gemini exact-current audits each reported 0 Critical / 0 High for the bounded Cycle 8 corrective tree; the later recovery-verifier delta has focused, full-corpus, typecheck, package, and real-process smoke proof but is not represented as re-reviewed by those external auditors. This does not claim the four named vendors have passed live ToolSearch/invocation canaries or unlock MCP-2/product readiness promotion.
+- Latest engine publication/launch proof passes 7 files / 69 tests and marker/config/lease security proof passes 7 files / 48 tests. Exact-current full proof after the recovery-verifier slice passes 1,294 files / 13,367 tests, with 19 files / 140 tests skipped; typecheck and the production package build pass. Independent Claude and Gemini exact-current audits each reported 0 Critical / 0 High for the bounded Cycle 8 corrective tree; the later recovery-verifier delta has focused, full-corpus, typecheck, package, and real-process smoke proof but is not represented as re-reviewed by those external auditors. This does not claim the four named vendors have passed live ToolSearch/invocation canaries or unlock MCP-2/product readiness promotion.
 
 ### Core v1 validation candidate
 
 - Imported the exact 110-fixture `wayland-desktop-core` `1.0` corpus from local Core commit `d0aa0abc75afe056cc5434fcd652efa6d474ab0c` without reading or consuming the dirty Core checkout.
-- Pinned generator `wcore-desktop-contract-gen/1` and the fixture, schema, and source-input digests in runtime code, tests, and `contracts/wayland-desktop-core/v1/PRODUCER-PIN.md`.
+- Pinned the desktop-contract generator and the fixture, schema, and source-input digests in runtime code and tests (contract corpus since retired with Wayland Core).
 - Recomputed the fixture and schema digests from vendored bytes and replayed all 11 commands, 39 canonical events, compatibility fixtures, and every adversarial policy/workflow/Anvil family through the actual Desktop consumer and semantic reducers.
-- Replaced raw `readline` JSON parsing with an 8 MiB bounded fatal-UTF-8 JSONL decoder on the production WCore stdout boundary. Critical/unknown-criticality events, malformed frames, unsupported required extensions, descriptor drift, gaps, conflicting duplicates, out-of-order evidence, and conflicting terminals fail closed.
+- Replaced raw `readline` JSON parsing with an 8 MiB bounded fatal-UTF-8 JSONL decoder on the production engine stdout boundary. Critical/unknown-criticality events, malformed frames, unsupported required extensions, descriptor drift, gaps, conflicting duplicates, out-of-order evidence, and conflicting terminals fail closed.
 - Implemented `ordinary_turn_tool_replay_reducer`, `anvil_desktop_replay_reducer`, and `anvil_persistent_mutation_watcher`. Publication-bound Anvil trust becomes historical after mutation, watcher failure/unavailability, or disconnect and requires fresh Core validation.
 - Added host-derived `anvil_trust_changed` propagation so the UI can remove a live trust treatment without Desktop forging Core invalidation evidence. Host-delegated channel and scheduling ownership is unchanged.
-- Core published exact producer commit `d0aa0abc75afe056cc5434fcd652efa6d474ab0c` on `FerroxLabs/wayland-core` / `origin/feat/887`; Desktop verified remote reachability and no longer depends on a dirty or local-only checkout. Production binary preparation remains separately pinned to released Core `v0.12.25` pending an authorized binary/release compatibility uptake.
-- Exact-current proof: contract/raw-wire/manager focus 54/54; WCore/Desktop integration 483 passed and 3 skipped; full Vitest 13,219 passed and 137 skipped across 1,269 passed and 19 skipped files; typecheck, production Electron/Vite build, targeted zero-error lint, and `git diff --check` passed.
+- Core published exact producer commit `d0aa0abc75afe056cc5434fcd652efa6d474ab0c` on the engine repo; Desktop verified remote reachability and no longer depends on a dirty or local-only checkout. Production binary preparation remains separately pinned to released Core `v0.12.25` pending an authorized binary/release compatibility uptake.
+- Exact-current proof: contract/raw-wire/manager focus 54/54; engine/Desktop integration 483 passed and 3 skipped; full Vitest 13,219 passed and 137 skipped across 1,269 passed and 19 skipped files; typecheck, production Electron/Vite build, targeted zero-error lint, and `git diff --check` passed.
 
 ### Flux routing-evidence producer acceptance
 

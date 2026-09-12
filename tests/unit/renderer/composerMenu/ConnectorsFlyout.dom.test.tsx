@@ -19,7 +19,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import {
   createMcpSessionState,
   recordDesktopMcpSessionPublication,
-  reduceMcpSessionTerminal,
+  reduceMcpSessionProducerEvent,
   type McpSessionExpectedServer,
 } from '@/common/mcp/sessionReceipt';
 
@@ -227,12 +227,11 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
     runtimeName: 'tavily',
     canonicalName: 'tavily',
     definitionDigest: 'hmac-sha256:tavily',
-    backend: 'wcore',
+    backend: 'acp',
     transport: 'stdio',
     scope: 'conversation',
   };
-  const session = () =>
-    createMcpSessionState('launch-1', [expected], { conversationId: 'chat-1', backend: 'wcore' }, 1);
+  const session = () => createMcpSessionState('launch-1', [expected], { conversationId: 'chat-1', backend: 'acp' }, 1);
 
   it('does not present a successful Library probe as chat readiness', () => {
     renderFlyout({ servers: [tavily], onScopeChange: noop });
@@ -242,9 +241,19 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
 
   it('shows green only after this exact published launch reports named tools', () => {
     const published = recordDesktopMcpSessionPublication(session(), 'tavily', 2);
-    const registered = reduceMcpSessionTerminal(
+    const registered = reduceMcpSessionProducerEvent(
       published,
-      { type: 'mcp_ready', data: { name: 'tavily', tools: ['tavily_search', 'tavily_extract'] } },
+      {
+        type: 'mcp_tools_registered',
+        data: {
+          generation: 'launch-1',
+          conversationId: 'chat-1',
+          backend: 'acp',
+          runtimeName: 'tavily',
+          definitionDigest: 'hmac-sha256:tavily',
+          tools: ['tavily_search', 'tavily_extract'],
+        },
+      },
       3
     );
     renderFlyout({
@@ -256,7 +265,7 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
     expect(screen.getByTitle('Tools registered in this chat')).toBeInTheDocument();
   });
 
-  it('keeps successful config publication visibly unverified until Core registers tools', () => {
+  it('keeps successful config publication visibly unverified until the engine registers tools', () => {
     renderFlyout({
       servers: [tavily],
       onScopeChange: noop,
@@ -268,9 +277,19 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
 
   it('surfaces the exact runtime failure instead of a connected badge', () => {
     const published = recordDesktopMcpSessionPublication(session(), 'tavily', 2);
-    const failed = reduceMcpSessionTerminal(
+    const failed = reduceMcpSessionProducerEvent(
       published,
-      { type: 'mcp_failed', data: { name: 'tavily', reason: 'credential rejected' } },
+      {
+        type: 'mcp_registration_failed',
+        data: {
+          generation: 'launch-1',
+          conversationId: 'chat-1',
+          backend: 'acp',
+          runtimeName: 'tavily',
+          definitionDigest: 'hmac-sha256:tavily',
+          reason: 'credential rejected',
+        },
+      },
       3
     );
     renderFlyout({
@@ -286,7 +305,7 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
     const otherSession = createMcpSessionState(
       'launch-1',
       [{ ...expected, serverId: 'other', runtimeName: 'other', definitionDigest: 'hmac-sha256:other' }],
-      { conversationId: 'chat-1', backend: 'wcore' },
+      { conversationId: 'chat-1', backend: 'acp' },
       1
     );
     renderFlyout({

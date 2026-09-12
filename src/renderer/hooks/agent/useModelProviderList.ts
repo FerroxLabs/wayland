@@ -15,7 +15,7 @@ export interface ModelProviderListResult {
    * This is the source of truth for "is this provider still connected" - the
    * picker `providers` list hides a provider whose models are all transiently
    * filtered out (e.g. an OpenRouter refresh), which must NOT be read as a
-   * disconnect (see useWCoreModelSelection's stale-model guard).
+   * disconnect.
    */
   connectedProviders: IProvider[];
   /**

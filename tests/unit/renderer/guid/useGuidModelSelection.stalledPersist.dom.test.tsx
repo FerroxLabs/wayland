@@ -68,12 +68,12 @@ describe('useGuidModelSelection - a stalled config write must not strand selecti
     routeThroughFlux = false;
     stallWrites = false;
     store.clear();
-    store.set('wcore.defaultModel', { id: 'b1c5cb99', useModel: 'flux-pinned-claude-opus-5', accountId: 'default' });
+    store.set('gemini.defaultModel', { id: 'b1c5cb99', useModel: 'flux-pinned-claude-opus-5', accountId: 'default' });
   });
 
   it('resolves the saved pin even when the persistence write never settles', async () => {
     stallWrites = true;
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
     await waitFor(() => expect(result.current.modelList.length).toBeGreaterThan(0));
     // The gate that drives the CTA and the Send button reads exactly this.
     await waitFor(() => expect(result.current.currentModel?.useModel).toBe('flux-pinned-claude-opus-5'), {
@@ -82,7 +82,7 @@ describe('useGuidModelSelection - a stalled config write must not strand selecti
   });
 
   it('still applies a manual pick when the write never settles', async () => {
-    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+    const { result } = renderHook(() => useGuidModelSelection('gemini'), { wrapper });
     await waitFor(() => expect(result.current.currentModel).toBeDefined());
     stallWrites = true;
     await result.current.setCurrentModel({

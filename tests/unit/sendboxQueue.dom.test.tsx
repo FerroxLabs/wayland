@@ -713,7 +713,7 @@ describe('SendBox queue and interaction behaviors', () => {
    * Both layout branches render the same controls.
    *
    * They were byte-identical copies, which looked like harmless duplication and
-   * was not: NanobotSendBox passes neither defaultMultiLine nor lockMultiLine,
+   * was not: a send box that passes neither defaultMultiLine nor lockMultiLine
    * so the single-line branch is live for real users there. One edited copy is
    * a silent per-platform divergence, and no test would have noticed.
    */

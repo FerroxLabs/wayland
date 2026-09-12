@@ -10,7 +10,6 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
-import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
@@ -319,13 +318,13 @@ async function persistStrippedTurnText(
 
     // Only ever overwrite the ASSISTANT's row.
     //
-    // A msg_id names the TURN, not a message: WCore stamps the same one on the
+    // A msg_id names the TURN, not a message: an engine may stamp the same one on the
     // user's right-side prompt AND the left-side reply. getMessageByMsgId filters
     // on conversation + msg_id + type and takes the newest, with no `position`
     // clause — so if the assistant row is not on disk at this instant, the only
     // matching text row is the USER'S PROMPT, and we would replace what they
     // typed with the model's answer. That is unrecoverable, and this repo has
-    // shipped exactly that bug once before (the wcore reply overwriting the user's
+    // shipped exactly that bug once before (the engine reply overwriting the user's
     // message). Cheap guard, permanent damage if it is missing.
     if (row.position !== 'left') return;
 
@@ -423,12 +422,28 @@ async function handleConciergeProposals(
 /**
  * Handle detected cron commands
  */
+/**
+ * Lazy-import to break the cycle cronServiceSingleton -> workerTaskManagerSingleton
+ * -> AcpAgentManager -> MessageMiddleware -> cronServiceSingleton. The singleton
+ * constructs `new WorkerTaskManagerJobExecutor(workerTaskManager, ...)` at module
+ * level, so whenever this file is reached before cronServiceSingleton (the order
+ * the bundle took once the Core managers were gone) that read hits the TDZ and
+ * the main process fails to boot ("Cannot access 'workerTaskManager' before
+ * initialization"). Every use here is inside an async handler, so deferring the
+ * import costs nothing.
+ */
+async function getCronService() {
+  const mod = await import('@process/services/cron/cronServiceSingleton');
+  return mod.cronService;
+}
+
 async function handleCronCommands(
   conversationId: string,
   agentType: AgentBackend,
   commands: CronCommand[]
 ): Promise<string[]> {
   const responses: string[] = [];
+  const cronService = await getCronService();
 
   for (const cmd of commands) {
     try {

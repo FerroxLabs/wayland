@@ -1,5 +1,7 @@
 # MCP deep dive: one connection truth across every Wayland agent
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Status: **AUDIT CONFIRMED — RELEASE BLOCKING FALSE-READINESS; REMEDIATION IN PROGRESS**
 Owner: Desktop (`area:desktop-ui`) with explicit Core/agent contract handoffs
 Primary coordination: Wayland #476 and Wave 0 #886; do not close coordination issues from an agent session.
@@ -399,7 +401,7 @@ The reported rapid depletion of Flux credit during ordinary chat is not classifi
 - add runaway/retry/fan-out alerts and a per-conversation ledger;
 - reproduce with an anonymized account-level export only with user consent.
 
-Current source audit: normative ACP `usage_update.used` is current context occupancy, not cumulative processed or billable tokens; only its cost field is a cumulative session gauge. The corrective Desktop tree now forwards only finite non-negative USD ACP cost, keys its ordinary-chat baseline by backend session, and never manufactures billable tokens from context occupancy. The Team writer and renderer meter now enforce the same rule: new ACP rows retain occupancy only as `context_tokens_used`, publish zero token deltas, and difference only validated cumulative USD cost; legacy ACP rows identified by their context-window payload no longer contribute historical token spend. Focused Team writer/meter coverage passes 91 tests, exact-current TypeScript passes, targeted lint reports zero errors, and diff hygiene passes. WCore separately forwards `session_cost` to conversation Activity while Mission Control computes a catalog-priced row from finish tokens. The cost store still has no Flux request, session generation, route, provider attempt, retry, fallback, cache-write, producer-receipt, or balance-delta fields. These paths can undercount, disagree, or lose provenance even when Flux billed correctly. The accepted Flux fixture corpus proves semantics but has no live producer transport into Desktop, so it cannot explain the user's debit.
+Current source audit: normative ACP `usage_update.used` is current context occupancy, not cumulative processed or billable tokens; only its cost field is a cumulative session gauge. The corrective Desktop tree now forwards only finite non-negative USD ACP cost, keys its ordinary-chat baseline by backend session, and never manufactures billable tokens from context occupancy. The Team writer and renderer meter now enforce the same rule: new ACP rows retain occupancy only as `context_tokens_used`, publish zero token deltas, and difference only validated cumulative USD cost; legacy ACP rows identified by their context-window payload no longer contribute historical token spend. Focused Team writer/meter coverage passes 91 tests, exact-current TypeScript passes, targeted lint reports zero errors, and diff hygiene passes. The engine separately forwarded `session_cost` to conversation Activity while Mission Control computes a catalog-priced row from finish tokens. The cost store still has no Flux request, session generation, route, provider attempt, retry, fallback, cache-write, producer-receipt, or balance-delta fields. These paths can undercount, disagree, or lose provenance even when Flux billed correctly. The accepted Flux fixture corpus proves semantics but has no live producer transport into Desktop, so it cannot explain the user's debit.
 
 Do not explain the charge as “heavy use” without receipts, and do not let the MCP repair broaden into speculative billing changes.
 
@@ -442,7 +444,7 @@ Implemented in the current Wave 0 worktree:
 - URL imports expose an editable connector name and derive collision-resistant defaults for Beeper, n8n, and arbitrary localhost ports instead of saving every local MCP as `Localhost`;
 - reconnect/OAuth completion/install copy now stops when publication fails instead of running a probe that can repaint the connector green;
 - secret-safe runtime fingerprinting, encrypted OAuth refresh, and serialized stale-task replacement are implemented only as unpackaged test-harness seams. Development and packaged runtime activation are disabled until M0A/M1/MCP-2 prove queued/running-turn safety and correlated definition/session/scope receipts;
-- Core launches sharing one physical project now resolve and capture one canonical workspace before mutation, then use that same physical path for the lease, temporary `.wcore.toml`, child `cwd`, engine ready, and restore. Symlink aliases serialize and alias retargeting cannot redirect an acquired launch. The temporary write is atomic and journaled with ordered rename/unlink metadata flushes; a later launch heals a process-death interruption without overwriting a newer user edit. Target, marker, and backup final-component symlinks are refused;
+- Core launches sharing one physical project now resolve and capture one canonical workspace before mutation, then use that same physical path for the lease, temporary project config, child `cwd`, engine ready, and restore. Symlink aliases serialize and alias retargeting cannot redirect an acquired launch. The temporary write is atomic and journaled with ordered rename/unlink metadata flushes; a later launch heals a process-death interruption without overwriting a newer user edit. Target, marker, and backup final-component symlinks are refused;
 - all Core config mutation, including MCP publication and other section writers, shares one atomic lock. The manager captures one active-profile home before publication and passes it through engine spawn; corrupt or unreadable profile markers fail closed, while marker activation uses a synced atomic replacement;
 - preview receipt reduction rejects connector names outside the exact launch allowlist, and the flyout independently requires expected membership before any ready treatment;
 - extension-provided MCP declarations now enter one shared main-process runtime loader used by ACP, Codex, Gemini, and Core. Persisted user declarations win canonical-name collisions, and extension declarations are no longer painted connected merely because an extension manifest exists;
@@ -469,7 +471,7 @@ Connector archive/recovery:        6 files / 119 tests
 URL/probe/publication CRUD:     11 files / 65 tests
 Core receipt/event forwarding:  3 files / 45 tests
 MCP truth quarantine gate:      5 files / 45 tests
-Latest WCore launch matrix:      7 files / 69 tests
+Latest engine launch matrix:     7 files / 69 tests
 Marker/config/lease security:    7 files / 48 tests
 MCP trusted profile + UI:        4 files / 23 tests
 Profile/security regression:     3 files / 21 tests

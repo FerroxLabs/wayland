@@ -17,7 +17,7 @@ const create = (): VoiceSessionSnapshot =>
     sessionId: 'voice-session-1',
     conversationId: 'conversation-1',
     projectId: 'project-1',
-    actorId: 'wayland-core',
+    actorId: 'fuigo',
     modelId: 'gpt-5-6-sol',
     authorityClass: 'ask',
     voiceId: 'ember',
@@ -219,7 +219,7 @@ describe('VoiceSessionMachine', () => {
       createVoiceSession({
         sessionId: '../escape',
         conversationId: 'conversation-1',
-        actorId: 'wayland-core',
+        actorId: 'fuigo',
         modelId: 'gpt-5',
         authorityClass: 'ask',
         voiceId: 'ember',

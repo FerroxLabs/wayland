@@ -221,20 +221,6 @@ describe('getTeamAvailableModels', () => {
     expect(ids).not.toContain('gpt-5.3-codex-spark'); // subscription-only -> trimmed for gemini
   });
 
-  it('#555: Wcore backend still includes subscription-only model ids (wcore CAN auth the subscription)', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        id: 'chatgpt-sub',
-        platform: 'openai-compatible',
-        model: ['gpt-5.5', 'gpt-5.3-codex-spark'],
-        __waylandModelRegistryBridge: 'v2:chatgpt-subscription',
-      } as Partial<IProvider> & { platform: string; model: string[] }),
-    ];
-    const ids = getTeamAvailableModels('wcore', {}, providers, false).map((m) => m.id);
-    expect(ids).toContain('gpt-5.5');
-    expect(ids).toContain('gpt-5.3-codex-spark'); // wcore keeps it (routes to --provider openai-chatgpt)
-  });
-
   it('UT-36: Gemini backend with Google Auth + multiple platform providers', () => {
     const providers: IProvider[] = [
       makeProvider({
@@ -269,108 +255,6 @@ describe('getTeamAvailableModels', () => {
     expect(result.some((m) => m.id === 'auto')).toBe(false);
   });
 
-  // --- Wcore backend ---
-
-  it('UT-10: Wcore backend takes all enabled providers models', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        id: 'p1',
-        platform: 'openai-compatible',
-        model: ['gpt-4o', 'gpt-4o-mini'],
-      }),
-      makeProvider({
-        id: 'p2',
-        platform: 'openai-compatible',
-        model: ['another-model'],
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    expect(result).toEqual([
-      { id: 'gpt-4o', label: 'gpt-4o' },
-      { id: 'gpt-4o-mini', label: 'gpt-4o-mini' },
-      { id: 'another-model', label: 'another-model' },
-    ]);
-  });
-
-  it('UT-11: Wcore backend with no enabled provider returns empty array', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        platform: 'openai-compatible',
-        enabled: false,
-        model: ['gpt-4o'],
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    expect(result).toEqual([]);
-  });
-
-  it('UT-12: Wcore backend excludes models with modelEnabled === false', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        platform: 'openai-compatible',
-        model: ['gpt-4o', 'gpt-4o-mini'],
-        modelEnabled: { 'gpt-4o': true, 'gpt-4o-mini': false },
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
-  });
-
-  it('UT-30: Wcore backend deduplicates models across providers', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        id: 'p1',
-        platform: 'openai-compatible',
-        model: ['gpt-4o', 'gpt-4o-mini'],
-      }),
-      makeProvider({
-        id: 'p2',
-        platform: 'openai-compatible',
-        model: ['gpt-4o', 'custom-model'],
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    expect(result).toEqual([
-      { id: 'gpt-4o', label: 'gpt-4o' },
-      { id: 'gpt-4o-mini', label: 'gpt-4o-mini' },
-      { id: 'custom-model', label: 'custom-model' },
-    ]);
-  });
-
-  // --- Wcore capability filtering ---
-
-  it('UT-32: Wcore backend excludes models without function_calling capability', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        id: 'p1',
-        platform: 'openai-compatible',
-        // dall-e-3 matches excludeFromPrimary, imagen-3 excluded from function_calling
-        model: ['gpt-4o', 'dall-e-3', 'imagen-3'],
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
-  });
-
-  it('UT-33: Wcore backend excludes gemini-with-google-auth platform providers', () => {
-    const providers: IProvider[] = [
-      makeProvider({
-        id: 'google-auth',
-        platform: 'gemini-with-google-auth',
-        model: ['auto', 'gemini-2.5-pro'],
-      }),
-      makeProvider({
-        id: 'openai',
-        platform: 'openai-compatible',
-        model: ['gpt-4o'],
-      }),
-    ];
-    const result = getTeamAvailableModels('wcore', {}, providers);
-    // google-auth provider excluded entirely
-    expect(result.some((m) => m.id === 'auto')).toBe(false);
-    expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
-  });
-
   it('UT-34: Gemini backend capability-filters provider models (excludeFromPrimary)', () => {
     const providers: IProvider[] = [
       makeProvider({
@@ -403,11 +287,6 @@ describe('getTeamAvailableModels', () => {
 
   it('UT-31: providers is null - Gemini without Google Auth returns empty', () => {
     const result = getTeamAvailableModels('gemini', {}, null, false);
-    expect(result).toEqual([]);
-  });
-
-  it('UT-15: providers is undefined - Wcore returns empty array', () => {
-    const result = getTeamAvailableModels('wcore', {}, undefined);
     expect(result).toEqual([]);
   });
 

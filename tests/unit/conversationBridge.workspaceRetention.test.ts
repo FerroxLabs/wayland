@@ -153,10 +153,6 @@ vi.mock('@process/services/database', () => ({
 vi.mock('@/common', () => ({
   ipcBridge: {
     openclawConversation: { getRuntime: createCommand('openclawConversation.getRuntime') },
-    wcoreRecovery: {
-      get: createCommand('wcoreRecovery.get'),
-      abandon: createCommand('wcoreRecovery.abandon'),
-    },
     conversation: {
       create: createCommand('conversation.create'),
       reloadContext: createCommand('conversation.reloadContext'),
@@ -240,7 +236,7 @@ describe('conversation.remove managed-workspace retention', () => {
   });
 
   it('severs the database reference while preserving the complete managed workspace tree', async () => {
-    const workspace = path.join(root, 'wcore-temp-1736900000000');
+    const workspace = path.join(root, 'acp-temp-1736900000000');
     const nested = path.join(workspace, 'drafts', 'chapter-1');
     const artifact = path.join(nested, 'report.bin');
     const notes = path.join(workspace, 'notes.md');
@@ -312,7 +308,7 @@ describe('conversation.remove managed-workspace retention', () => {
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-pending',
       source: 'wayland',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000001') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000001') },
     });
     mockWorkerTaskManager.kill.mockReturnValue(shutdown);
 
@@ -355,16 +351,16 @@ describe('conversation.remove managed-workspace retention', () => {
       }) as never;
     manager.addTask(
       'conv-replaced',
-      makeAgent(path.join(root, 'wcore-temp-1736900000010'), () => originalShutdown)
+      makeAgent(path.join(root, 'acp-temp-1736900000010'), () => originalShutdown)
     );
     manager.addTask(
       'conv-replaced',
-      makeAgent(path.join(root, 'wcore-temp-1736900000011'), () => successorShutdown)
+      makeAgent(path.join(root, 'acp-temp-1736900000011'), () => successorShutdown)
     );
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-replaced',
       source: 'wayland',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000011') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000011') },
     });
 
     try {
@@ -391,7 +387,7 @@ describe('conversation.remove managed-workspace retention', () => {
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-running',
       source: 'wayland',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000002') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000002') },
     });
     mockWorkerTaskManager.kill.mockRejectedValue(new Error('process still alive'));
 
@@ -411,7 +407,7 @@ describe('conversation.remove managed-workspace retention', () => {
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-channel-rollback',
       source: 'telegram',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000100') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000100') },
     });
     mockWorkerTaskManager.withConversationShutdown.mockImplementation(
       async (_id: string, prepare: () => Promise<unknown>) => {
@@ -436,7 +432,7 @@ describe('conversation.remove managed-workspace retention', () => {
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-channel-success',
       source: 'telegram',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000101') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000101') },
     });
     mockConversationService.prepareDeleteConversation.mockResolvedValue(() => {
       order.push('delete');
@@ -459,7 +455,7 @@ describe('conversation.remove managed-workspace retention', () => {
     mockConversationService.getConversation.mockResolvedValue({
       id: 'conv-source-race',
       source: 'wayland',
-      extra: { workspace: path.join(root, 'wcore-temp-1736900000103') },
+      extra: { workspace: path.join(root, 'acp-temp-1736900000103') },
     });
     mockConversationService.prepareDeleteConversation.mockResolvedValue(() => {
       // The production transaction re-reads the authoritative source here and
@@ -490,7 +486,7 @@ describe('conversation.remove managed-workspace retention', () => {
     const running = {
       type: 'acp',
       status: 'running',
-      workspace: path.join(root, 'wcore-temp-1736900000104'),
+      workspace: path.join(root, 'acp-temp-1736900000104'),
       conversation_id: 'conv-shutdown-retry',
       lastActivityAt: Date.now(),
       kill: vi.fn(async () => {
@@ -536,7 +532,7 @@ describe('conversation.remove managed-workspace retention', () => {
     const successor = {
       type: 'acp',
       status: 'running',
-      workspace: path.join(root, 'wcore-temp-1736900000200'),
+      workspace: path.join(root, 'acp-temp-1736900000200'),
       conversation_id: 'conv-callback-race',
       lastActivityAt: Date.now(),
       kill: vi.fn(() => successorShutdown.promise),

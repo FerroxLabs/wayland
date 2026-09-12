@@ -27,7 +27,7 @@ const buildLeader = () => ({
   slotId: '',
   conversationId: '',
   role: 'leader' as const,
-  agentType: 'wayland-core',
+  agentType: 'fuigo',
   agentName: 'Leader',
   conversationType: 'acp',
   status: 'pending' as const,

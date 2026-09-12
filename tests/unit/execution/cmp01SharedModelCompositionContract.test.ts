@@ -63,8 +63,11 @@ function digestOf(value: unknown): `sha256:${string}` {
 
 // Pinned contract digests. If the shared model or manifest changes shape, these
 // must be regenerated deliberately — that is the replay-contract guard.
-const MANIFEST_CONTRACT_DIGEST = 'sha256:82e5e650ca0777d38acaed94e758a5e6205a9626d786b5a6bf41d690ad569750';
-const SNAPSHOT_CONTRACT_DIGEST = 'sha256:162d1fbcd88214efe980bca8516a0d9486ba6b6e73d0325a1f83ea432770b8d2';
+// Re-pinned for the Fuigo cutover: the officecli capability's backendSupport
+// dropped the retired Core engine, the fixture actor is the Fuigo ACP engine, and
+// the fixture policy names a valid PolicySource.
+const MANIFEST_CONTRACT_DIGEST = 'sha256:08ac482b482ee81ba34dd642b85d56eb10816eba8a5f301b8fd81743b23198e7';
+const SNAPSHOT_CONTRACT_DIGEST = 'sha256:d1f8c852f895e75ec95395257bbba0d6f46323797dd13225887adf59e6fe49da';
 
 const IDENTITY = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const NOW = 10_000;
@@ -154,7 +157,7 @@ function buildContractEvents(host: ExecutionHost): ExecutionEvent[] {
         posture: 'managed',
         approvals: 'auto_edit',
         sandbox: 'required',
-        source: 'wayland-core',
+        source: 'backend',
         managedFloorActive: true,
       },
     },
@@ -241,7 +244,7 @@ function buildContractEvents(host: ExecutionHost): ExecutionEvent[] {
 function seedFor(host: ExecutionHost): ExecutionSeed {
   return {
     identity: IDENTITY,
-    actor: { backend: 'wcore', agentId: 'core', providerId: 'flux', modelId: 'gpt-test' },
+    actor: { backend: 'acp', agentId: 'fuigo', providerId: 'flux', modelId: 'gpt-test' },
     scope: { projectId: 'project-1', workspaceId: 'workspace-1', host, trust: 'trusted', scheduled: false },
     requestedGovernance: { mode: 'autopilot', enforceability: 'enforced' },
   };

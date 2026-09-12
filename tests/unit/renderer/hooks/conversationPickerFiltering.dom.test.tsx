@@ -55,11 +55,7 @@ import { useConversationAgents } from '@/renderer/pages/conversation/hooks/useCo
 import { useCustomAgentsLoader } from '@/renderer/pages/guid/hooks/useCustomAgentsLoader';
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  return React.createElement(
-    SWRConfig,
-    { value: { provider: () => new Map(), dedupingInterval: 0 } },
-    children
-  );
+  return React.createElement(SWRConfig, { value: { provider: () => new Map(), dedupingInterval: 0 } }, children);
 }
 
 function resetMocks() {
@@ -90,34 +86,34 @@ afterEach(() => {
 describe('useConversationAgents - launch choice filtering (#141)', () => {
   it('filters a hidden CLI agent out of the launch choices', async () => {
     detectedRef.value = [
-      { backend: 'wcore', name: 'WCore' },
+      { backend: 'fuigo', name: 'Fuigo' },
       { backend: 'codex', name: 'Codex' },
     ];
     hiddenRef.value = ['codex'];
 
     const { result } = renderHook(() => useConversationAgents(), { wrapper });
 
-    await waitFor(() => expect(result.current.cliAgents.map((a) => a.backend)).toEqual(['wcore']));
+    await waitFor(() => expect(result.current.cliAgents.map((a) => a.backend)).toEqual(['fuigo']));
   });
 
   it('excludes extension/template adapters from the launch choices', async () => {
     detectedRef.value = [
-      { backend: 'wcore', name: 'WCore' },
+      { backend: 'fuigo', name: 'Fuigo' },
       { backend: 'claude', name: 'Ext Adapter', isExtension: true, customAgentId: 'ext-1' },
     ];
 
     const { result } = renderHook(() => useConversationAgents(), { wrapper });
 
     await waitFor(() => expect(result.current.cliAgents).toHaveLength(1));
-    expect(result.current.cliAgents[0].backend).toBe('wcore');
+    expect(result.current.cliAgents[0].backend).toBe('fuigo');
   });
 
   it('falls back to the unfiltered list when every CLI agent is hidden', async () => {
     detectedRef.value = [
-      { backend: 'wcore', name: 'WCore' },
+      { backend: 'fuigo', name: 'Fuigo' },
       { backend: 'codex', name: 'Codex' },
     ];
-    hiddenRef.value = ['wcore', 'codex'];
+    hiddenRef.value = ['fuigo', 'codex'];
 
     const { result } = renderHook(() => useConversationAgents(), { wrapper });
 

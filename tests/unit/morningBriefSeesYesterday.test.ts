@@ -81,7 +81,7 @@ const createConversationMock = vi.fn(async (params: any) => {
   // Mirror the real factories: an empty `extra.workspace` becomes a throwaway
   // `<agent>-temp-<ts>` directory, which is exactly the failure symptom.
   const id = `conv-created-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/acp-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -89,7 +89,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    // wcore's factory whitelist drops `backend`; ConversationServiceImpl then
+    // gemini's factory whitelist drops `backend`; ConversationServiceImpl then
     // merges back only the keys the factory did not produce.
     extra: { ...params.extra, workspace },
   };
@@ -148,12 +148,12 @@ function seededRoutine(): CronJob {
     metadata: {
       conversationId: '',
       conversationTitle: 'Morning Brief',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
       agentConfig: {
-        backend: 'wcore' as CronJob['metadata']['agentType'],
+        backend: 'fuigo' as CronJob['metadata']['agentType'],
         name: 'Morning Brief',
         mode: 'bypassPermissions',
         configOptions: { kind: 'routine', routineId: 'morning-brief' },

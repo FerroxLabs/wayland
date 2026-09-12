@@ -11,7 +11,7 @@
  * `systemPreferences` / `shell`. Crucially it uses ONLY non-prompting query
  * APIs - `getMediaAccessStatus('screen')` and `isTrustedAccessibilityClient(false)`
  * (false = do not prompt) - so checking status never triggers an OS dialog. The
- * engine (wayland-core #114) owns the actual prompt.
+ * engine owns the actual prompt.
  */
 
 import { shell, systemPreferences } from 'electron';

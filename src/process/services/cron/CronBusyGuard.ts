@@ -69,7 +69,7 @@ export class CronBusyGuard {
    * NEXT macrotask, not synchronously, and only after a re-check.
    *
    * Callers mark a conversation idle at the START of turn teardown and then keep
-   * working: WCoreManager.handleTurnEnd() calls setProcessing(false) first, then
+   * working: a manager's turn-end handler calls setProcessing(false) first, then
    * flushes buffered text, persists a cron schedule, and can even start a
    * follow-up turn. Firing synchronously here would let a deferred update restart
    * pre-empt that finalization — the exact rug-pull #651 exists to prevent. So we

@@ -5,7 +5,6 @@ import type { RawModel } from '../types';
  * sources back the three discovery paths in the Models & Providers redesign:
  *
  * - `api`   - a cloud provider's `/v1/models` endpoint
- * - `wcore` - the Wayland Core model list
  * - `cli`   - a local CLI agent's exposed models
  *
  * The raw models are later enriched by the models.dev registry into
@@ -14,7 +13,7 @@ import type { RawModel } from '../types';
  * ## Contract seam - `providerId` and the `cli` kind
  *
  * `providerId` is intentionally typed `string`, not `ProviderId`. A source's
- * identity may be `'wcore'` or a CLI *agent key* (`'claude'`, `'codex'`,
+ * identity may be a CLI *agent key* (`'claude'`, `'codex'`,
  * `'gemini'`) - both broader than the `ProviderId` union (`'claude'` and
  * `'gemini'` are NOT valid `ProviderId` values). Consumers must therefore NOT
  * blindly cast `source.providerId as ProviderId`.
@@ -27,7 +26,7 @@ import type { RawModel } from '../types';
  * `providerId`, which holds the agent key for a CLI source.
  */
 export type CatalogSource = {
-  readonly kind: 'api' | 'wcore' | 'cli';
+  readonly kind: 'api' | 'cli';
   readonly providerId: string;
   listModels(): Promise<RawModel[]>;
 };

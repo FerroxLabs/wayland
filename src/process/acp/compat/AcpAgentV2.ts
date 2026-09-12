@@ -2,7 +2,7 @@
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMessageAcpToolCall, TMessage } from '@/common/chat/chatLib';
 import { NavigationInterceptor } from '@/common/chat/navigation';
-import { isFluxModelId } from '@/common/config/flux';
+import { isFluxModelId, isFluxNativeBackend } from '@/common/config/flux';
 import type { AcpLaunchSpec, AcpModelInfo, AcpResult, AcpSessionConfigOption } from '@/common/types/acpTypes';
 import {
   AcpErrorType,
@@ -299,7 +299,6 @@ export class AcpAgentV2 {
     const currentWrapperVersion = getCurrentWrapperVersion(this.agentConfig.agentBackend);
     const storedWrapperVersion = this.agentConfig.acpWrapperVersion;
     if (
-      !this.agentConfig.waylandNanoActivation &&
       this.agentConfig.resumeSessionId &&
       currentWrapperVersion &&
       storedWrapperVersion &&
@@ -318,7 +317,7 @@ export class AcpAgentV2 {
       }
       // Drop the stale session id so SessionLifecycle takes the createSession path.
       (this.agentConfig as { resumeSessionId?: string }).resumeSessionId = undefined;
-    } else if (this.agentConfig.resumeSessionId && !this.agentConfig.waylandNanoActivation) {
+    } else if (this.agentConfig.resumeSessionId) {
       // Normal resume attempt (wrapper version unchanged). claude-agent-acp
       // sessions are in-memory and don't survive a process restart, so the
       // stored sessionId may be unloadable. Arm history replay SPECULATIVELY
@@ -557,7 +556,7 @@ export class AcpAgentV2 {
           type: 'acp_context_usage',
           conversation_id: this.conversationId,
           msg_id: `usage_${Date.now()}`,
-          data: { used: usage.used, size: usage.total, cost: usage.cost },
+          data: { used: usage.used, size: usage.total, cost: usage.cost, meterId: usage.meterId },
         });
       },
 
@@ -584,6 +583,20 @@ export class AcpAgentV2 {
                 kind: opt.kind,
               })),
             },
+          });
+        }
+      },
+
+      // One question of a Fuigo AskUserQuestion request. Surfaced through the
+      // manager's confirmation card (the #504 question card); the answer comes
+      // back via answerUserQuestion.
+      onUserQuestion: (data) => {
+        if (this.onSignalEvent) {
+          this.onSignalEvent({
+            type: 'acp_user_question',
+            conversation_id: this.conversationId,
+            msg_id: data.callId,
+            data,
           });
         }
       },
@@ -913,8 +926,15 @@ export class AcpAgentV2 {
       // to recover from CLI-internal state loss (e.g. Claude compaction).
       // EXCEPT a Flux id: it is carried by the spawn env (ANTHROPIC_MODEL=
       // flux-auto) and pushing it through set_model makes the claude binary
-      // reject it (JSON-RPC -32601). Skip the re-assert for Flux ids (mirrors V1).
-      if (this.userModelOverride && !isFluxModelId(this.userModelOverride) && this.session) {
+      // reject it (JSON-RPC -32601). Skip the re-assert for Flux ids (mirrors V1)
+      // - unless the engine is Flux-native (fuigo), where the tier IS a catalog
+      // model and the re-assert is what keeps it pinned across the engine's own
+      // compaction/rebuild.
+      if (
+        this.userModelOverride &&
+        (!isFluxModelId(this.userModelOverride) || isFluxNativeBackend(this.agentConfig.agentBackend)) &&
+        this.session
+      ) {
         const currentModel = this.cachedModelInfo?.currentModelId;
         if (currentModel !== this.userModelOverride) {
           try {
@@ -966,6 +986,11 @@ export class AcpAgentV2 {
         },
       };
     }
+  }
+
+  /** Answer (or cancel, with `null`) one question of a Fuigo AskUserQuestion request. */
+  answerUserQuestion(callId: string, answer: string | null): boolean {
+    return this.session?.answerUserQuestion(callId, answer) ?? false;
   }
 
   async confirmMessage(data: { confirmKey: string; callId: string }): Promise<AcpResult> {
@@ -1021,10 +1046,13 @@ export class AcpAgentV2 {
     // was honored for. When we hold an override the cached list still offers (or
     // the list is empty), report the override instead of the reverted default so
     // a codex pick sticks. Flux ids ride the spawn env and are surfaced by the
-    // renderer's flux pin, so they are intentionally not overlaid here.
+    // renderer's flux pin, so they are intentionally not overlaid here - except
+    // on a Flux-native engine (fuigo), whose catalog lists the tiers and whose
+    // pick is therefore an ordinary override like any other.
     const override = this.userModelOverride;
     const cached = this.cachedModelInfo;
-    if (override && !isFluxModelId(override) && cached && cached.currentModelId !== override) {
+    const overlayable = !isFluxModelId(override) || isFluxNativeBackend(this.agentConfig.agentBackend);
+    if (override && overlayable && cached && cached.currentModelId !== override) {
       const models = cached.availableModels ?? [];
       if (models.length === 0 || models.some((m) => m.id === override)) {
         const selected = models.find((m) => m.id === override);
@@ -1048,7 +1076,9 @@ export class AcpAgentV2 {
     // flux-auto), not by an in-place set_model. Pushing it through the bridge
     // makes the claude binary validate it against its catalog and reject it
     // (JSON-RPC -32601). Record the override and skip the call (mirrors V1).
-    if (isFluxModelId(modelId)) {
+    // A Flux-native engine (fuigo) advertises the tiers in its catalog, so for
+    // it the call below is the only thing that changes the tier that runs.
+    if (isFluxModelId(modelId) && !isFluxNativeBackend(this.agentConfig.agentBackend)) {
       return this.cachedModelInfo;
     }
     // Queue model switch notice for Claude (ACP set_model is silent, AI doesn't know)

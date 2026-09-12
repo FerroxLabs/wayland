@@ -23,13 +23,13 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const WCORE_AGENT: DetectedAgent = {
-  id: 'wcore',
-  name: 'Wayland Core',
-  kind: 'wcore',
+const FUIGO_AGENT: DetectedAgent = {
+  id: 'fuigo',
+  name: 'Fuigo',
+  kind: 'acp',
   available: true,
-  backend: 'wcore',
-  cliPath: '/foo/wcore',
+  backend: 'fuigo',
+  cliPath: '/foo/fuigo',
 };
 
 const CLAUDE_AGENT: DetectedAgent = {
@@ -71,17 +71,17 @@ function makeRegistry(agents: DetectedAgent[]): AgentRegistryLike {
 // ---------------------------------------------------------------------------
 
 describe('resolveDefaultLaunchTarget()', () => {
-  it('returns wcore backend + cliPath when lastSelectedAgent is "wcore"', async () => {
+  it('returns fuigo backend + cliPath when lastSelectedAgent is "fuigo"', async () => {
     const config = makeConfig({
-      'guid.lastSelectedAgent': 'wcore',
+      'guid.lastSelectedAgent': 'fuigo',
       'model.config': [ANTHROPIC_PROVIDER],
     });
-    const registry = makeRegistry([WCORE_AGENT, CLAUDE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT, CLAUDE_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
-    expect(result.backend).toBe('wcore');
-    expect(result.cliPath).toBe('/foo/wcore');
+    expect(result.backend).toBe('fuigo');
+    expect(result.cliPath).toBe('/foo/fuigo');
   });
 
   it('returns claude backend + cliPath when lastSelectedAgent is "claude"', async () => {
@@ -89,7 +89,7 @@ describe('resolveDefaultLaunchTarget()', () => {
       'guid.lastSelectedAgent': 'claude',
       'model.config': [ANTHROPIC_PROVIDER],
     });
-    const registry = makeRegistry([WCORE_AGENT, CLAUDE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT, CLAUDE_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
@@ -101,7 +101,7 @@ describe('resolveDefaultLaunchTarget()', () => {
     const config = makeConfig({
       'model.config': [ANTHROPIC_PROVIDER],
     });
-    const registry = makeRegistry([WCORE_AGENT, CLAUDE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT, CLAUDE_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
@@ -117,8 +117,8 @@ describe('resolveDefaultLaunchTarget()', () => {
       'guid.lastSelectedAgent': 'codex',
       'model.config': [ANTHROPIC_PROVIDER],
     });
-    // Registry has wcore + claude but not codex.
-    const registry = makeRegistry([WCORE_AGENT, CLAUDE_AGENT]);
+    // Registry has fuigo + claude but not codex.
+    const registry = makeRegistry([FUIGO_AGENT, CLAUDE_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
@@ -131,7 +131,7 @@ describe('resolveDefaultLaunchTarget()', () => {
       'guid.lastSelectedAgent': 'remote:some-id',
       'model.config': [ANTHROPIC_PROVIDER],
     });
-    const registry = makeRegistry([WCORE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
@@ -152,24 +152,24 @@ describe('resolveDefaultLaunchTarget()', () => {
   });
 
   it('constructs model from matching provider in model.config', async () => {
-    const wCoreProvider: TProviderWithModel = {
-      id: 'wcore-prov',
-      platform: 'wcore',
-      name: 'Wayland Core Provider',
+    const fuigoProvider: TProviderWithModel = {
+      id: 'fuigo-prov',
+      platform: 'fuigo',
+      name: 'Fuigo Provider',
       baseUrl: '',
       apiKey: '',
       useModel: 'default',
     };
     const config = makeConfig({
-      'guid.lastSelectedAgent': 'wcore',
-      'model.config': [ANTHROPIC_PROVIDER, wCoreProvider],
+      'guid.lastSelectedAgent': 'fuigo',
+      'model.config': [ANTHROPIC_PROVIDER, fuigoProvider],
     });
-    const registry = makeRegistry([WCORE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
-    // Should match on platform === 'wcore'
-    expect(result.model.id).toBe('wcore-prov');
+    // Should match on platform === 'fuigo'
+    expect(result.model.id).toBe('fuigo-prov');
   });
 
   it('applies preferredModelId from acp.config when present', async () => {
@@ -218,7 +218,7 @@ describe('resolveDefaultLaunchTarget()', () => {
     expect(result.model.useModel).toBe('claude-sonnet-4-5');
   });
 
-  it('binds the preferred model to the provider that SERVES it for wcore, not providerList[0] (C1)', async () => {
+  it('binds the preferred model to the provider that SERVES it for fuigo, not providerList[0] (C1)', async () => {
     const google = {
       id: 'google',
       platform: 'gemini',
@@ -238,11 +238,11 @@ describe('resolveDefaultLaunchTarget()', () => {
       model: ['gpt-5.5', 'gpt-5'],
     } as unknown as TProviderWithModel;
     const config = makeConfig({
-      'guid.lastSelectedAgent': 'wcore',
+      'guid.lastSelectedAgent': 'fuigo',
       'model.config': [google, openai], // Google is index 0
-      'acp.config': { wcore: { preferredModelId: 'gpt-5.5' } },
+      'acp.config': { fuigo: { preferredModelId: 'gpt-5.5' } },
     });
-    const registry = makeRegistry([WCORE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 
@@ -263,11 +263,11 @@ describe('resolveDefaultLaunchTarget()', () => {
       model: ['gemini-3-pro'],
     } as unknown as TProviderWithModel;
     const config = makeConfig({
-      'guid.lastSelectedAgent': 'wcore',
+      'guid.lastSelectedAgent': 'fuigo',
       'model.config': [google], // only Google; nothing serves gpt-5.5
-      'acp.config': { wcore: { preferredModelId: 'gpt-5.5' } },
+      'acp.config': { fuigo: { preferredModelId: 'gpt-5.5' } },
     });
-    const registry = makeRegistry([WCORE_AGENT]);
+    const registry = makeRegistry([FUIGO_AGENT]);
 
     const result = await resolveDefaultLaunchTarget(config, registry);
 

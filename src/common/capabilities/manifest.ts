@@ -53,7 +53,7 @@ const OFFICECLI_FIXTURE = {
   formats: officeCliContract.requiredFormats,
   dependencies: [],
   hostAvailability: 'target-bundled',
-  backendSupport: ['acp', 'gemini', 'wcore'],
+  backendSupport: ['acp', 'gemini'],
   executionMode: 'local-binary',
   requirements: { permission: 'ask-or-trusted-edits', network: 'none', cost: 'none', credentials: [] },
   platforms: OFFICECLI_PLATFORMS,

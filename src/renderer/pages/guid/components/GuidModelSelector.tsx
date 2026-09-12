@@ -39,7 +39,7 @@ type GuidModelSelectorProps = {
   setCurrentModel: (model: TProviderWithModel, opts?: { persist?: boolean }) => Promise<void>;
 
   // The currently-selected agent - scopes the curated model list and the
-  // plain-language caption. Provider-based agents pass 'gemini' / 'wcore';
+  // plain-language caption. Provider-based agents pass 'gemini';
   // CLI agents pass their backend key ('claude', 'codex', …).
   agentKey: string;
 
@@ -282,7 +282,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // the catalog after the Packet 3B migration), fall back to the first
   // curated model. Without this the picker would silently keep dispatching
   // chat-start against a model the user can no longer pick. Skipping
-  // conditions: not in provider-agent mode (only relevant to gemini/wcore),
+  // conditions: not in provider-agent mode (only relevant to gemini),
   // no curated yet (still loading), curated empty (no recommendation), or
   // no pinned selection at all.
   const fallbackFiredRef = React.useRef<string | null>(null);
@@ -320,7 +320,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     // intent of this effect.
     if (previouslyPresentRef.current === presenceKey) return;
     // The pin may also be a real, configured model that simply isn't in THIS
-    // agent's curated subset (e.g. a user-set `wcore.defaultModel = gpt-5.5`).
+    // agent's curated subset (e.g. a user-set `gemini.defaultModel = gpt-5.5`).
     // That is a deliberate choice, not a dropped pin - keep it rather than
     // repair onto a curated model. Only genuinely-missing models fall through.
     if (currentModel?.useModel && modelList.some((p) => p.model?.includes(currentModel.useModel))) return;

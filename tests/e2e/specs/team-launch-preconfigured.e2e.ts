@@ -9,7 +9,7 @@
  *      (mira, beacon, copy, lens). Marketing-agency bundle lists 5 teammates;
  *      TeamLauncherPage promotes the first to leader, leaving 4 teammate rows.
  *   4. Each row has slot-name input + backend pill.
- *   5. Backend pill defaults to wayland-core (fallback) on hosts without
+ *   5. Backend pill defaults to fuigo (fallback) on hosts without
  *      detected CLIs; with detected CLIs it picks the preset's recommendation.
  *   6. Click "Launch team" → navigates to /team/<new-id>.
  *

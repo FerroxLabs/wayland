@@ -198,7 +198,7 @@ describe('#1045 the scheduled-run executor supplies the deadline', () => {
 
   it('does not require the method - a backend without one is left alone', async () => {
     const live = {
-      type: 'wcore',
+      type: 'acp',
       workspace: undefined,
       sendMessage: vi.fn(async () => {}),
       ensureYoloMode: vi.fn(async () => true),

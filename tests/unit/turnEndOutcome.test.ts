@@ -7,7 +7,7 @@
 /**
  * #838 - what an agent reports when a turn ends.
  *
- * Gemini, NanoBot, OpenClaw and Remote never emitted `conversation.turn.completed`,
+ * Gemini, OpenClaw and Remote never emitted `conversation.turn.completed`,
  * so those chats raised no completion banner and autonomous workflows on them
  * could not self-advance.
  *
@@ -49,8 +49,6 @@ const mockConnection = vi.hoisted(() => ({
 const capturedCallbacks = vi.hoisted(() => ({
   onClose: null as ((code: number, reason: string) => void) | null,
 }));
-
-const mockNanobotSend = vi.hoisted(() => vi.fn());
 
 vi.mock('../../src/process/agent/openclaw/OpenClawGatewayConnection', () => ({
   OpenClawGatewayConnection: vi.fn().mockImplementation((opts: Record<string, unknown>) => {
@@ -101,17 +99,8 @@ vi.mock('../../src/process/services/database', () => ({
 
 vi.mock('node:net', () => ({ default: { createConnection: vi.fn() } }));
 
-vi.mock('../../src/process/agent/nanobot/NanobotConnection', () => ({
-  NanobotConnection: class {
-    sendMessage = mockNanobotSend;
-    stop = vi.fn();
-    kill = vi.fn();
-  },
-}));
-
 import { OpenClawAgent } from '../../src/process/agent/openclaw/index';
 import { RemoteAgentCore } from '../../src/process/agent/remote/RemoteAgentCore';
-import { NanobotAgent } from '../../src/process/agent/nanobot/index';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -249,35 +238,5 @@ describe('RemoteAgentCore reports how each turn ended (#838)', () => {
     // A later unrelated end-of-turn must not be credited to the failed send.
     dispatchChatEvent(core, chatEvent('final', { message: { content: 'done' } }));
     expect(outcomes).toEqual([]);
-  });
-});
-
-describe('NanobotAgent reports how each turn ended (#838)', () => {
-  let outcomes: TurnEndOutcome[];
-  let agent: NanobotAgent;
-
-  beforeEach(() => {
-    outcomes = [];
-    mockNanobotSend.mockReset();
-    agent = new NanobotAgent({
-      id: 'conv-1',
-      workingDir: '/tmp/test',
-      onStreamEvent: vi.fn(),
-      onSignalEvent: vi.fn(),
-      onTurnEnd: (outcome) => outcomes.push(outcome),
-    });
-  });
-
-  it('reports ok when the CLI returns a reply', async () => {
-    mockNanobotSend.mockResolvedValue('a reply');
-    await agent.sendMessage({ content: 'hello' });
-    expect(outcomes).toEqual(['ok']);
-  });
-
-  it('reports error, never ok, when the CLI fails', async () => {
-    // Nanobot emits `finish` on this path too, identical to the success one.
-    mockNanobotSend.mockRejectedValue(new Error('nanobot not installed'));
-    await agent.sendMessage({ content: 'hello' });
-    expect(outcomes).toEqual(['error']);
   });
 });

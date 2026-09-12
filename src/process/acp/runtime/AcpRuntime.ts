@@ -71,18 +71,7 @@ export class AcpRuntime {
     if (this.sessions.has(convId)) return;
     // Shallow-clone to avoid mutating the caller's object (e.g., MCP servers would
     // duplicate on retries if we pushed into the original arrays).
-    const config = {
-      ...agentConfig,
-      waylandNanoActivation: agentConfig.waylandNanoActivation,
-      waylandNanoMode:
-        agentConfig.agentBackend === 'wnano'
-          ? (agentConfig.waylandNanoMode ?? (agentConfig.waylandNanoActivation ? 'authenticated' : 'nonpersistent'))
-          : undefined,
-      resumeSessionId:
-        agentConfig.agentBackend === 'wnano' && !agentConfig.waylandNanoActivation
-          ? undefined
-          : agentConfig.resumeSessionId,
-    };
+    const config = { ...agentConfig };
 
     // Inject team-guide MCP server for solo agents (not in team mode) so the
     // agent has the aion_create_team tool available.

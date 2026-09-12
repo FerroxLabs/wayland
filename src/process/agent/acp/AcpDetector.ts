@@ -334,13 +334,7 @@ class AcpDetector {
       if (!customAgents?.length) return [];
 
       return customAgents
-        .filter((a) => {
-          if (a.enabled === false || a.isPreset || !a.defaultCliPath) return false;
-          // Wayland Nano graduated to a built-in backend (ACP_BACKENDS_ALL.wnano)
-          // - skip legacy custom rows pointing at its CLI so existing profiles
-          // don't list the same agent twice.
-          return a.defaultCliPath.trim().split(/\s+/)[0] !== 'wayland-nano';
-        })
+        .filter((a) => a.enabled !== false && !a.isPreset && Boolean(a.defaultCliPath))
         .map((a) => ({
           id: `custom:${a.id}`,
           name: a.name || 'Custom Agent',

@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockGetConversation, mockAcpManager, mockWcoreManager, mockGeminiManager } = vi.hoisted(() => ({
+const { mockGetConversation, mockAcpManager, mockGeminiManager } = vi.hoisted(() => ({
   mockGetConversation: vi.fn(),
   mockAcpManager: vi.fn(),
-  mockWcoreManager: vi.fn(),
   mockGeminiManager: vi.fn(),
 }));
 
@@ -25,16 +24,6 @@ vi.mock('../../src/process/task/AcpAgentManager', () => ({
   },
 }));
 
-vi.mock('../../src/process/task/WCoreManager', () => ({
-  WCoreManager: class {
-    type = 'wcore';
-    kill = vi.fn();
-    constructor(data: Record<string, unknown>) {
-      mockWcoreManager(data);
-    }
-  },
-}));
-
 vi.mock('../../src/process/task/GeminiAgentManager', () => ({
   GeminiAgentManager: class {
     type = 'gemini';
@@ -47,10 +36,6 @@ vi.mock('../../src/process/task/GeminiAgentManager', () => ({
 
 vi.mock('../../src/process/task/OpenClawAgentManager', () => ({
   default: vi.fn().mockImplementation(() => ({ type: 'openclaw-gateway', kill: vi.fn() })),
-}));
-
-vi.mock('../../src/process/task/NanoBotAgentManager', () => ({
-  default: vi.fn().mockImplementation(() => ({ type: 'nanobot', kill: vi.fn() })),
 }));
 
 import { workerTaskManager } from '../../src/process/task/workerTaskManagerSingleton';
@@ -114,20 +99,20 @@ describe('workerTaskManagerSingleton', () => {
       })
     );
   });
-  it('propagates the scheduler deadline and explicit approval flag into the Core factory', async () => {
+  it('propagates the scheduler deadline and explicit approval flag into the ACP factory', async () => {
     mockGetConversation.mockResolvedValue({
-      id: 'conv-core-scheduled',
-      type: 'wcore',
-      model: { useModel: 'core-model' },
-      extra: { workspace: '/workspace', yoloMode: true, unattendedHoldDeadlineMs: 1 },
+      id: 'conv-fuigo-scheduled',
+      type: 'acp',
+      model: { useModel: 'flux-auto' },
+      extra: { workspace: '/workspace', backend: 'fuigo', yoloMode: true, unattendedHoldDeadlineMs: 1 },
     });
-    await workerTaskManager.getOrBuildTask('conv-core-scheduled', {
+    await workerTaskManager.getOrBuildTask('conv-fuigo-scheduled', {
       yoloMode: false,
       unattendedHoldDeadlineMs: 123456,
     });
-    expect(mockWcoreManager).toHaveBeenCalledWith(
+    expect(mockAcpManager).toHaveBeenCalledWith(
       expect.objectContaining({
-        conversation_id: 'conv-core-scheduled',
+        conversation_id: 'conv-fuigo-scheduled',
         yoloMode: false,
         unattendedHoldDeadlineMs: 123456,
       })

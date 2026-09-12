@@ -180,7 +180,7 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
  *
  * WHY THIS EXISTS. The engine is disposable: `WorkerTaskManager` reaps an idle
  * one five minutes after the user hits send (WorkerTaskManager.ts:20, and the
- * clock is `sendMessage`, not the reply - WCoreManager.ts:1106). Tearing it down
+ * clock is `sendMessage`, not the reply). Tearing it down
  * runs the descendant sweep below, and a chart application launched by an MCP
  * connector is a GRANDCHILD of that engine, so it was being SIGKILLed between
  * turns. Measured twice: the app died 5.3 and 5.5 minutes after a turn, with
