@@ -272,6 +272,7 @@ export const mergeNodeList = (prev: ActivityNode[] = [], next: ActivityNode[] = 
       status: node.status,
       startTime: prevNode.startTime ?? node.startTime,
       endTime: node.endTime ?? prevNode.endTime,
+      ...((node.command ?? prevNode.command) ? { command: node.command ?? prevNode.command } : {}),
       ...(node.detail != null ? { detail: (prevNode.detail ?? '') + node.detail } : {}),
       ...(node.children || prevNode.children ? { children: mergeNodeList(prevNode.children, node.children) } : {}),
     };

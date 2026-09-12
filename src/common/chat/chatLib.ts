@@ -852,6 +852,19 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         content: message.data as any,
       };
     }
+    case 'sub_agent': {
+      // A Fuigo sub-agent card delta (src/process/acp/session/subagents.ts).
+      // msg_id is the sub-agent id so composeMessage folds every delta into
+      // one card (body appends, nodes merge, status advances to done/failed).
+      return {
+        id: uuid(),
+        type: 'sub_agent',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as IMessageSubAgent['content'],
+      };
+    }
     case 'thinking': {
       const data = message.data as {
         content: string;

@@ -231,6 +231,11 @@ export function toResponseMessage(msg: TMessage, conversationId: string): IRespo
       base.data = msg.content;
       break;
 
+    case 'sub_agent':
+      base.type = 'sub_agent';
+      base.data = msg.content;
+      break;
+
     case 'tips':
       if (msg.content.type === 'warning') {
         // Convert warning tips to thought

@@ -27,6 +27,11 @@ import { PermissionResolver } from '@process/acp/session/PermissionResolver';
 import { loadWorkspaceApprovals, saveWorkspaceApproval } from '@process/acp/session/ApprovalPersistence';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
 import { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
+import {
+  isFuigoSessionNotificationMethod,
+  parseSubagentLifecycle,
+  SubagentTracker,
+} from '@process/acp/session/subagents';
 import type {
   AgentConfig,
   InitialDesiredConfig,
@@ -180,6 +185,8 @@ export class AcpSession {
   private readonly permissionResolver: PermissionResolver;
 
   private readonly userQuestions: UserQuestionResolver;
+
+  private readonly subagents: SubagentTracker;
   private readonly inputPreprocessor: InputPreprocessor;
   private readonly lifecycle: SessionLifecycle;
   private readonly promptExecutor: PromptExecutor;
@@ -197,6 +204,7 @@ export class AcpSession {
     this.messageTranslator = new MessageTranslator(agentConfig.agentId);
     this.inputPreprocessor = new InputPreprocessor((path) => fs.readFileSync(path, 'utf-8'));
     this.userQuestions = new UserQuestionResolver();
+    this.subagents = new SubagentTracker(agentConfig.agentId);
     this.permissionResolver = new PermissionResolver({
       autoApproveAll: agentConfig.yoloMode ?? false,
       cacheMaxSize: options?.approvalCacheMaxSize,
@@ -430,6 +438,7 @@ export class AcpSession {
       onSessionUpdate: (notification) => this.handleMessage(notification),
       onRequestPermission: (request) => this.handlePermissionRequest(request),
       onExtMethod: (method, params) => this.handleExtMethod(method, params),
+      onExtNotification: (method, params) => this.handleExtNotification(method, params),
       onReadTextFile: async (req) => {
         this.assertPathAllowed(req.path);
         try {
@@ -457,6 +466,18 @@ export class AcpSession {
 
   private handleMessage(notification: SessionNotification): void {
     const update = notification.update;
+    const isToolActivity = update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update';
+
+    // A Fuigo sub-agent's frames share the pipe under its own session id; they
+    // fold into that sub-agent's card instead of the parent's transcript (and
+    // its config/command updates never reach the parent's trackers).
+    if (this.subagents.isChildSession(notification.sessionId)) {
+      this.promptExecutor.resetTimer();
+      if (isToolActivity) this.promptExecutor.noteToolActivity();
+      const card = this.subagents.onChildUpdate(notification);
+      if (card) this.callbacks.onMessage(card);
+      return;
+    }
 
     switch (update.sessionUpdate) {
       case 'current_mode_update':
@@ -498,7 +519,7 @@ export class AcpSession {
 
     // A tool has run, so this turn is no longer safe to replay wholesale on a
     // transient error (#774) - re-sending the prompt could re-execute it.
-    if (update.sessionUpdate === 'tool_call' || update.sessionUpdate === 'tool_call_update') {
+    if (isToolActivity) {
       this.promptExecutor.noteToolActivity();
     }
 
@@ -506,6 +527,14 @@ export class AcpSession {
     for (const msg of messages) {
       this.callbacks.onMessage(msg);
     }
+  }
+
+  private handleExtNotification(method: string, params: unknown): void {
+    if (!isFuigoSessionNotificationMethod(method)) return;
+    const lifecycle = parseSubagentLifecycle(params);
+    if (!lifecycle) return;
+    const card = this.subagents.onLifecycle(lifecycle);
+    if (card) this.callbacks.onMessage(card);
   }
 
   private async handleExtMethod(method: string, params: unknown): Promise<unknown> {
