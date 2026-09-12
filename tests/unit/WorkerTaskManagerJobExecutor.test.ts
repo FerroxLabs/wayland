@@ -163,12 +163,13 @@ describe('WorkerTaskManagerJobExecutor', () => {
   });
 
   it.each([
-    // Fuigo declares no unattended full-auto mode, so the host's blanket
-    // approval flag is never raised for it; an explicit declaration is kept
-    // verbatim for the engine to accept or reject.
-    { mode: undefined, effective: 'default', full: false },
+    // Fuigo speaks Claude Code's mode vocabulary: an undeclared run gets the
+    // unattended-safe acceptEdits, only a declared bypassPermissions raises the
+    // host's blanket approval flag, and any other declaration is kept verbatim
+    // for the engine to accept or reject.
+    { mode: undefined, effective: 'acceptEdits', full: false },
     { mode: 'yolo', effective: 'yolo', full: false },
-    { mode: 'bypassPermissions', effective: 'bypassPermissions', full: false },
+    { mode: 'bypassPermissions', effective: 'bypassPermissions', full: true },
   ])('acquires Fuigo with only its declared policy: $mode', async ({ mode, effective, full }) => {
     const task = { ...makeTask('acp'), setMode: vi.fn(async () => ({ success: true })) };
     const taskManager = makeTaskManager({
