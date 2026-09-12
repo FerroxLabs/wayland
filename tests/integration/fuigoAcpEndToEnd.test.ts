@@ -70,6 +70,13 @@ const SKILL = 'wayland-canary-skill';
 const SKILL_CODEWORD = 'ZEBRA-7731';
 const SKILL_MD = `---\nname: ${SKILL}\ndescription: Wayland canary skill; defines the code word ${SKILL_CODEWORD}.\n---\n# ${SKILL}\n\nThe code word is ${SKILL_CODEWORD}.\n`;
 
+// Two real skills from this developer's ~/.agents/skills, the root Fuigo
+// scanned unconditionally before 1.0.16 (fuigo#16). Filtered to what exists on
+// this machine so the leak case is skipped, not vacuous, elsewhere.
+const AGENTS_SKILLS_PROBES = ['oversized-cursor', 'faceless-explainer'].filter((name) =>
+  existsSync(join(homedir(), '.agents', 'skills', name, 'SKILL.md'))
+);
+
 const cleanups: Array<() => void> = [];
 afterAll(() => {
   for (const c of cleanups.splice(0)) c();
@@ -201,6 +208,25 @@ describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)
     expect(turn.stopReason).toBe('end_turn');
     expect(turn.text).toContain(SKILL_CODEWORD);
   }, 180_000);
+
+  // 1.0.16 gates the ~/.agents/skills scan behind FUIGO_AGENTS_SKILLS_ENABLED,
+  // which fuigoCompatIsolationEnv() switches off. On 1.0.15 the same run names
+  // the probes (the switch is unknown there), which is what proves it acts.
+  it.skipIf(AGENTS_SKILLS_PROBES.length === 0)(
+    'lists only the workspace skills under the managed home (no ~/.agents/skills leak)',
+    async () => {
+      const turn = await runTurn({
+        trusted: true,
+        key: key!,
+        stageSkill: true,
+        prompt: `List the skills available to you by name, one per line, nothing else. Do not use tools.`,
+      });
+      expect(turn.stopReason).toBe('end_turn');
+      expect(turn.text).toContain(SKILL);
+      for (const leaked of AGENTS_SKILLS_PROBES) expect(turn.text).not.toContain(leaked);
+    },
+    180_000
+  );
 
   // Fuigo defect: the shipped 1.0.13 loads project instructions for an
   // untrusted cwd on the headless/stdio path. When this starts failing, the

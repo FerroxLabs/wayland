@@ -235,10 +235,12 @@ describe('launch helpers', () => {
 
   it('switches off every vendor-compat surface Fuigo would import from the user home', () => {
     const env = fuigoCompatIsolationEnv();
-    expect(Object.keys(env)).toHaveLength(18);
+    expect(Object.keys(env)).toHaveLength(19);
     for (const vendor of ['CLAUDE', 'CURSOR', 'CODEX'])
       for (const surface of ['SKILLS', 'RULES', 'AGENTS', 'MCPS', 'HOOKS', 'SESSIONS'])
         expect(env[`FUIGO_${vendor}_${surface}_ENABLED`]).toBe('0');
+    // 1.0.16: the ~/.agents/skills scan has its own cell outside the vendor grid.
+    expect(env.FUIGO_AGENTS_SKILLS_ENABLED).toBe('0');
   });
 
   describe('ensureFuigoHome', () => {
