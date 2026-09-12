@@ -111,6 +111,7 @@ describe('initAgent - skill support', () => {
         'cursor',
         'gemini',
         'opencode',
+        'fuigo',
       ];
       for (const backend of supported) {
         expect(hasNativeSkillSupport(backend)).toBe(true);
@@ -143,7 +144,7 @@ describe('initAgent - skill support', () => {
         source: '/mock/user/skills/tide-example',
         target: '/tmp/workspace/.wayland/skills/tide-example',
       });
-      expect(hasNativeSkillSupport('fuigo')).toBe(false);
+      expect(hasNativeSkillSupport('fuigo')).toBe(true);
     });
 
     it('should create skills dir even when enabledSkills is empty', async () => {

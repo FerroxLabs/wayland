@@ -8,6 +8,7 @@ import { RequestError } from '@agentclientprotocol/sdk';
 import * as path from 'node:path';
 import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
+import { isFuigoSessionPromptFile } from '@process/agent/fuigo/launch';
 import { buildAcpAdapterCorruptionGuidance, buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
@@ -431,6 +432,18 @@ export class AcpSession {
     }
   }
 
+  /**
+   * The one read allowed outside the workspace: Fuigo's own prompt offload
+   * file under `$FUIGO_HOME/sessions/` (see isFuigoSessionPromptFile). The home
+   * is the exact value Desktop put in the engine's environment at spawn.
+   */
+  private isFuigoPromptOffloadRead(filePath: string): boolean {
+    if (this.agentConfig.agentBackend !== 'fuigo') return false;
+    const home = this.agentConfig.env?.FUIGO_HOME;
+    if (!home) return false;
+    return isFuigoSessionPromptFile(home, filePath);
+  }
+
   // ─── Protocol handlers (glue) ─────────────────────────────────
 
   private buildProtocolHandlers(): ProtocolHandlers {
@@ -440,7 +453,7 @@ export class AcpSession {
       onExtMethod: (method, params) => this.handleExtMethod(method, params),
       onExtNotification: (method, params) => this.handleExtNotification(method, params),
       onReadTextFile: async (req) => {
-        this.assertPathAllowed(req.path);
+        if (!this.isFuigoPromptOffloadRead(req.path)) this.assertPathAllowed(req.path);
         try {
           const content = fs.readFileSync(req.path, 'utf-8');
           return { content };

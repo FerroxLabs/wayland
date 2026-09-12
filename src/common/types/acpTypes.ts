@@ -468,6 +468,13 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true,
     supportsStreaming: true,
     acpArgs: ['--permission-mode', 'default', 'agent', 'stdio'],
+    // Skills are staged under `<workspace>/.wayland/skills` and handed to Fuigo
+    // natively as a `session/new` `_meta.pluginDirs` root (launch.ts). Declaring
+    // the dir here keeps the first-message skills index OUT of the prompt: with
+    // it in, a default Concierge first turn was 28,875 bytes, over Fuigo's
+    // 25,000-byte prompt offload threshold, and the offloaded file lives in
+    // $FUIGO_HOME where the model could not read it back.
+    skillsDirs: ['.wayland/skills'],
     fluxCompat: 'env',
   },
   grok: {

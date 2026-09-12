@@ -160,3 +160,38 @@ export function extractFuigoPromptUsage(meta: unknown): FuigoPromptUsage | null 
     incomplete: u.usageIsIncomplete === true,
   };
 }
+
+/**
+ * Fuigo's prompt offload. A `session/prompt` over `LARGE_PROMPT_THRESHOLD`
+ * (25,000 bytes, `prompt_build.rs`) is truncated to a preview, written to
+ * `$FUIGO_HOME/sessions/<cwd>/<session>/prompts/prompt_N.txt`, and the model is
+ * told to `read_file` it before answering. That read comes back to Desktop as
+ * `fs/read_text_file`, and the workspace-only fs guard refused it ($FUIGO_HOME
+ * is outside every workspace): the model then fell back to a terminal `cat`,
+ * hit a permission prompt, and a fresh profile's first chat stalled for the
+ * whole prompt timeout.
+ *
+ * True only for an existing regular `.txt` / `.md` file whose real path is
+ * under `<home>/sessions/`; both sides are canonicalised with the same
+ * libuv realpath so a symlink planted under `sessions/` cannot reach
+ * `config.toml`, keys, or anything outside the tree. Read-only by contract:
+ * the caller must never route `fs/write_text_file` through this.
+ */
+export function isFuigoSessionPromptFile(homeDir: string, filePath: string): boolean {
+  let realSessions: string;
+  let realFile: string;
+  try {
+    realSessions = fs.realpathSync.native(path.join(homeDir, 'sessions'));
+    realFile = fs.realpathSync.native(filePath);
+  } catch {
+    return false;
+  }
+  if (!realFile.startsWith(realSessions + path.sep)) return false;
+  const ext = path.extname(realFile).toLowerCase();
+  if (ext !== '.txt' && ext !== '.md') return false;
+  try {
+    return fs.statSync(realFile).isFile();
+  } catch {
+    return false;
+  }
+}
