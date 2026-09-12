@@ -12,6 +12,7 @@
     "modelLoading": "모델 불러오는 중…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "에이전트 모델",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "폴더에서 채팅",
     "currentWorkspace": "현재 워크스페이스",
     "clearWorkspace": "폴더 제거",

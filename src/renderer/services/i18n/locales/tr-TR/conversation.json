@@ -12,6 +12,7 @@
     "modelLoading": "Modeller yükleniyor…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Ajan modelleri",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "Klasörde Sohbet Et",
     "currentWorkspace": "Mevcut Çalışma Alanı",
     "clearWorkspace": "Klasörü kaldır",

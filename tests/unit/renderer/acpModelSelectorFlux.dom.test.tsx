@@ -172,6 +172,52 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     expect(screen.queryByText('Flux Auto')).toBeNull();
   });
 
+  it('lists Fuigo BYOK entries under their own group and sends the byok id on select', async () => {
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: {
+        modelInfo: {
+          currentModelId: 'flux-auto',
+          currentModelLabel: 'Flux Auto',
+          availableModels: [
+            { id: 'byok/openai/gpt-4o', label: 'gpt-4o · OpenAI' },
+            { id: 'claude-haiku-4-5', label: 'claude-haiku-4-5' },
+          ],
+          canSwitch: true,
+          source: 'models',
+          sourceDetail: 'acp-models',
+        },
+      },
+    });
+    ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
+
+    renderSelector(<AcpModelSelector conversationId='conv-5' backend='fuigo' />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Flux Auto').length).toBeGreaterThan(0);
+    });
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(screen.getByText('gpt-4o · OpenAI')).toBeTruthy();
+    });
+    // The i18n mock renders keys: the BYOK heading precedes the engine-catalog heading.
+    const byokHeading = screen.getByText('conversation.welcome.byokModelsGroupLabel');
+    const nativeHeading = screen.getByText('conversation.welcome.nativeModelsGroupLabel');
+    expect(byokHeading.compareDocumentPosition(nativeHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      byokHeading.compareDocumentPosition(screen.getByText('gpt-4o · OpenAI')) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      screen.getByText('gpt-4o · OpenAI').compareDocumentPosition(nativeHeading) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByText('gpt-4o · OpenAI'));
+    await waitFor(() => {
+      expect(ipcMock.setModel).toHaveBeenCalledWith({ conversationId: 'conv-5', modelId: 'byok/openai/gpt-4o' });
+    });
+  });
+
   it('selecting a Flux model sets the chat model id to the flux id', async () => {
     ipcMock.getModelInfo.mockResolvedValue(NATIVE_INFO);
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);

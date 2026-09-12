@@ -12,6 +12,7 @@
     "modelLoading": "Loading models…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Agent models",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "Chat in Folder",
     "currentWorkspace": "Current Workspace",
     "clearWorkspace": "Remove folder",

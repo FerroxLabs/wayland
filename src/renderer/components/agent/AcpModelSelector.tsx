@@ -511,7 +511,25 @@ const AcpModelSelector: React.FC<{
   // and the agent's own native models below, unchanged. This wraps all native
   // states (null / read-only / switchable) so Flux is always selectable here.
   if (showFlux) {
-    const nativeModels = modelInfo?.availableModels ?? [];
+    // The bundled Fuigo engine advertises the user's own connected providers
+    // as `byok/<provider>/<model>` entries (Desktop writes them into its
+    // managed config); list those under their own heading, ahead of the
+    // engine's catalog, so a key the user added is one click away.
+    const advertised = modelInfo?.availableModels ?? [];
+    const byokModels = advertised.filter((m) => m.id.startsWith('byok/'));
+    const nativeModels = advertised.filter((m) => !m.id.startsWith('byok/'));
+    const renderModelItem = (model: { id: string; label: string }) => (
+      <Menu.Item
+        key={model.id}
+        className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
+        onClick={() => handleSelectModel(model.id)}
+      >
+        <div className='flex items-center gap-8px w-full'>
+          {healthDot(model.id)}
+          <span>{model.label}</span>
+        </div>
+      </Menu.Item>
+    );
     return (
       <Dropdown
         trigger='click'
@@ -533,20 +551,14 @@ const AcpModelSelector: React.FC<{
                   </Menu.Item>
                 ))}
               </Menu.ItemGroup>
+              {byokModels.length > 0 && (
+                <Menu.ItemGroup title={t('conversation.welcome.byokModelsGroupLabel')}>
+                  {byokModels.map(renderModelItem)}
+                </Menu.ItemGroup>
+              )}
               {nativeModels.length > 0 && (
                 <Menu.ItemGroup title={t('conversation.welcome.nativeModelsGroupLabel')}>
-                  {nativeModels.map((model) => (
-                    <Menu.Item
-                      key={model.id}
-                      className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
-                      onClick={() => handleSelectModel(model.id)}
-                    >
-                      <div className='flex items-center gap-8px w-full'>
-                        {healthDot(model.id)}
-                        <span>{model.label}</span>
-                      </div>
-                    </Menu.Item>
-                  ))}
+                  {nativeModels.map(renderModelItem)}
                 </Menu.ItemGroup>
               )}
             </Menu>

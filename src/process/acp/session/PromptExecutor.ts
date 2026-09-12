@@ -1,10 +1,10 @@
-import type { AcpError, AcpErrorCode } from '@process/acp/errors/AcpError';
+import { AcpError, type AcpErrorCode } from '@process/acp/errors/AcpError';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import type { AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import type { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
 import type { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PromptTimer } from '@process/acp/session/PromptTimer';
-import { extractFuigoPromptUsage } from '@process/agent/fuigo/launch';
+import { describeFuigoBudgetStop, extractFuigoPromptUsage } from '@process/agent/fuigo/launch';
 import { randomUUID } from 'node:crypto';
 import type { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type { AgentConfig, PromptContent, SessionCallbacks, SessionStatus } from '@process/acp/types';
@@ -363,6 +363,19 @@ export class PromptExecutor {
 
     console.error(`[PromptExecutor] prompt failed (${acpErr.code}):`, acpErr.message);
     this.host.metrics.recordError(this.host.agentConfig.agentBackend, acpErr.code);
+
+    // A Fuigo process budget (FUIGO_MAX_MODEL_CALLS / FUIGO_MAX_RUNTIME_SECS,
+    // set for unattended runs) ends the prompt with a JSON-RPC error whose
+    // `data` is the execution receipt or the budget string. That is a budget
+    // stop, not an engine failure: say so, and end the turn rather than
+    // offering a retry against a process that has nothing left to spend.
+    if (this.host.agentConfig.agentBackend === 'fuigo') {
+      const budgetStop = describeFuigoBudgetStop(acpErr);
+      if (budgetStop) {
+        this.host.enterError(budgetStop);
+        throw new AcpError(acpErr.code, budgetStop, { cause: acpErr, retryable: false });
+      }
+    }
 
     if (acpErr.retryable) {
       this.host.setStatus('active');
