@@ -8,6 +8,7 @@ import {
   fuigoHomeDir,
 } from '@process/agent/fuigo/launch';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
+import { resolveTurnOutputDirective } from '@process/services/artifacts/outputDirective';
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -2194,6 +2195,20 @@ ${collectedResponses.join('\n')}`;
             }
           } catch (error) {
             mainWarn('[AcpAgentManager]', 'per-turn skill context failed', error);
+          }
+        }
+
+        // Where this turn's deliverables go. Core carried this on its
+        // `--system-prompt` channel; an ACP engine has none, so it rides the
+        // outgoing content of EVERY turn - a scheduled run's prompt is `hidden`
+        // (a cron card stands in for it) and is exactly the turn that needs it;
+        // without it the run writes wherever the model guesses, stages nothing,
+        // and settles as `no-output`. Never the persisted message: a paired
+        // WebUI may read that, and the absolute staging path must not leak.
+        {
+          const directive = resolveTurnOutputDirective(this.workspace, this.conversation_id);
+          if (directive) {
+            contentToSend = `[Output Directive]\n${directive}\n[/Output Directive]\n\n${contentToSend}`;
           }
         }
 
