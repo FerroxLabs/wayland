@@ -557,7 +557,7 @@ export class AcpAgentV2 {
           type: 'acp_context_usage',
           conversation_id: this.conversationId,
           msg_id: `usage_${Date.now()}`,
-          data: { used: usage.used, size: usage.total, cost: usage.cost },
+          data: { used: usage.used, size: usage.total, cost: usage.cost, meterId: usage.meterId },
         });
       },
 

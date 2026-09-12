@@ -4,6 +4,8 @@ import type { AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import type { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
 import type { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PromptTimer } from '@process/acp/session/PromptTimer';
+import { extractFuigoPromptUsage } from '@process/agent/fuigo/launch';
+import { randomUUID } from 'node:crypto';
 import type { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type { AgentConfig, PromptContent, SessionCallbacks, SessionStatus } from '@process/acp/types';
 import { type BackoffPolicy, computeBackoff, sleepWithAbort } from '@process/utils/backoff';
@@ -87,6 +89,14 @@ export class PromptExecutor {
   private turnRanTool = false;
   /** Set by cancel(), so a retry sleeping on its backoff does not wake up and fire anyway. */
   private turnCancelled = false;
+  /**
+   * Fuigo reports per-prompt cost (not a session gauge) and never sends
+   * `usage_update`, so the running sum lives here. The meter is named per
+   * executor instance: a re-spawn on the same session starts a fresh gauge
+   * rather than clamping to 0 under the previous high-water mark.
+   */
+  private fuigoCumulativeUsd = 0;
+  private readonly fuigoMeterId = `fuigo:${randomUUID()}`;
   /** Aborts the backoff sleep, so Stop takes effect immediately rather than seconds late. */
   private turnAbort: AbortController | undefined;
   private readonly timer: PromptTimer;
@@ -195,6 +205,21 @@ export class PromptExecutor {
             total: 0,
             percentage: 0,
           });
+        } else if (this.host.agentConfig.agentBackend === 'fuigo') {
+          // Fuigo puts usage on `_meta.usage`, not the unstable top-level field.
+          const usage = extractFuigoPromptUsage(result._meta);
+          if (usage) {
+            if (usage.costUsd !== undefined) this.fuigoCumulativeUsd += usage.costUsd;
+            this.host.callbacks.onContextUsage({
+              used: usage.totalTokens,
+              total: 0,
+              percentage: 0,
+              ...(usage.costUsd !== undefined && {
+                cost: { amount: this.fuigoCumulativeUsd, currency: 'USD' },
+                meterId: this.fuigoMeterId,
+              }),
+            });
+          }
         }
         break;
       } catch (err) {

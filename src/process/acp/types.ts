@@ -65,6 +65,12 @@ export type AgentConfig = {
   /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
   activeMcpServers?: string[];
   additionalDirectories?: string[];
+  /**
+   * Backend-specific `_meta` for `session/new` / `session/load` (e.g. Fuigo's
+   * `startupHints`). Untrusted caller metadata: reserved authority keys are
+   * stripped by `projectSessionMetadata`.
+   */
+  sessionMetadata?: Record<string, unknown>;
 
   // Optional presets (from relate_type = 'assistant')
   presetPrompts?: string[];
@@ -146,6 +152,8 @@ export type ContextUsage = {
   total: number;
   percentage: number;
   cost?: { amount: number; currency: string };
+  /** Identity of the cumulative cost gauge when the backend keeps it itself. */
+  meterId?: string;
 };
 
 export type ConfigOption = {

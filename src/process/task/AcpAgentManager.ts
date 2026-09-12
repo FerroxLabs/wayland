@@ -1,5 +1,12 @@
 import path from 'node:path';
 import { existsSync } from 'node:fs';
+import {
+  buildFuigoAcpArgs,
+  buildFuigoSessionMetadata,
+  ensureFuigoHome,
+  fuigoCompatIsolationEnv,
+  fuigoHomeDir,
+} from '@process/agent/fuigo/launch';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
@@ -917,10 +924,19 @@ ${collectedResponses.join('\n')}`;
     }
 
     if (data.backend === 'fuigo') {
-      mergedEnv.FUIGO_HOME = path.join(app.getPath('userData'), 'fuigo', this.conversation_id);
+      // One home for every conversation (memory, MCP config, trust grants and
+      // the model cache carry across chats); Fuigo keys sessions by cwd.
+      mergedEnv.FUIGO_HOME = fuigoHomeDir(app.getPath('userData'));
+      ensureFuigoHome(mergedEnv.FUIGO_HOME);
       const key = await this.readFluxKey();
       if (key) mergedEnv.FUIGO_API_KEY = key;
       mergedEnv.FUIGO_MANAGED_BY_NPM = '1';
+      // Desktop is the authority for MCP, skills and persona: keep Fuigo from
+      // importing the user's Claude Code / Cursor / Codex state and dialling
+      // their MCP servers. An explicit custom-agent env var still wins.
+      for (const [name, value] of Object.entries(fuigoCompatIsolationEnv())) {
+        if (!(name in mergedEnv)) mergedEnv[name] = value;
+      }
     }
 
     // wnano (C8 provider parity): advertise the connected provider set via
@@ -1488,6 +1504,10 @@ ${collectedResponses.join('\n')}`;
       const resolved = resolveFuigoBinary();
       if (!resolved) throw new Error('Verified bundled Fuigo engine is unavailable.');
       cliPath = /\s/.test(resolved.path) ? `"${resolved.path}"` : resolved.path;
+      // Fuigo 1.0.13 gates project instructions/skills/MCP on folder trust and,
+      // with stdin not a TTY, resolves an ungranted cwd Untrusted without a
+      // prompt. Desktop's workspace trust is the consent authority; forward it.
+      customArgs = buildFuigoAcpArgs({ trusted: isWorkspaceTrusted(data.workspace) });
     }
     if (!cliPath && data.backend === 'wnano') {
       const resolved = resolveWNanoBinary();
@@ -1660,7 +1680,12 @@ ${collectedResponses.join('\n')}`;
     // cost amount is a compatible cumulative gauge for the local USD ledger;
     // used is current context size and may decrease after compaction.
     if (message.type === 'acp_context_usage') {
-      const usage = message.data as { used: number; size: number; cost?: { amount?: number; currency?: string } };
+      const usage = message.data as {
+        used: number;
+        size: number;
+        cost?: { amount?: number; currency?: string };
+        meterId?: string;
+      };
       this.saveContextUsage(usage);
       if (usage.cost !== undefined) {
         const costUsd = extractAcpCumulativeUsd(usage.cost);
@@ -1668,7 +1693,10 @@ ${collectedResponses.join('\n')}`;
           costUsd !== undefined
             ? {
                 costUsd,
-                meterId: this.agent?.currentSessionId ?? this.options.acpSessionId,
+                // A backend that sums per-prompt cost itself (Fuigo) names the
+                // meter, so a re-spawn on the same session starts a fresh gauge
+                // instead of clamping to 0 under the old high-water mark.
+                meterId: usage.meterId ?? this.agent?.currentSessionId ?? this.options.acpSessionId,
               }
             : undefined;
       }
@@ -2060,6 +2088,12 @@ ${collectedResponses.join('\n')}`;
           // guarded-auto run has the blanket flag stripped precisely so its
           // requests DO reach the UI - which is exactly the run that can hang.
           unattendedHoldDeadlineMs: data.unattendedHoldDeadlineMs,
+          // Fuigo reads `startupHints` from the session request `_meta`. An
+          // unattended run is the only path with a hold deadline (#1045).
+          sessionMetadata:
+            data.backend === 'fuigo'
+              ? buildFuigoSessionMetadata({ nonInteractive: data.unattendedHoldDeadlineMs !== undefined })
+              : undefined,
           agentName: data.agentName,
           acpSessionId: data.acpSessionId,
           acpSessionUpdatedAt: data.acpSessionUpdatedAt,

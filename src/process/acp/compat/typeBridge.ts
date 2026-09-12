@@ -59,6 +59,8 @@ export type OldAcpAgentConfig = {
     activeMcpServers?: string[];
     /** #1045: ms a held tool call may wait in an UNATTENDED run before it is denied. */
     unattendedHoldDeadlineMs?: number;
+    /** Backend-specific `_meta` for session/new|load (Fuigo `startupHints`). */
+    sessionMetadata?: Record<string, unknown>;
   };
   onStreamEvent: (data: unknown) => void;
   onSignalEvent?: (data: unknown) => void;
@@ -125,6 +127,7 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
         ? ((old.waylandNanoActivation ? 'authenticated' : 'nonpersistent') satisfies WaylandNanoConnectionMode)
         : undefined,
     cwd: old.workingDir,
+    sessionMetadata: old.extra?.sessionMetadata,
     activeMcpServers: old.extra?.activeMcpServers,
 
     teamMcpConfig: teamMcpConfig,
