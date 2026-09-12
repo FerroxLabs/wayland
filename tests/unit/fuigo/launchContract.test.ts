@@ -165,6 +165,12 @@ describe('launch helpers', () => {
     expect(buildFuigoAcpArgs({ trusted: false })).toEqual(['--permission-mode', 'default', 'agent', 'stdio']);
   });
 
+  it('never requests a kernel sandbox: MCP children inherit it and lose $HOME writes (npx connectors)', () => {
+    for (const trusted of [true, false]) {
+      expect(buildFuigoAcpArgs({ trusted, maxTurns: 8 })).not.toContain('--sandbox');
+    }
+  });
+
   it('passes a positive integer maxTurns as a global --max-turns flag, before the agent subcommand', () => {
     expect(buildFuigoAcpArgs({ trusted: true, maxTurns: 25 })).toEqual([
       '--permission-mode',

@@ -55,6 +55,19 @@ export function ensureFuigoHome(homeDir: string): void {
 /**
  * Global flags go before the `agent` subcommand; `stdio` is the ACP transport.
  *
+ * No `--sandbox` (Fuigo's kernel sandbox: Seatbelt on darwin, Landlock on
+ * linux, nothing on win32), on purpose. Measured on the staged 1.0.15 under
+ * `--sandbox workspace`, from inside an MCP server Fuigo spawned on
+ * `session/new` (the profile is process-wide, so every MCP child inherits
+ * it): loopback HTTP to 127.0.0.1 OK, `node -e` subprocess OK, writes to the
+ * temp dir OK, writes to `$HOME` and `~/.npm/_npx` EPERM. That last one is
+ * every `npx`-launched connector — including the TC-TIDE brief's TVControl
+ * fallback — so a chat with MCP servers must keep the sandbox OFF, and there
+ * is no Desktop-side sandbox setting left to key it on (Core's `strict |
+ * trusted_local_smart` profile lived in Core's own config.toml and went with
+ * it). If a setting is ever added, default it off for any chat that carries
+ * MCP servers.
+ *
  * `--max-turns` is a top-level clap arg (`value_parser!(u32).range(1..)`) that
  * `run_agent_command` copies into `cli_agent_overrides.max_turns`, so it binds
  * the ACP session exactly as it binds headless mode. A non-positive or
