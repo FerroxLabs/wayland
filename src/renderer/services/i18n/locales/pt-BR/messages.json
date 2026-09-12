@@ -52,6 +52,7 @@
   "export.unavailable": "A exportação da conversa não está disponível",
   "unknownMessageType": "Tipo de mensagem desconhecido: {{type}}",
   "permissionRequest": "Solicitação de Permissão",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "O agente está solicitando permissão.",
   "command": "Comando:",
   "chooseAction": "Escolha uma ação:",

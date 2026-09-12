@@ -17,6 +17,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import type { IMcpServer } from '@/common/config/storage';
 import type { McpConfigProjection, McpConfigPublicationRequest } from '@process/acp/session/McpConfig';
+import type { UserQuestionUIData } from '@process/acp/session/userQuestion';
 // ─── Agent Identity & Config ────────────────────────────────────
 
 export type AgentSource = 'builtin' | 'extension' | 'custom' | 'remote';
@@ -209,6 +210,8 @@ export type SessionCallbacks = {
   onModeUpdate: (mode: ModeSnapshot) => void;
   onContextUsage: (usage: ContextUsage) => void;
   onPermissionRequest: (data: PermissionUIData) => void;
+  /** One question of a Fuigo AskUserQuestion request; absent = unattended, answered `cancelled`. */
+  onUserQuestion?: (data: UserQuestionUIData) => void;
   onSignal: (event: SessionSignal) => void;
 };
 
@@ -242,6 +245,11 @@ export type ProtocolHandlers = {
    * `methodNotFound` and logs on EVERY frame.
    */
   onExtNotification?: (method: string, params: unknown) => void;
+  /**
+   * Vendor ext REQUESTS (Fuigo's `fuigo/ask_user_question`). Optional: without
+   * it the SDK answers `methodNotFound` and the engine-side tool fails.
+   */
+  onExtMethod?: (method: string, params: unknown) => Promise<unknown>;
 };
 
 /** No-op handlers for ephemeral AcpClient usage (e.g. connection tests, health checks). */

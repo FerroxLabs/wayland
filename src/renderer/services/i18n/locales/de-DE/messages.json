@@ -52,6 +52,7 @@
   "export.unavailable": "Export der Unterhaltung ist nicht verfügbar",
   "unknownMessageType": "Unbekannter Nachrichtentyp: {{type}}",
   "permissionRequest": "Berechtigungsanfrage",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "Der Agent fordert eine Berechtigung an.",
   "command": "Befehl:",
   "chooseAction": "Aktion wählen:",

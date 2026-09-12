@@ -25,7 +25,7 @@ import type {
   PromptResponse,
   SetSessionConfigOptionRequest,
 } from '@agentclientprotocol/sdk';
-import { ClientSideConnection, PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
+import { ClientSideConnection, PROTOCOL_VERSION, RequestError } from '@agentclientprotocol/sdk';
 import { AgentDisconnectedError, AgentSpawnError, AgentStartupError } from '@process/acp/errors/AcpError';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import { mapModeForAcpBridge } from '@/common/types/agentModes';
@@ -231,6 +231,12 @@ export class ProcessAcpClient implements AcpClient {
         // Vendor extensions. The SDK does NOT schema-validate these; without
         // this arm it answers methodNotFound and logs on every frame.
         extNotification: async (method, params) => this.options.handlers.onExtNotification?.(method, params),
+        // Vendor ext REQUESTS (Fuigo's ask_user_question). Unhandled ones keep
+        // the SDK's methodNotFound answer so the engine-side tool fails fast.
+        extMethod: async (method, params) => {
+          if (!this.options.handlers.onExtMethod) throw RequestError.methodNotFound(method);
+          return (await this.options.handlers.onExtMethod(method, params)) as Record<string, unknown>;
+        },
       }),
       stream
     );

@@ -52,6 +52,7 @@
   "export.unavailable": "当前无法导出对话",
   "unknownMessageType": "未知消息类型：{{type}}",
   "permissionRequest": "权限请求",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "代理正在请求权限。",
   "command": "命令：",
   "chooseAction": "选择一个操作：",

@@ -587,6 +587,20 @@ export class AcpAgentV2 {
         }
       },
 
+      // One question of a Fuigo AskUserQuestion request. Surfaced through the
+      // manager's confirmation card (the #504 question card); the answer comes
+      // back via answerUserQuestion.
+      onUserQuestion: (data) => {
+        if (this.onSignalEvent) {
+          this.onSignalEvent({
+            type: 'acp_user_question',
+            conversation_id: this.conversationId,
+            msg_id: data.callId,
+            data,
+          });
+        }
+      },
+
       onSignal: (event) => {
         // Retain the real reason so a pending start op can reject with it
         // (#483/#369). enterError emits this signal immediately before the status
@@ -972,6 +986,11 @@ export class AcpAgentV2 {
         },
       };
     }
+  }
+
+  /** Answer (or cancel, with `null`) one question of a Fuigo AskUserQuestion request. */
+  answerUserQuestion(callId: string, answer: string | null): boolean {
+    return this.session?.answerUserQuestion(callId, answer) ?? false;
   }
 
   async confirmMessage(data: { confirmKey: string; callId: string }): Promise<AcpResult> {

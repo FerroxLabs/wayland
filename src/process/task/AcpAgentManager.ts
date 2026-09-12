@@ -9,6 +9,7 @@ import {
 } from '@process/agent/fuigo/launch';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { resolveTurnOutputDirective } from '@process/services/artifacts/outputDirective';
+import type { UserQuestionUIData } from '@process/acp/session/userQuestion';
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -1099,6 +1100,8 @@ ${collectedResponses.join('\n')}`;
 
   /** Routing decision for the most recent spawn - surfaced on request_trace (badge). */
   private lastRouting: RoutingDecision = 'unknown';
+  /** Call ids of AskUserQuestion cards still waiting for a pick (see handleSignalEvent). */
+  private readonly pendingUserQuestions = new Set<string>();
 
   /** True once this conversation has been told its user-level hooks were dropped. */
   private droppedHooksAnnounced = false;
@@ -1794,6 +1797,30 @@ ${collectedResponses.join('\n')}`;
       return;
     }
 
+    // One question of a Fuigo AskUserQuestion request -> the #504 question card
+    // (choices carry `answer`; Autopilot auto-picks the first). The card's
+    // callId is the question's, so `confirm` can route the pick back.
+    if (v.type === 'acp_user_question') {
+      const q = v.data as UserQuestionUIData;
+      this.pendingUserQuestions.add(q.callId);
+      this.addConfirmation({
+        title: 'messages.agentQuestion',
+        id: v.msg_id,
+        description: q.question,
+        callId: q.callId,
+        options: [
+          ...q.options.map((option) => ({
+            label: option.label,
+            value: 'answer' as unknown as AcpPermissionOption,
+            answer: option.label,
+            ...(option.description && { description: option.description }),
+          })),
+          { label: 'common.cancel', value: 'cancel' as unknown as AcpPermissionOption },
+        ],
+      });
+      return;
+    }
+
     if (v.type === 'finish') {
       await this.handleFinishSignal(v, backend);
       return;
@@ -2346,9 +2373,17 @@ ${collectedResponses.join('\n')}`;
     });
   }
 
-  async confirm(id: string, callId: string, data: AcpPermissionOption) {
+  async confirm(id: string, callId: string, data: AcpPermissionOption, answer?: string) {
     super.confirm(id, callId, data);
     await this.bootstrap;
+    if (this.pendingUserQuestions.delete(callId)) {
+      const picked = (data as unknown) === 'cancel' ? null : (answer ?? null);
+      const delivered = (
+        this.agent as { answerUserQuestion?: (c: string, a: string | null) => boolean }
+      ).answerUserQuestion?.(callId, picked);
+      if (!delivered) mainWarn('[AcpAgentManager]', `question ${callId} was no longer open when answered`);
+      return;
+    }
     void this.agent.confirmMessage({
       confirmKey: data.optionId,
       // msg_id: dat;

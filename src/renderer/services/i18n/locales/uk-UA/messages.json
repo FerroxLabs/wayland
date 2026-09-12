@@ -51,6 +51,7 @@
   "export.unavailable": "Експорт діалогу недоступний",
   "unknownMessageType": "Невідомий тип повідомлення: {{type}}",
   "permissionRequest": "Запит на дозвіл",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "Агент запитує дозвіл.",
   "command": "Команда:",
   "chooseAction": "Виберіть дію:",

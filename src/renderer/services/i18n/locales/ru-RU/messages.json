@@ -49,6 +49,7 @@
   "export.unavailable": "Экспорт диалога недоступен",
   "unknownMessageType": "Неизвестный тип сообщения: {{type}}",
   "permissionRequest": "Запрос разрешения",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "Агент запрашивает разрешение.",
   "command": "Команда:",
   "chooseAction": "Выберите действие:",

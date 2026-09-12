@@ -52,6 +52,7 @@
   "export.unavailable": "現在、会話をエクスポートできません",
   "unknownMessageType": "不明なメッセージタイプ: {{type}}",
   "permissionRequest": "権限リクエスト",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "The agent is requesting permission.",
   "command": "コマンド:",
   "chooseAction": "操作を選択してください:",

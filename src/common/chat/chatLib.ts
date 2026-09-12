@@ -83,6 +83,7 @@ type TMessageType =
   | 'tool_group'
   | 'agent_status'
   | 'acp_permission'
+  | 'acp_user_question'
   | 'acp_tool_call'
   | 'codex_permission'
   | 'codex_tool_call'

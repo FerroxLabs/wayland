@@ -55,6 +55,7 @@
   "timeMarker.gapHours": "+{{hours}}h",
   "timeMarker.gapHoursMinutes": "+{{hours}}h {{minutes}}m",
   "permissionRequest": "Permission Request",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "The agent is requesting permission.",
   "command": "Command:",
   "chooseAction": "Choose an action:",

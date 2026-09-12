@@ -4,6 +4,7 @@ import type {
   SessionNotification,
   UsageUpdate,
 } from '@agentclientprotocol/sdk';
+import { RequestError } from '@agentclientprotocol/sdk';
 import * as path from 'node:path';
 import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
@@ -16,6 +17,12 @@ import { stripAnsi } from '@process/acp/stderrPemHold';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
+import {
+  isAskUserQuestionMethod,
+  parseAskUserQuestionRequest,
+  UserQuestionResolver,
+  type AskUserQuestionResponse,
+} from '@process/acp/session/userQuestion';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
 import { loadWorkspaceApprovals, saveWorkspaceApproval } from '@process/acp/session/ApprovalPersistence';
 import { PromptExecutor } from '@process/acp/session/PromptExecutor';
@@ -171,6 +178,8 @@ export class AcpSession {
   readonly metrics: AcpMetrics;
 
   private readonly permissionResolver: PermissionResolver;
+
+  private readonly userQuestions: UserQuestionResolver;
   private readonly inputPreprocessor: InputPreprocessor;
   private readonly lifecycle: SessionLifecycle;
   private readonly promptExecutor: PromptExecutor;
@@ -187,6 +196,7 @@ export class AcpSession {
     this.configTracker = new ConfigTracker(options?.initialDesired);
     this.messageTranslator = new MessageTranslator(agentConfig.agentId);
     this.inputPreprocessor = new InputPreprocessor((path) => fs.readFileSync(path, 'utf-8'));
+    this.userQuestions = new UserQuestionResolver();
     this.permissionResolver = new PermissionResolver({
       autoApproveAll: agentConfig.yoloMode ?? false,
       cacheMaxSize: options?.approvalCacheMaxSize,
@@ -275,6 +285,7 @@ export class AcpSession {
   async stop(): Promise<void> {
     this.promptExecutor.stopTimer();
     this.permissionResolver.rejectAll(new Error('Session stopped'));
+    this.userQuestions.cancelAll();
     this.promptExecutor.clearPending();
     this.lifecycle.clearAuthPending();
     await this.lifecycle.teardown();
@@ -418,6 +429,7 @@ export class AcpSession {
     return {
       onSessionUpdate: (notification) => this.handleMessage(notification),
       onRequestPermission: (request) => this.handlePermissionRequest(request),
+      onExtMethod: (method, params) => this.handleExtMethod(method, params),
       onReadTextFile: async (req) => {
         this.assertPathAllowed(req.path);
         try {
@@ -496,6 +508,28 @@ export class AcpSession {
     }
   }
 
+  private async handleExtMethod(method: string, params: unknown): Promise<unknown> {
+    if (!isAskUserQuestionMethod(method)) throw RequestError.methodNotFound(method);
+    const request = parseAskUserQuestionRequest(params);
+    if (!request) throw RequestError.invalidParams({ method });
+    // Unattended (no card to show): the honest answer is a cancel, which the
+    // engine treats as a user action, not an error.
+    const show = this.callbacks.onUserQuestion;
+    if (!show) return { outcome: 'cancelled' } satisfies AskUserQuestionResponse;
+    this.promptExecutor.noteToolActivity();
+    this.promptExecutor.pauseTimer();
+    try {
+      return await this.userQuestions.ask(request, show);
+    } finally {
+      this.promptExecutor.resumeTimer();
+    }
+  }
+
+  /** Answer (or cancel, with `null`) one question of an AskUserQuestion request. */
+  answerUserQuestion(callId: string, answer: string | null): boolean {
+    return this.userQuestions.answer(callId, answer);
+  }
+
   private async handlePermissionRequest(request: RequestPermissionRequest): Promise<RequestPermissionResponse> {
     // A permission request means a tool is about to run — enough to make replaying
     // this turn unsafe, even if its `tool_call` update never reaches us (#774).
@@ -538,6 +572,7 @@ export class AcpSession {
         this.emitCrashSignalIfProcessDied(info);
         this.promptExecutor.stopTimer();
         this.permissionResolver.rejectAll(new Error('Process disconnected'));
+        this.userQuestions.cancelAll();
         this.lifecycle.resumeFromDisconnect();
         return;
       }

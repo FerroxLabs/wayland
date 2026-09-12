@@ -1781,6 +1781,7 @@ export type I18nKey =
   | 'memory.wiki.share_err'
   | 'memory.wiki.share_ok'
   | 'memory.wiki.share_readme'
+  | 'messages.agentQuestion'
   | 'messages.agentRequestingPermission'
   | 'messages.atFile.hint'
   | 'messages.atFile.loading'

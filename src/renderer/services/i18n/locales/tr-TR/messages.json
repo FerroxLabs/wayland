@@ -52,6 +52,7 @@
   "export.unavailable": "Konuşma aktarımı şu anda kullanılamıyor",
   "unknownMessageType": "Bilinmeyen mesaj türü: {{type}}",
   "permissionRequest": "İzin İsteği",
+  "agentQuestion": "Question from the agent",
   "agentRequestingPermission": "Ajan izin istiyor.",
   "command": "Komut:",
   "chooseAction": "Bir işlem seçin:",
