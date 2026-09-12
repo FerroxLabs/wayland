@@ -1,41 +1,41 @@
 {
-  "version": "1.0.13",
+  "version": "1.0.14",
   "platforms": {
     "darwin-arm64": {
-      "url": "https://registry.npmjs.org/@fuigo/darwin-arm64/-/darwin-arm64-1.0.13.tgz",
-      "integrity": "sha512-I1NQfCs5zuv+WxRdy4LwNTriBVFoENlImizxYdEEq2PuY1odaALKvEJLjPpzDxtpC0WOAQ02rwTtVcRGfW82rQ==",
-      "archiveSha256": "ab7b23d70a3ba816703abe3e9597c65e09b458341059c0a8d400352c1c3c3c2f",
-      "binarySha256": "475431636935a63b32436e5279a014c1f34f7bccb2fbade0aac56318bd718fb2"
+      "url": "https://registry.npmjs.org/@fuigo/darwin-arm64/-/darwin-arm64-1.0.14.tgz",
+      "integrity": "sha512-ifwGJqM1hydaWh0sw4Bj4AfCzp3tw7cB7T9fpqtG8Eh0J4ACF3zpcaa1IamDvWxuP7dCaj0+ixJdev3EChfF8A==",
+      "archiveSha256": "31dc17336561b863f004b666792a18191120e2c67ae7268bac29e95b266efd14",
+      "binarySha256": "72ea212dc2d06718fd6eee302f55c96923b9ca7dba93b5ba545efc101836258a"
     },
     "darwin-x64": {
-      "url": "https://registry.npmjs.org/@fuigo/darwin-x64/-/darwin-x64-1.0.13.tgz",
-      "integrity": "sha512-kZRTzWDeckXaWpoTCQcdwL5FPzxBV3iElfGPMhdfgUoKC3gki0zoz14MHrj67vpL6DKjP9H0x+ZB5Lq4XCBCQg==",
-      "archiveSha256": "6fa891eff5d63c3a3492bc39e9847438b7a29b49cef5b31a21f4799c564b22f5",
-      "binarySha256": "e000ebb48d6f48bf143611a707aed18ae77ebee169c886ae2f88fbdb7e87f85f"
+      "url": "https://registry.npmjs.org/@fuigo/darwin-x64/-/darwin-x64-1.0.14.tgz",
+      "integrity": "sha512-mzcHlf/9nZQ2L5s+FyuXNsVi+9Zu74oGBlfrS/+Vq+u8rLGZal5LuK1y6qQoTH98WMM96vsAiiXTXV27Tz5C/Q==",
+      "archiveSha256": "e40dd00f470e12d4fac12e4fedb0b872d92990069f23e497a531bc716c14a0b0",
+      "binarySha256": "3da49f26af42794c5833277ef11b0a8ca16cfc32ee9ce13a84a8d46065c6104a"
     },
     "linux-arm64": {
-      "url": "https://registry.npmjs.org/@fuigo/linux-arm64/-/linux-arm64-1.0.13.tgz",
-      "integrity": "sha512-lEtG9OgcEPJVmWOfJztJnqVCGpXCdH3Yt2tTV7ih2P4TRzU5pR38edKjqTSxWeKvpLI4qt5NfIIUJiPvqRd/tA==",
-      "archiveSha256": "002eb0df8561b257ddfed8a373c07411fa7d4ced942676b5981360fbad86271d",
-      "binarySha256": "e375a178844a57aa11b05fba57bc8217e80ed5fadfcd1dd8f36834c867f7fe18"
+      "url": "https://registry.npmjs.org/@fuigo/linux-arm64/-/linux-arm64-1.0.14.tgz",
+      "integrity": "sha512-uRcd3GUUNpiZiy1CAEtBUJ+LRDZqh9AH177yAxIiUE13sXLbJT/XTyOVB1XBRImT96CUy2hl/dSZoo/0pCnVNg==",
+      "archiveSha256": "29c0d7d745aa1eb9466d342445d5479ca29ba51aee15341e97817b702b67f768",
+      "binarySha256": "73eba5b27fdafab7f49ebc63f7cf793bd322e312afb4d2a52a018f33c503c76b"
     },
     "linux-x64": {
-      "url": "https://registry.npmjs.org/@fuigo/linux-x64/-/linux-x64-1.0.13.tgz",
-      "integrity": "sha512-zB6YYpZJuiafp93A2VIa4sWq8HOFGiCi5i1advDudNYtlvU99SMcz0TbfptS+aJfgRbFv03YRqfgpdsG53PalA==",
-      "archiveSha256": "3973283fe5953403fb0958cea5099c508c4abc84a2ee5e4d642eb175ad13f2ef",
-      "binarySha256": "1ba9ee844e124af5f1931e6277e145a3201a889c74bf4cc9fd15730f023ff29c"
+      "url": "https://registry.npmjs.org/@fuigo/linux-x64/-/linux-x64-1.0.14.tgz",
+      "integrity": "sha512-Qw3n2aPMbmslXift/vT6DaaXJvBFxBb68Y2iX/iatC/y4h+jNeirAQ16vyFvtBGPZG6Na/kFArNyKH+fTRbQAA==",
+      "archiveSha256": "db1cfa30c388ea7a49361dc90066a06ff834e8730b4cb0e896a9cf8839d0180b",
+      "binarySha256": "4c9df5cb2bdecb8bb7a21452f8c89313fe71e8505182a89e9072f3df6956bbd2"
     },
     "win32-arm64": {
-      "url": "https://registry.npmjs.org/@fuigo/win32-arm64/-/win32-arm64-1.0.13.tgz",
-      "integrity": "sha512-UQntuCZC/Qjc16/X1h3pUyvI9ST6A8afQOwSaZXJJOHT2sJSbMfBpBl8y8zJchSbRGFFDLzZOyB0sL6TB7LLtQ==",
-      "archiveSha256": "7a82e85b2a784eb373d57580dce54f79891975f78c672031a1606da1288dabb3",
-      "binarySha256": "d035456fd450539ab1458c7dfeaea7563f5a8b88c417f35eeaa67dd43fa54f83"
+      "url": "https://registry.npmjs.org/@fuigo/win32-arm64/-/win32-arm64-1.0.14.tgz",
+      "integrity": "sha512-bJRVnqU6g3UYmPBA3LjcYT/A6Db1fplkrIoywmnZuVdaaDaUnTNBIBI78x7alxSF2rxC/0Yt6dWJ1N+hEPn6wg==",
+      "archiveSha256": "695c1de5bb964e01126ad1afcb2cfa9ed2026b3b0196991470d8f6578f044141",
+      "binarySha256": "bb4975cbfc993f27f41765154731fb84828991a3e6206917abefc873d7bd0c76"
     },
     "win32-x64": {
-      "url": "https://registry.npmjs.org/@fuigo/win32-x64/-/win32-x64-1.0.13.tgz",
-      "integrity": "sha512-XF5aaGnayC0m6cd74GmUbvIcbY2zVp3XYVwf1VZRU3KQnu+9j0avNPnb7SIZEz63skJ5WKbP4r7atZrCNILrMA==",
-      "archiveSha256": "4a986f3a707b28d08cc3651337307a0c4dcd3ca1eaeb42a794a81b82a9ff778a",
-      "binarySha256": "4c19d38c418ad433cc2ad11b76a60ac5a4dd12b8e97d3937f10a410390e56cfc"
+      "url": "https://registry.npmjs.org/@fuigo/win32-x64/-/win32-x64-1.0.14.tgz",
+      "integrity": "sha512-g7KSMzb4CYA+KjTljs2X4Wdxt//ckAzWY9bavEcAdZhrvh8Yp6CSTLna7jYqrk8hqmaUR73HQImjkSNXTHxtbg==",
+      "archiveSha256": "399cf221a827ec3e19da7192627a53d7e2d20eb8e043dd22c5fd625a4ba6f7e0",
+      "binarySha256": "ec71c4bc22e396251e86c2ed4b95c4ceafee614ae20e3c3203f0c822dbaf7999"
     }
   }
 }
