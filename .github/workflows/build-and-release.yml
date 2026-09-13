@@ -513,7 +513,7 @@ jobs:
             sleep 10
           done
           [[ "$run_id" =~ ^[0-9]+$ ]]
-          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 60
           run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id")"
           test "$(jq -r .display_title <<<"$run")" = "$EXPECTED_TITLE"
           test "$(jq -r .head_branch <<<"$run")" = 'release-trust-v1'
@@ -607,7 +607,7 @@ jobs:
             sleep 10
           done
           [[ "$run_id" =~ ^[0-9]+$ ]]
-          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 60
           run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id")"
           test "$(jq -r .display_title <<<"$run")" = "$EXPECTED_TITLE"
           test "$(jq -r .head_branch <<<"$run")" = 'release-trust-v1'
@@ -755,7 +755,7 @@ jobs:
             sleep 10
           done
           [[ "$run_id" =~ ^[0-9]+$ ]] || exit 1
-          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 60
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
 
       - name: Download exact accepted receipt
