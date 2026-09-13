@@ -1710,10 +1710,12 @@ async function performBeforeQuitCleanup(): Promise<void> {
   // installing at an uncoordinated moment, we install here, after cleanup, in a
   // controlled order. No-op unless an update was downloaded AND it is safe to
   // apply (installOnQuitIfReady honours the #575/#286 block). Non-force-exit so
-  // it can't race the cleanup we just awaited.
+  // it can't race the cleanup we just awaited. AWAITED: on macOS it keeps the
+  // process alive until Squirrel.Mac holds the update and has asked to relaunch;
+  // quitting sooner killed Squirrel mid-transfer and nothing ever installed.
   try {
     const { autoUpdaterService } = await import('./process/services/autoUpdaterService');
-    autoUpdaterService.installOnQuitIfReady();
+    await autoUpdaterService.installOnQuitIfReady();
   } catch (err) {
     recordPackageSmokeEvent('cleanup-failed', { stage: 'update-install', reason: 'rejected' });
     console.warn('[Wayland] on-quit update install step failed (ignored):', err);

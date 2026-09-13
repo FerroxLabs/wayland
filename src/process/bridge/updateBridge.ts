@@ -959,7 +959,7 @@ export function initUpdateBridge(): void {
       // immediately via the raw hard-exit — the one case the user explicitly
       // accepted an abrupt interruption (#651/#632 override).
       if (params?.force) {
-        autoUpdaterService.quitAndInstall();
+        await autoUpdaterService.quitAndInstall();
         return;
       }
       // Default: defer the restart while the app is busy, apply once idle.
@@ -976,7 +976,19 @@ export function initUpdateBridge(): void {
         // the correct order. Hard-exiting here would orphan child processes and
         // drop unflushed writes right after the busy flag clears — the exact
         // #651 bug class this feature exists to prevent.
-        () => app.quit(),
+        //
+        // prepareInstall() runs first, while the app is still fully usable: on
+        // macOS it waits until Squirrel.Mac actually holds the update. If Squirrel
+        // can't take it, the user is told why and the app keeps running, instead
+        // of quitting into an install that silently never happens.
+        () => {
+          void autoUpdaterService
+            .prepareInstall()
+            .then((ready) => {
+              if (ready) app.quit();
+            })
+            .catch((err: unknown) => console.error('quitAndInstall failed:', err));
+        },
         () => autoUpdaterService.notifyDeferred()
       );
     } catch (err: unknown) {
