@@ -282,16 +282,35 @@ export function fuigoPluginDirs(workspace: string): string[] {
 }
 
 /** `_meta` for `session/new` / `session/load`. Fuigo reads `startupHints`
- *  from the session request first, then from `initialize`. */
+ *  from the session request first, then from `initialize`.
+ *
+ *  `rules` is the assistant's standing instructions (Constitution, persona,
+ *  team guide, capabilities, connector guidance). Fuigo appends it to its own
+ *  system prompt as `<human_rules>` and stores that system message with the
+ *  session, so it survives a process restart and `session/load` (which ignores
+ *  a re-sent `rules` by design). Carried here rather than in the first user
+ *  message, which pushed every fresh chat over Fuigo's 25,000-byte prompt
+ *  offload (`LARGE_PROMPT_THRESHOLD`) and cost a `read_file prompt_0.txt`.
+ *
+ *  Fuigo 1.0.16 DROPS `<human_rules>` whenever `session/set_model` changes the
+ *  model (the harness rebuild swaps in a fresh template, measured: history
+ *  40,580 -> 7,328 B), before or after a turn, and `session/load` keeps it
+ *  dropped. So `modelId` creates the session on the chat's model (no switch at
+ *  bootstrap), and a later switch re-injects the rules into the next user
+ *  message (`AcpAgentManager.markFuigoRulesStale`). */
 export function buildFuigoSessionMetadata(opts: {
   nonInteractive: boolean;
   pluginDirs?: string[];
+  rules?: string;
+  modelId?: string;
 }): Record<string, unknown> {
   return {
     clientIdentifier: 'wayland-desktop',
     clientType: 'desktop',
     startupHints: { nonInteractive: opts.nonInteractive },
     ...(opts.pluginDirs?.length ? { pluginDirs: opts.pluginDirs } : {}),
+    ...(opts.rules ? { rules: opts.rules } : {}),
+    ...(opts.modelId ? { modelId: opts.modelId } : {}),
   };
 }
 

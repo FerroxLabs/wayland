@@ -145,6 +145,7 @@ const AcpChat: React.FC<{
         workspaceId={workspace || conversation_id}
         projectId={projectId}
         agentId={backend}
+        turnActive={isProcessing}
       >
         <div className='flex-1 flex flex-col px-20px min-h-0'>
           <FlexFullContainer>

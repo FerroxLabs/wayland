@@ -121,7 +121,7 @@ describe('execution backend adapters', () => {
     expect(result.integrity.status).toBe('valid');
   });
 
-  it('resumes ACP after permission and fails closed on a failed tool', () => {
+  it('resumes ACP after permission; a failed tool is an activity, not a failed run', () => {
     const messages = [
       {
         id: 'permission-1',
@@ -156,8 +156,133 @@ describe('execution backend adapters', () => {
       adaptAcpMessages(messages, { identity, observedAt: now }),
       { now }
     );
-    expect(result.lifecycle).toBe('failed');
+    expect(result.lifecycle).not.toBe('failed');
+    expect(result.activities).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'tool-1', kind: 'tool', status: 'failed' })])
+    );
     expect(result.integrity.status).toBe('valid');
+  });
+
+  describe("an ACP turn with a failed tool mid-run (Sean's Smart Trader chat, 2026-09-14)", () => {
+    // Reconstructed from the conversation's persisted rows, in stored order:
+    // the offloaded prompt read, then Fuigo's `read_file` of a staged skill
+    // refused by the fs guard (#1376) - once by the real path, once relative -
+    // while web searches and terminal reads carried on around it for minutes.
+    const text = (id: string, content: string) =>
+      ({
+        id,
+        conversation_id: 'ff8881cd',
+        type: 'text',
+        position: 'right',
+        content: { content },
+        createdAt: now,
+      }) as TMessage;
+    const thinking = (id: string) =>
+      ({
+        id,
+        conversation_id: 'ff8881cd',
+        type: 'thinking',
+        position: 'left',
+        content: { content: 'Let me understand the request', status: 'done' },
+        createdAt: now,
+      }) as TMessage;
+    const tool = (id: string, status: 'pending' | 'in_progress' | 'completed' | 'failed', title: string) =>
+      ({
+        id,
+        conversation_id: 'ff8881cd',
+        type: 'acp_tool_call',
+        position: 'left',
+        content: { sessionId: '', update: { sessionUpdate: 'tool_call', toolCallId: id, status, title, kind: 'read' } },
+        createdAt: now,
+      }) as TMessage;
+    const errorTip = (id: string) =>
+      ({
+        id,
+        conversation_id: 'ff8881cd',
+        type: 'tips',
+        position: 'center',
+        content: { content: 'Session expired', type: 'error' },
+        createdAt: now,
+      }) as TMessage;
+    const refused =
+      'Read `/Users/seandonahoe/.wayland/fuigo-temp-1789341140262/.wayland/skills/rebel-trader-rules/SKILL.md`';
+    // What was on screen at 06:12:55: "Did 3 things: List · Reading SKILL.md · Searching the web".
+    const midRun = [
+      text('0b30b303', 'Do me a favor - I want to test an idea. A moving over cross over strategy…'),
+      thinking('bba9c636'),
+      tool('call_4e253f0cd2a64347b06b6551', 'completed', 'Read `…/prompts/prompt_0.txt`'),
+      thinking('ef90b15a'),
+      tool(
+        'call_00_zwAEDzWr1zbxG65E4Bm41310',
+        'completed',
+        'List `/Users/seandonahoe/.wayland/fuigo-temp-1789341140262`'
+      ),
+      tool('call_01_2Ae5tDzg1A6bUBb4tNtC8142', 'failed', refused),
+      tool('call_02_CN4NHuWL0nHfuKUrQBi02694', 'in_progress', 'Web search: "Hull moving average vs SMA EMA crossover"'),
+    ];
+    const wholeTurn = [
+      ...midRun.slice(0, -1),
+      tool('call_02_CN4NHuWL0nHfuKUrQBi02694', 'completed', 'Web search: "Hull moving average vs SMA EMA crossover"'),
+      thinking('3a6e67e3'),
+      tool('01a09d0c59f4e8d0f84caaf0f1239a58', 'failed', 'Read `.wayland/skills/rebel-trader-rules/SKILL.md`'),
+      tool('01a09d0c5b8556aadfe4baee57d33a63', 'completed', 'Web search: "ADX regime filter moving average crossover"'),
+      tool('01a09d0c5cd5629bd4a6512770b26a66', 'completed', 'Web search: "multi-timeframe trend confirmation EMA 200"'),
+      thinking('e20ee63d'),
+      tool('call_00_8nP7epZrVoh2YUFSsYWJ1889', 'completed', 'Execute `cat …/rebel-trader-rules/SKILL.md | head -200`'),
+      tool('call_01_WyDbq4zpQsJhy7L1cU226139', 'completed', 'Execute `ls -la …/.wayland/skills/`'),
+      tool('call_cb83d78a5d11480c84737ffb', 'completed', "Execute `cat …/SKILL.md | sed -n '200,500p'`"),
+      tool(
+        'call_05531183bd084ad7991f18ca',
+        'completed',
+        'Web search: "moving average crossover strategy backtest whipsaw"'
+      ),
+    ];
+    const project = (messages: readonly TMessage[], turnActive?: boolean) =>
+      projectExecution(
+        { ...baseSeed, actor: { backend: 'acp', agentId: 'fuigo' } },
+        adaptAcpMessages(selectCurrentExecutionMessages('acp', messages), { identity, observedAt: now, turnActive }),
+        { now }
+      );
+
+    it('reads running, never failed, while the turn is still in flight', () => {
+      const result = project(midRun, true);
+      expect(result.lifecycle).toBe('running');
+      // The tool after the refused read is still on the run, not dropped as post-terminal.
+      expect(result.activities.map((activity) => [activity.id, activity.status])).toEqual([
+        ['call_4e253f0cd2a64347b06b6551', 'completed'],
+        ['call_00_zwAEDzWr1zbxG65E4Bm41310', 'completed'],
+        ['call_01_2Ae5tDzg1A6bUBb4tNtC8142', 'failed'],
+        ['call_02_CN4NHuWL0nHfuKUrQBi02694', 'running'],
+      ]);
+      expect(result.integrity.status).toBe('valid');
+    });
+
+    it('does not claim failed from the tool even without a turn signal', () => {
+      expect(project(midRun).lifecycle).toBe('running');
+      expect(project(wholeTurn).lifecycle).toBe('completed');
+    });
+
+    it('stays running through the whole turn while active, and completes when the turn ends cleanly', () => {
+      const active = project(wholeTurn, true);
+      expect(active.lifecycle).toBe('running');
+      expect(active.activities).toHaveLength(11);
+
+      const ended = project(wholeTurn, false);
+      expect(ended.lifecycle).toBe('completed');
+      expect(ended.activities).toHaveLength(11);
+      expect(ended.integrity.status).toBe('valid');
+    });
+
+    it('fails only when a turn-level error is the last thing the turn did, and never while active', () => {
+      const died = [...wholeTurn, errorTip('error_ff8881cd_1')];
+      expect(project(died, false).lifecycle).toBe('failed');
+      expect(project(died).lifecycle).toBe('failed');
+      expect(project(died, true).lifecycle).toBe('running');
+
+      // An error notice the turn then worked past is not the turn's verdict.
+      const recovered = [...midRun.slice(0, 3), errorTip('notice'), ...wholeTurn.slice(3)];
+      expect(project(recovered, false).lifecycle).toBe('completed');
+    });
   });
 
   it('does not terminate an ACP session between multiple completed tools', () => {
