@@ -53,21 +53,55 @@ function wantsOwnerOnly(opts?: fsSync.WriteFileOptions): boolean {
   return opts.mode === 0o600;
 }
 
+/** OWNER RIGHTS. Used only when the user's SID cannot be resolved (the pre-fix grant). */
+const OWNER_RIGHTS_SID = 'S-1-3-4';
+
+let cachedUserSid: string | null = null;
+
+/**
+ * SID of the account this process runs as, from `whoami /user`, cached once
+ * resolved. Called by absolute path: Wayland puts Git's `usr\bin` on PATH, and
+ * a bare `whoami` there is GNU coreutils, which rejects `/user`.
+ */
+function currentWindowsUserSid(): string | null {
+  if (cachedUserSid) return cachedUserSid;
+  try {
+    const whoami = path.win32.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'whoami.exe');
+    const out = execFileSync(whoami, ['/user', '/fo', 'csv', '/nh'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      windowsHide: true,
+    });
+    cachedUserSid = /S-1-\d+(?:-\d+)+/.exec(String(out))?.[0] ?? null;
+  } catch {
+    cachedUserSid = null;
+  }
+  return cachedUserSid;
+}
+
+function windowsDaclArgs(filePath: string): string[] {
+  return [filePath, '/inheritance:r', '/grant:r', `*${currentWindowsUserSid() ?? OWNER_RIGHTS_SID}:F`];
+}
+
 /**
  * On Windows, set an owner-only DACL on `filePath`: remove inherited ACEs and
  * grant the current user full control. Mirrors the intent of POSIX 0o600 on a
  * platform where Node ignores the `mode` option. Best-effort: any failure is
  * swallowed because the file already lives in an ACL-restricted directory.
  *
- * `*S-1-3-4` is the well-known OWNER RIGHTS SID, so the grant always resolves
- * to whoever created the file regardless of username/domain quirks.
+ * The grant names the SID of the account this process runs as. It used to be
+ * `*S-1-3-4` (OWNER RIGHTS), which breaks under UAC: an elevated process creates
+ * files owned by BUILTIN\Administrators, so OWNER RIGHTS resolves to that group,
+ * which the same user's normal (filtered) token holds only as deny-only.
+ * Measured on Windows 11: after one elevated run, every normal launch was
+ * denied wayland-config.txt and exited during startup.
  */
 function restrictWindowsDacl(filePath: string): void {
   if (process.platform !== 'win32') return;
   try {
     // /inheritance:r  → drop ACEs inherited from the parent directory
-    // /grant:r <SID>:F → replace grants with: current owner = full control
-    execFileSync('icacls', [filePath, '/inheritance:r', '/grant:r', '*S-1-3-4:F'], {
+    // /grant:r <SID>:F → replace grants with: this user = full control
+    execFileSync('icacls', windowsDaclArgs(filePath), {
       stdio: 'ignore',
       windowsHide: true,
     });
@@ -81,7 +115,7 @@ function restrictWindowsDacl(filePath: string): void {
 function restrictWindowsDaclAsync(filePath: string): Promise<void> {
   if (process.platform !== 'win32') return Promise.resolve();
   return new Promise<void>((resolve) => {
-    const child = spawn('icacls', [filePath, '/inheritance:r', '/grant:r', '*S-1-3-4:F'], {
+    const child = spawn('icacls', windowsDaclArgs(filePath), {
       stdio: 'ignore',
       windowsHide: true,
     });

@@ -247,6 +247,23 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
       // Permission, descriptor exhaustion, device and transient I/O failures
       // say nothing about the bytes. Preserve the source in place and fail
       // closed instead of mislabelling valid user data as corrupt.
+      const code = (error as NodeJS.ErrnoException)?.code;
+      if (process.platform === 'win32' && (code === 'EPERM' || code === 'EACCES')) {
+        // A file written by an elevated Wayland is owned by Administrators; a
+        // normal launch cannot read it and has no right to re-own it, so it
+        // cannot self-repair. Say what happened and how to fix it. index.ts
+        // shows this message for WAYLAND_STORAGE_ACCESS_DENIED.
+        throw Object.assign(
+          new Error(
+            `[Storage] Could not read storage without proving corruption: ${filePath}. ` +
+              `Windows denied this account access (${code}), which happens after Wayland was run as ` +
+              'administrator. To repair, run this in an administrator Command Prompt, then start Wayland: ' +
+              `icacls "${filePath}" /setowner "${process.env.USERNAME ?? '%USERNAME%'}"`,
+            { cause: error }
+          ),
+          { code: 'WAYLAND_STORAGE_ACCESS_DENIED' }
+        );
+      }
       throw new Error(`[Storage] Could not read storage without proving corruption: ${filePath}`, { cause: error });
     }
 

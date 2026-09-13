@@ -62,7 +62,7 @@ if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
 }
 
 import './process/utils/configureConsoleLog';
-import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen, session } from 'electron';
+import { app, BrowserWindow, dialog, nativeImage, net, powerMonitor, protocol, screen, session } from 'electron';
 import log from 'electron-log';
 import fixPath from 'fix-path';
 import * as fs from 'fs';
@@ -950,6 +950,11 @@ const handleAppReady = async (): Promise<void> => {
     mark('initializeProcess');
   } catch (error) {
     console.error('Failed to initialize process:', error);
+    // Otherwise the app exits with no window at all. This failure is one the
+    // user can repair (see initStorage loadSync), so tell them how.
+    if ((error as { code?: unknown } | null)?.code === 'WAYLAND_STORAGE_ACCESS_DENIED') {
+      dialog.showErrorBox('Wayland could not start', (error as Error).message);
+    }
     app.exit(1);
     return;
   }
