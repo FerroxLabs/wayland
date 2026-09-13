@@ -955,6 +955,16 @@ export function initUpdateBridge(): void {
 
   ipcBridge.autoUpdate.quitAndInstall.provider(async (params: { force?: boolean } | undefined): Promise<void> => {
     try {
+      // macOS: Squirrel.Mac refuses to update a bundle whose code seal is broken
+      // (e.g. OfficeCLI self-updated inside it), and the app would quit into an
+      // install that never happens. Verify (repairing OfficeCLI once) first; on
+      // failure tell the user and keep running. Gates both paths below.
+      const { checkBundleSealBeforeUpdate } = await import('../services/integrity/bundleIntegrity');
+      const seal = await checkBundleSealBeforeUpdate();
+      if (seal.ok === false) {
+        autoUpdaterService.reportDamagedBundle(seal.repairAttempted);
+        return;
+      }
       // "Install now anyway" bypasses the quiesce gate AND the drain, installing
       // immediately via the raw hard-exit — the one case the user explicitly
       // accepted an abrupt interruption (#651/#632 override).

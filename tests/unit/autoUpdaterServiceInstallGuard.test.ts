@@ -98,6 +98,29 @@ describe('autoUpdaterService install guard (#286)', () => {
     return broadcast.mock.calls.map((c) => c[0].status);
   }
 
+  // A broken code seal (OfficeCLI self-updated inside the bundle) made Squirrel.Mac
+  // refuse every update while the app quit into nothing.
+  it('damaged bundle: reports reinstall guidance and refuses the on-quit install', () => {
+    service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+    service.reportDamagedBundle(true);
+
+    expect(lastStatus()).toMatchObject({ status: 'install-failed', reason: 'damaged-bundle', version: '2.0.0' });
+    expect(lastStatus().error).toMatch(/tried to repair it automatically but could not/);
+    expect(lastStatus().error).toMatch(/Releases page/);
+    expect(service.installOnQuitIfReady()).toBe(false);
+    expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
+  });
+
+  it('a later passing seal check lets the staged update install on quit again', () => {
+    service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+    service.setBundleSealInvalid(true);
+    expect(service.installOnQuitIfReady()).toBe(false);
+
+    service.setBundleSealInvalid(false);
+    expect(service.installOnQuitIfReady()).toBe(true);
+    expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+  });
+
   it('writes a pending-install marker on quitAndInstall after a download', () => {
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
     service.quitAndInstall();

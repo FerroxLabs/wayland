@@ -195,6 +195,13 @@ class AutoUpdaterService extends EventEmitter {
    * "not yet asked".
    */
   private _windowsElevation: WindowsElevationCapability | null = null;
+  /**
+   * macOS: the running bundle failed `codesign --verify` (set by the startup
+   * integrity check and the pre-install gate). Squirrel.Mac refuses to update
+   * such a bundle, so a staged update is not applied on quit while this is set.
+   * Cleared when a later verify passes (e.g. the OfficeCLI repair succeeded).
+   */
+  private _bundleSealInvalid = false;
 
   constructor() {
     super();
@@ -537,6 +544,12 @@ class AutoUpdaterService extends EventEmitter {
       log.warn('[autoUpdater] Skipping on-quit install: update is not safely applicable (#575/#286 guard).');
       return false;
     }
+    if (this._bundleSealInvalid) {
+      log.warn(
+        '[autoUpdater] Skipping on-quit install: the app bundle code seal is invalid; Squirrel.Mac would refuse it.'
+      );
+      return false;
+    }
     // An on-quit apply is unattended by definition: the windows are gone and the
     // user has moved on. Handing elevate.exe a per-machine installer here would
     // raise a UAC credential prompt a standard account can never satisfy, so the
@@ -820,6 +833,35 @@ class AutoUpdaterService extends EventEmitter {
             : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
               `previous version). Please download and install it manually from the Releases page.`;
     this.broadcastStatus({ status: 'install-failed', reason, version, error: message });
+  }
+
+  /** Record the latest macOS bundle-seal verdict (see {@link _bundleSealInvalid}). */
+  setBundleSealInvalid(invalid: boolean): void {
+    if (invalid && !this._bundleSealInvalid) {
+      log.warn('[autoUpdater] App bundle code seal is invalid; updates will not be applied until it is reinstalled.');
+    }
+    this._bundleSealInvalid = invalid;
+  }
+
+  /**
+   * The install was refused because the bundle's code seal is broken. Squirrel.Mac
+   * would reject the update and the app would quit into nothing, so say what
+   * happened and what fixes it instead.
+   */
+  reportDamagedBundle(repairAttempted: boolean): void {
+    this.setBundleSealInvalid(true);
+    const version = this._lastDownloadedVersion ?? undefined;
+    const subject = version ? `Wayland ${version}` : 'The update';
+    const message =
+      `${subject} can't be installed because a file inside this copy of Wayland was changed after it was ` +
+      `installed, so its code signature no longer checks out and macOS refuses to update it. ` +
+      (repairAttempted ? 'Wayland tried to repair it automatically but could not. ' : '') +
+      `Download the latest Wayland from the Releases page and drag it into Applications to replace this copy; ` +
+      `updates will install normally again after that.`;
+    log.error(
+      `[autoUpdater] Update install refused: app bundle code seal invalid (repair attempted: ${repairAttempted}).`
+    );
+    this.broadcastStatus({ status: 'install-failed', reason: 'damaged-bundle', version, error: message });
   }
 
   /**
