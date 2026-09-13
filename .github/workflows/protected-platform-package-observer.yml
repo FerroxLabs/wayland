@@ -90,14 +90,14 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout pinned protected observer
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: release-trust-v1
           path: trust
           persist-credentials: false
 
       - name: Checkout exact candidate as data
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.candidate_commit }}
           path: candidate
@@ -115,7 +115,7 @@ jobs:
           test "$(git -C candidate rev-parse HEAD^{tree})" = "$EXPECTED_TREE"
           test -z "$(git -C candidate status --porcelain=v1 --untracked-files=all)"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -216,7 +216,7 @@ jobs:
             --candidate-state-digest "$CANDIDATE_STATE_DIGEST"
 
       - name: Upload untrusted native observation bytes
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: unsigned-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
           path: |
@@ -267,7 +267,7 @@ jobs:
             extension: deb
     steps:
       - name: Checkout pinned signing authority only
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: release-trust-v1
           path: trust
@@ -281,7 +281,7 @@ jobs:
           test -z "$(git -C trust status --porcelain=v1 --untracked-files=all)"
 
       - name: Download same-run untrusted observation bundle
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: unsigned-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
           path: payload
@@ -314,12 +314,12 @@ jobs:
             --out "payload/protected-platform-observation-$TARGET.json"
 
       - name: Attest protected observation receipt
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: payload/protected-platform-observation-${{ matrix.target }}.json
 
       - name: Upload exact signed observation bundle
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: protected-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
           path: |
