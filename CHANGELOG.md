@@ -4,6 +4,36 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-13
+
+One engine. Wayland Core and Wayland Nano are gone; Fuigo is the only engine bundled, and every chat, routine and scheduled job runs on it.
+
+### Changed
+
+- **Fuigo 1.0.16 is the only bundled engine.** Wayland Core and Wayland Nano are removed, along with the Core settings pane and the in-app engine updater. The engine ships per platform from npm, pinned by hash and verified before it starts. (#1367, #1372)
+- **Existing chats migrate on first launch.** Conversations, routines and scheduled jobs carry over and answer from Fuigo. Core chats whose transcript lived only in the engine journal open empty; those transcripts are not recoverable. (#1367)
+- **Fuigo chats run on FluxRouter or on your own keys.** Any connected Anthropic, OpenAI or OpenAI-compatible provider appears in the picker under "Your API keys" above the engine catalog. Keys never touch the engine config; each provider is handed to the engine as an environment variable at spawn. (#1373)
+- **Unattended routines are bounded by an engine run budget.** Routines and team runs stop after 200 model calls or 60 minutes and end the turn with a "Stopped by the run budget" message instead of an internal error. Interactive chats are not capped. (#1373)
+- **No kernel sandbox is applied to the engine.** Fuigo's workspace sandbox was measured and deliberately not wired: on macOS it blocks writes to the home directory and the npx cache, which breaks every npx-launched connector. Windows has no engine sandbox at all. (#1373)
+- **The engine runs inside a Wayland-owned home** with plugin discovery off, so it never dials MCP servers configured for other tools on the machine. Folder trust, unattended mode and per-prompt cost travel over ACP. (#1367)
+- **Skills load natively.** Workspace skills reach the engine directly, and the engine no longer scans the personal `~/.agents/skills` library into every session. (#1371, #1372)
+- **GPT Image 2.5 is the default image model.** The image ids the picker used to offer returned 403 from the router; they are remapped at boot so an old selection keeps working. (#1367)
+- **Bundled TVControl 2.5.1.** Windows npm-shim spawning and NT-prefixed scratch paths repaired; the masterclass TC-TIDE report workflow restored. (#1345, #1346)
+
+### Added
+
+- **Permission modes in plain language** for Fuigo chats: ask first, accept edits, plan, full auto, with a guarded default for unattended routines. (#1367)
+- **Sub-agent cards** show what a delegated agent is doing inside the turn, and **AskUserQuestion** renders as a card you answer in place. (#1367)
+- **Settings → Agents engine card** with the engine version, verified state and home directory. (#1367)
+- **Connector tool names are projected onto the engine's charset**, so Playwright, Google Workspace and hosted GitHub register every tool. (#1367)
+
+### Fixed
+
+- **First chat on a fresh profile no longer stalls.** The engine's prompt-offload read is allowed read-only, so a large system prompt no longer blocks the first reply. (#1371)
+- **TVControl was silently dropped from every Fuigo chat** on a machine with Claude Code installed. Wayland's own connectors share names with entries in `~/.claude.json`, and the engine's Claude-compat filter discarded them without a log line. The filter now sees an already-imported marker, so Wayland's five connectors register and the user's own Claude servers are still never dialled. (#1374)
+- **Custom ACP agents keep their launch args, env and model catalog** on first connection. (#1344)
+- **CI retries only the Azure signing client crash**, not every build failure, so a compile error still fails on the first attempt. (#1321)
+
 ## [0.12.16] - 2026-09-07
 
 ### Fixed
