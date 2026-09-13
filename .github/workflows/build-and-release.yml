@@ -91,7 +91,7 @@ jobs:
             echo "Preflight refused the release. Nothing was built." >&2
             exit 1
           fi
-          echo "Preflight passed: observers registered, trust root current, engine $core_tag complete."
+          echo "Preflight passed: observers registered, trust root current, engine fuigo $(node -p "require('./scripts/fuigo/authority.json').version") complete."
 
   build-pipeline:
     name: Build Pipeline
