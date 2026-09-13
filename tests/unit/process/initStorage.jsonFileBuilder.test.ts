@@ -121,7 +121,9 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
 
           expect(error?.code).toBe('WAYLAND_STORAGE_ACCESS_DENIED');
           expect(error?.message).toContain('without proving corruption');
-          expect(error?.message).toContain(`icacls "${filePath}" /setowner`);
+          expect(error?.message).toContain(`icacls "${filePath}" /grant "`);
+          // /setowner turns the OWNER RIGHTS ACE inherit-only and leaves the file unreadable.
+          expect(error?.message).not.toContain('/setowner');
           expect(await fs.readFile(filePath, 'utf8')).toBe(payload);
         }
       );
