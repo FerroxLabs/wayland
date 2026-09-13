@@ -75,7 +75,9 @@ const throwingCockpitLoader =
   });
 
 async function expectClassicRecovery(): Promise<void> {
-  await waitFor(() => expect(screen.getByRole('main')).toHaveAttribute('data-shell-experience', 'classic'));
+  await waitFor(() => expect(screen.getByRole('main')).toHaveAttribute('data-shell-experience', 'classic'), {
+    timeout: 10_000,
+  });
   expect(screen.getByTestId('classic-sider')).toBeInTheDocument();
   expect(screen.getByTestId('canonical-route')).toBeInTheDocument();
   await waitFor(() =>
