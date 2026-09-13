@@ -34,10 +34,20 @@ export function fuigoHomeDir(userDataDir: string): string {
  * switch for it, unlike the vendor-compat surfaces. Seen live on the ACP
  * stdio path: 9 worker spawns per session against the user's hosted Notion,
  * Supabase, Stripe, HF, Asana, Slack and Vercel connectors, each failing OAuth.
+ *
+ * `[claude_compat] imported = true` is Fuigo's "Claude import complete" marker.
+ * With it set, every `~/.claude.json` MCP loader returns empty, so Desktop can
+ * leave `FUIGO_CLAUDE_MCPS_ENABLED` ON (see `fuigoCompatIsolationEnv`) without
+ * Fuigo dialling the user's own Claude Code servers. Both halves are needed:
+ * the marker alone does not stop the kill-switch attribution described there,
+ * and the env switch alone re-imports every user server.
  */
 export const FUIGO_MANAGED_CONFIG = `# Managed by Wayland Desktop. Rewritten at every engine start; edits do not persist.
 [plugins]
 auto_discover = false
+
+[claude_compat]
+imported = true
 `;
 
 /**
@@ -233,6 +243,18 @@ export function fuigoCompatIsolationEnv(): Record<string, string> {
   // 1.0.14/1.0.15 (every session listed the user's ~200 personal skills on top
   // of the workspace ones); 1.0.16 gates it behind this cell (fuigo#16).
   env.FUIGO_AGENTS_SKILLS_ENABLED = '0';
+  // CLAUDE/MCPS stays ON, on purpose. With the switch OFF, Fuigo's
+  // `admit_client_mcp_servers` treats every name in the user's `~/.claude.json`
+  // as a "Claude-sourced" server and silently drops any client-forwarded stdio
+  // server with the same name — and Wayland's own Library publication writes
+  // its connectors into `~/.claude.json` (`com-ferroxlabs-tvcontrol`, ...).
+  // Net effect on 1.0.15/1.0.16: TVControl vanished from every Fuigo session
+  // on a machine with Claude Code installed, with no log line. The managed
+  // `[claude_compat] imported = true` marker (FUIGO_MANAGED_CONFIG) is what
+  // keeps the user's servers out when this is ON. Measured on the staged
+  // binary: OFF -> 4 of Desktop's 5 servers admitted; ON without marker -> 8
+  // (user's github/supabase/dev servers dialled); ON + marker -> exactly 5.
+  env.FUIGO_CLAUDE_MCPS_ENABLED = '1';
   return env;
 }
 
