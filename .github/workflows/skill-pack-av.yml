@@ -40,7 +40,7 @@ jobs:
     name: Structural gate (no loose .md, byte-exact round-trip)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -69,7 +69,7 @@ jobs:
     # Advisory only — AV verdicts are non-deterministic. Never blocks the merge.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest

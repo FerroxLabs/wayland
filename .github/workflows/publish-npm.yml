@@ -39,12 +39,12 @@ jobs:
       # `ref` comes from a write-access maintainer via workflow_dispatch (not
       # untrusted external input). It only selects which commit to publish.
       - name: Checkout the ref to publish
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
@@ -89,7 +89,7 @@ jobs:
       # convention; tests/unit/scripts/waylandmcpSourcePin.test.ts holds the four
       # copies byte-identical so they cannot drift apart.
       - name: Checkout @wayland MCP connector sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: FerroxLabs/waylandmcp
           ref: ${{ env.WAYLANDMCP_REF }}
