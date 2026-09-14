@@ -20,6 +20,32 @@ function sameDeclarationRevision(expected: IMcpServer | undefined, actual: IMcpS
     : actual !== undefined && actual.id === expected.id && actual.updatedAt === expected.updatedAt;
 }
 
+/** Fields a standalone probe writes. None of them is part of what gets published. */
+const PROBE_STATUS_FIELDS: ReadonlySet<string> = new Set([
+  'status',
+  'tools',
+  'lastConnected',
+  'lastError',
+  'updatedAt',
+]);
+
+/**
+ * True when `current` differs from `published` only by probe status. A probe
+ * that lands while a publication is in flight (the install probe, a background
+ * status refresh) bumps the revision without editing the declaration, so it is
+ * not a reason to revoke the publication (#1375).
+ */
+function onlyProbeStatusChanged(published: IMcpServer, current: IMcpServer): boolean {
+  const keys = new Set([...Object.keys(published), ...Object.keys(current)]);
+  for (const key of keys) {
+    if (PROBE_STATUS_FIELDS.has(key)) continue;
+    const before = published[key as keyof IMcpServer];
+    const after = current[key as keyof IMcpServer];
+    if (before !== after && JSON.stringify(before) !== JSON.stringify(after)) return false;
+  }
+  return true;
+}
+
 function newMcpServerId(): string {
   return `mcp_${globalThis.crypto.randomUUID()}`;
 }
@@ -373,13 +399,30 @@ export const useMcpServerCRUD = (
           await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
         }
 
-        let committed = false;
+        let committed: IMcpServer | undefined;
         await saveMcpServers((prevServers) => {
-          committed = false;
+          committed = undefined;
           return prevServers.map((server) => {
-            if (server.id !== serverId || server.updatedAt !== targetServer.updatedAt) return server;
-            committed = true;
-            return updatedTargetServer;
+            if (server.id !== serverId) return server;
+            if (server.updatedAt === targetServer.updatedAt) {
+              committed = updatedTargetServer;
+              return updatedTargetServer;
+            }
+            // Publishing to every agent can take 20-40 s. A probe that wrote
+            // status in the meantime did not change what was published: retry
+            // the commit on top of that newer status instead of revoking the
+            // publication the user just asked for (#1375). Any other change
+            // (an edit, a concurrent toggle) still loses and rolls back below.
+            if (!onlyProbeStatusChanged(targetServer, server)) return server;
+            committed = {
+              ...server,
+              enabled,
+              updatedAt: nextMcpRevision(server.updatedAt),
+              ...(enabled && server.lastError?.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
+                ? { status: 'disconnected' as const, lastError: undefined }
+                : {}),
+            };
+            return committed;
           });
         });
         if (!committed) throw new Error('MCP declaration changed while publication was in progress');
@@ -396,10 +439,10 @@ export const useMcpServerCRUD = (
             return updated;
           });
         }
-        // The exact declaration revision published to the adapters is the
-        // reconnect receipt. Callers must probe this object rather than infer a
-        // revision from a later storage read that may already be superseded.
-        return updatedTargetServer;
+        // The exact committed declaration revision is the reconnect receipt.
+        // Callers must probe this object rather than infer a revision from a
+        // later storage read that may already be superseded.
+        return committed;
       } catch (error) {
         if (externalMutationAttempted) {
           try {

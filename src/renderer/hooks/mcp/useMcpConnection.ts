@@ -7,6 +7,13 @@ import type { McpConnectionTestResult, McpPrepublicationTruth } from '@process/s
 import { globalMessageQueue } from './messageQueue';
 
 export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
+/**
+ * A connector that answered a probe this recently is not revoked by a failed
+ * probe: right after an install the main process is busy publishing to every
+ * agent and a probe can fail for reasons that say nothing about the server
+ * (#1375). The failure is still recorded and shown.
+ */
+export const MCP_PUBLICATION_GRACE_MS = 2 * 60 * 1000;
 const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
 export const MCP_PUBLICATION_DIVERGENCE_MARKER = 'publication rollback incomplete';
 const MCP_ERROR_MAX_LENGTH = 150;
@@ -157,7 +164,11 @@ export const useMcpConnection = (
       // explicit reconnect path must first republish the declaration and pass
       // the exact committed revision back here.
       if (hasPublicationDivergence(server)) return;
-      const preserveEnabled = options?.preserveEnabled === true;
+      const inPublicationGrace =
+        server.enabled === true &&
+        typeof server.lastConnected === 'number' &&
+        Date.now() - server.lastConnected <= MCP_PUBLICATION_GRACE_MS;
+      const preserveEnabled = options?.preserveEnabled === true || inPublicationGrace;
 
       setTestingServers((prev) => ({ ...prev, [server.id]: true }));
 
@@ -404,7 +415,14 @@ export const useMcpConnection = (
         // clears the renderer's in-flight indicator.
         if ((await updateServerStatus('testing', undefined, true)).outcome !== 'applied') return;
 
-        const response = await mcpService.testMcpConnection.invoke(server);
+        let response = await mcpService.testMcpConnection.invoke(server);
+        // A failed probe on a published connector revokes it. Probe once more
+        // before acting on that: one transient failure must not flip a
+        // publication off (#1375).
+        const answered = response.success && (response.data?.success === true || response.data?.needsAuth === true);
+        if (!answered && server.enabled && !preserveEnabled) {
+          response = await mcpService.testMcpConnection.invoke(server);
+        }
 
         if (response.success && response.data) {
           const result = response.data;
