@@ -2,7 +2,6 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import {
   buildFuigoAcpArgs,
-  buildFuigoManagedConfig,
   buildFuigoSessionMetadata,
   ensureFuigoHome,
   fuigoBudgetEnv,
@@ -10,7 +9,7 @@ import {
   fuigoHomeDir,
   fuigoPluginDirs,
 } from '@process/agent/fuigo/launch';
-import { readFuigoByokProviders } from '@process/agent/fuigo/byok';
+import { fuigoByokSpawnPlan, readFuigoByokProviders } from '@process/agent/fuigo/byok';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { resolveTurnOutputDirective } from '@process/services/artifacts/outputDirective';
 import type { UserQuestionUIData } from '@process/acp/session/userQuestion';
@@ -1014,13 +1013,15 @@ ${collectedResponses.join('\n')}`;
       // One home for every conversation (memory, MCP config, trust grants and
       // the model cache carry across chats); Fuigo keys sessions by cwd.
       mergedEnv.FUIGO_HOME = fuigoHomeDir(app.getPath('userData'));
-      // The user's own Anthropic / OpenAI / OpenAI-compatible providers become
-      // `[model.byok/…]` entries in the managed config; each key rides its
-      // own env var on this spawn and is never written to disk.
+      // The user's own providers become `[model.byok/…]` entries in the managed
+      // config; each key (a keyless local server's placeholder included) rides
+      // its own env var on this spawn and is never written to disk. With no
+      // Flux key, the first of them is the engine's default model.
       const byok = await readFuigoByokProviders();
-      ensureFuigoHome(mergedEnv.FUIGO_HOME, buildFuigoManagedConfig(byok.flatMap((p) => p.entries)));
-      for (const p of byok) mergedEnv[p.envKey] = p.apiKey;
       const key = await this.readFluxKey();
+      const plan = fuigoByokSpawnPlan(byok, { fluxKey: Boolean(key) });
+      ensureFuigoHome(mergedEnv.FUIGO_HOME, plan.config);
+      Object.assign(mergedEnv, plan.env);
       if (key) mergedEnv.FUIGO_API_KEY = key;
       mergedEnv.FUIGO_MANAGED_BY_NPM = '1';
       // Engine-side hard stop for unattended runs only (see fuigoBudgetEnv).

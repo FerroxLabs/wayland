@@ -76,6 +76,8 @@ export type FuigoByokModelEntry = {
   apiBackend: 'chat_completions' | 'messages';
   /** Env var carrying the key. */
   envKey: string;
+  /** Request header → env var carrying its value (Azure's `api-key`); `env_http_headers`, never on disk. */
+  envHttpHeaders?: Record<string, string>;
   contextWindow?: number;
 };
 
@@ -89,9 +91,17 @@ function tomlString(value: string): string {
   })}"`;
 }
 
-/** The managed config plus one `[model.<id>]` block per BYOK entry. */
-export function buildFuigoManagedConfig(entries: readonly FuigoByokModelEntry[] = []): string {
+/**
+ * The managed config plus one `[model.<id>]` block per BYOK entry, and
+ * `[models] default` when the caller names one (Fuigo reports it as the
+ * session's `currentModelId` on `session/new`).
+ */
+export function buildFuigoManagedConfig(
+  entries: readonly FuigoByokModelEntry[] = [],
+  opts: { defaultModel?: string } = {}
+): string {
   let out = FUIGO_MANAGED_CONFIG;
+  if (opts.defaultModel) out += `\n[models]\ndefault = ${tomlString(opts.defaultModel)}\n`;
   for (const e of entries) {
     out += `\n[model.${tomlString(e.id)}]\n`;
     out += `model = ${tomlString(e.model)}\n`;
@@ -102,6 +112,10 @@ export function buildFuigoManagedConfig(entries: readonly FuigoByokModelEntry[] 
     if (e.apiBackend === 'messages') {
       out += `auth_scheme = "x_api_key"\n`;
       out += `extra_headers = { "anthropic-version" = "2023-06-01" }\n`;
+    }
+    const headers = Object.entries(e.envHttpHeaders ?? {});
+    if (headers.length > 0) {
+      out += `env_http_headers = { ${headers.map(([h, v]) => `${tomlString(h)} = ${tomlString(v)}`).join(', ')} }\n`;
     }
     if (typeof e.contextWindow === 'number' && Number.isInteger(e.contextWindow) && e.contextWindow > 0) {
       out += `context_window = ${e.contextWindow}\n`;
