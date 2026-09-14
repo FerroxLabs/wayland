@@ -2648,6 +2648,43 @@ const migration_v59: IMigration = {
 };
 
 /**
+ * Migration v59 -> v60: remove the plaintext provider credentials ACP
+ * conversation rows carried in `conversations.model`.
+ *
+ * Wayland Core stored the whole provider row a chat ran on in `model` - the
+ * Flux Router row, `apiKey` included, in plain text. v59 turned those rows into
+ * ACP/Fuigo conversations and kept the column as it was. No ACP runtime reads
+ * it: `rowToConversation` hands `model` back for Gemini rows only, and Fuigo
+ * resolves its key from the encrypted provider store at spawn. So the snapshot
+ * is dead weight whose only effect was a key sitting in the local database.
+ * Clearing the whole column (not just `$.apiKey`) also covers every other
+ * credential shape a provider row can carry (`bedrockConfig` access keys).
+ *
+ * Gemini rows are left alone: the Gemini runtime reads its key from that column.
+ *
+ * Idempotent: a second run matches no row. A database without the table (a
+ * partial fixture) is skipped.
+ */
+const migration_v60: IMigration = {
+  version: 60,
+  name: 'Clear plaintext provider credentials from ACP conversation rows',
+  up: (db) => {
+    // `get` is `undefined` on better-sqlite3/node:sqlite and `null` on bun:sqlite for no row.
+    const hasConversations =
+      db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'conversations'").get() != null;
+    if (!hasConversations) {
+      console.log('[Migration v60] No conversations table - nothing to clear');
+      return;
+    }
+    const result = db.prepare("UPDATE conversations SET model = NULL WHERE type = 'acp' AND model IS NOT NULL").run();
+    console.log(`[Migration v60] Cleared the provider snapshot from ${result.changes} ACP conversation row(s)`);
+  },
+  down: (_db) => {
+    console.log('[Migration v60] No rollback - removed credentials are not restored');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2662,7 +2699,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
   migration_v53, migration_v54, migration_v55, migration_v56, migration_v57, migration_v58,
-  migration_v59,
+  migration_v59, migration_v60,
 ];
 
 /**

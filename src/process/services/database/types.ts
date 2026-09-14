@@ -127,6 +127,12 @@ export interface IConfigRow {
 
 /**
  * Convert TChatConversation to database row
+ *
+ * An ACP row never persists `model`. Only Gemini reads the column back
+ * (`rowToConversation`); for an ACP conversation it is a provider snapshot whose
+ * `apiKey` would sit in the local database in plain text (migrated Core rows
+ * did, until v60). ACP engines resolve credentials from the encrypted provider
+ * store at spawn.
  */
 export function conversationToRow(conversation: TChatConversation, userId: string): IConversationRow {
   return {
@@ -135,7 +141,7 @@ export function conversationToRow(conversation: TChatConversation, userId: strin
     name: conversation.name,
     type: conversation.type,
     extra: JSON.stringify(conversation.extra),
-    model: 'model' in conversation ? JSON.stringify(conversation.model) : undefined,
+    model: conversation.type !== 'acp' && 'model' in conversation ? JSON.stringify(conversation.model) : undefined,
     status: conversation.status,
     source: conversation.source,
     channel_chat_id: conversation.channelChatId,
