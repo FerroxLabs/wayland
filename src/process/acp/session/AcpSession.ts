@@ -43,7 +43,10 @@ import type {
 import * as fs from 'node:fs';
 
 export type SessionOptions = {
+  /** Idle limit: silence with no tool call in flight. */
   promptTimeoutMs?: number;
+  /** Ceiling for ONE tool call (default `DEFAULT_TOOL_CALL_TIMEOUT_MS`, 30 min). */
+  toolCallTimeoutMs?: number;
   maxStartRetries?: number;
   maxResumeRetries?: number;
   metrics?: AcpMetrics;
@@ -290,7 +293,9 @@ export class AcpSession {
         setStatus: (s) => this.setStatus(s),
         enterError: (msg) => this.enterError(msg),
       },
-      options?.promptTimeoutMs ?? 300_000
+      options?.promptTimeoutMs ?? 300_000,
+      {},
+      options?.toolCallTimeoutMs
     );
   }
 
@@ -529,6 +534,7 @@ export class AcpSession {
     if (this.subagents.isChildSession(notification.sessionId)) {
       this.promptExecutor.resetTimer();
       if (isToolActivity) this.promptExecutor.noteToolActivity();
+      this.trackToolCall(notification);
       const card = this.subagents.onChildUpdate(notification);
       if (card) this.callbacks.onMessage(card);
       return;
@@ -577,11 +583,18 @@ export class AcpSession {
     if (isToolActivity) {
       this.promptExecutor.noteToolActivity();
     }
+    // An in-flight tool call is progress: it suspends the idle timer (see trackToolCall).
+    this.trackToolCall(notification);
 
     const messages = this.messageTranslator.translate(notification);
     for (const msg of messages) {
       this.callbacks.onMessage(msg);
     }
+  }
+
+  private trackToolCall({ sessionId, update }: SessionNotification): void {
+    if (update.sessionUpdate !== 'tool_call' && update.sessionUpdate !== 'tool_call_update') return;
+    this.promptExecutor.trackToolCall(`${sessionId}:${update.toolCallId}`, update.title, update.status);
   }
 
   private handleExtNotification(method: string, params: unknown): void {

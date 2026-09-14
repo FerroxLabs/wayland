@@ -11,10 +11,12 @@ import { getMcpSessionReceiptForServer } from '@/common/mcp/sessionReceipt';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { IMcpServer } from '@/common/config/storage';
+import type { SessionOptions } from '@process/acp/session/AcpSession';
 
 // Mock dependencies
 let capturedCallbacks: SessionCallbacks;
 let capturedAgentConfig: AgentConfig;
+let capturedSessionOptions: SessionOptions | undefined;
 let mockSessionMethods: {
   start: ReturnType<typeof vi.fn>;
   stop: ReturnType<typeof vi.fn>;
@@ -29,9 +31,10 @@ let mockSessionMethods: {
 
 vi.mock('@process/acp/session/AcpSession', () => ({
   AcpSession: class MockAcpSession {
-    constructor(config: AgentConfig, _factory: unknown, callbacks: SessionCallbacks) {
+    constructor(config: AgentConfig, _factory: unknown, callbacks: SessionCallbacks, options?: SessionOptions) {
       capturedAgentConfig = config;
       capturedCallbacks = callbacks;
+      capturedSessionOptions = options;
     }
 
     start = mockSessionMethods.start;
@@ -1451,5 +1454,78 @@ describe('AcpAgentV2 - live receipt-bound MCP publication (Tavily/Firecrawl/n8n/
     expect(projection.servers.map((s) => s.name).toSorted()).toEqual(['firecrawl', 'tavily']);
     expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'beeper'))).toBeUndefined();
     expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'n8n'))).toBeUndefined();
+  });
+});
+
+describe('AcpAgentV2 - a timeout that stops the turn', () => {
+  let getSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    mockSessionMethods = {
+      start: vi.fn(() => {
+        setTimeout(() => capturedCallbacks.onStatusChange('active'), 0);
+      }),
+      stop: vi.fn().mockResolvedValue(undefined),
+      cancelPrompt: vi.fn(),
+      sendMessage: vi.fn(),
+      confirmPermission: vi.fn(),
+      setModel: vi.fn(),
+      setMode: vi.fn(),
+      setConfigOption: vi.fn(),
+      getConfigOptions: vi.fn().mockReturnValue([]),
+    };
+    getSpy = vi.spyOn(ProcessConfig, 'get').mockResolvedValue(undefined as never);
+  });
+
+  afterEach(() => {
+    getSpy.mockRestore();
+  });
+
+  function createAgent() {
+    const onStreamEvent = vi.fn();
+    const onSignalEvent = vi.fn();
+    const agent = new AcpAgentV2({
+      id: 'conv-96b5c811',
+      backend: 'fuigo',
+      workingDir: '/workspace/test',
+      onStreamEvent,
+      onSignalEvent,
+    } as OldAcpAgentConfig);
+    return { agent, onStreamEvent, onSignalEvent };
+  }
+
+  it('persists the stop reason as an in-thread warning, not an error banner', async () => {
+    const { agent, onStreamEvent, onSignalEvent } = createAgent();
+    await agent.start();
+    onStreamEvent.mockClear();
+    onSignalEvent.mockClear();
+
+    capturedCallbacks.onSignal({ type: 'turn_stopped', message: 'Stopped: batch_run ran longer than 30 minutes' });
+
+    // A `tips` STREAM frame is what AcpAgentManager.handleStreamEvent stores; a
+    // signal-path `error` frame is only emitted, so the reopened chat lost it.
+    expect(onStreamEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'tips',
+        conversation_id: 'conv-96b5c811',
+        msg_id: expect.stringMatching(/^turn_stopped_/),
+        data: { content: 'Stopped: batch_run ran longer than 30 minutes', type: 'warning' },
+      })
+    );
+    expect(onSignalEvent).not.toHaveBeenCalled();
+  });
+
+  it('passes acp.toolCallTimeout (seconds) to the session as the tool-call ceiling', async () => {
+    getSpy.mockImplementation((async (key: string) => (key === 'acp.toolCallTimeout' ? 3600 : undefined)) as never);
+    const { agent } = createAgent();
+    await agent.start();
+    expect(capturedSessionOptions?.toolCallTimeoutMs).toBe(3_600_000);
+  });
+
+  it('leaves the ceiling to the session default when acp.toolCallTimeout is unset', async () => {
+    const { agent } = createAgent();
+    await agent.start();
+    expect(capturedSessionOptions?.promptTimeoutMs).toBe(300_000);
+    expect(capturedSessionOptions?.toolCallTimeoutMs).toBeUndefined();
   });
 });

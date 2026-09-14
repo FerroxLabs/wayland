@@ -127,6 +127,11 @@ export interface IConfigStorageRefer {
   };
   /** Global LLM prompt timeout in seconds (default: 300). Per-backend promptTimeout overrides this. */
   'acp.promptTimeout'?: number;
+  /**
+   * Ceiling in seconds for ONE tool call (default: 1800). While a tool call is in
+   * flight the prompt timeout above does not run; this bounds a tool that never returns.
+   */
+  'acp.toolCallTimeout'?: number;
   /** Idle timeout in minutes before an ACP agent process is killed to reclaim memory (default: 5). */
   'acp.agentIdleTimeout'?: number;
   /** User-defined custom ACP agents (isPreset !== true, require defaultCliPath). */
