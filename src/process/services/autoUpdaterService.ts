@@ -157,6 +157,41 @@ export interface AutoUpdaterEvents {
   'update-status': (status: AutoUpdateStatus) => void;
 }
 
+/**
+ * How long an install may keep the process alive while Squirrel.Mac takes the
+ * update. Squirrel re-reads the whole zip from electron-updater's loopback proxy,
+ * unpacks it and verifies its code signature before a quit can install it, and
+ * for a ~500 MB bundle none of that is instant. Bounded so a wedged Squirrel can
+ * never hold a quit open forever.
+ */
+export const SQUIRREL_HANDOFF_TIMEOUT_MS = 5 * 60_000;
+
+/**
+ * How long to wait, once Squirrel.Mac holds the update, for it to ask the app to
+ * quit. It writes the ShipIt request that relaunches the app first, so exiting
+ * earlier can lose the relaunch.
+ */
+export const SQUIRREL_RELAUNCH_TIMEOUT_MS = 15_000;
+
+/**
+ * The electron-updater MacUpdater internals the macOS install path depends on
+ * (electron-updater 6.8.x, pinned by tests/unit/autoUpdaterServiceSquirrelHandoff.test.ts).
+ * `nativeUpdater` is Electron's Squirrel.Mac autoUpdater, fed from MacUpdater's
+ * loopback proxy; `squirrelDownloadedUpdate` flips when Squirrel holds the update,
+ * and is exactly what MacUpdater.quitAndInstall() branches on.
+ */
+type MacUpdaterInternals = {
+  squirrelDownloadedUpdate?: boolean;
+  nativeUpdater?: {
+    on(event: 'update-downloaded' | 'update-not-available' | 'error', listener: (...args: unknown[]) => void): unknown;
+    removeListener(
+      event: 'update-downloaded' | 'update-not-available' | 'error',
+      listener: (...args: unknown[]) => void
+    ): unknown;
+    checkForUpdates(): void;
+  };
+};
+
 class AutoUpdaterService extends EventEmitter {
   private _isInitialized = false;
   private _eventHandlersSetup = false;
@@ -195,6 +230,11 @@ class AutoUpdaterService extends EventEmitter {
    * "not yet asked".
    */
   private _windowsElevation: WindowsElevationCapability | null = null;
+  /**
+   * The in-flight macOS hand-off of the downloaded update to Squirrel.Mac, shared
+   * so an Install click followed by Cmd+Q asks Squirrel once. Null when idle.
+   */
+  private _squirrelHandoff: Promise<string | null> | null = null;
 
   constructor() {
     super();
@@ -273,6 +313,7 @@ class AutoUpdaterService extends EventEmitter {
     this._failedInstallVersion = null;
     this._installOnQuitBlocked = false;
     this._windowsElevation = null;
+    this._squirrelHandoff = null;
     // Remove listeners from this EventEmitter instance
     this.removeAllListeners();
     // Remove each registered handler from autoUpdater to prevent
@@ -488,8 +529,12 @@ class AutoUpdaterService extends EventEmitter {
     }
   }
 
-  quitAndInstall(): void {
+  async quitAndInstall(): Promise<void> {
     log.info('Quitting and installing update...');
+    // macOS: the force-exit below would kill Squirrel.Mac before it holds the
+    // update, so nothing would install. Wait for it; on failure prepareInstall()
+    // has already told the user, and the app stays running.
+    if (!(await this.prepareInstall())) return;
     // Persist a pending-install marker BEFORE handing off to Squirrel/ShipIt, so
     // the next launch can detect a silent apply failure (downloaded + attempted
     // but the version never advanced) and surface it instead of looping (#286).
@@ -499,10 +544,39 @@ class AutoUpdaterService extends EventEmitter {
     // behavior + close-to-tray). This leaves the process alive and Squirrel
     // cannot finish replacing the app bundle. Force-exit after a short delay
     // to let Squirrel receive the install signal.
+    const relaunchRequested = this.awaitSquirrelRelaunchRequest();
     autoUpdater.quitAndInstall(true, true);
+    await relaunchRequested;
     setTimeout(() => {
       app.exit(0);
     }, 1000);
+  }
+
+  /**
+   * Make sure quitting now will actually install the downloaded update.
+   *
+   * Only macOS does real work here. electron-updater keeps the zip in its own
+   * cache and serves it to Squirrel.Mac over a loopback proxy, and because
+   * autoInstallOnAppQuit is false it never asks Squirrel to take it at download
+   * time — only at install time. Squirrel must then re-read, unpack and verify
+   * the whole bundle before a quit installs anything, so an install that lets
+   * the process exit straight away kills that transfer and ShipIt never runs.
+   * This waits (bounded) until Squirrel holds the update.
+   *
+   * On failure it broadcasts install-failed with Squirrel's reason and returns
+   * false, so the caller keeps the app running rather than quitting into an
+   * install that will never happen.
+   *
+   * @returns true when quitting now will install the update.
+   */
+  async prepareInstall(): Promise<boolean> {
+    const version = this._lastDownloadedVersion;
+    if (process.platform !== 'darwin' || !version) return true;
+    const failure = await this.handOffToSquirrel(version);
+    if (failure === null) return true;
+    log.error(`[autoUpdater] Squirrel.Mac did not take update ${version}: ${failure}. Keeping the app running.`);
+    this.broadcastInstallFailed('silent-noop', version, failure);
+    return false;
   }
 
   /**
@@ -527,10 +601,14 @@ class AutoUpdaterService extends EventEmitter {
    * _installOnQuitBlocked set so we never hand ShipIt a doomed bundle and
    * re-arm the #575/#286 relaunch loop.
    *
+   * On macOS it resolves only once Squirrel.Mac holds the update and has asked
+   * to relaunch (both bounded), because the caller quits the moment it resolves.
+   *
    * @returns true if an install was triggered.
    */
-  installOnQuitIfReady(): boolean {
-    if (!this._lastDownloadedVersion) {
+  async installOnQuitIfReady(): Promise<boolean> {
+    const version = this._lastDownloadedVersion;
+    if (!version) {
       return false; // nothing staged to install
     }
     if (this._installOnQuitBlocked) {
@@ -546,16 +624,114 @@ class AutoUpdaterService extends EventEmitter {
       log.warn('[autoUpdater] Skipping on-quit install: this account cannot complete the Windows elevation (#492).');
       return false;
     }
-    log.info(`[autoUpdater] Applying staged update ${this._lastDownloadedVersion} on quit (post-cleanup).`);
+    log.info(`[autoUpdater] Applying staged update ${version} on quit (post-cleanup).`);
     // Persist the pending-install marker so the next launch can verify the apply
-    // actually advanced the version (#286), same as the manual path.
+    // actually advanced the version (#286), same as the manual path. Written
+    // before the Squirrel wait so a failure below is still reported next launch.
     this.writePendingInstallMarker();
+    if (process.platform === 'darwin') {
+      // Squirrel.Mac may still have to fetch, unpack and verify the update, and
+      // the before-quit drain has already stopped the app's work. Hide it so a
+      // Cmd+Q doesn't leave a dead window on screen meanwhile.
+      app.hide();
+      const failure = await this.handOffToSquirrel(version);
+      if (failure !== null) {
+        log.error(
+          `[autoUpdater] Squirrel.Mac did not take update ${version} before quit: ${failure}. ` +
+            'Quitting without installing; the next launch reports the failed install (#286).'
+        );
+        return false;
+      }
+    }
     // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
     // the "Install and restart" button's promise and the pre-#651 behavior. We
     // omit the force-exit timer (unlike the manual quitAndInstall) because the
     // caller is already inside the quit sequence.
+    const relaunchRequested = this.awaitSquirrelRelaunchRequest();
     autoUpdater.quitAndInstall(true, true);
+    await relaunchRequested;
     return true;
+  }
+
+  /**
+   * macOS: ask Squirrel.Mac to take the update electron-updater downloaded, and
+   * resolve once it holds it — its native `update-downloaded`, the same event
+   * that flips MacUpdater.squirrelDownloadedUpdate. Resolves null on success, or
+   * the reason it failed: a Squirrel error, Squirrel finding no update, or the
+   * {@link SQUIRREL_HANDOFF_TIMEOUT_MS} limit. Never rejects. Concurrent callers
+   * share one hand-off.
+   */
+  private handOffToSquirrel(version: string): Promise<string | null> {
+    const mac = autoUpdater as unknown as MacUpdaterInternals;
+    if (mac.squirrelDownloadedUpdate) return Promise.resolve(null);
+    if (this._squirrelHandoff) return this._squirrelHandoff;
+    const native = mac.nativeUpdater;
+    if (!native) return Promise.resolve('electron-updater did not expose its Squirrel.Mac updater');
+
+    let settle!: (failure: string | null) => void;
+    const handoff = new Promise<string | null>((resolve) => {
+      settle = resolve;
+    });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (failure: string | null): void => {
+      clearTimeout(timer);
+      native.removeListener('update-downloaded', onDownloaded);
+      native.removeListener('update-not-available', onNotAvailable);
+      native.removeListener('error', onError);
+      if (this._squirrelHandoff === handoff) this._squirrelHandoff = null;
+      settle(failure);
+    };
+    const onDownloaded = (): void => finish(null);
+    const onNotAvailable = (): void => finish('Squirrel.Mac found no update to install');
+    const onError = (error: unknown): void => finish(error instanceof Error ? error.message : String(error));
+
+    this._squirrelHandoff = handoff;
+    native.on('update-downloaded', onDownloaded);
+    native.on('update-not-available', onNotAvailable);
+    native.on('error', onError);
+    timer = setTimeout(
+      () => finish(`Squirrel.Mac did not finish preparing the update within ${SQUIRREL_HANDOFF_TIMEOUT_MS / 1000}s`),
+      SQUIRREL_HANDOFF_TIMEOUT_MS
+    );
+    log.info(`[autoUpdater] Handing update ${version} to Squirrel.Mac; not quitting until it holds the update.`);
+    try {
+      native.checkForUpdates();
+    } catch (error) {
+      onError(error);
+    }
+    return handoff;
+  }
+
+  /**
+   * macOS: once Squirrel.Mac holds the update, MacUpdater.quitAndInstall() calls
+   * Electron's native quitAndInstall, which closes the windows, writes the ShipIt
+   * request that relaunches the app after installing, and only then asks the app
+   * to terminate — arriving as `before-quit`. Quitting before that request is
+   * written can lose the relaunch, so resolve on that `before-quit`, a native
+   * error, or {@link SQUIRREL_RELAUNCH_TIMEOUT_MS}. Arm it BEFORE calling
+   * quitAndInstall. Resolves immediately on other platforms.
+   */
+  private awaitSquirrelRelaunchRequest(): Promise<void> {
+    if (process.platform !== 'darwin') return Promise.resolve();
+    const native = (autoUpdater as unknown as MacUpdaterInternals).nativeUpdater;
+    return new Promise<void>((resolve) => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const done = (): void => {
+        clearTimeout(timer);
+        app.removeListener('before-quit', done);
+        native?.removeListener('error', done);
+        resolve();
+      };
+      app.on('before-quit', done);
+      native?.on('error', done);
+      timer = setTimeout(() => {
+        log.warn(
+          `[autoUpdater] Squirrel.Mac did not ask to quit within ${SQUIRREL_RELAUNCH_TIMEOUT_MS / 1000}s ` +
+            'of taking the update; quitting anyway.'
+        );
+        done();
+      }, SQUIRREL_RELAUNCH_TIMEOUT_MS);
+    });
   }
 
   /**
@@ -791,7 +967,7 @@ class AutoUpdaterService extends EventEmitter {
    * electron-updater error messages are already surfaced) so no new UI strings
    * are required for this defensive path.
    */
-  private broadcastInstallFailed(reason: AutoUpdateInstallFailedReason, version?: string): void {
+  private broadcastInstallFailed(reason: AutoUpdateInstallFailedReason, version?: string, detail?: string): void {
     const subject = version ? `Wayland ${version}` : 'The update';
     const message =
       reason === 'needs-admin'
@@ -819,7 +995,12 @@ class AutoUpdaterService extends EventEmitter {
               `when it appears.`
             : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
               `previous version). Please download and install it manually from the Releases page.`;
-    this.broadcastStatus({ status: 'install-failed', reason, version, error: message });
+    this.broadcastStatus({
+      status: 'install-failed',
+      reason,
+      version,
+      error: detail ? `${message} (macOS updater: ${detail})` : message,
+    });
   }
 
   /**

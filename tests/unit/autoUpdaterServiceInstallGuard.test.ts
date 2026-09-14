@@ -16,15 +16,19 @@ import * as path from 'node:path';
 
 let userDataDir: string;
 
-vi.mock('electron', () => ({
-  app: {
-    getVersion: vi.fn(() => '1.0.0'),
-    getPath: vi.fn(() => userDataDir),
-    isInApplicationsFolder: vi.fn(() => true),
-    isPackaged: true,
-    exit: vi.fn(),
-  },
-}));
+vi.mock('electron', async () => {
+  const { EventEmitter } = await import('node:events');
+  return {
+    app: Object.assign(new EventEmitter(), {
+      getVersion: vi.fn(() => '1.0.0'),
+      getPath: vi.fn(() => userDataDir),
+      isInApplicationsFolder: vi.fn(() => true),
+      isPackaged: true,
+      exit: vi.fn(),
+      hide: vi.fn(),
+    }),
+  };
+});
 
 vi.mock('electron-updater', () => ({
   autoUpdater: {
@@ -41,8 +45,13 @@ vi.mock('electron-updater', () => ({
     downloadUpdate: vi.fn(),
     quitAndInstall: vi.fn(),
     checkForUpdatesAndNotify: vi.fn(),
+    // MacUpdater state: whether Squirrel.Mac already holds the update.
+    squirrelDownloadedUpdate: false,
   },
 }));
+
+/** Let pending promise continuations run. */
+const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
 
 vi.mock('electron-log', () => ({
   default: {
@@ -80,6 +89,7 @@ describe('autoUpdaterService install guard (#286)', () => {
     userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wl-updater-'));
     (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
     (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (autoUpdater as unknown as { squirrelDownloadedUpdate: boolean }).squirrelDownloadedUpdate = false;
     broadcast = vi.fn();
     service = await freshService();
     service.initialize(broadcast);
@@ -98,17 +108,19 @@ describe('autoUpdaterService install guard (#286)', () => {
     return broadcast.mock.calls.map((c) => c[0].status);
   }
 
-  it('writes a pending-install marker on quitAndInstall after a download', () => {
+  it('writes a pending-install marker on quitAndInstall after a download', async () => {
+    setPlatform('linux');
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
-    service.quitAndInstall();
+    await service.quitAndInstall();
 
     expect(fs.existsSync(markerPath())).toBe(true);
     expect(JSON.parse(fs.readFileSync(markerPath(), 'utf8')).version).toBe('2.0.0');
     expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
   });
 
-  it('does not write a marker if nothing was downloaded', () => {
-    service.quitAndInstall();
+  it('does not write a marker if nothing was downloaded', async () => {
+    setPlatform('linux');
+    await service.quitAndInstall();
     expect(fs.existsSync(markerPath())).toBe(false);
   });
 
@@ -214,64 +226,71 @@ describe('autoUpdaterService install guard (#286)', () => {
       expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
     });
 
-    it('macOS block (outside /Applications) → refuses on-quit install even with a staged download', () => {
+    it('macOS block (outside /Applications) → refuses on-quit install even with a staged download', async () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
       setPlatform('darwin');
       (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(false);
       service.triggerEventForTest('update-available', { version: '3.0.0' });
 
-      expect(service.installOnQuitIfReady()).toBe(false);
+      await expect(service.installOnQuitIfReady()).resolves.toBe(false);
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('happy path (macOS inside /Applications, no block) → installs the staged update on quit', () => {
+    it('happy path (macOS inside /Applications, no block) → installs the staged update on quit', async () => {
       setPlatform('darwin');
       (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(true);
       service.triggerEventForTest('update-available', { version: '2.0.0' });
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+      // Squirrel.Mac already holds it (the wait for it is covered in
+      // autoUpdaterServiceSquirrelHandoff.test.ts); Squirrel then asks to quit.
+      (autoUpdater as unknown as { squirrelDownloadedUpdate: boolean }).squirrelDownloadedUpdate = true;
 
-      expect(service.installOnQuitIfReady()).toBe(true);
+      const result = service.installOnQuitIfReady();
+      await flush();
+      (app as unknown as NodeJS.EventEmitter).emit('before-quit');
+      await expect(result).resolves.toBe(true);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
-    it('non-macOS offer → installs the staged update on quit (loop is macOS-only)', () => {
+    it('non-macOS offer → installs the staged update on quit (loop is macOS-only)', async () => {
       setPlatform('win32');
       service.triggerEventForTest('update-available', { version: '2.0.0' });
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(service.installOnQuitIfReady()).toBe(true);
+      await expect(service.installOnQuitIfReady()).resolves.toBe(true);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
-    it('silent apply failure on reconcile → refuses on-quit install', () => {
+    it('silent apply failure on reconcile → refuses on-quit install', async () => {
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
       (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
       service.reconcilePendingInstall();
       // Even if a download is later staged, the sticky block wins.
       service.triggerEventForTest('update-downloaded', { version: '3.0.0' });
 
-      expect(service.installOnQuitIfReady()).toBe(false);
+      await expect(service.installOnQuitIfReady()).resolves.toBe(false);
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('successful reconcile (version advanced) → still installs a safe staged update on quit', () => {
+    it('successful reconcile (version advanced) → still installs a safe staged update on quit', async () => {
+      setPlatform('linux');
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '1.0.0', attemptedAt: 1 }));
       (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
       service.reconcilePendingInstall();
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(service.installOnQuitIfReady()).toBe(true);
+      await expect(service.installOnQuitIfReady()).resolves.toBe(true);
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
-    it('re-offer of a silently-failed version → refuses on-quit install', () => {
+    it('re-offer of a silently-failed version → refuses on-quit install', async () => {
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
       service.reconcilePendingInstall();
       service.triggerEventForTest('update-available', { version: '2.0.0' });
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(lastStatus().status).not.toBe('available');
-      expect(service.installOnQuitIfReady()).toBe(false);
+      await expect(service.installOnQuitIfReady()).resolves.toBe(false);
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
   });
