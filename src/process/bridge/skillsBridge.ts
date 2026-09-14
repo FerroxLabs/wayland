@@ -51,6 +51,19 @@ function runLibrarySweep(): Promise<{ rescanned: number }> {
   });
 }
 
+// Never let an import reject: the bridge has no error channel, so a throw is
+// an unhandledRejection in main and an Import dialog that spins forever. The
+// importer's own "Rejected: ..." messages are written for the user; anything
+// else (fs, git) is reduced to a generic failure so no raw error crosses.
+async function settleImport<T>(run: () => Promise<T>): Promise<T | { error: string }> {
+  try {
+    return await run();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    return { error: message.startsWith('Rejected:') ? message : 'Import failed' };
+  }
+}
+
 export function initSkillsBridge(): void {
   // Register the waylandteams bundle's 88 curated skills as the second
   // source on the Skills page (alongside the 1,965 vendored library
@@ -81,10 +94,12 @@ export function initSkillsBridge(): void {
 
   const importer = new SkillImport();
 
-  ipcBridge.skills.import.folder.provider(async ({ srcPath }) => importer.importFolder(srcPath));
-  ipcBridge.skills.import.git.provider(async ({ url }) => importer.importGit(url));
-  ipcBridge.skills.import.zip.provider(async ({ zipPath }) => importer.importZip(zipPath));
-  ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) => importer.importSingleSkillMd(srcPath));
+  ipcBridge.skills.import.folder.provider(async ({ srcPath }) => settleImport(() => importer.importFolder(srcPath)));
+  ipcBridge.skills.import.git.provider(async ({ url }) => settleImport(() => importer.importGit(url)));
+  ipcBridge.skills.import.zip.provider(async ({ zipPath }) => settleImport(() => importer.importZip(zipPath)));
+  ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) =>
+    settleImport(() => importer.importSingleSkillMd(srcPath))
+  );
 
   // #512: credential-redacted export of an assistant to a portable agent-profile
   // SKILL.md. The credential boundary is exportAssistantToSkillMd (allowlist); the

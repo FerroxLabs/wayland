@@ -30,6 +30,7 @@ import { apiRateLimiter } from '../middleware/security';
 import { registerWeixinLoginRoutes } from './weixinLoginRoutes';
 import { registerWecomChannelRoutes } from './wecomChannelRoutes';
 import { registerStorageRoutes } from './storageRoutes';
+import { lazyTempDiskStorage } from './uploadTempStorage';
 import { registerProviderKeyRoutes } from './providerKeyRoutes';
 import { registerProjectKnowledgeDraftRoutes } from './projectKnowledgeDraftRoutes';
 import { registerMcpConfigRoutes } from './mcpConfigRoutes';
@@ -43,7 +44,7 @@ import { registerMcpOAuthRoutes } from './mcpOAuthRoutes';
 const MULTER_TEMP_DIR = os.tmpdir();
 
 /** File upload: disk storage so large files are streamed rather than buffered in memory */
-const uploadDisk = multer({ storage: multer.diskStorage({ destination: MULTER_TEMP_DIR }) });
+const uploadDisk = multer({ storage: lazyTempDiskStorage(MULTER_TEMP_DIR) });
 
 /** STT upload: memory storage so the audio buffer is available directly for transcription */
 const MAX_AUDIO_SIZE = 30 * 1024 * 1024;
