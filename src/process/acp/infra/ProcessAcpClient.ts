@@ -133,6 +133,8 @@ type PendingRequest = {
 
 export type ProcessAcpClientOptions = {
   backend: string;
+  /** The conversation this engine serves; names it in the shutdown log line. */
+  conversationId?: string;
   handlers: ProtocolHandlers;
   gracePeriodMs?: number;
   /**
@@ -398,8 +400,24 @@ export class ProcessAcpClient implements AcpClient {
     this.closing = true;
     this.disarmTransportWatchdog();
     if (this.child) {
-      await gracefulShutdown(this.child, this.options.gracePeriodMs ?? 100);
-      this.child = null;
+      const who = `conversation=${this.options.conversationId ?? 'unknown'} backend=${this.options.backend} pid=${this.child.pid}`;
+      try {
+        const result = await gracefulShutdown(this.child, this.options.gracePeriodMs ?? 100);
+        if (!('descendants' in result)) {
+          console.log(`[ProcessAcpClient] ${who} exited on stdin EOF`);
+        } else {
+          const killed = result.descendants;
+          console.log(
+            `[ProcessAcpClient] ${who} stopped with its process tree: descendants killed=` +
+              (killed === null ? 'unlisted (taskkill /T)' : `${killed.length} [${killed.join(',')}]`)
+          );
+        }
+      } catch (error) {
+        console.warn(`[ProcessAcpClient] ${who} could not be stopped:`, error);
+        throw error;
+      } finally {
+        this.child = null;
+      }
     }
     this.connection = null;
     this._connProxy = null;

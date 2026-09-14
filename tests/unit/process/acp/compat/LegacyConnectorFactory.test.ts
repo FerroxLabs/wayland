@@ -75,6 +75,7 @@ describe('LegacyConnectorFactory', () => {
     expect(mockProcessAcpClientInstances).toHaveLength(1);
     expect(mockProcessAcpClientInstances[0].options).toEqual({
       backend: 'codex',
+      conversationId: makeConfig().agentId,
       handlers,
     });
   });

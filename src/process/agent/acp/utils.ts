@@ -49,8 +49,16 @@ export async function waitForProcessExit(pid: number, timeoutMs: number): Promis
  * escalating to SIGKILL (default 3s). It is parameterised so tests that spawn a
  * real SIGTERM-ignoring process can use a short grace instead of paying the full
  * 3s real-time wait (#358).
+ *
+ * Resolves with the descendant pids that were enumerated and stopped with the
+ * root, or `null` when Windows fell back to a blind `taskkill /T` whose tree was
+ * never listed.
  */
-export async function killChild(child: ChildProcess, isDetached: boolean, sigtermGraceMs = 3000): Promise<void> {
+export async function killChild(
+  child: ChildProcess,
+  isDetached: boolean,
+  sigtermGraceMs = 3000
+): Promise<number[] | null> {
   const pid = child.pid;
   if (process.platform === 'win32' && pid) {
     // Enumerate BEFORE killing anything, same reason as the POSIX path below.
@@ -116,7 +124,7 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
     if (isProcessAlive(pid)) {
       throw new Error(`ACP process ${pid} is still alive after taskkill`);
     }
-    return;
+    return plan ? plan.pruned : null;
   }
 
   // POSIX: collect all descendant PIDs BEFORE killing the parent,
@@ -172,6 +180,7 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
       }
     })
   );
+  return descendantPids;
 }
 
 /**

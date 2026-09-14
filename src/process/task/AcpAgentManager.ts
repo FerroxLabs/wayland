@@ -2013,6 +2013,9 @@ ${collectedResponses.join('\n')}`;
   initAgent(data: AcpAgentManagerData = this.options) {
     if (this.bootstrap) return this.bootstrap;
 
+    // The idle reaper measures from here: an engine spawned by warmup has had no
+    // turn, and a manager built earlier must not look idle while it starts.
+    this._lastActivityAt = Date.now();
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
       // Resume existing Fuigo conversations with the same stock-only repair as

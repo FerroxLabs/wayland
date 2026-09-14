@@ -1,5 +1,6 @@
 // src/process/acp/infra/processUtils.ts
 import { type ChildProcess } from 'node:child_process';
+import { killChild } from '@process/agent/acp/utils';
 
 export function splitCommandLine(cmd: string): string[] {
   const parts: string[] = [];
@@ -108,28 +109,28 @@ export function isProcessAlive(pid: number): boolean {
   }
 }
 
-export async function gracefulShutdown(child: ChildProcess, gracePeriodMs = 100): Promise<void> {
+/** How a shutdown ended: the engine left on stdin EOF, or its tree was killed (`descendants` null = not listed). */
+export type ShutdownResult = { exitedOnEof: true } | { exitedOnEof: false; descendants: number[] | null };
+
+export async function gracefulShutdown(child: ChildProcess, gracePeriodMs = 100): Promise<ShutdownResult> {
   if (child.stdin && !child.stdin.destroyed) {
     child.stdin.end();
   }
   const code1 = await waitForExit(child, gracePeriodMs);
-  if (code1 !== null) return;
+  if (code1 !== null) return { exitedOnEof: true };
 
+  // Still running: take the whole tree while the engine is alive to anchor it.
+  // Fuigo runs each MCP server as its own child, and signalling only the engine
+  // left those servers running after an idle reap or a model switch. killChild
+  // walks the descendants first (POSIX) or tree-kills with taskkill /T (Windows),
+  // and spares an external GUI app a connector launched. The engine is a group
+  // leader on POSIX (spawnGenericBackend spawns it detached there).
   try {
-    child.kill('SIGTERM');
-  } catch {
-    /* already dead */
+    const descendants = await killChild(child, process.platform !== 'win32', 1500);
+    return { exitedOnEof: false, descendants };
+  } finally {
+    child.unref();
   }
-  const code2 = await waitForExit(child, 1500);
-  if (code2 !== null) return;
-
-  try {
-    child.kill('SIGKILL');
-  } catch {
-    /* already dead */
-  }
-  await waitForExit(child, 1000);
-  child.unref();
 }
 
 export function prepareCleanEnv(

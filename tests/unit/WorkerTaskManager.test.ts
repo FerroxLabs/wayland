@@ -121,6 +121,79 @@ describe('WorkerTaskManager', () => {
     expect(mgr.getTask('c1')).toBeUndefined();
   });
 
+  // Windows 0.13.0: reopening a chat focuses the sendbox, `conversation.warmup`
+  // builds the task and starts Fuigo (+ its MCP servers) with no prompt. The task
+  // never leaves `pending`, and the reaper only took `finished` tasks, so those
+  // engines outlived the 5-minute window indefinitely.
+  it('reaps an idle acp engine started by opening a chat that was never prompted', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-14T08:31:00Z'));
+
+    const agent = {
+      ...makeAgent('opened', 'acp'),
+      status: 'pending',
+      lastActivityAt: Date.now() - 6 * 60 * 1000,
+    };
+    const factory = makeFactory(agent);
+    const mgr = newManager(factory as any, repo);
+    mgr.addTask('opened', agent as any);
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await vi.advanceTimersByTimeAsync(1 * 60 * 1000 + 1);
+
+    expect(agent.kill).toHaveBeenCalledWith('idle_timeout');
+    expect(mgr.getTask('opened')).toBeUndefined();
+    // The box log had no idle or kill lines at all; both ends of a reap are now logged.
+    const lines = log.mock.calls.map((c) => String(c[0]));
+    expect(lines).toContainEqual(
+      expect.stringMatching(
+        /^\[WorkerTaskManager\] idle reap: conversation=opened status=pending idleMs=\d+ timeoutMs=300000$/
+      )
+    );
+    expect(lines).toContainEqual(
+      expect.stringMatching(/^\[WorkerTaskManager\] idle reap done: conversation=opened in \d+ms$/)
+    );
+    log.mockRestore();
+
+    // Reopening or prompting afterwards builds a fresh manager; the reaped lease does not block it.
+    const respawned = makeAgent('opened', 'acp');
+    factory.create.mockReturnValue(respawned);
+    vi.mocked(repo.getConversation).mockReturnValue(makeConversation('opened', 'acp') as any);
+    await expect(mgr.getOrBuildTask('opened')).resolves.toBe(respawned);
+    expect(factory.create).toHaveBeenCalledOnce();
+    expect(mgr.getTask('opened')).toBe(respawned);
+  });
+
+  it('does not reap an acp engine with a turn in flight, however long it has been quiet', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-14T08:31:00Z'));
+    const { cronBusyGuard } = await import('../../src/process/services/cron/CronBusyGuard');
+
+    // sendMessage sets `running`; a long tool call (#1391) streams nothing for minutes.
+    const running = { ...makeAgent('running', 'acp'), status: 'running', lastActivityAt: Date.now() - 20 * 60 * 1000 };
+    // Streamed content flips status to `finished` mid-turn; the busy guard is what marks the turn open.
+    const midTurn = {
+      ...makeAgent('mid-turn', 'acp'),
+      status: 'finished',
+      lastActivityAt: Date.now() - 20 * 60 * 1000,
+    };
+    cronBusyGuard.setProcessing('mid-turn', true);
+    try {
+      const mgr = newManager(makeFactory() as any, repo);
+      mgr.addTask('running', running as any);
+      mgr.addTask('mid-turn', midTurn as any);
+
+      await vi.advanceTimersByTimeAsync(1 * 60 * 1000 + 1);
+
+      expect(running.kill).not.toHaveBeenCalled();
+      expect(midTurn.kill).not.toHaveBeenCalled();
+      expect(mgr.getTask('running')).toBe(running);
+      expect(mgr.getTask('mid-turn')).toBe(midTurn);
+    } finally {
+      cronBusyGuard.setProcessing('mid-turn', false);
+    }
+  });
+
   it('kill is a no-op for unknown id', async () => {
     const mgr = newManager(makeFactory() as any, repo);
     await expect(mgr.kill('nonexistent')).resolves.toBeUndefined();

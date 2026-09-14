@@ -269,3 +269,24 @@ describe('Fuigo existing conversation skill repair at launch', () => {
     expect(capturedAgentConfigs).toHaveLength(1);
   });
 });
+
+describe('AcpAgentManager - the idle clock starts with the engine', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockGet.mockImplementation(async (key: string) => (key === 'assistants' ? ASSISTANTS : undefined));
+    capturedAgentConfigs.length = 0;
+  });
+
+  it('initAgent restarts the idle clock, so the reaper cannot take an engine that is still starting', async () => {
+    // A manager built minutes before `conversation.warmup` spawns its engine
+    // would otherwise already look idle to WorkerTaskManager's reaper.
+    const m = manager('qwen') as unknown as { _lastActivityAt: number; initAgent(): Promise<unknown> };
+    m._lastActivityAt = Date.now() - 10 * 60 * 1000;
+    const spawnedAt = Date.now();
+
+    await m.initAgent();
+
+    expect(capturedAgentConfigs).toHaveLength(1);
+    expect(m._lastActivityAt).toBeGreaterThanOrEqual(spawnedAt);
+  });
+});
