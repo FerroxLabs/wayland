@@ -103,8 +103,15 @@ vi.mock('@process/task/MessageMiddleware', () => ({
 vi.mock('@process/task/ThinkTagDetector', () => ({ stripThinkTags: vi.fn((x: unknown) => x) }));
 vi.mock('@process/utils/initAgent', () => ({ hasNativeSkillSupport: vi.fn(() => false), repairStagedTideSkill }));
 vi.mock('@process/task/agentUtils', () => ({
-  prepareFirstMessageWithSkillsIndex: vi.fn((x: string) => Promise.resolve({ content: x, loadedSkills: [] })),
+  buildFirstMessageRulesWithSkillsIndex: vi.fn(() => Promise.resolve({ rules: '', loadedSkills: [] })),
+  resolveCapabilitiesManifest: vi.fn(() => Promise.resolve(undefined)),
+  consumePendingSessionSkills: vi.fn(() => Promise.resolve('')),
+  CAPABILITIES_MANIFEST_HEADER: '[Wayland Capabilities]',
   isConciergeAssistant: vi.fn(() => false),
+}));
+// A Fuigo bootstrap composes the session rules (Constitution included).
+vi.mock('@process/services/constitution/composePrompt', () => ({
+  composePrompt: ({ basePrompt = '' }: { basePrompt?: string }) => ({ text: basePrompt }),
 }));
 vi.mock('@/common/utils', () => ({ parseError: vi.fn((e: unknown) => e), uuid: vi.fn(() => 'test-uuid') }));
 vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn(() => 'uuid') }));
