@@ -110,7 +110,13 @@ describe('autoUpdaterService install guard (#286)', () => {
 
   // A broken code seal (OfficeCLI self-updated inside the bundle) made Squirrel.Mac
   // refuse every update while the app quit into nothing.
+  //
+  // These run on linux on purpose: on darwin the Squirrel.Mac hand-off also
+  // refuses in this mock (no nativeUpdater), which would make the refusal pass
+  // without the seal guard. The seal guard itself is platform-independent; the
+  // Squirrel wait is covered in autoUpdaterServiceSquirrelHandoff.test.ts.
   it('damaged bundle: reports reinstall guidance and refuses the on-quit install', async () => {
+    setPlatform('linux');
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
     service.reportDamagedBundle(true);
 
@@ -122,20 +128,14 @@ describe('autoUpdaterService install guard (#286)', () => {
   });
 
   it('a later passing seal check lets the staged update install on quit again', async () => {
-    setPlatform('darwin');
+    setPlatform('linux');
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
     service.setBundleSealInvalid(true);
     await expect(service.installOnQuitIfReady()).resolves.toBe(false);
     expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
 
     service.setBundleSealInvalid(false);
-    // Squirrel.Mac already holds the update (the wait is covered in
-    // autoUpdaterServiceSquirrelHandoff.test.ts); Squirrel then asks to quit.
-    (autoUpdater as unknown as { squirrelDownloadedUpdate: boolean }).squirrelDownloadedUpdate = true;
-    const result = service.installOnQuitIfReady();
-    await flush();
-    (app as unknown as NodeJS.EventEmitter).emit('before-quit');
-    await expect(result).resolves.toBe(true);
+    await expect(service.installOnQuitIfReady()).resolves.toBe(true);
     expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
   });
 
