@@ -77,17 +77,29 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   private async killIdleCliAgents(): Promise<void> {
     const timeoutMs = await this.getIdleTimeoutMs();
     const now = Date.now();
+    // Idle means no turn in flight: `running` (set by sendMessage) and the busy
+    // guard mark an open turn. That covers `finished` AND `pending` - an engine
+    // started by opening a chat (`conversation.warmup`) and never prompted stays
+    // `pending`, and reaping only `finished` left it and its MCP servers alive.
     const idleTasks = this.taskList.filter(
       (item) =>
         item.task.type === 'acp' &&
-        item.task.status === 'finished' &&
+        item.task.status !== 'running' &&
         !cronBusyGuard.isProcessing(item.id) &&
         now - item.task.lastActivityAt > timeoutMs
     );
+    for (const item of idleTasks) {
+      console.log(
+        `[WorkerTaskManager] idle reap: conversation=${item.id} status=${item.task.status ?? 'none'} ` +
+          `idleMs=${now - item.task.lastActivityAt} timeoutMs=${timeoutMs}`
+      );
+    }
     const results = await Promise.allSettled(idleTasks.map((item) => this.kill(item.id, 'idle_timeout')));
     for (const [index, result] of results.entries()) {
       if (result.status === 'rejected') {
         console.warn(`[WorkerTaskManager] failed to stop idle conversation ${idleTasks[index].id}:`, result.reason);
+      } else {
+        console.log(`[WorkerTaskManager] idle reap done: conversation=${idleTasks[index].id} in ${Date.now() - now}ms`);
       }
     }
   }

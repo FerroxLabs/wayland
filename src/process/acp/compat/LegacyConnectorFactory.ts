@@ -43,6 +43,7 @@ export class LegacyConnectorFactory implements ClientFactory {
     const spawnFn = () => spawnLegacyChild(config);
     return new ProcessAcpClient(spawnFn, {
       backend: config.agentBackend,
+      conversationId: config.agentId,
       handlers,
     });
   }
