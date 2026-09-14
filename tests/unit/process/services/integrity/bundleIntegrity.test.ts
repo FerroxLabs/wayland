@@ -8,8 +8,14 @@
  * captured sample output - never shells out to codesign.
  */
 
-import { describe, expect, it } from 'vitest';
-import { findBundleRoot, parseCodesignVerifyOutput } from '@process/services/integrity/bundleIntegrity';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  checkBundleSealBeforeUpdate,
+  findBundleRoot,
+  parseCodesignVerifyOutput,
+  runBundleIntegrityCheck,
+  type BundleIntegrityDeps,
+} from '@process/services/integrity/bundleIntegrity';
 
 // Captured from the live #755 repro (codesign --verify --deep --strict
 // --verbose=2, macOS arm64, Wayland v0.11.17 with a broken seal).
@@ -87,5 +93,125 @@ describe('findBundleRoot', () => {
   it('returns null outside a bundle (dev builds)', () => {
     expect(findBundleRoot('/usr/local/bin/node')).toBeNull();
     expect(findBundleRoot('/Users/me/dev/wayland/node_modules/electron/dist/Electron')).toBeNull();
+  });
+});
+
+// OfficeCLI's self-updater rewrote the bundled binary (OFFICECLI-SEAL-BREAK-ROOT-CAUSE):
+// the seal broke and every macOS update failed silently.
+const VALID = { valid: true, violations: [] };
+const BROKEN = parseCodesignVerifyOutput(
+  [
+    '/Applications/Wayland.app: a sealed resource is missing or invalid',
+    'file modified: /Applications/Wayland.app/Contents/Resources/bundled-officecli/darwin-arm64/officecli',
+  ].join('\n'),
+  1
+);
+
+function makeDeps(overrides: Partial<BundleIntegrityDeps> = {}) {
+  const calls: string[] = [];
+  const deps: BundleIntegrityDeps = {
+    isMacPackaged: vi.fn(async () => true),
+    bundleRoot: () => '/Applications/Wayland.app',
+    verify: vi.fn(async () => {
+      calls.push('verify');
+      return VALID;
+    }),
+    repairOfficeCli: vi.fn(async () => {
+      calls.push('repair');
+      return { status: 'intact' as const };
+    }),
+    notify: vi.fn(async () => {}),
+    setSealInvalid: vi.fn(async () => {}),
+    ...overrides,
+  };
+  return { deps, calls };
+}
+
+describe('runBundleIntegrityCheck (startup)', () => {
+  it('restores a self-updated OfficeCLI before verifying the seal, then logs a clean verdict', async () => {
+    const { deps, calls } = makeDeps({
+      repairOfficeCli: vi.fn(async () => {
+        calls.push('repair');
+        return {
+          status: 'repaired' as const,
+          url: 'https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.136/x',
+        };
+      }),
+    });
+    await expect(runBundleIntegrityCheck(deps)).resolves.toEqual(VALID);
+    expect(calls).toEqual(['repair', 'verify']);
+    expect(deps.notify).not.toHaveBeenCalled();
+    expect(deps.setSealInvalid).toHaveBeenCalledWith(false);
+  });
+
+  it('surfaces reinstall guidance and blocks updates when the repair cannot complete', async () => {
+    const { deps } = makeDeps({
+      repairOfficeCli: vi.fn(async () => ({
+        status: 'failed' as const,
+        reason: 'not-writable' as const,
+        detail: 'read-only',
+      })),
+      verify: vi.fn(async () => BROKEN),
+    });
+    await expect(runBundleIntegrityCheck(deps)).resolves.toEqual(BROKEN);
+    expect(deps.notify).toHaveBeenCalledWith(
+      'Wayland installation is damaged',
+      expect.stringMatching(/tried to repair it automatically but could not.*reinstall Wayland/s)
+    );
+    expect(deps.setSealInvalid).toHaveBeenCalledWith(true);
+  });
+
+  it('does nothing outside a packaged macOS build', async () => {
+    const { deps } = makeDeps({ isMacPackaged: vi.fn(async () => false) });
+    await expect(runBundleIntegrityCheck(deps)).resolves.toBeNull();
+    expect(deps.repairOfficeCli).not.toHaveBeenCalled();
+    expect(deps.verify).not.toHaveBeenCalled();
+  });
+});
+
+describe('checkBundleSealBeforeUpdate', () => {
+  it('lets the install proceed on an intact seal without touching OfficeCLI', async () => {
+    const { deps } = makeDeps();
+    await expect(checkBundleSealBeforeUpdate(deps)).resolves.toEqual({ ok: true });
+    expect(deps.repairOfficeCli).not.toHaveBeenCalled();
+  });
+
+  it('repairs OfficeCLI and re-verifies when the seal is broken, then proceeds', async () => {
+    const verify = vi.fn().mockResolvedValueOnce(BROKEN).mockResolvedValueOnce(VALID);
+    const { deps } = makeDeps({
+      verify,
+      repairOfficeCli: vi.fn(async () => ({ status: 'repaired' as const, url: 'u' })),
+    });
+    await expect(checkBundleSealBeforeUpdate(deps)).resolves.toEqual({ ok: true });
+    expect(verify).toHaveBeenCalledTimes(2);
+    expect(deps.setSealInvalid).toHaveBeenLastCalledWith(false);
+  });
+
+  it('refuses the install when the seal stays broken after a failed repair', async () => {
+    const { deps } = makeDeps({
+      verify: vi.fn(async () => BROKEN),
+      repairOfficeCli: vi.fn(async () => ({
+        status: 'failed' as const,
+        reason: 'download-failed' as const,
+        detail: 'offline',
+      })),
+    });
+    await expect(checkBundleSealBeforeUpdate(deps)).resolves.toEqual({
+      ok: false,
+      repairAttempted: true,
+      violations: BROKEN.violations,
+    });
+    expect(deps.setSealInvalid).toHaveBeenLastCalledWith(true);
+  });
+
+  it('refuses without claiming a repair when something other than OfficeCLI broke the seal', async () => {
+    const { deps } = makeDeps({ verify: vi.fn(async () => BROKEN) });
+    await expect(checkBundleSealBeforeUpdate(deps)).resolves.toMatchObject({ ok: false, repairAttempted: false });
+    expect(deps.verify).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not block when codesign cannot give a verdict', async () => {
+    const { deps } = makeDeps({ verify: vi.fn(async () => null) });
+    await expect(checkBundleSealBeforeUpdate(deps)).resolves.toEqual({ ok: true });
   });
 });

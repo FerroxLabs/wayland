@@ -108,6 +108,37 @@ describe('autoUpdaterService install guard (#286)', () => {
     return broadcast.mock.calls.map((c) => c[0].status);
   }
 
+  // A broken code seal (OfficeCLI self-updated inside the bundle) made Squirrel.Mac
+  // refuse every update while the app quit into nothing.
+  it('damaged bundle: reports reinstall guidance and refuses the on-quit install', async () => {
+    service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+    service.reportDamagedBundle(true);
+
+    expect(lastStatus()).toMatchObject({ status: 'install-failed', reason: 'damaged-bundle', version: '2.0.0' });
+    expect(lastStatus().error).toMatch(/tried to repair it automatically but could not/);
+    expect(lastStatus().error).toMatch(/Releases page/);
+    await expect(service.installOnQuitIfReady()).resolves.toBe(false);
+    expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
+  });
+
+  it('a later passing seal check lets the staged update install on quit again', async () => {
+    setPlatform('darwin');
+    service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
+    service.setBundleSealInvalid(true);
+    await expect(service.installOnQuitIfReady()).resolves.toBe(false);
+    expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
+
+    service.setBundleSealInvalid(false);
+    // Squirrel.Mac already holds the update (the wait is covered in
+    // autoUpdaterServiceSquirrelHandoff.test.ts); Squirrel then asks to quit.
+    (autoUpdater as unknown as { squirrelDownloadedUpdate: boolean }).squirrelDownloadedUpdate = true;
+    const result = service.installOnQuitIfReady();
+    await flush();
+    (app as unknown as NodeJS.EventEmitter).emit('before-quit');
+    await expect(result).resolves.toBe(true);
+    expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+  });
+
   it('writes a pending-install marker on quitAndInstall after a download', async () => {
     setPlatform('linux');
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });

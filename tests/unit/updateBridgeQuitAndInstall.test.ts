@@ -68,8 +68,13 @@ const svc = vi.hoisted(() => ({
   notifyDeferred: vi.fn(),
   // Resolves true once quitting will install (macOS: Squirrel.Mac holds the update).
   prepareInstall: vi.fn(async () => true),
+  reportDamagedBundle: vi.fn(),
 }));
 vi.mock('@/process/services/autoUpdaterService', () => ({ autoUpdaterService: svc }));
+
+// The macOS code-seal gate; intact unless a test says otherwise.
+const seal = vi.hoisted(() => ({ checkBundleSealBeforeUpdate: vi.fn() }));
+vi.mock('@/process/services/integrity/bundleIntegrity', () => seal);
 
 // Controllable update.deferWhileBusy for the REAL updateQuiesceGate.
 let deferSetting: boolean | undefined;
@@ -102,8 +107,23 @@ describe('updateBridge quitAndInstall routing (#651 FIX-FIRST)', () => {
     cronBusyGuard.clear();
     __resetForTest();
     vi.clearAllMocks();
+    seal.checkBundleSealBeforeUpdate.mockResolvedValue({ ok: true });
     initUpdateBridge(); // re-register providers after clearAllMocks
   });
+
+  it.each([[undefined], [{ force: true }]])(
+    'a broken macOS code seal refuses the install and tells the user instead of quitting (%o)',
+    async (params) => {
+      seal.checkBundleSealBeforeUpdate.mockResolvedValue({ ok: false, repairAttempted: true, violations: ['x'] });
+      const handler = getQuitHandler();
+      await handler(params);
+      await flush();
+
+      expect(svc.reportDamagedBundle).toHaveBeenCalledWith(true);
+      expect(svc.quitAndInstall).not.toHaveBeenCalled();
+      expect(app.quit).not.toHaveBeenCalled();
+    }
+  );
 
   it('force:true installs immediately via the raw hard-exit, not app.quit', async () => {
     const handler = getQuitHandler();

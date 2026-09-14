@@ -95,7 +95,7 @@ vi.mock('node:net', () => ({
 }));
 
 vi.mock('@process/utils/shellEnv', () => ({
-  getEnhancedEnv: vi.fn(() => ({ PATH: '/usr/bin' })),
+  getEnhancedEnv: vi.fn(() => ({ PATH: '/usr/bin', OFFICECLI_SKIP_UPDATE: '1' })),
 }));
 
 // pathConfinement reads its authorized roots from these path getters (which in
@@ -244,6 +244,9 @@ describe('pptPreviewBridge', () => {
         expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] })
       );
       expect(spawnMock.mock.calls[0][0]).not.toBe('officecli');
+      // OfficeCLI self-updates over its own path unless told not to - inside the
+      // signed bundle that breaks the code seal. The spawn must carry the flag.
+      expect(spawnMock.mock.calls[0][2].env.OFFICECLI_SKIP_UPDATE).toBe('1');
 
       // Emit Watch: to resolve
       child.stdout.emit('data', Buffer.from('Watch: started'));

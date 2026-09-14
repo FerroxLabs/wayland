@@ -235,6 +235,13 @@ class AutoUpdaterService extends EventEmitter {
    * so an Install click followed by Cmd+Q asks Squirrel once. Null when idle.
    */
   private _squirrelHandoff: Promise<string | null> | null = null;
+  /**
+   * macOS: the running bundle failed `codesign --verify` (set by the startup
+   * integrity check and the pre-install gate). Squirrel.Mac refuses to update
+   * such a bundle, so a staged update is not applied on quit while this is set.
+   * Cleared when a later verify passes (e.g. the OfficeCLI repair succeeded).
+   */
+  private _bundleSealInvalid = false;
 
   constructor() {
     super();
@@ -613,6 +620,12 @@ class AutoUpdaterService extends EventEmitter {
     }
     if (this._installOnQuitBlocked) {
       log.warn('[autoUpdater] Skipping on-quit install: update is not safely applicable (#575/#286 guard).');
+      return false;
+    }
+    if (this._bundleSealInvalid) {
+      log.warn(
+        '[autoUpdater] Skipping on-quit install: the app bundle code seal is invalid; Squirrel.Mac would refuse it.'
+      );
       return false;
     }
     // An on-quit apply is unattended by definition: the windows are gone and the
@@ -1001,6 +1014,35 @@ class AutoUpdaterService extends EventEmitter {
       version,
       error: detail ? `${message} (macOS updater: ${detail})` : message,
     });
+  }
+
+  /** Record the latest macOS bundle-seal verdict (see {@link _bundleSealInvalid}). */
+  setBundleSealInvalid(invalid: boolean): void {
+    if (invalid && !this._bundleSealInvalid) {
+      log.warn('[autoUpdater] App bundle code seal is invalid; updates will not be applied until it is reinstalled.');
+    }
+    this._bundleSealInvalid = invalid;
+  }
+
+  /**
+   * The install was refused because the bundle's code seal is broken. Squirrel.Mac
+   * would reject the update and the app would quit into nothing, so say what
+   * happened and what fixes it instead.
+   */
+  reportDamagedBundle(repairAttempted: boolean): void {
+    this.setBundleSealInvalid(true);
+    const version = this._lastDownloadedVersion ?? undefined;
+    const subject = version ? `Wayland ${version}` : 'The update';
+    const message =
+      `${subject} can't be installed because a file inside this copy of Wayland was changed after it was ` +
+      `installed, so its code signature no longer checks out and macOS refuses to update it. ` +
+      (repairAttempted ? 'Wayland tried to repair it automatically but could not. ' : '') +
+      `Download the latest Wayland from the Releases page and drag it into Applications to replace this copy; ` +
+      `updates will install normally again after that.`;
+    log.error(
+      `[autoUpdater] Update install refused: app bundle code seal invalid (repair attempted: ${repairAttempted}).`
+    );
+    this.broadcastStatus({ status: 'install-failed', reason: 'damaged-bundle', version, error: message });
   }
 
   /**
