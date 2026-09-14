@@ -37,7 +37,9 @@ type DestinationFn = (req: unknown, file: unknown, cb: (error: Error | null, des
 const destinationOf = (storage: unknown) => (storage as { getDestination: DestinationFn }).getDestination;
 
 describe('upload temp storage with an uncreatable TEMP', () => {
-  it('loads both upload route modules without touching the temp directory', async () => {
+  // Importing apiRoutes pulls a large module graph: on a cold windows-2022 runner
+  // the transform alone exceeded the default 10 s, failing on time, not on logic.
+  it('loads both upload route modules without touching the temp directory', { timeout: 120_000 }, async () => {
     await expect(import('@process/webserver/routes/storageRoutes')).resolves.toHaveProperty('registerStorageRoutes');
     await expect(import('@process/webserver/routes/apiRoutes')).resolves.toBeDefined();
   });
