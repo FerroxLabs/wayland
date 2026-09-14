@@ -3,7 +3,7 @@
     {
       "path": "report/collect.mjs",
       "sourceSha256": "d084c31705a8caffc4e331f30873d852f43ca9bc4a51fae373789d0b5bf36142",
-      "resultSha256": "f46c406e7cb567826991060733002f103c700264dff99f0bf476ffcaff1af82d",
+      "resultSha256": "423bdc416188b5301b5b7e1768ef9ad073baf1b9789b3847502cfa780235b4c3",
       "edits": [
         {
           "start": 18,
@@ -125,13 +125,23 @@
             "// Older collectors populated quotes from TradingView's scanner API. Those",
             "// partial values are not chart evidence and must be collected again.",
             "prior.quotes = Object.fromEntries(Object.entries(prior.quotes || {}).filter(([, quote]) =>",
-            "  quote?.source === 'chart' && Number.isFinite(quote.last) && Number.isFinite(quote.change_percent)));"
+            "  quote?.source === 'chart' && Number.isFinite(quote.last) && Number.isFinite(quote.change_percent)));",
+            "// A symbol whose TC-TIDE panel does not render is remembered across passes. The",
+            "// resume loop used to skip only names with BOTH a quote and a panel, so every",
+            "// pass re-read the unreadable names first and a 50-second budget could expire",
+            "// before any new symbol: measured on Windows, 18/74 panels, three passes running.",
+            "const panelUnread = new Set(Array.isArray(prior.panel_unread) ? prior.panel_unread : []);",
+            "const panelRetried = new Set(Array.isArray(prior.panel_retried) ? prior.panel_retried : []);"
           ]
         },
         {
-          "start": 428,
-          "deleteCount": 0,
-          "lines": ["const RESUME_COMPLETE = Symbol('resume-complete');"]
+          "start": 427,
+          "deleteCount": 1,
+          "lines": [
+            "  writeFileSync(PARTIAL, JSON.stringify({ market: m, quotes: q, panels: pn, calendar: cal,",
+            "    panel_unread: [...panelUnread], panel_retried: [...panelRetried] }));",
+            "const RESUME_COMPLETE = Symbol('resume-complete');"
+          ]
         },
         {
           "start": 430,
@@ -197,7 +207,10 @@
         {
           "start": 505,
           "deleteCount": 3,
-          "lines": ["for (const w of watchlist) {", "  if (quotes[w.tv] && panels[w.tv]) continue;"]
+          "lines": [
+            "for (const w of watchlist) {",
+            "  if (quotes[w.tv] && (panels[w.tv] || panelUnread.has(w.tv))) continue;"
+          ]
         },
         {
           "start": 509,
@@ -222,7 +235,7 @@
             "  const p = await mustCall('data_get_pine_tables', { study_filter: 'TC-TIDE' });",
             "  const cells = p?.studies?.[0]?.tables?.[0]?.cells;",
             "  if (cells && stampOk(cells, w.ticker)) panels[w.tv] = cells;",
-            "  else say(`panel unread ${w.tv} - will be reported unread`);"
+            "  else { panelUnread.add(w.tv); say(`panel unread ${w.tv} - retried once after the list`); }"
           ]
         },
         {
@@ -234,7 +247,42 @@
         },
         {
           "start": 533,
-          "deleteCount": 13,
+          "deleteCount": 3,
+          "lines": [
+            "// One individual retry for each panel that did not render. Recorded before the",
+            "// read, so a budget stop resumes past it instead of retrying it every pass.",
+            "for (const w of watchlist) {",
+            "  if (!panelUnread.has(w.tv) || panels[w.tv] || panelRetried.has(w.tv)) continue;"
+          ]
+        },
+        {
+          "start": 537,
+          "deleteCount": 3,
+          "lines": [
+            "  panelRetried.add(w.tv);",
+            "  await mustCall('chart_set_symbol', { symbol: w.tv });",
+            "  await new Promise((r) => setTimeout(r, DELAY * 4));",
+            "  const st = await mustCall('chart_get_state', {});",
+            "  if (canonicalSymbol(st?.symbol || st?.chart_symbol || '') !== canonicalSymbol(w.tv))",
+            "    throw new Error(`chart did not switch: asked ${w.tv}, chart is on ${st?.symbol || st?.chart_symbol || ''}`);",
+            "  const p = await mustCall('data_get_pine_tables', { study_filter: 'TC-TIDE' });"
+          ]
+        },
+        {
+          "start": 541,
+          "deleteCount": 1,
+          "lines": [
+            "  if (cells && stampOk(cells, w.ticker)) { panels[w.tv] = cells; panelUnread.delete(w.tv); say(`retry OK ${w.tv}`); }"
+          ]
+        },
+        {
+          "start": 543,
+          "deleteCount": 0,
+          "lines": ["  savePartial(market, quotes, panels, calendar);"]
+        },
+        {
+          "start": 545,
+          "deleteCount": 1,
           "lines": ["// Restoration happens for success, partial passes and errors in finally below."]
         },
         {
@@ -354,7 +402,7 @@
         {
           "start": 84,
           "deleteCount": 1,
-          "lines": ["## Step 7 \u2014 record the chart and the exact watchlist"]
+          "lines": ["## Step 7 — record the chart and the exact watchlist"]
         },
         {
           "start": 86,
@@ -404,7 +452,7 @@
         {
           "start": 152,
           "deleteCount": 1,
-          "lines": ["## Step 8 \u2014 produce the chart-based brief"]
+          "lines": ["## Step 8 — produce the chart-based brief"]
         },
         {
           "start": 154,
