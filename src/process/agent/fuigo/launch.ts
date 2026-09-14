@@ -297,7 +297,13 @@ export function fuigoPluginDirs(workspace: string): string[] {
  *  40,580 -> 7,328 B), before or after a turn, and `session/load` keeps it
  *  dropped. So `modelId` creates the session on the chat's model (no switch at
  *  bootstrap), and a later switch re-injects the rules into the next user
- *  message (`AcpAgentManager.markFuigoRulesStale`). */
+ *  message (`AcpAgentManager.markFuigoRulesStale`).
+ *
+ *  `modelId` creates the session on the chat's model. Without it Fuigo starts
+ *  on its own default (`flux-auto`), and a Flux tier persisted on the row is
+ *  never re-applied at bootstrap (a Flux id on a Flux-capable backend is
+ *  treated as carried by the spawn env, which Fuigo's spawn does not set), so
+ *  the header showed the row's model while `flux-auto` ran. */
 export function buildFuigoSessionMetadata(opts: {
   nonInteractive: boolean;
   pluginDirs?: string[];

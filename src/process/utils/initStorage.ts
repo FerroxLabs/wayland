@@ -54,6 +54,7 @@ import {
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { migrateFromElectronConfig, importConfigFromFile } from './configMigration';
 import { runFuigoCutoverConfigMigration } from './migrations/fuigoCutoverConfigMigration';
+import { runFuigoCachedFluxAutoMigration } from './migrations/fuigoCachedFluxAutoMigration';
 import {
   BUILTIN_CONCIERGE_DIAG_ID,
   BUILTIN_CONCIERGE_DIAG_NAME,
@@ -1492,6 +1493,11 @@ const initStorage = async () => {
     // model pick over to Fuigo and re-point a persisted "last agent" naming a
     // retired engine, so a returning user lands on the bundled engine.
     await runFuigoCutoverConfigMigration(configFile as unknown as Parameters<typeof runFuigoCutoverConfigMigration>[0]);
+    // 5.2c (one-time): forget the flux-auto Fuigo cached as its own default, so
+    // it stops standing in for a choice the user never made.
+    await runFuigoCachedFluxAutoMigration(
+      configFile as unknown as Parameters<typeof runFuigoCachedFluxAutoMigration>[0]
+    );
 
     // 5.3 Initialize assistant config (metadata only, no context)
     // Initialize assistant config (metadata only, no context)

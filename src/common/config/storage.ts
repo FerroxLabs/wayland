@@ -312,6 +312,11 @@ export interface IConfigStorageRefer {
    */
   'migration.fuigoCutover'?: boolean;
   /**
+   * Migration flag: the `flux-auto` Fuigo reported as its own default was
+   * cleared from `acp.cachedModels.fuigo` (never a user choice).
+   */
+  'migration.fuigoCachedFluxAutoCleared'?: boolean;
+  /**
    * Migration flag: stale pre-#275 bundled-extension copies removed from
    * <userData>/extensions (#718). Builds before #275 copied the bundled packs
    * out on every launch; the leftovers shadowed the asar 'bundled' scan source

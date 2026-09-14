@@ -207,6 +207,19 @@ describe('launch helpers', () => {
     });
   });
 
+  it("creates the session on the chat's model via _meta.modelId, and omits the key without one", () => {
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, modelId: 'flux-reasoning' })).toEqual({
+      clientIdentifier: 'wayland-desktop',
+      clientType: 'desktop',
+      startupHints: { nonInteractive: false },
+      modelId: 'flux-reasoning',
+    });
+    expect(buildFuigoSessionMetadata({ nonInteractive: false })).not.toHaveProperty('modelId');
+    expect(
+      projectSessionMetadata(buildFuigoSessionMetadata({ nonInteractive: false, modelId: 'flux-reasoning' }))
+    ).toHaveProperty('modelId', 'flux-reasoning');
+  });
+
   it('carries staged skill roots as _meta.pluginDirs and omits the key without any', () => {
     expect(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: ['/ws/.wayland'] })).toEqual({
       clientIdentifier: 'wayland-desktop',
@@ -519,6 +532,22 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     } finally {
       rmSync(ws, { recursive: true, force: true });
     }
+  });
+
+  it("creates the Fuigo session on the chat's persisted model, and names none when the row has none", async () => {
+    const pinned = new AcpAgentManager({
+      conversation_id: 'c-pin',
+      backend: 'fuigo',
+      workspace: '/tmp/ws',
+      currentModelId: 'flux-reasoning',
+    });
+    await pinned.initAgent({ conversation_id: 'c-pin', backend: 'fuigo', workspace: '/tmp/ws' } as never);
+    const bare = new AcpAgentManager({ conversation_id: 'c-bare', backend: 'fuigo', workspace: '/tmp/ws' });
+    await bare.initAgent({ conversation_id: 'c-bare', backend: 'fuigo', workspace: '/tmp/ws' } as never);
+
+    const [pin, none] = capturedAgentConfigs.map((c) => (c.extra as Record<string, unknown>).sessionMetadata);
+    expect(pin).toMatchObject({ modelId: 'flux-reasoning' });
+    expect(none).not.toHaveProperty('modelId');
   });
 
   it('leaves other backends without Fuigo session metadata', async () => {
