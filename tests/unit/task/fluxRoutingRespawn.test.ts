@@ -116,6 +116,24 @@ describe('AcpAgentManager.setModel - Flux routing-boundary detection', () => {
     expect(setModelByConfigOption).toHaveBeenCalledWith('opus');
   });
 
+  it('sends a Fuigo BYOK local-model id in place, verbatim, and persists it', async () => {
+    // Fuigo is Flux-native (routing is always `flux`), so a `byok/…` id must
+    // neither trip the Flux-id env shortcut nor a respawn: it is an ordinary
+    // `session/set_model` against the engine's own catalog.
+    const { manager, setModelByConfigOption, respawnSpy } = makeManager({
+      lastRouting: 'flux',
+      nextRouting: 'flux',
+    });
+    const m = manager as unknown as Record<string, unknown>;
+    m.options = { backend: 'fuigo' };
+
+    await manager.setModel('byok/ollama-local/qwen3:8b');
+
+    expect(respawnSpy).not.toHaveBeenCalled();
+    expect(setModelByConfigOption).toHaveBeenCalledExactlyOnceWith('byok/ollama-local/qwen3:8b');
+    expect(m.saveModelId).toHaveBeenCalledWith('byok/ollama-local/qwen3:8b');
+  });
+
   it('respawns a native claude slot change to apply ANTHROPIC_MODEL (#184)', async () => {
     // A native (non-Flux) claude slot pick is carried by ANTHROPIC_MODEL at
     // spawn, so it only takes effect on a respawn — the bridge's in-place
@@ -206,9 +224,11 @@ describe('AcpAgentManager.respawnForRoutingChange - teardown + recreate', () => 
       }),
     });
 
-    const result = await (manager as unknown as {
-      respawnForRoutingChange: (id: string) => Promise<unknown>;
-    }).respawnForRoutingChange('flux-auto');
+    const result = await (
+      manager as unknown as {
+        respawnForRoutingChange: (id: string) => Promise<unknown>;
+      }
+    ).respawnForRoutingChange('flux-auto');
 
     // New model persisted BEFORE re-spawn so initAgent picks it up.
     expect((m.options as { currentModelId: string }).currentModelId).toBe('flux-auto');
