@@ -1959,6 +1959,7 @@ ${collectedResponses.join('\n')}`;
               ? buildFuigoSessionMetadata({
                   nonInteractive: data.unattendedHoldDeadlineMs !== undefined,
                   pluginDirs: fuigoPluginDirs(data.workspace),
+                  modelId: this.persistedModelId ?? undefined,
                 })
               : undefined,
           agentName: data.agentName,

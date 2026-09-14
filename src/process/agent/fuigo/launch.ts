@@ -282,16 +282,24 @@ export function fuigoPluginDirs(workspace: string): string[] {
 }
 
 /** `_meta` for `session/new` / `session/load`. Fuigo reads `startupHints`
- *  from the session request first, then from `initialize`. */
+ *  from the session request first, then from `initialize`.
+ *
+ *  `modelId` creates the session on the chat's model. Without it Fuigo starts
+ *  on its own default (`flux-auto`), and a Flux tier persisted on the row is
+ *  never re-applied at bootstrap (a Flux id on a Flux-capable backend is
+ *  treated as carried by the spawn env, which Fuigo's spawn does not set), so
+ *  the header showed the row's model while `flux-auto` ran. */
 export function buildFuigoSessionMetadata(opts: {
   nonInteractive: boolean;
   pluginDirs?: string[];
+  modelId?: string;
 }): Record<string, unknown> {
   return {
     clientIdentifier: 'wayland-desktop',
     clientType: 'desktop',
     startupHints: { nonInteractive: opts.nonInteractive },
     ...(opts.pluginDirs?.length ? { pluginDirs: opts.pluginDirs } : {}),
+    ...(opts.modelId ? { modelId: opts.modelId } : {}),
   };
 }
 
