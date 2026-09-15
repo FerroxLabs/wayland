@@ -56,33 +56,49 @@ const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTER
  * CLOSED — the worst case is an error the user must retry by hand, which is
  * exactly where they were before #774.
  *
- * Matched only for UNTYPED failures (string `data`, or an object without `error_kind` /
- * `http_status`), against `acpErr.message` and `acpErr.dataText` — the serialized `data`,
- * which the message no longer carries once an object's `message` is shown instead — so
- * both prose and machine-readable codes still land here exactly as before.
+ * Matched against `acpErr.rawMessage` — the message as it read BEFORE an object `data` was rendered as
+ * `data.message` — so both prose and machine-readable codes land here on exactly the characters they
+ * landed on before typed data existed. Matching the sanitized message instead would widen it: flattening
+ * a newline turns `connection\nreset` into `connection reset` and starts replaying a failure that was
+ * always final.
  */
 const TRANSIENT_DETAIL =
   /\b5\d\d\b|connection\s+(error|reset|closed|refused)|econnreset|econnrefused|epipe|etimedout|econnaborted|eai_again|socket\s+hang\s*up|timed?\s*out|timeout|overloaded|temporarily\s+unavailable|service\s+unavailable|\bunavailable\b|try\s+again|upstream\s+(connect\s+)?(error|disconnect)|internal\s+server\s+error|had\s+an\s+error\s+while\s+processing|fetch\s+failed|network\s+error|bad\s+gateway|premature\s+close|other\s+side\s+closed|stream\s+(closed|disconnected)/i;
 
 /**
- * Typed failures (Fuigo 1.0.18 `data.error_kind` / `data.http_status`) are decided by those fields, never by
- * prose, and just as much an allowlist: `idle_timeout` is transient on its own; a 5xx is transient when no kind
- * accompanies it (Fuigo <= 1.0.17 `{ message, http_status }`) or its kind only carries the status (`api`, `http`).
- * Everything else is final — `empty_response` (an identical resend is served the same empty reply),
- * `rate_limited` even on a 529, `auth`, `cancelled`, `session_unavailable`, and any kind this client does not
- * know.
+ * `data.error_kind` values that are a transient condition all by themselves: the model went quiet, and the
+ * same prompt sent again is a genuinely different roll.
  */
 const TRANSIENT_ERROR_KINDS: ReadonlySet<string> = new Set(['idle_timeout']);
+
+/**
+ * Kinds that say only HOW the call failed, not what the verdict was: `api` is any non-2xx from the provider,
+ * `http` any transport fault. They carry no judgement of their own, so they are decided the way the identical
+ * failure was decided before typed data existed — transient prose, or a 5xx.
+ */
 const STATUS_REPORTING_ERROR_KINDS: ReadonlySet<string> = new Set(['api', 'http']);
 
+/**
+ * Typed failures (Fuigo 1.0.18 `data.error_kind` / `data.http_status`) are decided by those fields rather than
+ * by whatever their prose happens to say, and the list is an allowlist like the one above: `idle_timeout`
+ * replays; `api` / `http` replay exactly as that same failure replayed before this typing existed. Every other
+ * kind is FINAL, including ones whose prose reads transient — `empty_response` (the defect this exists for:
+ * an identical resend is served the same empty reply), `rate_limited`, `auth`, `cancelled`,
+ * `session_unavailable`, `max_tokens_truncation`, `doom_loop_detected` — and so is any kind this client has
+ * never heard of.
+ *
+ * Untyped failures (a bare string `data`, or an object carrying neither field) keep the prose match they
+ * always had. `{ message, http_status }` with no kind is Fuigo <= 1.0.17: prose decides, and any 5xx
+ * replays, which is what its JSON did when the status was still part of the matched text.
+ */
 function isTransientPromptFailure(acpErr: AcpError): boolean {
-  const { errorKind, httpStatus, dataText } = acpErr;
-  if (errorKind === undefined && httpStatus === undefined) {
-    return TRANSIENT_DETAIL.test(acpErr.message) || (dataText !== undefined && TRANSIENT_DETAIL.test(dataText));
+  const { errorKind, httpStatus } = acpErr;
+  if (errorKind !== undefined) {
+    if (TRANSIENT_ERROR_KINDS.has(errorKind)) return true;
+    if (!STATUS_REPORTING_ERROR_KINDS.has(errorKind)) return false;
   }
-  if (errorKind !== undefined && TRANSIENT_ERROR_KINDS.has(errorKind)) return true;
-  const statusDecides = errorKind === undefined || STATUS_REPORTING_ERROR_KINDS.has(errorKind);
-  return statusDecides && httpStatus !== undefined && httpStatus >= 500 && httpStatus <= 599;
+  if (httpStatus !== undefined && httpStatus >= 500 && httpStatus <= 599) return true;
+  return TRANSIENT_DETAIL.test(acpErr.rawMessage ?? acpErr.message);
 }
 
 /**

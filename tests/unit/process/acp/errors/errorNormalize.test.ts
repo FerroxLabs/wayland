@@ -155,3 +155,61 @@ describe('normalizeError - typed engine error data (Fuigo 1.0.18)', () => {
     expect(result.httpStatus).toBeUndefined();
   });
 });
+
+/**
+ * `data.message` is rendered by an agent we do not control and lands in the chat verbatim, so the invisible
+ * characters that let text lie about itself — bidi overrides and isolates, zero-width joiners and marks, the
+ * BOM — come out alongside control characters. A plain-string `data` is untouched, as it always was.
+ */
+describe('normalizeError - invisible characters in data.message', () => {
+  const internal = (data: unknown) => new RequestError(-32603, 'Internal error', data);
+
+  it('strips bidi overrides and isolates', () => {
+    const result = normalizeError(
+      internal({
+        message: 'delete ‮gnp.txt‬ now ⁦and⁩ later',
+        error_kind: 'api',
+      })
+    );
+    expect(result.message).toBe('Internal error: delete gnp.txt now and later');
+  });
+
+  it('strips zero-width characters and the BOM', () => {
+    const result = normalizeError(internal({ message: '﻿upstream​ request‍ failed‎', error_kind: 'api' }));
+    expect(result.message).toBe('Internal error: upstream request failed');
+  });
+
+  it('leaves plain-string data exactly as the agent sent it', () => {
+    const result = normalizeError(internal('upstream​ request ‮failed'));
+    expect(result.message).toBe('Internal error: upstream​ request ‮failed');
+  });
+});
+
+/**
+ * Replay decisions used to read the JSON that `withErrorDetail` folded into the message. Now that the
+ * message shows `data.message` instead, the pre-sanitisation text travels on the error so those decisions
+ * can keep matching exactly what they matched before — and nothing else.
+ */
+describe('normalizeError - rawMessage carries the pre-sanitisation text', () => {
+  const internal = (data: unknown) => new RequestError(-32603, 'Internal error', data);
+
+  it('is the message the base rendered, JSON and all', () => {
+    const result = normalizeError(internal({ message: 'connection\nreset by peer', error_kind: 'api' }));
+    expect(result.message).toBe('Internal error: connection reset by peer');
+    expect(result.rawMessage).toBe('Internal error: {"message":"connection\\nreset by peer","error_kind":"api"}');
+  });
+
+  it('is the plain message when there is no data to fold in', () => {
+    const result = normalizeError(new RequestError(-32603, 'Internal error'));
+    expect(result.rawMessage).toBe('Internal error');
+  });
+
+  it('is present on the legacy payload path too', () => {
+    const result = normalizeError({
+      code: -32603,
+      message: 'Internal error',
+      data: { message: 'upstream request failed', error_kind: 'api', http_status: 503 },
+    });
+    expect(result.rawMessage).toContain('"http_status":503');
+  });
+});

@@ -408,10 +408,14 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
 
 /**
  * Fuigo 1.0.18 sends -32603 with object data `{ message, error_kind, http_status? }`. The user now sees
- * `data.message`; the replay decision must not have been riding on the JSON that used to leak into the
- * message (`"http_status":503` matched `\b5\d\d\b`). Typed fields decide explicitly, as an allowlist:
- * a 5xx status and `idle_timeout` replay; every other kind, known or not, is final.
- * String data and untyped objects keep the prose match they had before.
+ * `data.message`, so the replay decision can no longer ride on the JSON that used to leak into the message
+ * (`"http_status":503` matched `\b5\d\d\b`) — it reads the typed fields and the RAW pre-sanitisation text.
+ *
+ * The rule, as an allowlist: `idle_timeout` replays; `api` / `http` only report HOW the call failed, so they
+ * are decided exactly as the same failure was before this branch (transient prose, or any 5xx); every other
+ * kind — `empty_response`, `rate_limited`, `auth`, `cancelled`, `session_unavailable`,
+ * `max_tokens_truncation`, `doom_loop_detected`, and anything this client has never heard of — is final.
+ * Untyped failures (a bare string, or an object with neither field) keep the prose match they had before.
  */
 describe('PromptExecutor - typed engine error data decides replay explicitly', () => {
   let host: ReturnType<typeof createHost>['host'];
@@ -428,55 +432,233 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
   /** A JSON-RPC -32603 as the SDK hands it to the client. */
   const internal = (data: unknown) => new RequestError(-32603, 'Internal error', data);
 
-  const REPLAYED: Array<[string, unknown]> = [
-    ['a typed 503', { message: 'upstream request failed', error_kind: 'api', http_status: 503 }],
-    ['a status-only 502 (Fuigo <= 1.0.17 object shape)', { message: 'upstream request failed', http_status: 502 }],
-    ['typed idle_timeout', { message: 'No response from model for 90s', error_kind: 'idle_timeout' }],
-    ['plain-string transient data', 'Service Unavailable'],
-    ['an untyped object whose status is only in its JSON', { message: 'provider hiccup', status: 503 }],
+  /**
+   * Characterisation table. `base` is what this exact shape did BEFORE the typed-data branch
+   * (`TRANSIENT_DETAIL` over `Internal error: <JSON or string of data>`), proven by running this same
+   * table against `origin/main`. `now` is what it must do on this branch. A row where the two differ has
+   * to say why, in `divergence` — so a future edit that quietly changes a decision fails here rather than
+   * in someone's chat.
+   */
+  type ReplayDecision = 'replay' | 'final';
+  type Characterisation = {
+    name: string;
+    data: unknown;
+    base: ReplayDecision;
+    now: ReplayDecision;
+    divergence?: string;
+  };
+
+  const CHARACTERISATION: Characterisation[] = [
+    // --- Fuigo 1.0.18 typed shapes: transient-capable kinds -------------------------------------
+    {
+      name: 'api, overloaded (the copy Fuigo sends for 529 / overloaded_error)',
+      data: { message: 'Model is temporarily overloaded. Try again in a moment.', error_kind: 'api' },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'api, overloaded, with the 529 status attached',
+      data: {
+        message: 'Model is temporarily overloaded. Try again in a moment.',
+        error_kind: 'api',
+        http_status: 529,
+      },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'api, a provider stream error',
+      data: { message: 'api_error: Internal server error', error_kind: 'api' },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'api, a 5xx the prose does not mention',
+      data: { message: 'upstream request failed', error_kind: 'api', http_status: 503 },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'api, a 4xx whose prose is transient',
+      data: { message: 'request timed out', error_kind: 'api', http_status: 408 },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'http, a dropped connection with no status',
+      data: { message: 'connection closed before message completed', error_kind: 'http' },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'idle_timeout',
+      data: { message: 'No response from model for 90s — the model may be stuck', error_kind: 'idle_timeout' },
+      base: 'replay',
+      now: 'replay',
+    },
+
+    // --- Fuigo 1.0.18 typed shapes: final kinds ---------------------------------------------------
+    {
+      name: 'empty_response (reasoning_only)',
+      data: {
+        message: 'empty response from model (reasoning_only): model=m, had_reasoning=true, finish_reason=stop',
+        error_kind: 'empty_response',
+      },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'empty_response after a proxy 503 replay storm',
+      data: {
+        message: 'empty response from model (no_visible_content): model=m, had_reasoning=true, finish_reason=stop',
+        error_kind: 'empty_response',
+        http_status: 503,
+      },
+      base: 'replay',
+      now: 'final',
+      divergence:
+        'the defect this branch exists for: an identical resend is served the same cached empty reply, 15 times over',
+    },
+    {
+      name: 'rate_limited',
+      data: { message: 'Rate limited', error_kind: 'rate_limited' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'auth',
+      data: { message: 'Authentication failed for provider', error_kind: 'auth' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'cancelled',
+      data: { message: 'request was cancelled', error_kind: 'cancelled' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'session_unavailable, whose prose reads transient',
+      data: { message: 'session temporarily unavailable', error_kind: 'session_unavailable' },
+      base: 'replay',
+      now: 'final',
+      divergence: 'the session actor is gone; the same prompt cannot reach it by being sent again',
+    },
+    {
+      name: 'max_tokens_truncation',
+      data: { message: 'response truncated: max output tokens reached', error_kind: 'max_tokens_truncation' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'doom_loop_detected',
+      data: { message: 'doom loop detected: the model repeated itself', error_kind: 'doom_loop_detected' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'an unknown kind, even with a 5xx and transient prose',
+      data: { message: 'connection reset', error_kind: 'brand_new_kind', http_status: 503 },
+      base: 'replay',
+      now: 'final',
+      divergence: 'the allowlist fails closed: a kind this client has never seen is a verdict until we know better',
+    },
+
+    // --- Fuigo <= 1.0.17 object shapes: `{ message, http_status }`, no kind ------------------------
+    {
+      name: 'status-only 502',
+      data: { message: 'upstream request failed', http_status: 502 },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'status-only 408 whose prose is transient',
+      data: { message: 'Request Timeout', http_status: 408 },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'an untyped object whose status is only in its JSON',
+      data: { message: 'provider hiccup', status: 503 },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'an untyped object whose transient words are only adjacent across a newline',
+      data: { message: 'connection\nreset by peer' },
+      base: 'final',
+      now: 'final',
+    },
+
+    // --- Fuigo 1.0.16 string shapes ---------------------------------------------------------------
+    {
+      name: 'string data, empty response',
+      data: 'empty response from model (reasoning_only): model=m, had_reasoning=true, finish_reason=stop',
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'string data, overloaded',
+      data: 'Model is temporarily overloaded. Try again in a moment.',
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'string data, a dropped connection',
+      data: 'stream error: connection closed before message completed',
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'string data, an HTTP status in prose',
+      data: 'HTTP 503 Service Unavailable',
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'string data, rate limited',
+      data: 'Rate limited',
+      base: 'final',
+      now: 'final',
+    },
   ];
-  for (const [name, data] of REPLAYED) {
-    it(`replays ${name}`, async () => {
-      prompt.mockRejectedValueOnce(internal(data)).mockResolvedValueOnce({ stopReason: 'end_turn' });
-      await executor.execute(CONTENT);
-      expect(prompt).toHaveBeenCalledTimes(2);
+
+  for (const row of CHARACTERISATION) {
+    it(`${row.now === 'replay' ? 'replays' : 'does NOT replay'} ${row.name}`, async () => {
+      prompt.mockReset();
+      prompt.mockRejectedValueOnce(internal(row.data)).mockResolvedValue({ stopReason: 'end_turn' });
+
+      if (row.now === 'replay') {
+        await executor.execute(CONTENT);
+        expect(prompt).toHaveBeenCalledTimes(2);
+      } else {
+        await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+        expect(prompt).toHaveBeenCalledTimes(1);
+      }
     });
   }
 
-  const FINAL: Array<[string, unknown]> = [
-    [
-      'empty_response',
-      {
-        message: 'empty response from model (reasoning_only): model=m, finish_reason=stop',
-        error_kind: 'empty_response',
-      },
-    ],
-    [
-      'rate_limited, even with a 529 status and "overloaded" prose',
-      { message: 'Overloaded', error_kind: 'rate_limited', http_status: 529 },
-    ],
-    ['rate_limit', { message: 'slow down and try again', error_kind: 'rate_limit' }],
-    ['auth', { message: 'credentials rejected, try again', error_kind: 'auth' }],
-    ['cancelled', { message: 'request cancelled', error_kind: 'cancelled' }],
-    [
-      'session_unavailable, whatever its prose says',
-      { message: 'session temporarily unavailable', error_kind: 'session_unavailable' },
-    ],
-    [
+  it('changes no decision it does not explain', () => {
+    const undeclared = CHARACTERISATION.filter((row) => row.base !== row.now && !row.divergence);
+    expect(undeclared.map((row) => row.name)).toEqual([]);
+    // And the ones that do diverge are exactly the deliberate ones.
+    expect(CHARACTERISATION.filter((row) => row.divergence).map((row) => row.name)).toEqual([
+      'empty_response after a proxy 503 replay storm',
+      'session_unavailable, whose prose reads transient',
       'an unknown kind, even with a 5xx and transient prose',
-      { message: 'connection reset', error_kind: 'brand_new_kind', http_status: 503 },
-    ],
-    ['the http kind without a status', { message: 'connection closed before message completed', error_kind: 'http' }],
-    ['a typed 4xx, even with "timed out" prose', { message: 'request timed out', error_kind: 'api', http_status: 408 }],
-    ['plain-string final data', 'empty response from model (reasoning_only)'],
-  ];
-  for (const [name, data] of FINAL) {
-    it(`does NOT replay ${name}`, async () => {
-      prompt.mockRejectedValue(internal(data));
-      await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
-      expect(prompt).toHaveBeenCalledTimes(1);
-    });
-  }
+    ]);
+  });
+
+  it('matches transient prose on the raw text, not on the sanitized message', async () => {
+    // Sanitizing flattened the newline to a space, which would turn a phrase the base read as two
+    // unrelated words into `connection reset` and start replaying a failure nobody replayed before.
+    prompt.mockRejectedValue(internal({ message: 'connection\nreset by peer' }));
+
+    const rejection = await executor.execute(CONTENT).catch((e: unknown) => e);
+
+    expect(prompt).toHaveBeenCalledTimes(1);
+    expect((rejection as AcpError).message).toBe('Internal error: connection reset by peer');
+  });
 
   it('shows data.message in the retry banner and the final error, not raw JSON', async () => {
     prompt.mockRejectedValue(internal({ message: 'upstream request failed', error_kind: 'api', http_status: 503 }));

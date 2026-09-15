@@ -32,15 +32,20 @@ export type AcpErrorDetail = {
   errorKind?: string;
   /** `data.http_status`: the upstream HTTP status, when the agent reported one. */
   httpStatus?: number;
-  /** The raw `data` as text (objects JSON-serialized), for machine matching only; never shown to the user. */
-  dataText?: string;
+  /**
+   * The message as it read BEFORE typed rendering — the JSON-RPC message with the raw `data` appended
+   * (objects JSON-serialized, exactly what users saw until 1.0.18 shapes arrived). For machine matching
+   * only, so decisions that used to read prose out of that text keep matching the same characters;
+   * never shown to anyone.
+   */
+  rawMessage?: string;
 };
 
 export class AcpError extends Error {
   readonly retryable: boolean;
   readonly errorKind?: string;
   readonly httpStatus?: number;
-  readonly dataText?: string;
+  readonly rawMessage?: string;
 
   constructor(
     public readonly code: AcpErrorCode,
@@ -52,7 +57,7 @@ export class AcpError extends Error {
     this.retryable = options?.retryable ?? false;
     this.errorKind = options?.errorKind;
     this.httpStatus = options?.httpStatus;
-    this.dataText = options?.dataText;
+    this.rawMessage = options?.rawMessage;
   }
 }
 
