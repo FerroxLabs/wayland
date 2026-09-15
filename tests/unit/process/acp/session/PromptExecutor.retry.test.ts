@@ -411,9 +411,10 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
  * `data.message`, so the replay decision can no longer ride on the JSON that used to leak into the message
  * (`"http_status":503` matched `\b5\d\d\b`) — it reads the typed fields and the RAW pre-sanitisation text.
  *
- * The rule, as an allowlist: `idle_timeout` replays; `api` / `http` only report HOW the call failed, so they
- * are decided exactly as the same failure was before this branch (transient prose, or any 5xx); every other
- * kind — `empty_response`, `rate_limited`, `auth`, `cancelled`, `session_unavailable`,
+ * The rule, as an allowlist: `idle_timeout` replays; `api` / `http` / `compaction` only report HOW the call
+ * failed (the provider's status, the transport, or Fuigo's own summariser call — never the prompt's verdict),
+ * so they are decided exactly as the same failure was before this branch (transient prose, or any 5xx);
+ * every other kind — `empty_response`, `rate_limited`, `auth`, `cancelled`, `session_unavailable`,
  * `max_tokens_truncation`, `doom_loop_detected`, and anything this client has never heard of — is final.
  * Untyped failures (a bare string, or an object with neither field) keep the prose match they had before.
  */
@@ -562,6 +563,75 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
       base: 'replay',
       now: 'final',
       divergence: 'the allowlist fails closed: a kind this client has never seen is a verdict until we know better',
+    },
+
+    // --- Fuigo 1.0.18 typed shapes: `compaction`, the recovery attempt's own failure -------------
+    // Shapes taken from Fuigo's source (`session_compact.rs` COMPACT_FAILED_PREFIX + the sampling
+    // error's Display, `acp_error::compaction`): `{ kind, message, error_kind: 'compaction' }`. The
+    // kind says the SUMMARISER call failed, not what the prompt's verdict is, so — like `api` and
+    // `http` — the text decides, exactly as it decided on 1.0.17 when the same failure arrived
+    // untyped. A second compaction attempt is a different request, so a resend is a different roll.
+    {
+      name: 'compaction, a reset socket on the summariser call',
+      data: {
+        kind: 'failed',
+        message: 'compact failed: request error: error sending request: connection reset by peer',
+        error_kind: 'compaction',
+      },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'compaction, a 503 from the summariser',
+      data: {
+        kind: 'failed',
+        message: 'compact failed: API error (status 503 Service Unavailable): upstream connect error',
+        error_kind: 'compaction',
+      },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'compaction, the summariser stream going quiet',
+      data: {
+        kind: 'failed',
+        message: 'compact failed: stream idle timeout after 90s (0 chars received)',
+        error_kind: 'compaction',
+      },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'compaction, an overloaded provider stream event',
+      data: {
+        kind: 'failed',
+        message: 'compact failed: stream error (overloaded_error): Overloaded',
+        error_kind: 'compaction',
+      },
+      base: 'replay',
+      now: 'replay',
+    },
+    {
+      name: 'compaction with nothing to compact — the prose was never transient',
+      data: { kind: 'failed', message: 'compact failed: nothing to compact', error_kind: 'compaction' },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'compaction hitting the wall-clock backstop',
+      data: {
+        kind: 'failed',
+        message: 'compact failed: exceeded wall-clock budget 300s (runaway generation)',
+        error_kind: 'compaction',
+      },
+      base: 'final',
+      now: 'final',
+    },
+    {
+      name: 'compaction cancelled — Fuigo tags the cancel `cancelled`, not `compaction`',
+      data: { kind: 'cancelled', message: 'compact cancelled', error_kind: 'cancelled' },
+      base: 'final',
+      now: 'final',
     },
 
     // --- Fuigo <= 1.0.17 object shapes: `{ message, http_status }`, no kind ------------------------

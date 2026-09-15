@@ -73,19 +73,27 @@ const TRANSIENT_ERROR_KINDS: ReadonlySet<string> = new Set(['idle_timeout']);
 
 /**
  * Kinds that say only HOW the call failed, not what the verdict was: `api` is any non-2xx from the provider,
- * `http` any transport fault. They carry no judgement of their own, so they are decided the way the identical
- * failure was decided before typed data existed — transient prose, or a 5xx.
+ * `http` any transport fault, `compaction` a failure of the summariser call Fuigo makes to recover from a
+ * full context. They carry no judgement of their own, so they are decided the way the identical failure was
+ * decided before typed data existed — transient prose, or a 5xx.
+ *
+ * `compaction` belongs here because it does not describe the PROMPT: it says the recovery attempt failed, and
+ * whether that was an idle timeout, a reset socket, a 503 from the summariser or "nothing to compact" is in
+ * the text, which is exactly what decided it on 1.0.17 when the same failure arrived untyped. The summariser
+ * is a DIFFERENT request from the prompt, so sending the turn again is a different roll — not the identical
+ * resend that `empty_response` exists to stop. Leaving it out ended the turn on the first blip, which is the
+ * #774 experience this whole replay loop was written to remove.
  */
-const STATUS_REPORTING_ERROR_KINDS: ReadonlySet<string> = new Set(['api', 'http']);
+const STATUS_REPORTING_ERROR_KINDS: ReadonlySet<string> = new Set(['api', 'http', 'compaction']);
 
 /**
  * Typed failures (Fuigo 1.0.18 `data.error_kind` / `data.http_status`) are decided by those fields rather than
  * by whatever their prose happens to say, and the list is an allowlist like the one above: `idle_timeout`
- * replays; `api` / `http` replay exactly as that same failure replayed before this typing existed. Every other
- * kind is FINAL, including ones whose prose reads transient — `empty_response` (the defect this exists for:
- * an identical resend is served the same empty reply), `rate_limited`, `auth`, `cancelled`,
- * `session_unavailable`, `max_tokens_truncation`, `doom_loop_detected` — and so is any kind this client has
- * never heard of.
+ * replays; `api` / `http` / `compaction` replay exactly as that same failure replayed before this typing
+ * existed. Every other kind is FINAL, including ones whose prose reads transient — `empty_response` (the
+ * defect this exists for: an identical resend is served the same empty reply), `rate_limited`, `auth`,
+ * `cancelled`, `session_unavailable`, `max_tokens_truncation`, `doom_loop_detected` — and so is any kind this
+ * client has never heard of.
  *
  * Untyped failures (a bare string `data`, or an object carrying neither field) keep the prose match they
  * always had. `{ message, http_status }` with no kind is Fuigo <= 1.0.17: prose decides, and any 5xx
