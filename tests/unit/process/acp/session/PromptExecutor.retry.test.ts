@@ -22,6 +22,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PromptExecutor, type PromptHost } from '@process/acp/session/PromptExecutor';
 import { AcpError } from '@process/acp/errors/AcpError';
+import { RequestError } from '@agentclientprotocol/sdk';
 import type { PromptContent } from '@process/acp/types';
 
 const FAST_RETRY = { attempts: 3, backoff: { initialMs: 0, maxMs: 0, factor: 1, jitter: 0 } };
@@ -402,5 +403,89 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
 
     await expect(shortLived.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
     expect(prompt).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * Fuigo 1.0.18 sends -32603 with object data `{ message, error_kind, http_status? }`. The user now sees
+ * `data.message`; the replay decision must not have been riding on the JSON that used to leak into the
+ * message (`"http_status":503` matched `\b5\d\d\b`). Typed fields decide explicitly, as an allowlist:
+ * a 5xx status and `idle_timeout` replay; every other kind, known or not, is final.
+ * String data and untyped objects keep the prose match they had before.
+ */
+describe('PromptExecutor - typed engine error data decides replay explicitly', () => {
+  let host: ReturnType<typeof createHost>['host'];
+  let prompt: ReturnType<typeof vi.fn>;
+  let executor: PromptExecutor;
+
+  beforeEach(() => {
+    ({ host, prompt } = createHost());
+    executor = new PromptExecutor(host, 60_000, FAST_RETRY);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  /** A JSON-RPC -32603 as the SDK hands it to the client. */
+  const internal = (data: unknown) => new RequestError(-32603, 'Internal error', data);
+
+  const REPLAYED: Array<[string, unknown]> = [
+    ['a typed 503', { message: 'upstream request failed', error_kind: 'api', http_status: 503 }],
+    ['a status-only 502 (Fuigo <= 1.0.17 object shape)', { message: 'upstream request failed', http_status: 502 }],
+    ['typed idle_timeout', { message: 'No response from model for 90s', error_kind: 'idle_timeout' }],
+    ['plain-string transient data', 'Service Unavailable'],
+    ['an untyped object whose status is only in its JSON', { message: 'provider hiccup', status: 503 }],
+  ];
+  for (const [name, data] of REPLAYED) {
+    it(`replays ${name}`, async () => {
+      prompt.mockRejectedValueOnce(internal(data)).mockResolvedValueOnce({ stopReason: 'end_turn' });
+      await executor.execute(CONTENT);
+      expect(prompt).toHaveBeenCalledTimes(2);
+    });
+  }
+
+  const FINAL: Array<[string, unknown]> = [
+    [
+      'empty_response',
+      {
+        message: 'empty response from model (reasoning_only): model=m, finish_reason=stop',
+        error_kind: 'empty_response',
+      },
+    ],
+    [
+      'rate_limited, even with a 529 status and "overloaded" prose',
+      { message: 'Overloaded', error_kind: 'rate_limited', http_status: 529 },
+    ],
+    ['rate_limit', { message: 'slow down and try again', error_kind: 'rate_limit' }],
+    ['auth', { message: 'credentials rejected, try again', error_kind: 'auth' }],
+    ['cancelled', { message: 'request cancelled', error_kind: 'cancelled' }],
+    [
+      'session_unavailable, whatever its prose says',
+      { message: 'session temporarily unavailable', error_kind: 'session_unavailable' },
+    ],
+    [
+      'an unknown kind, even with a 5xx and transient prose',
+      { message: 'connection reset', error_kind: 'brand_new_kind', http_status: 503 },
+    ],
+    ['the http kind without a status', { message: 'connection closed before message completed', error_kind: 'http' }],
+    ['a typed 4xx, even with "timed out" prose', { message: 'request timed out', error_kind: 'api', http_status: 408 }],
+    ['plain-string final data', 'empty response from model (reasoning_only)'],
+  ];
+  for (const [name, data] of FINAL) {
+    it(`does NOT replay ${name}`, async () => {
+      prompt.mockRejectedValue(internal(data));
+      await expect(executor.execute(CONTENT)).rejects.toBeInstanceOf(AcpError);
+      expect(prompt).toHaveBeenCalledTimes(1);
+    });
+  }
+
+  it('shows data.message in the retry banner and the final error, not raw JSON', async () => {
+    prompt.mockRejectedValue(internal({ message: 'upstream request failed', error_kind: 'api', http_status: 503 }));
+
+    const rejection = await executor.execute(CONTENT).catch((e: unknown) => e);
+
+    const signals = (host.callbacks.onSignal as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]);
+    const banner = signals.find((s) => s.type === 'error');
+    expect(banner.message).toBe('Internal error: upstream request failed — retrying (1/3)');
+    expect((rejection as AcpError).message).toBe('Internal error: upstream request failed');
   });
 });

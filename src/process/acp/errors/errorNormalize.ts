@@ -1,7 +1,7 @@
 // src/process/acp/errors/errorNormalize.ts
 
 import { RequestError } from '@agentclientprotocol/sdk';
-import { AcpError, type AcpErrorCode } from '@process/acp/errors/AcpError';
+import { AcpError, type AcpErrorCode, type AcpErrorDetail } from '@process/acp/errors/AcpError';
 import { extractAcpError, formatUnknownError } from '@process/acp/errors/errorExtract';
 
 /**
@@ -44,12 +44,20 @@ const ACP_CODE_MAP: Record<number, { code: AcpErrorCode; retryable: boolean }> =
 
 const RETRYABLE_ERRNO = new Set(['ECONNREFUSED', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT']);
 
-/**
- * JSON-RPC errors (notably -32603 "Internal error") carry the human-readable
- * detail in `data`, not `message`. Render that detail as a string so it can be
- * folded into the surfaced message instead of being discarded.
- */
-function describeErrorData(data: unknown): string {
+/** Longest `data.message` folded into the user-visible message; the full error stays on `cause`. */
+const MAX_DATA_MESSAGE_CHARS = 1000;
+
+// eslint-disable-next-line no-control-regex -- control characters are exactly what is being removed
+const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]+/g;
+
+function asDataRecord(data: unknown): Record<string, unknown> | undefined {
+  return data !== null && typeof data === 'object' && !Array.isArray(data)
+    ? (data as Record<string, unknown>)
+    : undefined;
+}
+
+/** `data` as text: a string trimmed, anything else JSON. What the message carried before typed rendering. */
+function serializeErrorData(data: unknown): string {
   if (data == null) return '';
   if (typeof data === 'string') return data.trim();
   try {
@@ -58,6 +66,49 @@ function describeErrorData(data: unknown): string {
   } catch {
     return '';
   }
+}
+
+/**
+ * An engine's `data.message` reaches the chat verbatim, so flatten control characters (terminal escapes,
+ * NULs, newlines) to single spaces and cap the length.
+ */
+function sanitizeDataMessage(message: string): string {
+  const flattened = message.replace(CONTROL_CHARS, ' ').replace(/\s+/g, ' ').trim();
+  const chars = Array.from(flattened);
+  if (chars.length <= MAX_DATA_MESSAGE_CHARS) return flattened;
+  return `${chars.slice(0, MAX_DATA_MESSAGE_CHARS - 1).join('')}\u2026`;
+}
+
+/**
+ * JSON-RPC errors (notably -32603 "Internal error") carry the human-readable
+ * detail in `data`, not `message`. Render that detail as a string so it can be
+ * folded into the surfaced message instead of being discarded.
+ *
+ * Object data with a string `message` (Fuigo 1.0.18: `{ message, error_kind, http_status? }`) shows that
+ * message, sanitized, never the raw object; its typed fields travel on the AcpError instead
+ * (`errorDataDetail`). Plain strings and other objects render as before.
+ */
+function describeErrorData(data: unknown): string {
+  const record = asDataRecord(data);
+  if (record && typeof record.message === 'string') return sanitizeDataMessage(record.message);
+  return serializeErrorData(data);
+}
+
+/**
+ * The machine-readable half of an agent's error `data`: `error_kind` and `http_status` when well-formed, and
+ * the serialized `data` for matchers that still read prose from untyped agents.
+ */
+function errorDataDetail(data: unknown): AcpErrorDetail {
+  const record = asDataRecord(data);
+  const kind = record?.error_kind;
+  const status = record?.http_status;
+  const dataText = serializeErrorData(data);
+  return {
+    errorKind: typeof kind === 'string' && kind !== '' ? kind : undefined,
+    httpStatus:
+      typeof status === 'number' && Number.isInteger(status) && status >= 100 && status <= 599 ? status : undefined,
+    dataText: dataText || undefined,
+  };
 }
 
 /**
@@ -108,11 +159,13 @@ export function normalizeError(error: unknown): AcpError {
       return new AcpError(mapped.code, withErrorDetail(error.message, error.data), {
         cause: error,
         retryable: mapped.retryable,
+        ...errorDataDetail(error.data),
       });
     }
     return new AcpError('AGENT_ERROR', withErrorDetail(error.message, error.data), {
       cause: error,
       retryable: false,
+      ...errorDataDetail(error.data),
     });
   }
 
@@ -134,11 +187,13 @@ export function normalizeError(error: unknown): AcpError {
       return new AcpError(mapped.code, withErrorDetail(acpPayload.message, acpPayload.data), {
         cause: error,
         retryable: mapped.retryable,
+        ...errorDataDetail(acpPayload.data),
       });
     }
     return new AcpError('AGENT_ERROR', withErrorDetail(acpPayload.message, acpPayload.data), {
       cause: error,
       retryable: false,
+      ...errorDataDetail(acpPayload.data),
     });
   }
 

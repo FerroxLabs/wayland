@@ -2,6 +2,8 @@
 import { describe, it, expect } from 'vitest';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import type { SessionNotification } from '@agentclientprotocol/sdk';
+import type { TMessage } from '@/common/chat/chatLib';
+import { toResponseMessage } from '@process/acp/compat/typeBridge';
 
 describe('MessageTranslator', () => {
   it('translates agent_message_chunk to TMessage', () => {
@@ -284,4 +286,51 @@ describe('MessageTranslator', () => {
     expect(id2).toBeTruthy();
     expect(id2).not.toBe(id1);
   });
+});
+
+/**
+ * Fuigo 1.0.18 mirrors retry progress onto the standard rail as a live `agent_thought_chunk` tagged
+ * `_meta["fuigo/retryStatus"]`. It is progress, not the answer: it must render as thinking and must
+ * never be folded into the assistant's reply text.
+ */
+describe('MessageTranslator - Fuigo retry progress is thinking, never answer text', () => {
+  const RETRY_TEXT = 'Retrying the model (1/2): empty response from model (reasoning_only)\n\n';
+  const RETRY_META = {
+    'fuigo/retryStatus': {
+      type: 'retrying',
+      attempt: 1,
+      max_retries: 2,
+      reason: 'empty response from model (reasoning_only)',
+      error_type: 'empty_response',
+    },
+  };
+
+  for (const messageId of [undefined, 'm1']) {
+    it(`keeps a fuigo/retryStatus thought out of the answer (messageId=${String(messageId)})`, () => {
+      const translator = new MessageTranslator('conv-1');
+      translator.onTurnStart();
+      const out: TMessage[] = [];
+      const push = (update: Record<string, unknown>) =>
+        out.push(...translator.translate({ sessionId: 's1', update } as unknown as SessionNotification));
+
+      push({
+        sessionUpdate: 'agent_thought_chunk',
+        messageId,
+        content: { type: 'text', text: RETRY_TEXT },
+        _meta: RETRY_META,
+      });
+      push({ sessionUpdate: 'agent_message_chunk', messageId, content: { type: 'text', text: 'Here is the answer.' } });
+
+      const thinking = out.filter((m) => m.type === 'thinking');
+      const text = out.filter((m) => m.type === 'text');
+      expect(thinking.map((m) => (m.content as { content: string }).content).join('')).toBe(RETRY_TEXT);
+      expect(text.map((m) => (m.content as { content: string }).content).join('')).toBe('Here is the answer.');
+      // Separate messages, so the renderer can never merge the progress line into the reply.
+      const textIds = new Set(text.map((m) => m.msg_id));
+      expect(thinking.some((m) => textIds.has(m.msg_id))).toBe(false);
+      // AcpAgentV2 hands these to AcpAgentManager: a `thought` becomes a thinking block, only `content` is reply text.
+      for (const m of thinking) expect(toResponseMessage(m, 'conv-1').type).toBe('thought');
+      for (const m of text) expect(toResponseMessage(m, 'conv-1').type).toBe('content');
+    });
+  }
 });

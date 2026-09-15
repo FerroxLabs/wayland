@@ -23,17 +23,36 @@ export type AcpErrorCode =
   | 'ACP_REQ_CANCELLED' // -32800
   | 'AGENT_ERROR'; // fallback for unmapped agent codes
 
+/**
+ * Typed detail from an agent's JSON-RPC error `data` (Fuigo 1.0.18 sends `{ message, error_kind, http_status? }`),
+ * carried as fields so decisions read them instead of parsing the user-visible message.
+ */
+export type AcpErrorDetail = {
+  /** `data.error_kind` (e.g. `empty_response`, `idle_timeout`); absent when the agent did not type the failure. */
+  errorKind?: string;
+  /** `data.http_status`: the upstream HTTP status, when the agent reported one. */
+  httpStatus?: number;
+  /** The raw `data` as text (objects JSON-serialized), for machine matching only; never shown to the user. */
+  dataText?: string;
+};
+
 export class AcpError extends Error {
   readonly retryable: boolean;
+  readonly errorKind?: string;
+  readonly httpStatus?: number;
+  readonly dataText?: string;
 
   constructor(
     public readonly code: AcpErrorCode,
     message: string,
-    options?: { cause?: unknown; retryable?: boolean }
+    options?: { cause?: unknown; retryable?: boolean } & AcpErrorDetail
   ) {
     super(message, { cause: options?.cause });
     this.name = 'AcpError';
     this.retryable = options?.retryable ?? false;
+    this.errorKind = options?.errorKind;
+    this.httpStatus = options?.httpStatus;
+    this.dataText = options?.dataText;
   }
 }
 
