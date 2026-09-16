@@ -15,7 +15,12 @@ const isExecutionMessage = (message: TMessage): boolean =>
   message.type === 'acp_tool_call';
 
 const isAcpExecutionMessage = (message: TMessage): boolean =>
-  message.type === 'acp_permission' || message.type === 'acp_tool_call' || message.type === 'plan';
+  message.type === 'acp_permission' ||
+  message.type === 'acp_tool_call' ||
+  message.type === 'plan' ||
+  // The persisted form of a turn-level `error` (prompt rejected, process died,
+  // session expired): the only evidence in the transcript that the TURN failed.
+  (message.type === 'tips' && message.content.type === 'error');
 
 /** Prevent completed historical turns from being replayed into the active run. */
 export function selectCurrentExecutionMessages(
