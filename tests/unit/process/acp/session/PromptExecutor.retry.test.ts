@@ -567,14 +567,18 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
 
     // --- Fuigo 1.0.18 typed shapes: `compaction`, the recovery attempt's own failure -------------
     // Shapes taken from Fuigo's source (`session_compact.rs` COMPACT_FAILED_PREFIX + the sampling
-    // error's Display, `acp_error::compaction`): `{ kind, message, error_kind: 'compaction' }`. The
-    // kind says the SUMMARISER call failed, not what the prompt's verdict is, so — like `api` and
-    // `http` — the text decides, exactly as it decided on 1.0.17 when the same failure arrived
+    // error's Display, `acp_error::compaction`). On the PROMPT path the error is built by
+    // `acp_error::compaction()` (`sampler_turn.rs` -> `run_compact_only` -> the compaction loop's
+    // last error) and carries exactly `{ message, error_kind: 'compaction' }` — no `kind` field.
+    // `kind` belongs to the separate `session/compact` RPC payload (`compaction.rs` restamps the
+    // error with `compact_error_data`), where its values are `compact_failed` / `compact_cancelled`,
+    // so these rows carry no `kind` at all rather than a value the prompt path never sends.
+    // The kind says the SUMMARISER call failed, not what the prompt's verdict is, so — like `api`
+    // and `http` — the text decides, exactly as it decided on 1.0.17 when the same failure arrived
     // untyped. A second compaction attempt is a different request, so a resend is a different roll.
     {
       name: 'compaction, a reset socket on the summariser call',
       data: {
-        kind: 'failed',
         message: 'compact failed: request error: error sending request: connection reset by peer',
         error_kind: 'compaction',
       },
@@ -584,7 +588,6 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
     {
       name: 'compaction, a 503 from the summariser',
       data: {
-        kind: 'failed',
         message: 'compact failed: API error (status 503 Service Unavailable): upstream connect error',
         error_kind: 'compaction',
       },
@@ -594,7 +597,6 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
     {
       name: 'compaction, the summariser stream going quiet',
       data: {
-        kind: 'failed',
         message: 'compact failed: stream idle timeout after 90s (0 chars received)',
         error_kind: 'compaction',
       },
@@ -604,7 +606,6 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
     {
       name: 'compaction, an overloaded provider stream event',
       data: {
-        kind: 'failed',
         message: 'compact failed: stream error (overloaded_error): Overloaded',
         error_kind: 'compaction',
       },
@@ -612,15 +613,27 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
       now: 'replay',
     },
     {
+      // The shape whose accidental promotion to REPLAY re-creates the storm this whole change
+      // exists to stop: FluxRouter serves the identical resend the same cached empty reply, billed
+      // every time. Fuigo emits it as `compact failed: model returned empty response`
+      // (`compaction.rs`, `full_replace_compaction.rs`) and, through `classify_sampling_error`
+      // (`session_compact.rs`), as `compact failed: empty response from model (<reason>)`. Neither
+      // prose matches TRANSIENT_DETAIL today, so this is final on base and final now — the row is
+      // here so a later widening with a token like `empty` goes red instead of shipping.
+      name: 'compaction whose summariser came back empty — the one shape a widening must never replay',
+      data: { message: 'compact failed: model returned empty response', error_kind: 'compaction' },
+      base: 'final',
+      now: 'final',
+    },
+    {
       name: 'compaction with nothing to compact — the prose was never transient',
-      data: { kind: 'failed', message: 'compact failed: nothing to compact', error_kind: 'compaction' },
+      data: { message: 'compact failed: nothing to compact', error_kind: 'compaction' },
       base: 'final',
       now: 'final',
     },
     {
       name: 'compaction hitting the wall-clock backstop',
       data: {
-        kind: 'failed',
         message: 'compact failed: exceeded wall-clock budget 300s (runaway generation)',
         error_kind: 'compaction',
       },
@@ -629,7 +642,7 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
     },
     {
       name: 'compaction cancelled — Fuigo tags the cancel `cancelled`, not `compaction`',
-      data: { kind: 'cancelled', message: 'compact cancelled', error_kind: 'cancelled' },
+      data: { message: 'compact cancelled', error_kind: 'cancelled' },
       base: 'final',
       now: 'final',
     },

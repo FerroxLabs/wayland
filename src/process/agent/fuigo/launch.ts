@@ -208,9 +208,26 @@ const BUDGET_DATA = /^execution budget: (model dispatch limit|wall deadline) exh
  * The user-facing reason when a prompt failed because Fuigo hit a process
  * budget, or null for any other failure. Reads the JSON-RPC `data` of the
  * prompt error (walking `cause`, since the ACP layer wraps the SDK error).
+ *
+ * Fuigo's terminal error `data` carries the budget text in two shapes and both
+ * are live: 1.0.16 (the pinned engine, `scripts/fuigo/authority.json`) answers
+ * `acp::Error::invalid_params().data(WALL_LIMIT)` — a bare string — while
+ * 1.0.18 types every terminal error as an object
+ * (`acp_error::invalid_params(WALL_LIMIT)` -> `{ message, error_kind }`), the
+ * same shape `errorNormalize` reads elsewhere in this process. Matching only
+ * the string left a wall-budget stop on 1.0.18 showing the generic
+ * engine-failure banner with no explanation, so the budget text is matched
+ * wherever it is: `data`, or `data.message`.
  */
 export function describeFuigoBudgetStop(err: unknown): string | null {
   const minutes = Math.round(FUIGO_UNATTENDED_MAX_RUNTIME_SECS / 60);
+  const fromBudgetText = (text: string): string | null => {
+    const m = BUDGET_DATA.exec(text.trim());
+    if (!m) return null;
+    return m[1] === 'wall deadline'
+      ? `Stopped by the run budget: this run passed its ${minutes}-minute limit. Work finished before the stop is kept; the next run starts fresh.`
+      : `Stopped by the run budget: this run used all ${FUIGO_UNATTENDED_MAX_MODEL_CALLS} of its model calls. Work finished before the stop is kept; the next run starts fresh.`;
+  };
   for (
     let e: unknown = err, depth = 0;
     e && typeof e === 'object' && depth < 4;
@@ -218,16 +235,16 @@ export function describeFuigoBudgetStop(err: unknown): string | null {
   ) {
     const data = (e as { data?: unknown }).data;
     if (typeof data === 'string') {
-      const m = BUDGET_DATA.exec(data.trim());
-      if (m) {
-        return m[1] === 'wall deadline'
-          ? `Stopped by the run budget: this run passed its ${minutes}-minute limit. Work finished before the stop is kept; the next run starts fresh.`
-          : `Stopped by the run budget: this run used all ${FUIGO_UNATTENDED_MAX_MODEL_CALLS} of its model calls. Work finished before the stop is kept; the next run starts fresh.`;
-      }
+      const stop = fromBudgetText(data);
+      if (stop) return stop;
       continue;
     }
     if (data && typeof data === 'object') {
-      const r = data as { partial?: unknown; reason?: unknown };
+      const r = data as { partial?: unknown; reason?: unknown; message?: unknown };
+      if (typeof r.message === 'string') {
+        const stop = fromBudgetText(r.message);
+        if (stop) return stop;
+      }
       if (r.partial === true && typeof r.reason === 'string' && BUDGET_RECEIPT_REASON.test(r.reason)) {
         return `Stopped by the run budget: this run used all ${FUIGO_UNATTENDED_MAX_MODEL_CALLS} of its model calls before it finished. Work done so far is kept; the next run starts fresh.`;
       }
