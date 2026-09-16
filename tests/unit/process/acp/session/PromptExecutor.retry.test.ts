@@ -567,12 +567,18 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
 
     // --- Fuigo 1.0.18 typed shapes: `compaction`, the recovery attempt's own failure -------------
     // Shapes taken from Fuigo's source (`session_compact.rs` COMPACT_FAILED_PREFIX + the sampling
-    // error's Display, `acp_error::compaction`). On the PROMPT path the error is built by
-    // `acp_error::compaction()` (`sampler_turn.rs` -> `run_compact_only` -> the compaction loop's
-    // last error) and carries exactly `{ message, error_kind: 'compaction' }` — no `kind` field.
-    // `kind` belongs to the separate `session/compact` RPC payload (`compaction.rs` restamps the
-    // error with `compact_error_data`), where its values are `compact_failed` / `compact_cancelled`,
-    // so these rows carry no `kind` at all rather than a value the prompt path never sends.
+    // error's Display, `acp_error::compaction`). Two compaction frames reach the PROMPT path and they
+    // are NOT the same shape:
+    //   - a compaction FAILURE is built by `acp_error::compaction()` (`sampler_turn.rs` ->
+    //     `run_compact_only` -> the compaction loop's last error) and carries exactly
+    //     `{ message, error_kind: 'compaction' }` — no `kind` field;
+    //   - a compaction CANCELLED under a running prompt is built by `CompactFailure::cancelled_error()`
+    //     (`session_compact.rs`), which goes through `compact_error_data(Cancelled, COMPACT_CANCELLED_MSG)`
+    //     and therefore DOES carry `kind: 'compact_cancelled'` next to `error_kind: 'cancelled'`.
+    //     `run_compact_only` returns that error unchanged, so the prompt sees the frame as built.
+    // `kind` also rides the separate `session/compact` RPC payload, where its values are the same
+    // `compact_failed` / `compact_cancelled`; the failure rows below carry no `kind` because the
+    // prompt path genuinely never sends one there. The verdict rides on `error_kind` either way.
     // The kind says the SUMMARISER call failed, not what the prompt's verdict is, so — like `api`
     // and `http` — the text decides, exactly as it decided on 1.0.17 when the same failure arrived
     // untyped. A second compaction attempt is a different request, so a resend is a different roll.
@@ -642,7 +648,7 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
     },
     {
       name: 'compaction cancelled — Fuigo tags the cancel `cancelled`, not `compaction`',
-      data: { message: 'compact cancelled', error_kind: 'cancelled' },
+      data: { kind: 'compact_cancelled', message: 'compact cancelled', error_kind: 'cancelled' },
       base: 'final',
       now: 'final',
     },
@@ -720,6 +726,39 @@ describe('PromptExecutor - typed engine error data decides replay explicitly', (
       }
     });
   }
+
+  /**
+   * The table is the only thing pinning Wayland's model of Fuigo's compaction wire frames, so the
+   * frames themselves are pinned, not just their verdicts. Two shapes exist and they differ:
+   * `acp_error::compaction()` (the failure path, `compaction.rs` last error) sends
+   * `{ message, error_kind: 'compaction' }` with NO `kind`, while a compact cancelled under a running
+   * prompt comes from `CompactFailure::cancelled_error()` (`session_compact.rs`), which builds
+   * `compact_error_data(Cancelled, COMPACT_CANCELLED_MSG)` and therefore DOES carry
+   * `kind: 'compact_cancelled'` alongside `error_kind: 'cancelled'`. `run_compact_only` returns that
+   * error unchanged, so it reaches the prompt exactly as built.
+   */
+  it("models Fuigo's compaction frames exactly: only the cancelled one carries `kind`", () => {
+    const compactionRows = CHARACTERISATION.filter(
+      (row) =>
+        typeof row.data === 'object' &&
+        row.data !== null &&
+        'message' in row.data &&
+        String((row.data as { message: string }).message).startsWith('compact ')
+    );
+
+    const cancelled = compactionRows.find((row) => (row.data as { error_kind?: string }).error_kind === 'cancelled');
+    expect(cancelled?.data).toEqual({
+      kind: 'compact_cancelled',
+      message: 'compact cancelled',
+      error_kind: 'cancelled',
+    });
+
+    // Every other compaction row is the failure path, which sends no `kind` at all.
+    const failureRowsWithKind = compactionRows
+      .filter((row) => row !== cancelled && 'kind' in (row.data as object))
+      .map((row) => row.name);
+    expect(failureRowsWithKind).toEqual([]);
+  });
 
   it('changes no decision it does not explain', () => {
     const undeclared = CHARACTERISATION.filter((row) => row.base !== row.now && !row.divergence);
