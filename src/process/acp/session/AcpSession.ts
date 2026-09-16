@@ -174,6 +174,37 @@ export function buildCrashMessage(info?: DisconnectInfo): string | null {
   return lines.join('\n');
 }
 
+/**
+ * The real path of `p` for the fs guard, or `null` when it cannot be judged.
+ *
+ * A write target need not exist yet, so the deepest EXISTING ancestor is
+ * canonicalised and the missing tail re-joined. An entry that exists but has
+ * no real path (a dangling symlink) is refused: writing through it would land
+ * wherever it points. Both the roots and the request use this same libuv
+ * realpath, so the two sides are never compared in different flavours.
+ */
+function canonicalPathForGuard(p: string): string | null {
+  const resolved = path.resolve(p);
+  const missing: string[] = [];
+  let current = resolved;
+  for (;;) {
+    try {
+      return path.join(fs.realpathSync.native(current), ...missing);
+    } catch {
+      try {
+        fs.lstatSync(current);
+        return null;
+      } catch {
+        // Genuinely absent - step up to the parent.
+      }
+      const parent = path.dirname(current);
+      if (parent === current) return null;
+      missing.unshift(path.basename(current));
+      current = parent;
+    }
+  }
+}
+
 export class AcpSession {
   private _status: SessionStatus = 'idle';
 
@@ -420,13 +451,24 @@ export class AcpSession {
   /**
    * Verify that an agent-requested file path is within the allowed directories
    * (cwd + additionalDirectories). Prevents path traversal attacks.
+   *
+   * Both sides are compared as REAL paths (#1376). The workspace is registered
+   * by the path Desktop built it from, and on a machine where the Wayland home
+   * is reached through a symlink (`~/.wayland` -> `~/Library/Application
+   * Support/Wayland/wayland`) the engine canonicalises it and asks for the real
+   * path: a lexical compare refused every file in the chat's OWN workspace, so
+   * no staged skill was readable. Real paths also close the other direction -
+   * a symlink planted inside the workspace that points outside it is refused.
    */
   private assertPathAllowed(filePath: string): void {
-    const resolved = path.resolve(filePath);
+    const resolved = canonicalPathForGuard(filePath);
     const allowedRoots = [this.agentConfig.cwd, ...(this.agentConfig.additionalDirectories ?? [])];
-    const withinAllowed = allowedRoots.some(
-      (root) => resolved.startsWith(path.resolve(root) + path.sep) || resolved === path.resolve(root)
-    );
+    const withinAllowed =
+      resolved !== null &&
+      allowedRoots.some((root) => {
+        const realRoot = canonicalPathForGuard(root);
+        return realRoot !== null && (resolved === realRoot || resolved.startsWith(realRoot + path.sep));
+      });
     if (!withinAllowed) {
       throw new Error(`Path not allowed: ${filePath} is outside permitted directories`);
     }
