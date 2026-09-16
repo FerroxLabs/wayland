@@ -53,6 +53,19 @@ vi.mock('electron-updater', () => ({
 /** Let pending promise continuations run. */
 const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
 
+// These tests fake process.platform, and atomicWrite picks its flush flags from
+// the fake: on a Windows host the POSIX O_RDONLY fsync and the directory fsync
+// both fail with EPERM, the marker write is swallowed, and the marker
+// assertions fail. Plain writes here; atomic durability has its own tests
+// under tests/unit/process/utils/.
+vi.mock('@process/utils/atomicWrite', async () => {
+  const fs = await import('node:fs');
+  return {
+    writeFileSyncAtomic: (target: string, data: string | Buffer, opts?: fs.WriteFileOptions) =>
+      fs.writeFileSync(target, data, opts),
+  };
+});
+
 vi.mock('electron-log', () => ({
   default: {
     transports: { file: { level: 'info' } },
