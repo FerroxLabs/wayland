@@ -17,6 +17,7 @@ import type { AcpBackendAll, AcpSessionConfigOption } from '@/common/types/acpTy
 import type { AcpBackend, AcpBackendConfig, AcpModelInfo, AvailableAgent, EffectiveAgentInfo } from '../types';
 import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from '@/renderer/utils/model/agentTypes';
 import { getAgentModes } from '@/renderer/utils/model/agentModes';
+import { loadFuigoNewChatModel } from '@/renderer/utils/model/fuigoNewChatModel';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { savePreferredMode, savePreferredModelId, getAgentKey as getAgentKeyUtil } from './agentSelectionUtils';
@@ -423,6 +424,18 @@ export const useGuidAgentSelection = ({
     let cancelled = false;
 
     const resolveAcpModel = async () => {
+      // The bundled engine resolves through the same function as a workspace-tab
+      // chat. Its cached model is the engine's own first-session default
+      // (flux-auto), never a choice, so step 2 below must not apply to it.
+      if (backend === 'fuigo') {
+        const assistantId = selectedAgentKey.startsWith('custom:')
+          ? selectedAgentKey.slice('custom:'.length)
+          : undefined;
+        const modelId = await loadFuigoNewChatModel({ assistantId });
+        if (!cancelled) _setSelectedAcpModel(modelId ?? null);
+        return;
+      }
+
       // 1. Explicit per-backend pick (a native slot OR a deliberate flux-* id) wins.
       try {
         const config = await ConfigStorage.get('acp.config');

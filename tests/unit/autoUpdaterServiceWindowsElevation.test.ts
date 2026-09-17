@@ -198,23 +198,23 @@ describe('autoUpdaterService Windows elevation guard (#492)', () => {
     expect(assessWindowsElevation).toHaveBeenCalledTimes(1);
   });
 
-  it('refuses the unattended on-quit apply when elevation is unavailable', () => {
+  it('refuses the unattended on-quit apply when elevation is unavailable', async () => {
     setPlatform('win32');
     capability = 'unavailable';
 
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-    expect(service.installOnQuitIfReady()).toBe(false);
+    await expect(service.installOnQuitIfReady()).resolves.toBe(false);
     expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
   });
 
-  it('still applies a staged update on quit when elevation is available', () => {
+  it('still applies a staged update on quit when elevation is available', async () => {
     setPlatform('win32');
     capability = 'available';
 
     service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-    expect(service.installOnQuitIfReady()).toBe(true);
+    await expect(service.installOnQuitIfReady()).resolves.toBe(true);
     expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
   });
 });

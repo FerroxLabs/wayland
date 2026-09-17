@@ -63,7 +63,13 @@ vi.mock('@/process/services/ijfwSystemService', () => ({
 
 // The raw auto-updater service — its quitAndInstall() is the hard-exit path that
 // the non-force route must NOT touch.
-const svc = vi.hoisted(() => ({ quitAndInstall: vi.fn(), notifyDeferred: vi.fn(), reportDamagedBundle: vi.fn() }));
+const svc = vi.hoisted(() => ({
+  quitAndInstall: vi.fn(),
+  notifyDeferred: vi.fn(),
+  // Resolves true once quitting will install (macOS: Squirrel.Mac holds the update).
+  prepareInstall: vi.fn(async () => true),
+  reportDamagedBundle: vi.fn(),
+}));
 vi.mock('@/process/services/autoUpdaterService', () => ({ autoUpdaterService: svc }));
 
 // The macOS code-seal gate; intact unless a test says otherwise.
@@ -129,7 +135,25 @@ describe('updateBridge quitAndInstall routing (#651 FIX-FIRST)', () => {
   it('idle non-force routes through app.quit (before-quit drain), never the hard-exit', async () => {
     const handler = getQuitHandler();
     await handler(undefined);
+    await flush();
+    expect(svc.prepareInstall).toHaveBeenCalledTimes(1);
     expect(app.quit).toHaveBeenCalledTimes(1);
+    expect(svc.quitAndInstall).not.toHaveBeenCalled();
+  });
+
+  it('non-force does not quit until the update is ready, and never quits when it cannot be', async () => {
+    // macOS: Squirrel.Mac has not taken the update yet.
+    let resolveReady!: (ready: boolean) => void;
+    svc.prepareInstall.mockImplementationOnce(() => new Promise<boolean>((resolve) => (resolveReady = resolve)));
+    const handler = getQuitHandler();
+    await handler(undefined);
+    await flush();
+    expect(app.quit).not.toHaveBeenCalled();
+
+    // Squirrel failed: prepareInstall already surfaced why; the app must stay up.
+    resolveReady(false);
+    await flush();
+    expect(app.quit).not.toHaveBeenCalled();
     expect(svc.quitAndInstall).not.toHaveBeenCalled();
   });
 

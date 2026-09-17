@@ -62,6 +62,26 @@ const REPLAYABLE_PROMPT_CODES: ReadonlySet<AcpErrorCode> = new Set(['AGENT_INTER
 const TRANSIENT_DETAIL =
   /\b5\d\d\b|connection\s+(error|reset|closed|refused)|econnreset|econnrefused|epipe|etimedout|econnaborted|eai_again|socket\s+hang\s*up|timed?\s*out|timeout|overloaded|temporarily\s+unavailable|service\s+unavailable|\bunavailable\b|try\s+again|upstream\s+(connect\s+)?(error|disconnect)|internal\s+server\s+error|had\s+an\s+error\s+while\s+processing|fetch\s+failed|network\s+error|bad\s+gateway|premature\s+close|other\s+side\s+closed|stream\s+(closed|disconnected)/i;
 
+/**
+ * Hang protection for ONE tool call. A running tool is progress however quiet it
+ * is - a TVControl `batch_run` over 56 symbols streams nothing for minutes - so
+ * the idle timer stands down while any tool is in flight, and only this much
+ * longer ceiling bounds a tool that never returns.
+ */
+export const DEFAULT_TOOL_CALL_TIMEOUT_MS = 30 * 60_000;
+
+type InFlightTool = { title: string; startedAt: number; ceiling: ReturnType<typeof setTimeout> };
+
+type TimeoutCause = { kind: 'idle' } | { kind: 'tool'; key: string };
+
+/** "5 minutes", "1 minute", "45 seconds" - the limit as the stop notice states it. */
+function formatLimit(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  if (seconds % 60 !== 0) return `${seconds} seconds`;
+  const minutes = seconds / 60;
+  return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+}
+
 /** Overridable so tests can drive the retry path without sleeping for real. */
 export type PromptRetryOptions = {
   attempts?: number;
@@ -99,7 +119,16 @@ export class PromptExecutor {
   private readonly fuigoMeterId = `fuigo:${randomUUID()}`;
   /** Aborts the backoff sleep, so Stop takes effect immediately rather than seconds late. */
   private turnAbort: AbortController | undefined;
+  /** The IDLE timer: silence with no tool running. */
   private readonly timer: PromptTimer;
+  /** Tool calls of the current prompt without a terminal status, keyed `<sessionId>:<toolCallId>`. */
+  private readonly inFlightTools = new Map<string, InFlightTool>();
+  /** Between a prompt being sent and its response settling; tool tracking and timers live only here. */
+  private promptInFlight = false;
+  /** A permission or question card is open; the idle timer is paused for the human. */
+  private held = false;
+  private turnId = '';
+  private turnStartedAt = 0;
 
   private readonly maxAttempts: number;
   private readonly retryBackoff: BackoffPolicy;
@@ -107,9 +136,10 @@ export class PromptExecutor {
   constructor(
     private readonly host: PromptHost,
     private readonly timeoutMs: number,
-    retry: PromptRetryOptions = {}
+    retry: PromptRetryOptions = {},
+    private readonly toolCallTimeoutMs: number = DEFAULT_TOOL_CALL_TIMEOUT_MS
   ) {
-    this.timer = new PromptTimer(timeoutMs, () => this.handleTimeout());
+    this.timer = new PromptTimer(timeoutMs, () => this.handleTimeout({ kind: 'idle' }));
     this.maxAttempts = retry.attempts ?? MAX_PROMPT_ATTEMPTS;
     this.retryBackoff = retry.backoff ?? PROMPT_RETRY_BACKOFF;
   }
@@ -163,6 +193,8 @@ export class PromptExecutor {
     this.turnRanTool = false;
     this.turnCancelled = false;
     this.turnAbort = new AbortController();
+    this.turnId = randomUUID();
+    this.turnStartedAt = Date.now();
 
     // Bind the retry to THIS turn's client, not to `lifecycle.client` — that is a
     // live getter, and a crash mid-turn makes `onDisconnect` → `resumeFromDisconnect`
@@ -194,9 +226,9 @@ export class PromptExecutor {
     // flashes a spurious "turn failed" at the user.
     for (let attempt = 1; ; attempt++) {
       try {
-        this.timer.start();
+        this.startTurnTimers();
         const result = await turnClient.prompt(turnSessionId, content);
-        this.timer.stop();
+        this.stopTurnTimers();
 
         // Fallback: emit usage from PromptResponse for backends that don't send usage_update
         if (result.usage) {
@@ -223,7 +255,7 @@ export class PromptExecutor {
         }
         break;
       } catch (err) {
-        this.timer.stop();
+        this.stopTurnTimers();
         const acpErr = normalizeError(err);
         const backoffMs = computeBackoff(this.retryBackoff, attempt);
 
@@ -414,11 +446,13 @@ export class PromptExecutor {
   // ─── Timer delegation (for permission pause/resume) ───────────
 
   pauseTimer(): void {
+    this.held = true;
     this.timer.pause();
   }
 
   resumeTimer(): void {
-    this.timer.resume();
+    this.held = false;
+    this.armIdleTimer();
   }
 
   resetTimer(): void {
@@ -426,16 +460,89 @@ export class PromptExecutor {
   }
 
   stopTimer(): void {
+    this.stopTurnTimers();
+  }
+
+  /**
+   * A `tool_call` / `tool_call_update` for this prompt (the parent's or a
+   * sub-agent's). A non-terminal status (`pending`, `in_progress`, or none) puts
+   * the tool in flight: the idle timer stands down and the tool's own ceiling
+   * starts. The terminal status takes it out; when the last one returns, the
+   * idle window starts afresh - a returned tool is progress.
+   *
+   * Fuigo sends `tool_call` pending before an MCP call and ONE terminal update
+   * after it, with nothing in between: it drops the server's
+   * `notifications/progress`. So for the idle timer, a quiet tool and a hung
+   * one look identical, and only the ceiling can tell them apart.
+   */
+  trackToolCall(key: string, title: string | null | undefined, status: string | null | undefined): void {
+    if (!this.promptInFlight) return;
+    const tool = this.inFlightTools.get(key);
+    if (status === 'completed' || status === 'failed') {
+      if (!tool) return;
+      clearTimeout(tool.ceiling);
+      this.inFlightTools.delete(key);
+      this.armIdleTimer();
+      return;
+    }
+    if (tool) {
+      if (title) tool.title = title;
+      return;
+    }
+    this.inFlightTools.set(key, {
+      title: title || 'a tool',
+      startedAt: Date.now(),
+      ceiling: setTimeout(() => this.handleTimeout({ kind: 'tool', key }), this.toolCallTimeoutMs),
+    });
     this.timer.stop();
   }
 
-  private handleTimeout(): void {
+  private startTurnTimers(): void {
+    this.promptInFlight = true;
+    this.held = false;
+    this.timer.start();
+  }
+
+  private stopTurnTimers(): void {
+    this.promptInFlight = false;
+    this.timer.stop();
+    for (const tool of this.inFlightTools.values()) clearTimeout(tool.ceiling);
+    this.inFlightTools.clear();
+  }
+
+  /** Run the idle timer again if nothing suspends it: no tool in flight, no card open. */
+  private armIdleTimer(): void {
+    if (!this.promptInFlight || this.held || this.inFlightTools.size > 0) return;
+    if (this.timer.state === 'paused') this.timer.resume();
+    else if (this.timer.state === 'idle') this.timer.start();
+  }
+
+  /**
+   * A timer stopped the turn. It used to end it with nothing in the Desktop log
+   * and an unpersisted `error` frame the reopened chat never showed, so a brief
+   * killed at +300 s looked like a turn that simply ended. Now: one warn line with
+   * enough to find the turn, `session/cancel`, and a persisted in-thread notice
+   * that says which limit stopped it. A stop, not a failure - nothing errored.
+   */
+  private handleTimeout(cause: TimeoutCause): void {
     if (this.host.status !== 'prompting') return;
+    const tool = cause.kind === 'tool' ? this.inFlightTools.get(cause.key) : undefined;
+    if (cause.kind === 'tool' && !tool) return;
+    const now = Date.now();
+    const limitMs = tool ? this.toolCallTimeoutMs : this.timeoutMs;
+    // Clears every other timer of this turn, so exactly one stops it.
+    this.stopTurnTimers();
+
+    const message = tool
+      ? `Stopped: ${tool.title} ran longer than ${formatLimit(limitMs)}`
+      : `Stopped: no response for ${formatLimit(limitMs)}`;
+    console.warn(
+      `[PromptExecutor] ${message} (conversation=${this.host.agentConfig.agentId} turn=${this.turnId} ` +
+        `timer=${tool ? 'tool-call' : 'idle'} limit=${Math.round(limitMs / 1000)}s ` +
+        `elapsed=${Math.round((now - (tool?.startedAt ?? this.turnStartedAt)) / 1000)}s ` +
+        `tool=${tool ? tool.title : 'none'}); sending session/cancel`
+    );
     this.cancel();
-    this.host.callbacks.onSignal({
-      type: 'error',
-      message: 'Prompt timed out',
-      recoverable: true,
-    });
+    this.host.callbacks.onSignal({ type: 'turn_stopped', message });
   }
 }
