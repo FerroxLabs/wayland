@@ -76,6 +76,8 @@ export type FuigoByokModelEntry = {
   apiBackend: 'chat_completions' | 'messages';
   /** Env var carrying the key. */
   envKey: string;
+  /** Request header → env var carrying its value (Azure's `api-key`); `env_http_headers`, never on disk. */
+  envHttpHeaders?: Record<string, string>;
   contextWindow?: number;
 };
 
@@ -89,9 +91,17 @@ function tomlString(value: string): string {
   })}"`;
 }
 
-/** The managed config plus one `[model.<id>]` block per BYOK entry. */
-export function buildFuigoManagedConfig(entries: readonly FuigoByokModelEntry[] = []): string {
+/**
+ * The managed config plus one `[model.<id>]` block per BYOK entry, and
+ * `[models] default` when the caller names one (Fuigo reports it as the
+ * session's `currentModelId` on `session/new`).
+ */
+export function buildFuigoManagedConfig(
+  entries: readonly FuigoByokModelEntry[] = [],
+  opts: { defaultModel?: string } = {}
+): string {
   let out = FUIGO_MANAGED_CONFIG;
+  if (opts.defaultModel) out += `\n[models]\ndefault = ${tomlString(opts.defaultModel)}\n`;
   for (const e of entries) {
     out += `\n[model.${tomlString(e.id)}]\n`;
     out += `model = ${tomlString(e.model)}\n`;
@@ -102,6 +112,10 @@ export function buildFuigoManagedConfig(entries: readonly FuigoByokModelEntry[] 
     if (e.apiBackend === 'messages') {
       out += `auth_scheme = "x_api_key"\n`;
       out += `extra_headers = { "anthropic-version" = "2023-06-01" }\n`;
+    }
+    const headers = Object.entries(e.envHttpHeaders ?? {});
+    if (headers.length > 0) {
+      out += `env_http_headers = { ${headers.map(([h, v]) => `${tomlString(h)} = ${tomlString(v)}`).join(', ')} }\n`;
     }
     if (typeof e.contextWindow === 'number' && Number.isInteger(e.contextWindow) && e.contextWindow > 0) {
       out += `context_window = ${e.contextWindow}\n`;
@@ -282,16 +296,41 @@ export function fuigoPluginDirs(workspace: string): string[] {
 }
 
 /** `_meta` for `session/new` / `session/load`. Fuigo reads `startupHints`
- *  from the session request first, then from `initialize`. */
+ *  from the session request first, then from `initialize`.
+ *
+ *  `rules` is the assistant's standing instructions (Constitution, persona,
+ *  team guide, capabilities, connector guidance). Fuigo appends it to its own
+ *  system prompt as `<human_rules>` and stores that system message with the
+ *  session, so it survives a process restart and `session/load` (which ignores
+ *  a re-sent `rules` by design). Carried here rather than in the first user
+ *  message, which pushed every fresh chat over Fuigo's 25,000-byte prompt
+ *  offload (`LARGE_PROMPT_THRESHOLD`) and cost a `read_file prompt_0.txt`.
+ *
+ *  Fuigo 1.0.16 DROPS `<human_rules>` whenever `session/set_model` changes the
+ *  model (the harness rebuild swaps in a fresh template, measured: history
+ *  40,580 -> 7,328 B), before or after a turn, and `session/load` keeps it
+ *  dropped. So `modelId` creates the session on the chat's model (no switch at
+ *  bootstrap), and a later switch re-injects the rules into the next user
+ *  message (`AcpAgentManager.markFuigoRulesStale`).
+ *
+ *  `modelId` creates the session on the chat's model. Without it Fuigo starts
+ *  on its own default (`flux-auto`), and a Flux tier persisted on the row is
+ *  never re-applied at bootstrap (a Flux id on a Flux-capable backend is
+ *  treated as carried by the spawn env, which Fuigo's spawn does not set), so
+ *  the header showed the row's model while `flux-auto` ran. */
 export function buildFuigoSessionMetadata(opts: {
   nonInteractive: boolean;
   pluginDirs?: string[];
+  rules?: string;
+  modelId?: string;
 }): Record<string, unknown> {
   return {
     clientIdentifier: 'wayland-desktop',
     clientType: 'desktop',
     startupHints: { nonInteractive: opts.nonInteractive },
     ...(opts.pluginDirs?.length ? { pluginDirs: opts.pluginDirs } : {}),
+    ...(opts.rules ? { rules: opts.rules } : {}),
+    ...(opts.modelId ? { modelId: opts.modelId } : {}),
   };
 }
 

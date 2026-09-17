@@ -301,4 +301,86 @@ describe('createConversationParams', () => {
     );
     expect(params.extra.backend).toBe('claude');
   });
+
+  describe('bundled Fuigo engine model', () => {
+    const FUIGO_CACHE = {
+      fuigo: {
+        currentModelId: 'flux-auto',
+        currentModelLabel: 'Flux Auto',
+        availableModels: [
+          { id: 'flux-auto', label: 'Flux Auto' },
+          { id: 'flux-reasoning', label: 'Flux Reasoning' },
+          { id: 'byok/openai/gpt-4o', label: 'gpt-4o · OpenAI' },
+        ],
+        canSwitch: true,
+        source: 'models',
+      },
+    };
+    const config = (values: Record<string, unknown>) =>
+      configGet.mockImplementation(async (key: string) => values[key]);
+    const setFluxConnected = async (connected: boolean) => {
+      const { modelRegistry } = await import('@/common/adapter/ipcBridge');
+      vi.mocked(modelRegistry.list.invoke).mockResolvedValue(
+        (connected ? [{ providerId: 'flux-router' }] : []) as never
+      );
+    };
+    const smartTrader = { backend: 'fuigo', name: 'Smart Trader', customAgentId: 'builtin-smart-trader' };
+
+    it('creates a Smart Trader chat on Flux Reasoning, not the engine-cached flux-auto', async () => {
+      loadPresetAssistantResources.mockResolvedValue({ rules: 'r', skills: '', enabledSkills: [] });
+      config({ 'acp.config': {}, 'acp.cachedModels': FUIGO_CACHE });
+      await setFluxConnected(true);
+
+      const params = await buildPresetAssistantParams(
+        { ...smartTrader, isPreset: true, presetAgentType: 'fuigo' },
+        '/tmp',
+        'en'
+      );
+
+      expect(params.extra.backend).toBe('fuigo');
+      expect(params.extra.currentModelId).toBe('flux-reasoning');
+    });
+
+    it("uses the user's explicit Fuigo pick, then the saved Fuigo default", async () => {
+      await setFluxConnected(true);
+      config({ 'acp.config': { fuigo: { preferredModelId: 'flux-auto' } }, 'acp.cachedModels': FUIGO_CACHE });
+      expect((await buildCliAgentParams({ backend: 'fuigo', name: 'Fuigo' }, '/tmp')).extra.currentModelId).toBe(
+        'flux-auto'
+      );
+
+      config({
+        'acp.config': {},
+        'acp.cachedModels': FUIGO_CACHE,
+        'fuigo.defaultModel': { id: 'openai', useModel: 'gpt-4o' },
+      });
+      expect((await buildCliAgentParams({ backend: 'fuigo', name: 'Fuigo' }, '/tmp')).extra.currentModelId).toBe(
+        'byok/openai/gpt-4o'
+      );
+    });
+
+    it("uses the assistant's configured model when nothing was chosen", async () => {
+      loadPresetAssistantResources.mockResolvedValue({ rules: 'r', skills: '', enabledSkills: [] });
+      await setFluxConnected(true);
+      config({
+        'acp.config': {},
+        'acp.cachedModels': FUIGO_CACHE,
+        assistants: [{ id: 'builtin-smart-trader', models: ['byok/openai/gpt-4o'] }],
+      });
+
+      const params = await buildPresetAssistantParams(
+        { ...smartTrader, isPreset: true, presetAgentType: 'fuigo' },
+        '/tmp',
+        'en'
+      );
+      expect(params.extra.currentModelId).toBe('byok/openai/gpt-4o');
+    });
+
+    it('falls back to the first BYOK model without Flux', async () => {
+      await setFluxConnected(false);
+      config({ 'acp.config': {}, 'acp.cachedModels': FUIGO_CACHE });
+      expect((await buildCliAgentParams({ backend: 'fuigo', name: 'Fuigo' }, '/tmp')).extra.currentModelId).toBe(
+        'byok/openai/gpt-4o'
+      );
+    });
+  });
 });

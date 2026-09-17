@@ -240,6 +240,70 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(stored[0]).toMatchObject({ enabled: false, status: 'error' });
   });
 
+  const failedProbe = (target: IMcpServer) => ({
+    success: true,
+    data: {
+      success: false,
+      error: 'probe unavailable',
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: target.id,
+        serverName: target.name,
+        serverUpdatedAt: target.updatedAt,
+        observedAt: Date.now(),
+        state: 'probe-failed',
+        authentication: 'unavailable',
+        probe: 'failed',
+        error: 'probe unavailable',
+      },
+    },
+  });
+
+  // #1375: a probe failing seconds after a connector answered must not revoke it.
+  it('does not revoke a connector that answered a probe moments ago when a later probe fails', async () => {
+    const recent: IMcpServer = { ...server, status: 'connected', lastConnected: Date.now() - 10_000 };
+    let stored = [recent];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const sync = vi.fn().mockResolvedValue(undefined);
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce(failedProbe(recent));
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(recent));
+
+    expect(remove).not.toHaveBeenCalled();
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error', lastError: 'probe unavailable' });
+  });
+
+  it('probes a published connector again before revoking it on a single failed probe', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const sync = vi.fn().mockResolvedValue(undefined);
+    bridgeMocks.testMcpConnection.mockClear();
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce(failedProbe(server)).mockResolvedValueOnce({
+      success: true,
+      data: { ...successfulResult, prepublication: { ...successfulResult.prepublication, observedAt: Date.now() } },
+    });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(bridgeMocks.testMcpConnection).toHaveBeenCalledTimes(2);
+    expect(remove).not.toHaveBeenCalled();
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'connected' });
+  });
+
   it('does not leave a concurrent enabled declaration false-green when failed-probe revocation wins but status CAS loses', async () => {
     const concurrent = { ...server, description: 'concurrent edit', updatedAt: server.updatedAt + 1 };
     let stored = [server];
@@ -1038,6 +1102,8 @@ describe('MCP pre-publication renderer correlation', () => {
     const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
     const sync = vi.fn().mockRejectedValue(new Error('restore rejected'));
     bridgeMocks.testMcpConnection
+      // A published connector is probed twice before a failure revokes it (#1375).
+      .mockResolvedValueOnce({ success: false, msg: 'probe unavailable' })
       .mockResolvedValueOnce({ success: false, msg: 'probe unavailable' })
       .mockImplementationOnce(async () => ({
         success: true,
@@ -1519,6 +1585,53 @@ describe('useMcpServerCRUD', () => {
       expect(syncMcpToAgents).toHaveBeenCalledWith(expect.objectContaining({ enabled: true }), true);
       expect(removeMcpFromAgents).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
       expect(outcome).toBe(false);
+    });
+
+    // #1375: a TVControl publication took 22 s to reach every agent; a probe
+    // status write landed meanwhile, the commit lost its revision check and the
+    // fresh publication was revoked (enabled:false, status:connected, 113 tools).
+    it('keeps a new publication when only a probe status write landed while it was in flight', async () => {
+      let durable = [makeMockServer({ enabled: false, status: 'connected', lastConnected: 1, updatedAt: 41 })];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      syncMcpToAgents.mockImplementationOnce(async () => {
+        durable = [
+          { ...durable[0], status: 'connected', tools: [{ name: 'chart_get_state' }], lastConnected: 2, updatedAt: 42 },
+        ];
+      });
+      const { result } = renderCRUD([], async () => structuredClone(durable));
+
+      let outcome: IMcpServer | false | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
+      });
+
+      expect(removeMcpFromAgents).not.toHaveBeenCalled();
+      expect(durable[0]).toMatchObject({ enabled: true, status: 'connected', lastConnected: 2 });
+      expect(durable[0].tools).toEqual([{ name: 'chart_get_state' }]);
+      expect(durable[0].updatedAt).toBeGreaterThan(42);
+      expect(outcome).toEqual(durable[0]);
+    });
+
+    it('still rolls a publication back when the declaration itself changed while it was in flight', async () => {
+      let durable = [makeMockServer({ enabled: false, updatedAt: 41 })];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      syncMcpToAgents.mockImplementationOnce(async () => {
+        durable = [{ ...durable[0], transport: { type: 'stdio', command: 'other', args: [] }, updatedAt: 42 }];
+      });
+      const { result } = renderCRUD([], async () => structuredClone(durable));
+
+      let outcome: IMcpServer | false | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
+      });
+
+      expect(removeMcpFromAgents).toHaveBeenCalledWith('test-server', undefined, 'stdio');
+      expect(outcome).toBe(false);
+      expect(durable[0]).toMatchObject({ enabled: false, updatedAt: 42 });
     });
 
     it('persists an unresolved-divergence marker when publication commit and compensation both fail', async () => {

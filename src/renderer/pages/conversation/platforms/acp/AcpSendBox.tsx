@@ -19,6 +19,13 @@ import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useS
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
+import {
+  CHAT_CONTINUE_EVENT,
+  CHAT_RETRY_EVENT,
+  CONTINUE_DIRECTIVE,
+  type ChatContinueDetail,
+  type ChatRetryDetail,
+} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
 import { assertBridgeSuccess } from '@/renderer/pages/conversation/platforms/assertBridgeSuccess';
 import {
@@ -385,6 +392,42 @@ Please check your local CLI tool authentication status`,
     },
     [conversation_id, executeCommand]
   );
+
+  // Retry (message action row) and Continue (truncation banner) are window
+  // events; the active send box owns send. Only Core's send box listened, so on
+  // Fuigo both buttons did nothing. Both use the normal send path: a turn still
+  // running queues it, and an engine the idle reaper stopped is respawned and
+  // resumed with session/load. Staged attachments stay in the composer - they
+  // belong to the next message, not to the turn being retried.
+  const sendTurnRef = useLatestRef((input: string) => {
+    if (shouldEnqueueConversationCommand({ enabled: true, isBusy, hasPendingCommands })) {
+      enqueue({ input, files: [] });
+      return;
+    }
+    void executeCommand({ input, files: [] });
+  });
+  useEffect(() => {
+    const onRetry = (e: Event) => {
+      const detail = (e as CustomEvent<ChatRetryDetail>).detail;
+      if (!detail?.text) return;
+      if (detail.conversationId && detail.conversationId !== conversation_id) return;
+      sendTurnRef.current(detail.text);
+    };
+    // Continue resumes the live turn: a fixed directive into the SAME session,
+    // never a re-send of the original prompt. An id-less event is dropped so it
+    // cannot fan out into every mounted send box.
+    const onContinue = (e: Event) => {
+      const detail = (e as CustomEvent<ChatContinueDetail>).detail;
+      if (!detail?.conversationId || detail.conversationId !== conversation_id) return;
+      sendTurnRef.current(CONTINUE_DIRECTIVE);
+    };
+    window.addEventListener(CHAT_RETRY_EVENT, onRetry);
+    window.addEventListener(CHAT_CONTINUE_EVENT, onContinue);
+    return () => {
+      window.removeEventListener(CHAT_RETRY_EVENT, onRetry);
+      window.removeEventListener(CHAT_CONTINUE_EVENT, onContinue);
+    };
+  }, [conversation_id, sendTurnRef]);
 
   // Stop conversation handler
   const handleStop = async (): Promise<void> => {

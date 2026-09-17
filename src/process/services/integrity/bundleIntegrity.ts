@@ -17,12 +17,19 @@
  * fired-and-forgotten after startup, macOS packaged builds only. On failure it
  * logs the offending `file added:` / `file modified:` lines prominently and
  * emits a system notification through the existing notification plumbing.
+ *
+ * Before that check it restores a self-updated OfficeCLI binary to its pinned
+ * bytes (see officeCliRepair.ts), the one known writer that breaks the seal from
+ * outside Wayland. The same verify-then-repair runs before an update install
+ * ({@link checkBundleSealBeforeUpdate}): Squirrel.Mac refuses to update a bundle
+ * whose seal is broken, and until now that failed silently.
  */
 
 // eslint-disable-next-line no-restricted-imports -- read-only codesign verification probe, spawns no user-controlled input (reviewed for #755).
 import { execFile } from 'node:child_process';
 import * as path from 'node:path';
 import log from 'electron-log';
+import type { OfficeCliRepairOutcome } from './officeCliRepair';
 
 const CODESIGN_TIMEOUT_MS = 120_000;
 const CODESIGN_MAX_BUFFER = 4 * 1024 * 1024;
@@ -88,25 +95,9 @@ export function findBundleRoot(p: string): string | null {
   return null;
 }
 
-/**
- * Run the self-check. No-op outside macOS packaged builds. Never throws.
- * Returns the report (or null when skipped) so callers/tests can observe it.
- */
-export async function runBundleIntegrityCheck(): Promise<CodesignVerifyReport | null> {
-  if (process.platform !== 'darwin') return null;
-  let isPackaged = false;
-  try {
-    const { getPlatformServices } = await import('@/common/platform');
-    isPackaged = getPlatformServices().paths.isPackaged();
-  } catch {
-    return null;
-  }
-  if (!isPackaged) return null;
-
-  const bundleRoot = findBundleRoot(process.execPath);
-  if (!bundleRoot) return null;
-
-  const report = await new Promise<CodesignVerifyReport | null>((resolve) => {
+/** Run `codesign --verify`; null when codesign could not run (not a verdict). */
+function verifySeal(bundleRoot: string): Promise<CodesignVerifyReport | null> {
+  return new Promise<CodesignVerifyReport | null>((resolve) => {
     execFile(
       'codesign',
       ['--verify', '--deep', '--strict', '--verbose=2', bundleRoot],
@@ -127,8 +118,89 @@ export async function runBundleIntegrityCheck(): Promise<CodesignVerifyReport | 
       }
     );
   });
+}
+
+export interface BundleIntegrityDeps {
+  /** True only for a packaged macOS build (the only place a seal exists). */
+  isMacPackaged: () => Promise<boolean>;
+  bundleRoot: () => string | null;
+  verify: (bundleRoot: string) => Promise<CodesignVerifyReport | null>;
+  repairOfficeCli: () => Promise<OfficeCliRepairOutcome>;
+  notify: (title: string, body: string) => Promise<void>;
+  /** Tell the updater whether the seal is intact, so a quit never hands Squirrel a doomed bundle. */
+  setSealInvalid: (invalid: boolean) => Promise<void>;
+}
+
+const defaultDeps: BundleIntegrityDeps = {
+  isMacPackaged: async () => {
+    if (process.platform !== 'darwin') return false;
+    try {
+      const { getPlatformServices } = await import('@/common/platform');
+      return getPlatformServices().paths.isPackaged();
+    } catch {
+      return false;
+    }
+  },
+  bundleRoot: () => findBundleRoot(process.execPath),
+  verify: verifySeal,
+  repairOfficeCli: async () => {
+    const { repairBundledOfficeCli } = await import('./officeCliRepair');
+    return repairBundledOfficeCli(process.resourcesPath, 'darwin', process.arch as 'arm64' | 'x64');
+  },
+  notify: async (title, body) => {
+    const { showNotification } = await import('@process/bridge/notificationBridge');
+    await showNotification({ title, body });
+  },
+  setSealInvalid: async (invalid) => {
+    const { autoUpdaterService } = await import('@process/services/autoUpdaterService');
+    autoUpdaterService.setBundleSealInvalid(invalid);
+  },
+};
+
+/** True when a repair was needed and could not be completed. */
+function repairFailed(repair: OfficeCliRepairOutcome): boolean {
+  return repair.status === 'failed';
+}
+
+function logRepair(repair: OfficeCliRepairOutcome): void {
+  if (repair.status === 'repaired') {
+    log.warn(`[Integrity] OfficeCLI had been replaced inside the bundle; restored the pinned bytes from ${repair.url}`);
+  } else if (repair.status === 'failed') {
+    log.error(
+      `[Integrity] OfficeCLI inside the bundle is not the pinned binary and could not be restored ` +
+        `(${repair.reason}: ${repair.detail}). Reinstall Wayland from the DMG.`
+    );
+  }
+}
+
+async function runRepair(deps: BundleIntegrityDeps): Promise<OfficeCliRepairOutcome> {
+  try {
+    const repair = await deps.repairOfficeCli();
+    logRepair(repair);
+    return repair;
+  } catch (error) {
+    log.warn('[Integrity] OfficeCLI repair could not start', { err: error });
+    return { status: 'failed', reason: 'write-failed', detail: String(error) };
+  }
+}
+
+/**
+ * Run the self-check. No-op outside macOS packaged builds. Never throws.
+ * Returns the report (or null when skipped) so callers/tests can observe it.
+ */
+export async function runBundleIntegrityCheck(
+  deps: BundleIntegrityDeps = defaultDeps
+): Promise<CodesignVerifyReport | null> {
+  if (!(await deps.isMacPackaged())) return null;
+
+  const bundleRoot = deps.bundleRoot();
+  if (!bundleRoot) return null;
+
+  const repair = await runRepair(deps);
+  const report = await deps.verify(bundleRoot);
 
   if (report === null) return null;
+  await deps.setSealInvalid(!report.valid).catch((err) => log.warn('[Integrity] updater not told', { err }));
   if (report.valid) {
     log.info(`[Integrity] codesign seal OK: ${bundleRoot}`);
     return report;
@@ -150,16 +222,55 @@ export async function runBundleIntegrityCheck(): Promise<CodesignVerifyReport | 
 
   // Surface to the user via the existing notification plumbing (no new UI).
   try {
-    const { showNotification } = await import('@process/bridge/notificationBridge');
-    await showNotification({
-      title: 'Wayland installation is damaged',
-      body:
-        'The app bundle failed its code-signature check, so macOS may block Wayland from running commands. ' +
-        'Please reinstall Wayland. Details are in the log.',
-    });
+    await deps.notify(
+      'Wayland installation is damaged',
+      'The app bundle failed its code-signature check, so macOS may block Wayland from running commands. ' +
+        (repairFailed(repair) ? 'Wayland tried to repair it automatically but could not. ' : '') +
+        'Please reinstall Wayland. Details are in the log.'
+    );
   } catch (err) {
     log.warn('[Integrity] failed to emit user notification', { err });
   }
 
   return report;
+}
+
+export type BundleSealGate = { ok: true } | { ok: false; repairAttempted: boolean; violations: string[] };
+
+/**
+ * Gate an update install on macOS: Squirrel.Mac will not update a bundle whose
+ * code seal is broken, so verify it first, try the OfficeCLI repair once if it
+ * is broken, and verify again. `ok: false` means the install must not be
+ * attempted. Anything that is not a verdict (not macOS, not packaged, codesign
+ * unavailable) passes. Never throws.
+ */
+export async function checkBundleSealBeforeUpdate(deps: BundleIntegrityDeps = defaultDeps): Promise<BundleSealGate> {
+  if (!(await deps.isMacPackaged())) return { ok: true };
+  const bundleRoot = deps.bundleRoot();
+  if (!bundleRoot) return { ok: true };
+
+  const first = await deps.verify(bundleRoot);
+  if (first === null || first.valid) {
+    await deps.setSealInvalid(false).catch(() => {});
+    return { ok: true };
+  }
+  log.error(`[Integrity] Update install blocked: bundle seal invalid (${first.violations.join('; ')})`);
+
+  const repair = await runRepair(deps);
+  let report = first;
+  if (repair.status === 'repaired') {
+    const second = await deps.verify(bundleRoot);
+    if (second === null || second.valid) {
+      log.info('[Integrity] Bundle seal restored by the OfficeCLI repair; continuing with the update.');
+      await deps.setSealInvalid(false).catch(() => {});
+      return { ok: true };
+    }
+    report = second;
+  }
+  await deps.setSealInvalid(true).catch(() => {});
+  return {
+    ok: false,
+    repairAttempted: repair.status !== 'intact' && repair.status !== 'absent',
+    violations: report.violations,
+  };
 }
