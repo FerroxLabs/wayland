@@ -30,8 +30,9 @@ export function adaptAcpMessages(
 ): readonly ExecutionEvent[] {
   const events: ExecutionEvent[] = [];
   let sequence = context.startSequence ?? 0;
-  let lifecycle: 'queued' | 'running' | 'waiting' | 'completed' | 'failed' = 'queued';
-  const lastToolMessageId = messages.findLast((message) => message.type === 'acp_tool_call')?.id;
+  let lifecycle: 'queued' | 'running' | 'waiting' = 'queued';
+  let lastTool: 'pending' | 'in_progress' | 'completed' | 'failed' | undefined;
+  let errorAfterLastWork = false;
   const append = (event: UnsequencedEvent): void => {
     events.push({ ...event, sequence } as ExecutionEvent);
     sequence += 1;
@@ -71,17 +72,14 @@ export function adaptAcpMessages(
           toolKind: update.kind,
         },
       });
-      if (update.status === 'failed' || (update.status === 'completed' && message.id === lastToolMessageId)) {
-        append({
-          eventId: `${message.id}:lifecycle:${update.status}`,
-          identity: context.identity,
-          observedAt,
-          type: 'lifecycle',
-          lifecycle: update.status,
-        });
-        lifecycle = update.status;
-      }
+      // A failed TOOL is an activity, never the run's verdict. The reducer treats
+      // a terminal lifecycle as absorbing, so settling `failed` here pinned the
+      // whole turn to "failed · The run stopped before it finished" from the
+      // first refused read onward, while the engine kept working for minutes.
+      lastTool = update.status;
+      errorAfterLastWork = false;
     } else if (message.type === 'acp_permission') {
+      errorAfterLastWork = false;
       append({
         eventId: `${message.id}:waiting`,
         identity: context.identity,
@@ -103,7 +101,10 @@ export function adaptAcpMessages(
           detail: message.content.toolCall.kind,
         },
       });
+    } else if (message.type === 'tips' && message.content.type === 'error') {
+      errorAfterLastWork = true;
     } else if (message.type === 'plan') {
+      errorAfterLastWork = false;
       append({
         eventId: `${message.id}:plan`,
         identity: context.identity,
@@ -115,6 +116,30 @@ export function adaptAcpMessages(
           status: planStatus(entry.status),
           priority: entry.priority,
         })),
+      });
+    }
+  }
+
+  // ── Turn settlement ────────────────────────────────────────────────
+  //
+  // Once, at the tail, and only for a run that started. A turn the caller
+  // reports as still in flight never settles. A turn FAILS only when a
+  // turn-level error (the persisted `tips` error) is the last thing it did;
+  // otherwise it completes - when the caller says the turn is over, or, with
+  // no turn signal, when the latest tool reached a terminal status.
+  if (lifecycle !== 'queued' && context.turnActive !== true) {
+    const settled = errorAfterLastWork
+      ? 'failed'
+      : lifecycle === 'running' && (context.turnActive === false || lastTool === 'completed' || lastTool === 'failed')
+        ? 'completed'
+        : undefined;
+    if (settled) {
+      append({
+        eventId: `${context.identity.runId}:lifecycle:${settled}`,
+        identity: context.identity,
+        observedAt: context.observedAt,
+        type: 'lifecycle',
+        lifecycle: settled,
       });
     }
   }

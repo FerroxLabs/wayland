@@ -60,6 +60,12 @@ vi.mock('../../src/common/config/storage', () => ({
   ConfigStorage: configStorageMock,
 }));
 
+// The Fuigo new-chat model reads Flux connectivity from the registry directly.
+const registryListMock = vi.hoisted(() => vi.fn().mockResolvedValue([]));
+vi.mock('../../src/common/adapter/ipcBridge', () => ({
+  modelRegistry: { list: { invoke: registryListMock } },
+}));
+
 vi.mock('../../src/common/config/presets/assistantPresets', () => ({
   ASSISTANT_PRESETS: [],
 }));
@@ -442,6 +448,61 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
   // subscription slot, never be left model-less (which lets the global "Route
   // through Flux" toggle silently route a native-login chat through Flux).
   // ---------------------------------------------------------------------------
+  describe('bundled Fuigo engine new-chat model', () => {
+    const FUIGO_CACHE: AcpModelInfo = {
+      source: 'models',
+      currentModelId: 'flux-auto',
+      currentModelLabel: 'Flux Auto',
+      availableModels: [
+        { id: 'flux-auto', label: 'Flux Auto' },
+        { id: 'flux-reasoning', label: 'Flux Reasoning' },
+        { id: 'byok/openai/gpt-4o', label: 'gpt-4o · OpenAI' },
+      ],
+      canSwitch: true,
+    };
+    const selectFuigo = async (acpConfig: Record<string, unknown>) => {
+      setupMocks({ cachedModels: { fuigo: FUIGO_CACHE }, acpConfig });
+      ipcMock.getAvailableAgents.mockResolvedValue({
+        success: true,
+        data: [...AVAILABLE_AGENTS, { backend: 'fuigo', name: 'Fuigo' }],
+      });
+      const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+      await waitFor(() => expect(result.current.availableAgents).toBeDefined());
+      act(() => {
+        result.current.setSelectedAgentKey('fuigo');
+      });
+      return result;
+    };
+
+    it('selects Flux Reasoning, not the flux-auto the engine cached as its own default', async () => {
+      registryListMock.mockResolvedValue([{ providerId: 'flux-router' }]);
+      const result = await selectFuigo({});
+
+      await waitFor(() => {
+        expect(result.current.selectedAcpModel).toBe('flux-reasoning');
+      });
+    });
+
+    it("keeps the user's explicit Fuigo pick, even flux-auto", async () => {
+      registryListMock.mockResolvedValue([{ providerId: 'flux-router' }]);
+      const result = await selectFuigo({ fuigo: { preferredModelId: 'flux-auto' } });
+
+      await waitFor(() => {
+        expect(registryListMock).toHaveBeenCalled();
+        expect(result.current.selectedAcpModel).toBe('flux-auto');
+      });
+    });
+
+    it('selects the first BYOK model when Flux is not connected', async () => {
+      registryListMock.mockResolvedValue([]);
+      const result = await selectFuigo({});
+
+      await waitFor(() => {
+        expect(result.current.selectedAcpModel).toBe('byok/openai/gpt-4o');
+      });
+    });
+  });
+
   describe('Claude native default model resolution', () => {
     it('defaults selectedAcpModel to the native slot when claude has no saved/cached model', async () => {
       ipcMock.getClaudeNativeDefault.mockResolvedValue('opus');

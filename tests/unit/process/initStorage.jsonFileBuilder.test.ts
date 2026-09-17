@@ -97,6 +97,37 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
         }
       );
 
+      it.skipIf(process.platform === 'win32')(
+        'names the Windows ownership cause and the repair when access is denied',
+        async () => {
+          // chmod 000 yields the access-denied errno; the platform is what selects the message.
+          const payload = encode(JSON.stringify({ irreplaceable: 'history' }));
+          await fs.writeFile(filePath, payload, { mode: 0o600 });
+          await fs.chmod(filePath, 0o000);
+          const realPlatform = process.platform;
+          Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+          let error: (Error & { code?: string }) | null = null;
+          try {
+            error = await JsonFileBuilder<Record<string, unknown>>(filePath)
+              .toJson()
+              .then(
+                () => null,
+                (e: Error & { code?: string }) => e
+              );
+          } finally {
+            Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+            await fs.chmod(filePath, 0o600);
+          }
+
+          expect(error?.code).toBe('WAYLAND_STORAGE_ACCESS_DENIED');
+          expect(error?.message).toContain('without proving corruption');
+          expect(error?.message).toContain(`icacls "${filePath}" /grant "`);
+          // /setowner turns the OWNER RIGHTS ACE inherit-only and leaves the file unreadable.
+          expect(error?.message).not.toContain('/setowner');
+          expect(await fs.readFile(filePath, 'utf8')).toBe(payload);
+        }
+      );
+
       it.each(['', encode('[]'), encode('null'), encode('"scalar"')])(
         'quarantines an existing non-object storage payload before recovery',
         async (payload) => {

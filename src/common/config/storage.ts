@@ -127,6 +127,11 @@ export interface IConfigStorageRefer {
   };
   /** Global LLM prompt timeout in seconds (default: 300). Per-backend promptTimeout overrides this. */
   'acp.promptTimeout'?: number;
+  /**
+   * Ceiling in seconds for ONE tool call (default: 1800). While a tool call is in
+   * flight the prompt timeout above does not run; this bounds a tool that never returns.
+   */
+  'acp.toolCallTimeout'?: number;
   /** Idle timeout in minutes before an ACP agent process is killed to reclaim memory (default: 5). */
   'acp.agentIdleTimeout'?: number;
   /** User-defined custom ACP agents (isPreset !== true, require defaultCliPath). */
@@ -311,6 +316,11 @@ export interface IConfigStorageRefer {
    * agent naming a retired engine was re-pointed at `fuigo`.
    */
   'migration.fuigoCutover'?: boolean;
+  /**
+   * Migration flag: the `flux-auto` Fuigo reported as its own default was
+   * cleared from `acp.cachedModels.fuigo` (never a user choice).
+   */
+  'migration.fuigoCachedFluxAutoCleared'?: boolean;
   /**
    * Migration flag: stale pre-#275 bundled-extension copies removed from
    * <userData>/extensions (#718). Builds before #275 copied the bundled packs
