@@ -4,6 +4,32 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-09-17
+
+The first week on Fuigo, fixed. Mac updates install again, the first turn of a chat behaves, and the engine moves to Fuigo 1.0.19.
+
+### Fixed
+
+- **Mac in-app updates install again.** Since v0.11.14 the app quit before Squirrel.Mac had taken the downloaded update, so every "Install and restart" and every quit-to-install ended with the old version still running. Install and Cmd+Q now wait for Squirrel to hold the update (bounded, with a visible failure), and a self-updated OfficeCLI that had broken the app's code seal is restored at startup; an update is refused with a clear message while the bundle is damaged. (#1382, #1383)
+- **No false "failed" banner mid-run, and the persona reaches the engine.** A Smart Trader chat could read "failed · The run stopped before it finished" while the run was still going, and the assistant persona and rules were sent as a giant first message the engine then offloaded to a file. The persona now travels on the session itself, and the banner only appears when the turn really ended. (#1384)
+- **Skills read through a symlinked Wayland home.** On a Mac where `~/.wayland` is a symlink, staged skills were refused as "outside permitted directories". Paths are canonicalised on both sides; a symlink planted inside a workspace that points outside it is now refused too. (#1384)
+- **New Fuigo chats start on Flux Reasoning.** New chats fell back to the engine's own default (Flux Auto), and a chat that carried a model did not always run it. A cached Flux Auto default is cleared once. (#1389)
+- **Long tool calls no longer time out the turn.** A tool call running past five minutes with nothing streamed (TVControl scanning 56 symbols) was cancelled as a prompt timeout. An in-flight tool call now counts as progress; a real hang says "Stopped: … ran longer than N minutes". (#1391)
+- **TIDE report no longer stalls on panels that never render.** The collector re-read the same unreadable symbols every pass; they are now recorded, skipped and retried once, and the report names them. (#1388)
+- **TVControl in the Library shows "Connecting…" and then stays On.** A probe that finished during the publication revoked it, so the card silently flipped back to Off. (#1385)
+- **Retry and Continue work in Fuigo chats.** Both buttons only listened on the engine that was removed in 0.13.0. (#1386)
+- **Provider API keys are no longer stored in plain text on chat rows.** Chats migrated from Wayland Core kept the Flux Router key in the local database's conversations table; migration v60 removes it and it is never written again. Keys were never sent anywhere by this. (#1390)
+- **Windows: the app opens after an elevated run and with TEMP on a missing drive.** A file written while Wayland ran as administrator locked a normal launch out; both failures now start the app and explain the repair. Re-importing an already-installed skill pack shows an error instead of hanging. (#1381)
+- **Engines started just by opening a chat are reaped.** Opening an old chat without sending started an engine and its MCP servers that were never stopped; the idle reaper now covers them and stops the whole process tree. (#1392)
+
+### Added
+
+- **Local and more BYOK providers in Fuigo chats.** Ollama and LM Studio, OpenRouter, Gemini, Azure and other OpenAI-compatible keys appear under "Your API keys" in the picker; on a machine with no Flux key the first of them becomes the default. (#1387)
+
+### Changed
+
+- **Fuigo 1.0.19 is the bundled engine.** Every engine error now carries a typed reason, which Wayland shows as words; a run that hits its budget still ends with "Stopped by the run budget". Provider retries appear as thinking text during the turn. (#1395)
+
 ## [0.13.0] - 2026-09-13
 
 One engine. Wayland Core and Wayland Nano are gone; Fuigo is the only engine bundled, and every chat, routine and scheduled job runs on it.
