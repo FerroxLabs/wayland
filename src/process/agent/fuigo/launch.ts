@@ -174,13 +174,15 @@ export function buildFuigoAcpArgs(opts: { trusted: boolean; maxTurns?: number })
  * process (`fuigo-sampler/src/execution_budget.rs`; positive integers; the
  * wall clock starts at process init and both are aggregate across every
  * session, model switch, subagent and side call in that process). Verified on
- * the staged 1.0.15 over stdio:
+ * the staged 1.0.15 and again on 1.0.19 over stdio:
  *   - calls: the last admission is reserved for a final answer, then the
  *     prompt returns `-32603` whose `data` is the execution receipt
- *     (`partial: true`, `reason: "Execution stopped with bounded capacity …"`).
+ *     (`partial: true`, `reason: "Execution stopped with bounded capacity …"`;
+ *     1.0.18+ adds `message` = reason and `error_kind: "execution_incomplete"`).
  *   - wall: a prompt past the deadline returns `-32602` with
- *     `data: "execution budget: wall deadline exhausted"`; a running turn is
- *     cancelled. The process stays alive either way.
+ *     `data: "execution budget: wall deadline exhausted"` up to 1.0.17 and
+ *     `data: {message: <that string>, error_kind: "invalid_request"}` from
+ *     1.0.18; a running turn is cancelled. The process stays alive either way.
  * A scheduled run is one process per run (the idle reaper SIGTERMs it), so a
  * per-process budget is a per-run budget. Core had no persisted keys for
  * these — its hard stops were fixed thresholds — so the defaults live here
@@ -251,6 +253,30 @@ export function describeFuigoBudgetStop(err: unknown): string | null {
     }
   }
   return null;
+}
+
+/**
+ * The user-facing reason when a prompt ENDED NORMALLY because Fuigo stopped it,
+ * or null for an ordinary turn.
+ *
+ * Up to 1.0.18 the per-prompt `--max-turns` cap failed the prompt with
+ * `-32603`, so it arrived through `describeFuigoBudgetStop` above. From 1.0.19
+ * (`fuigo-shell` `turn.rs`, `TurnOutcome::MaxTurnsReached`) it is a normal
+ * result instead: `stopReason: "cancelled"` with
+ * `_meta.cancellationCategory: "max_turns_reached"` — measured on the staged
+ * 1.0.19 over stdio. Without this, that stop is indistinguishable from the
+ * user pressing Stop and the turn just ends blank.
+ *
+ * The process budgets (`FUIGO_MAX_MODEL_CALLS` / `FUIGO_MAX_RUNTIME_SECS`)
+ * still fail the prompt; they stay in `describeFuigoBudgetStop`.
+ */
+export function describeFuigoTurnStop(result: unknown): string | null {
+  if (!result || typeof result !== 'object') return null;
+  if ((result as { stopReason?: unknown }).stopReason !== 'cancelled') return null;
+  const meta = (result as { _meta?: unknown })._meta;
+  if (!meta || typeof meta !== 'object') return null;
+  if ((meta as { cancellationCategory?: unknown }).cancellationCategory !== 'max_turns_reached') return null;
+  return 'Stopped by the turn limit: this turn used all the agentic turns it was allowed. Work done so far is kept; send another message to continue.';
 }
 
 /**

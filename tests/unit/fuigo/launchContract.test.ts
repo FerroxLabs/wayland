@@ -145,6 +145,7 @@ import {
   buildFuigoAcpArgs,
   buildFuigoSessionMetadata,
   describeFuigoBudgetStop,
+  describeFuigoTurnStop,
   extractFuigoPromptUsage,
   fuigoBudgetEnv,
   fuigoCompatIsolationEnv,
@@ -293,6 +294,46 @@ describe('launch helpers', () => {
     );
     expect(describeFuigoBudgetStop({ data: { partial: false, reason: 'Turn returned normally' } })).toBeNull();
     expect(describeFuigoBudgetStop({ data: 'Execution state unavailable' })).toBeNull();
+    expect(
+      describeFuigoBudgetStop({ data: { message: 'empty response from model', error_kind: 'empty_response' } })
+    ).toBeNull();
+  });
+
+  it('recognises the 1.0.19 max-turns stop, which is a normal result and not an error', () => {
+    // Measured on the staged 1.0.19 with `--max-turns 1`.
+    expect(
+      describeFuigoTurnStop({ stopReason: 'cancelled', _meta: { cancellationCategory: 'max_turns_reached' } })
+    ).toMatch(/^Stopped by the turn limit/);
+    // A user-pressed Stop is the same stopReason with no category: it must stay silent.
+    expect(describeFuigoTurnStop({ stopReason: 'cancelled', _meta: { sessionId: 's' } })).toBeNull();
+    expect(describeFuigoTurnStop({ stopReason: 'cancelled' })).toBeNull();
+    expect(
+      describeFuigoTurnStop({ stopReason: 'end_turn', _meta: { cancellationCategory: 'max_turns_reached' } })
+    ).toBeNull();
+    expect(describeFuigoTurnStop(null)).toBeNull();
+  });
+
+  it('recognises the typed budget-stop shapes Fuigo 1.0.18+ sends (measured on the staged 1.0.19)', () => {
+    // -32602: `data` used to be the bare budget string; it is now an object.
+    const wall = { message: 'execution budget: wall deadline exhausted', error_kind: 'invalid_request' };
+    expect(describeFuigoBudgetStop({ code: -32602, message: 'Invalid params', data: wall })).toMatch(/60-minute limit/);
+    expect(describeFuigoBudgetStop({ cause: { data: wall } })).toMatch(/60-minute limit/);
+    expect(
+      describeFuigoBudgetStop({
+        data: { message: 'execution budget: model dispatch limit exhausted', error_kind: 'invalid_request' },
+      })
+    ).toMatch(/200 of its model calls/);
+    // -32603: the receipt keeps `partial`/`reason` and gains `message`/`error_kind`.
+    const receipt = {
+      partial: true,
+      pending_tool_calls: [],
+      reason: 'Execution stopped with bounded capacity or unresolved work. …',
+      message: 'Execution stopped with bounded capacity or unresolved work. …',
+      error_kind: 'execution_incomplete',
+    };
+    expect(describeFuigoBudgetStop({ code: -32603, message: 'Internal error', data: receipt })).toMatch(
+      /200 of its model calls before it finished/
+    );
     expect(describeFuigoBudgetStop(new Error('boom'))).toBeNull();
     expect(describeFuigoBudgetStop(null)).toBeNull();
   });

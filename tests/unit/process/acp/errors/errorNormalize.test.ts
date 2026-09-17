@@ -60,6 +60,30 @@ describe('normalizeError', () => {
     expect(result.message).toContain('corrupted_index');
   });
 
+  it('folds a typed `data.message` (Fuigo 1.0.18+) as words, not as JSON', () => {
+    const err = {
+      code: -32603,
+      message: 'Internal error',
+      data: { message: 'empty response from model (reasoning_only)', error_kind: 'empty_response' },
+    };
+    const result = normalizeError(err);
+    expect(result.message).toBe('Internal error: empty response from model (reasoning_only)');
+    expect(result.message).not.toContain('error_kind');
+  });
+
+  it('keeps a Fuigo 1.0.18+ cancellation as a cancellation, never an auth prompt', () => {
+    // 1.0.16 answered a cancelled model request with -32000, which normalizes to
+    // AUTH_REQUIRED and tears the session down for a re-login. 1.0.18 retyped it.
+    const err = {
+      code: -32800,
+      message: 'request cancelled',
+      data: { message: 'request cancelled', error_kind: 'cancelled' },
+    };
+    const result = normalizeError(err);
+    expect(result.code).toBe('ACP_REQ_CANCELLED');
+    expect(result.retryable).toBe(false);
+  });
+
   it('leaves the message unchanged when there is no extra detail', () => {
     const err = { code: -32603, message: 'Internal error' };
     const result = normalizeError(err);

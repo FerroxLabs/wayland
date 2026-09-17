@@ -4,7 +4,7 @@ import type { AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import type { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
 import type { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PromptTimer } from '@process/acp/session/PromptTimer';
-import { describeFuigoBudgetStop, extractFuigoPromptUsage } from '@process/agent/fuigo/launch';
+import { describeFuigoBudgetStop, describeFuigoTurnStop, extractFuigoPromptUsage } from '@process/agent/fuigo/launch';
 import { randomUUID } from 'node:crypto';
 import type { SessionLifecycle } from '@process/acp/session/SessionLifecycle';
 import type { AgentConfig, PromptContent, SessionCallbacks, SessionStatus } from '@process/acp/types';
@@ -299,6 +299,14 @@ export class PromptExecutor {
               }),
             });
           }
+        }
+
+        // Fuigo 1.0.19 reports a `--max-turns` stop as a NORMAL result
+        // (`stopReason: "cancelled"` + `_meta.cancellationCategory`), not as an
+        // error, so say why the turn ended instead of leaving it blank.
+        if (this.host.agentConfig.agentBackend === 'fuigo') {
+          const turnStop = describeFuigoTurnStop(result);
+          if (turnStop) this.host.enterError(turnStop);
         }
         break;
       } catch (err) {
