@@ -238,16 +238,24 @@ describe('AutoUpdaterService', () => {
 
   describe('quitAndInstall', () => {
     it('should call quitAndInstall on autoUpdater and force exit after delay', async () => {
+      // The non-macOS path. macOS first waits for Squirrel.Mac to hold the update,
+      // covered in autoUpdaterServiceSquirrelHandoff.test.ts.
+      const realPlatform = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
       vi.useFakeTimers();
-      const { app } = vi.mocked(await import('electron'));
+      try {
+        const { app } = vi.mocked(await import('electron'));
 
-      autoUpdaterService.quitAndInstall();
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+        await autoUpdaterService.quitAndInstall();
+        expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
 
-      // app.exit is called after a 1s delay
-      vi.advanceTimersByTime(1000);
-      expect(app.exit).toHaveBeenCalledWith(0);
-      vi.useRealTimers();
+        // app.exit is called after a 1s delay
+        vi.advanceTimersByTime(1000);
+        expect(app.exit).toHaveBeenCalledWith(0);
+      } finally {
+        vi.useRealTimers();
+        Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+      }
     });
   });
 

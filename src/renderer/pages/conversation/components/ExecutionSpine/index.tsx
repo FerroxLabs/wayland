@@ -64,8 +64,10 @@ const ExecutionSpine: React.FC<{
   workspaceId: string;
   projectId?: string;
   agentId: string;
+  /** The conversation's own busy signal; while true the run cannot settle. */
+  turnActive?: boolean;
   children: React.ReactNode;
-}> = ({ backend, conversationId, workspaceId, projectId, agentId, children }) => {
+}> = ({ backend, conversationId, workspaceId, projectId, agentId, turnActive, children }) => {
   const { t } = useTranslation();
   const messages = useMessageList();
   const executionInterrupted = useConversationContextSafe()?.executionInterrupted === true;
@@ -88,7 +90,7 @@ const ExecutionSpine: React.FC<{
     [agentId, backend, conversationId, projectId, scheduled, turnId, workspaceId]
   );
   const options = useMemo(() => ({ now: Date.now() }), [messages]);
-  const snapshot = useBackendExecutionSnapshot(backend, seed, messages, options);
+  const snapshot = useBackendExecutionSnapshot(backend, seed, messages, options, turnActive);
   const run = selectCanonicalRunSnapshot(snapshot);
   const currentStep =
     run.plan.find((step) => step.status === 'in-progress') ?? run.plan.find((step) => step.status === 'pending');

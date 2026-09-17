@@ -263,7 +263,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
     setError('');
     setLoading(true);
     try {
-      let result: ImportResult;
+      let result: ImportResult | { error: string };
       if (tab === 'folder') {
         result = await ipcBridge.skills.import.folder.invoke({ srcPath: folderPath });
       } else if (tab === 'git') {
@@ -272,6 +272,10 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
         result = await ipcBridge.skills.import.zip.invoke({ zipPath });
       } else {
         result = await ipcBridge.skills.import.singleSkillMd.invoke({ srcPath: skillMdPath });
+      }
+      if ('error' in result) {
+        setError(result.error);
+        return;
       }
       applyResult(result);
     } catch (err) {

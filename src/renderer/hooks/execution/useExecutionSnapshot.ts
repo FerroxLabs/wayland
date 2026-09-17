@@ -30,13 +30,14 @@ export function useBackendExecutionSnapshot(
   backend: ExecutionBackend,
   seed: ExecutionSeed,
   messages: readonly TMessage[],
-  options: ExecutionProjectionOptions
+  options: ExecutionProjectionOptions,
+  turnActive?: boolean
 ): ExecutionSnapshot {
   return useMemo(() => {
-    const context = { identity: seed.identity, observedAt: options.now };
+    const context = { identity: seed.identity, observedAt: options.now, turnActive };
     const currentMessages = selectCurrentExecutionMessages(backend, messages);
     const events =
       backend === 'gemini' ? adaptGeminiMessages(currentMessages, context) : adaptAcpMessages(currentMessages, context);
     return projectExecution(seed, events, options);
-  }, [backend, messages, options, seed]);
+  }, [backend, messages, options, seed, turnActive]);
 }
