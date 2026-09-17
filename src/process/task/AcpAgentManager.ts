@@ -98,7 +98,7 @@ import { extractAndStripThinkTags } from './ThinkTagDetector';
 import type { AgentKillReason } from './IAgentManager';
 import { hasNativeSkillSupport } from '@/common/types/acpTypes';
 import {
-  prepareFirstMessageWithSkillsIndex,
+  buildFirstMessageRulesWithSkillsIndex,
   buildTurnSkillContext,
   mergeLoadedSkillsExtra,
   consumePendingSessionSkills,
@@ -141,6 +141,8 @@ interface AcpAgentManagerData {
   /** Display name for the agent (from extension or custom config) */
   agentName?: string;
   presetContext?: string; // Preset context from smart assistant
+  /** Fuigo: a model switch dropped the session's `_meta.rules`; re-send them on the next turn. */
+  fuigoRulesStale?: boolean;
   /** Enabled skills list for filtering SkillManager skills */
   enabledSkills?: string[];
   /** Builtin auto-injected skills to exclude */
@@ -220,6 +222,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   private bootstrap: Promise<AcpAgentV2> | undefined;
   private bootstrapping: boolean = false;
   private isFirstMessage: boolean = true;
+  private fuigoRulesStale = false;
   options: AcpAgentManagerData;
   private currentMode: string = 'default';
   private persistedModelId: string | null = null;
@@ -289,6 +292,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     });
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
+    this.fuigoRulesStale = data.fuigoRulesStale === true;
     this.status = 'pending';
     // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected.
     // A guarded-auto session is the one exception: it must NEVER carry the blanket
@@ -720,6 +724,95 @@ ${collectedResponses.join('\n')}`;
    * Check native skill support: for builtin backends, consult ACP_BACKENDS_ALL;
    * for extension agents, check the adapter's skillsDirs from the manifest.
    */
+  /**
+   * The assistant's standing rules for this conversation: Constitution,
+   * preset persona, team guide, capabilities manifest and connector guidance
+   * (plus the skills index where the workspace cannot be discovered natively).
+   * Returned unwrapped; '' when there is nothing to inject.
+   *
+   * Symlinks are only created for temp workspaces; custom workspaces skip symlinks.
+   * So custom workspaces or backends without native skill discovery need the index.
+   */
+  private async buildFirstTurnRules(): Promise<string> {
+    const isInTeam = Boolean((this.options as unknown as Record<string, unknown>).teamMcpStdioConfig);
+    const useNativeSkills = this.resolveNativeSkillSupport() && !this.options.customWorkspace;
+    if (!useNativeSkills) {
+      // Custom workspace or no native support - rules + skills index
+      const { rules } = await buildFirstMessageRulesWithSkillsIndex({
+        workspace: this.workspace,
+        conversationId: this.conversation_id,
+        presetContext: this.options.presetContext,
+        enabledSkills: this.options.enabledSkills,
+        excludeBuiltinSkills: this.options.excludeBuiltinSkills,
+        enableTeamGuide: !isInTeam && (await shouldInjectTeamGuideMcp(this.options.backend)),
+        backend: this.options.backend,
+        presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
+        // Concierge-only here (no userText) to match Gemini and avoid
+        // double-injecting on a non-Concierge capability first message - the
+        // per-turn advert already covers non-Concierge capability intents.
+        capabilitiesManifest: await resolveCapabilitiesManifest({
+          presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
+          agentKey: this.options.backend,
+        }),
+      });
+      return rules;
+    }
+    // Native skill discovery via workspace symlinks - preset rules + team guide
+    const parts: string[] = [];
+    if (this.options.presetContext) parts.push(this.options.presetContext);
+    if (!isInTeam && (await shouldInjectTeamGuideMcp(this.options.backend))) {
+      const [{ getTeamGuidePrompt }, { resolveLeaderAssistantLabel }] = await Promise.all([
+        import('@process/team/prompts/teamGuidePrompt.ts'),
+        import('@process/team/prompts/teamGuideAssistant.ts'),
+      ]);
+      const leaderLabel = await resolveLeaderAssistantLabel(
+        this.options.presetAssistantId || this.options.customAgentId
+      );
+      parts.push(getTeamGuidePrompt({ backend: this.options.backend, leaderLabel }));
+    }
+    // Concierge self-knowledge on native ACP backends (Claude Code /
+    // Codex): inject the live capabilities manifest into the rules block
+    // so Concierge keeps accurate self-knowledge here too. Concierge-only
+    // (no userText, matching the Gemini first-message contract);
+    // non-Concierge capability turns are served by the per-turn advert.
+    const nativeManifest = await resolveCapabilitiesManifest({
+      presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
+      agentKey: this.options.backend,
+    });
+    if (nativeManifest) parts.push(`${CAPABILITIES_MANIFEST_HEADER}\n${nativeManifest}`);
+    // Per-connector usage guidance for enabled MCP connectors (#475).
+    // Native ACP backends (Claude Code / Codex) assemble their rules
+    // block here rather than via buildSystemInstructions*, so inject the
+    // guidance directly or the Google Workspace start_google_auth notes
+    // never reach these backends.
+    const nativeConnectorGuidance = await resolveMcpConnectorGuidance();
+    if (nativeConnectorGuidance) parts.push(nativeConnectorGuidance);
+    // Prepend Wayland Constitution + optional specialist overlay above
+    // the preset rules + team guide. composePrompt returns '' when no
+    // Constitution file exists, preserving the prior "skip rules block
+    // when empty" behaviour for fresh installs.
+    return composePrompt({
+      assistantId: this.options.presetAssistantId || this.options.customAgentId,
+      basePrompt: parts.join('\n\n'),
+      conversationId: this.conversation_id,
+    }).text;
+  }
+
+  /**
+   * Fuigo's `_meta.rules`: the first-turn rules, plus - for a session that is
+   * being CREATED (no session to resume) - the skills staged for turn 1
+   * (`[Skill added to this chat: …]`). Fuigo bakes rules into the session's
+   * system message once, at creation, and ignores them on `session/load`, so a
+   * resumed conversation keeps what it was created with and any skill added
+   * later still rides that turn's message.
+   */
+  private async buildFuigoSessionRules(data: AcpAgentManagerData): Promise<string> {
+    const rules = await this.buildFirstTurnRules();
+    if (data.acpSessionId) return rules;
+    const pending = await consumePendingSessionSkills(this.conversation_id);
+    return [rules, pending].filter((part) => part.length > 0).join('\n\n');
+  }
+
   private resolveNativeSkillSupport(): boolean {
     if (hasNativeSkillSupport(this.options.backend)) return true;
 
@@ -1889,6 +1982,9 @@ ${collectedResponses.join('\n')}`;
       } else if (!isModelAvailable || currentInfo?.currentModelId !== this.persistedModelId) {
         try {
           await this.agent.setModelByConfigOption(this.persistedModelId);
+          if (this.options.backend === 'fuigo' && currentInfo?.currentModelId !== this.persistedModelId) {
+            await this.markFuigoRulesStale(true);
+          }
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : String(error);
           mainWarn('[AcpAgentManager]', `Failed to re-apply model ${this.persistedModelId}`, error);
@@ -1959,6 +2055,8 @@ ${collectedResponses.join('\n')}`;
               ? buildFuigoSessionMetadata({
                   nonInteractive: data.unattendedHoldDeadlineMs !== undefined,
                   pluginDirs: fuigoPluginDirs(data.workspace),
+                  rules: await this.buildFuigoSessionRules(data),
+                  modelId: this.persistedModelId ?? undefined,
                 })
               : undefined,
           agentName: data.agentName,
@@ -2138,76 +2236,17 @@ ${collectedResponses.join('\n')}`;
           contentToSend = contentToSend.split(WAYLAND_FILES_MARKER)[0].trimEnd();
         }
 
-        // Inject preset rules and skills on first message
-        //
-        // Symlinks are only created for temp workspaces; custom workspaces skip symlinks.
-        // So custom workspaces or backends without native skill discovery need prompt injection.
-        if (this.isFirstMessage) {
-          const isInTeam = Boolean((this.options as unknown as Record<string, unknown>).teamMcpStdioConfig);
-          const useNativeSkills = this.resolveNativeSkillSupport() && !this.options.customWorkspace;
-          if (useNativeSkills) {
-            // Native skill discovery via workspace symlinks - inject preset rules + team guide
-            const parts: string[] = [];
-            if (this.options.presetContext) parts.push(this.options.presetContext);
-            if (!isInTeam && (await shouldInjectTeamGuideMcp(this.options.backend))) {
-              const [{ getTeamGuidePrompt }, { resolveLeaderAssistantLabel }] = await Promise.all([
-                import('@process/team/prompts/teamGuidePrompt.ts'),
-                import('@process/team/prompts/teamGuideAssistant.ts'),
-              ]);
-              const leaderLabel = await resolveLeaderAssistantLabel(
-                this.options.presetAssistantId || this.options.customAgentId
-              );
-              parts.push(getTeamGuidePrompt({ backend: this.options.backend, leaderLabel }));
-            }
-            // Concierge self-knowledge on native ACP backends (Claude Code /
-            // Codex): inject the live capabilities manifest into the rules block
-            // so Concierge keeps accurate self-knowledge here too. Concierge-only
-            // (no userText, matching the Gemini first-message contract);
-            // non-Concierge capability turns are served by the per-turn advert.
-            const nativeManifest = await resolveCapabilitiesManifest({
-              presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
-              agentKey: this.options.backend,
-            });
-            if (nativeManifest) parts.push(`${CAPABILITIES_MANIFEST_HEADER}\n${nativeManifest}`);
-            // Per-connector usage guidance for enabled MCP connectors (#475).
-            // Native ACP backends (Claude Code / Codex) assemble their rules
-            // block here rather than via buildSystemInstructions*, so inject the
-            // guidance directly or the Google Workspace start_google_auth notes
-            // never reach these backends.
-            const nativeConnectorGuidance = await resolveMcpConnectorGuidance();
-            if (nativeConnectorGuidance) parts.push(nativeConnectorGuidance);
-            // Prepend Wayland Constitution + optional specialist overlay above
-            // the preset rules + team guide. composePrompt returns '' when no
-            // Constitution file exists, preserving the prior "skip rules block
-            // when empty" behaviour for fresh installs.
-            const rulesBody = composePrompt({
-              assistantId: this.options.presetAssistantId || this.options.customAgentId,
-              basePrompt: parts.join('\n\n'),
-              conversationId: this.conversation_id,
-            }).text;
-            if (rulesBody.length > 0) {
-              contentToSend = `[Assistant Rules - You MUST follow these instructions]\n${rulesBody}\n\n[User Request]\n${contentToSend}`;
-            }
-          } else {
-            // Custom workspace or no native support - inject rules + skills via prompt
-            const { content: injectedContent } = await prepareFirstMessageWithSkillsIndex(contentToSend, {
-              workspace: this.workspace,
-              conversationId: this.conversation_id,
-              presetContext: this.options.presetContext,
-              enabledSkills: this.options.enabledSkills,
-              excludeBuiltinSkills: this.options.excludeBuiltinSkills,
-              enableTeamGuide: !isInTeam && (await shouldInjectTeamGuideMcp(this.options.backend)),
-              backend: this.options.backend,
-              presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
-              // Concierge-only here (no userText) to match Gemini and avoid
-              // double-injecting on a non-Concierge capability first message - the
-              // per-turn advert already covers non-Concierge capability intents.
-              capabilitiesManifest: await resolveCapabilitiesManifest({
-                presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
-                agentKey: this.options.backend,
-              }),
-            });
-            contentToSend = injectedContent;
+        // Inject preset rules and skills on first message - unless the engine
+        // already holds them as session rules (Fuigo `_meta.rules`, set at
+        // bootstrap), where repeating them here would push the prompt back
+        // over the offload threshold.
+        // A Fuigo model switch stripped those session rules (see
+        // markFuigoRulesStale): this turn carries them again, once.
+        const resendFuigoRules = this.options.backend === 'fuigo' && this.fuigoRulesStale;
+        if ((this.isFirstMessage && this.options.backend !== 'fuigo') || resendFuigoRules) {
+          const rulesBody = await this.buildFirstTurnRules();
+          if (rulesBody.length > 0) {
+            contentToSend = `[Assistant Rules - You MUST follow these instructions]\n${rulesBody}\n\n[User Request]\n${contentToSend}`;
           }
         }
 
@@ -2263,6 +2302,9 @@ ${collectedResponses.join('\n')}`;
         // Mark after first message is sent, regardless of presetContext
         if (this.isFirstMessage) {
           this.isFirstMessage = false;
+        }
+        if (resendFuigoRules && result.success) {
+          await this.markFuigoRulesStale(false);
         }
         // Note: cronBusyGuard.setProcessing(false) is not called here
         // because the response streaming is still in progress.
@@ -2705,8 +2747,13 @@ ${collectedResponses.join('\n')}`;
       return this.getModelInfo();
     }
 
+    const previousLiveModelId =
+      this.options.backend === 'fuigo' ? this.agent.getModelInfo?.()?.currentModelId : undefined;
     const result = await this.agent.setModelByConfigOption(modelId);
     if (result) {
+      if (this.options.backend === 'fuigo' && result.currentModelId === modelId && modelId !== previousLiveModelId) {
+        await this.markFuigoRulesStale(true);
+      }
       // The bridge echoes the live model. On success `result.currentModelId`
       // equals the requested id; on a 10s timeout setModelByConfigOption falls
       // back to the agent's CACHED (default) info, whose currentModelId is NOT
@@ -2926,6 +2973,31 @@ ${collectedResponses.join('\n')}`;
       }
     } catch (error) {
       mainError('[AcpAgentManager]', 'Failed to clear legacy yoloMode config', error);
+    }
+  }
+
+  /**
+   * Fuigo 1.0.16 keeps `_meta.rules` only until the session's model changes: a
+   * `session/set_model` to a different model rebuilds the harness with a fresh
+   * system prompt and the `<human_rules>` block is gone for good (a later
+   * `session/load` keeps it gone). Mark that, persisted on the row so a
+   * respawn (idle reaper, Flux failover, app restart) still knows, and the next
+   * user turn re-sends the rules in the message; cleared once that turn is sent.
+   */
+  private async markFuigoRulesStale(stale: boolean): Promise<void> {
+    this.fuigoRulesStale = stale;
+    this.options.fuigoRulesStale = stale;
+    try {
+      const db = await getDatabase();
+      const result = db.getConversation(this.conversation_id);
+      if (result.success && result.data && result.data.type === 'acp') {
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, fuigoRulesStale: stale },
+        } as Partial<typeof conversation>);
+      }
+    } catch (error) {
+      mainWarn('[AcpAgentManager]', 'Failed to persist fuigoRulesStale', error);
     }
   }
 

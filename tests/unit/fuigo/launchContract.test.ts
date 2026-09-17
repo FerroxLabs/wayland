@@ -125,8 +125,14 @@ vi.mock('@process/utils/initAgent', () => ({
   repairStagedTideSkill: vi.fn(async () => {}),
 }));
 vi.mock('@process/task/agentUtils', () => ({
-  prepareFirstMessageWithSkillsIndex: vi.fn((x: string) => Promise.resolve({ content: x, loadedSkills: [] })),
+  buildFirstMessageRulesWithSkillsIndex: vi.fn(() => Promise.resolve({ rules: '', loadedSkills: [] })),
+  resolveCapabilitiesManifest: vi.fn(() => Promise.resolve(undefined)),
+  consumePendingSessionSkills: vi.fn(() => Promise.resolve('')),
+  CAPABILITIES_MANIFEST_HEADER: '[Wayland Capabilities]',
   isConciergeAssistant: vi.fn(() => false),
+}));
+vi.mock('@process/services/constitution/composePrompt', () => ({
+  composePrompt: ({ basePrompt = '' }: { basePrompt?: string }) => ({ text: basePrompt }),
 }));
 vi.mock('@/common/utils', () => ({ parseError: vi.fn((e: unknown) => e), uuid: vi.fn(() => 'test-uuid') }));
 vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn(() => 'uuid') }));
@@ -201,6 +207,19 @@ describe('launch helpers', () => {
     });
   });
 
+  it("creates the session on the chat's model via _meta.modelId, and omits the key without one", () => {
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, modelId: 'flux-reasoning' })).toEqual({
+      clientIdentifier: 'wayland-desktop',
+      clientType: 'desktop',
+      startupHints: { nonInteractive: false },
+      modelId: 'flux-reasoning',
+    });
+    expect(buildFuigoSessionMetadata({ nonInteractive: false })).not.toHaveProperty('modelId');
+    expect(
+      projectSessionMetadata(buildFuigoSessionMetadata({ nonInteractive: false, modelId: 'flux-reasoning' }))
+    ).toHaveProperty('modelId', 'flux-reasoning');
+  });
+
   it('carries staged skill roots as _meta.pluginDirs and omits the key without any', () => {
     expect(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: ['/ws/.wayland'] })).toEqual({
       clientIdentifier: 'wayland-desktop',
@@ -213,6 +232,23 @@ describe('launch helpers', () => {
     expect(
       projectSessionMetadata(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: ['/ws/.wayland'] }))
     ).toHaveProperty('pluginDirs', ['/ws/.wayland']);
+  });
+
+  it('carries the assistant rules as _meta.rules (not in the user message) and omits an empty one', () => {
+    const rules = '# Smart Trader\n\nYou are **Smart Trader**.';
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, rules })).toHaveProperty('rules', rules);
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, rules: '' })).not.toHaveProperty('rules');
+    // The chat's model rides session/new so no set_model follows creation (a
+    // model-changing set_model strips `<human_rules>` on Fuigo 1.0.16).
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, rules, modelId: 'flux-reasoning' })).toHaveProperty(
+      'modelId',
+      'flux-reasoning'
+    );
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, rules })).not.toHaveProperty('modelId');
+    expect(projectSessionMetadata(buildFuigoSessionMetadata({ nonInteractive: false, rules }))).toHaveProperty(
+      'rules',
+      rules
+    );
   });
 
   describe('fuigoPluginDirs', () => {
@@ -467,8 +503,11 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
 
     expect(capturedAgentConfigs).toHaveLength(2);
     const [att, un] = capturedAgentConfigs.map((c) => (c.extra as Record<string, unknown>).sessionMetadata);
-    expect(att).toEqual(buildFuigoSessionMetadata({ nonInteractive: false }));
-    expect(un).toEqual(buildFuigoSessionMetadata({ nonInteractive: true }));
+    // `rules` (the assistant's standing instructions) rides alongside.
+    expect(att).toMatchObject(buildFuigoSessionMetadata({ nonInteractive: false }));
+    expect(att).toHaveProperty('startupHints', { nonInteractive: false });
+    expect(un).toMatchObject(buildFuigoSessionMetadata({ nonInteractive: true }));
+    expect(un).toHaveProperty('startupHints', { nonInteractive: true });
   });
 
   it('passes the staged skill root on the session request only when skills were staged', async () => {
@@ -493,6 +532,22 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     } finally {
       rmSync(ws, { recursive: true, force: true });
     }
+  });
+
+  it("creates the Fuigo session on the chat's persisted model, and names none when the row has none", async () => {
+    const pinned = new AcpAgentManager({
+      conversation_id: 'c-pin',
+      backend: 'fuigo',
+      workspace: '/tmp/ws',
+      currentModelId: 'flux-reasoning',
+    });
+    await pinned.initAgent({ conversation_id: 'c-pin', backend: 'fuigo', workspace: '/tmp/ws' } as never);
+    const bare = new AcpAgentManager({ conversation_id: 'c-bare', backend: 'fuigo', workspace: '/tmp/ws' });
+    await bare.initAgent({ conversation_id: 'c-bare', backend: 'fuigo', workspace: '/tmp/ws' } as never);
+
+    const [pin, none] = capturedAgentConfigs.map((c) => (c.extra as Record<string, unknown>).sessionMetadata);
+    expect(pin).toMatchObject({ modelId: 'flux-reasoning' });
+    expect(none).not.toHaveProperty('modelId');
   });
 
   it('leaves other backends without Fuigo session metadata', async () => {

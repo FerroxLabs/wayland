@@ -102,14 +102,16 @@ describe('autoUpdaterService update-on-quiesce (#651)', () => {
   });
 
   describe('installOnQuitIfReady', () => {
-    it('is a no-op when nothing was downloaded', () => {
-      expect(service.installOnQuitIfReady()).toBe(false);
+    it('is a no-op when nothing was downloaded', async () => {
+      await expect(service.installOnQuitIfReady()).resolves.toBe(false);
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('installs and relaunches when a download is staged and safe', () => {
+    it('installs and relaunches when a download is staged and safe', async () => {
+      // Non-macOS; macOS first waits for Squirrel.Mac (autoUpdaterServiceSquirrelHandoff.test.ts).
+      setPlatform('linux');
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
-      const result = service.installOnQuitIfReady();
+      const result = await service.installOnQuitIfReady();
       expect(result).toBe(true);
       // isSilent=true, isForceRunAfter=true — install on quit AND relaunch,
       // matching the "Install and restart" promise (#651, 0.11.15).
@@ -118,7 +120,7 @@ describe('autoUpdaterService update-on-quiesce (#651)', () => {
       expect(app.exit).not.toHaveBeenCalled();
     });
 
-    it('refuses to install when the staged update is blocked (macOS outside /Applications, #575)', () => {
+    it('refuses to install when the staged update is blocked (macOS outside /Applications, #575)', async () => {
       // Stage a download first.
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
       // Now a later check finds an update but the app is not in /Applications:
@@ -127,7 +129,7 @@ describe('autoUpdaterService update-on-quiesce (#651)', () => {
       vi.mocked(app.isInApplicationsFolder!).mockReturnValue(false);
       service.triggerEventForTest('update-available', { version: '3.0.0' });
 
-      const result = service.installOnQuitIfReady();
+      const result = await service.installOnQuitIfReady();
       expect(result).toBe(false);
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
