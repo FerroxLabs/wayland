@@ -622,15 +622,22 @@ export const skills = {
    * instead of an indeterminate spinner.
    */
   scanProgress: buildEmitter<SkillScanProgress>('skills.scan-progress'),
+  /**
+   * Imports settle as a result, never a rejection: the bridge cannot carry one,
+   * so a thrown "already installed" left the Import dialog spinning forever.
+   * `error` is the importer's own "Rejected: ..." text, or "Import failed".
+   */
   import: {
     /** Import a skill from a local folder path. */
-    folder: buildProvider<ImportResult, { srcPath: string }>('skills.import.folder'),
+    folder: buildProvider<ImportResult | { error: string }, { srcPath: string }>('skills.import.folder'),
     /** Clone a git URL and import the resulting skill folder. */
-    git: buildProvider<ImportResult, { url: string }>('skills.import.git'),
+    git: buildProvider<ImportResult | { error: string }, { url: string }>('skills.import.git'),
     /** Extract a zip archive and import contained skills. */
-    zip: buildProvider<ImportResult, { zipPath: string }>('skills.import.zip'),
+    zip: buildProvider<ImportResult | { error: string }, { zipPath: string }>('skills.import.zip'),
     /** Import a single SKILL.md file. */
-    singleSkillMd: buildProvider<ImportResult, { srcPath: string }>('skills.import.single-skill-md'),
+    singleSkillMd: buildProvider<ImportResult | { error: string }, { srcPath: string }>(
+      'skills.import.single-skill-md'
+    ),
   },
   /**
    * Register a previously-swept, user-approved `review` skill (C3 consent

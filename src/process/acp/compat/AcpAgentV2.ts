@@ -343,9 +343,13 @@ export class AcpAgentV2 {
     const globalTimeout = await ProcessConfig.get('acp.promptTimeout');
     const timeoutSec = backendTimeout || globalTimeout || 300;
     const promptTimeoutMs = Math.max(30, timeoutSec) * 1000;
+    // Ceiling for one tool call; unset keeps the session default (30 min).
+    const toolCallTimeoutSec = await ProcessConfig.get('acp.toolCallTimeout');
+    const toolCallTimeoutMs = toolCallTimeoutSec ? Math.max(30, toolCallTimeoutSec) * 1000 : undefined;
 
     const sessionOptions: SessionOptions = {
       promptTimeoutMs,
+      toolCallTimeoutMs,
       maxStartRetries: 3,
       maxResumeRetries: 2,
       initialDesired: this.agentConfig.initialDesired,
@@ -609,6 +613,20 @@ export class AcpAgentV2 {
         // sink is wired (the reject path does not depend on onSignalEvent).
         if (event.type === 'error') {
           this.lastErrorMessage = event.message;
+        }
+
+        // A timeout stopped the turn. Sent as a `tips` stream frame so the manager
+        // PERSISTS it (a bare `error` signal frame is emitted, never stored, and the
+        // reopened chat showed nothing), and as a warning: the turn was stopped,
+        // not failed. Its own row, never collapsed into an error episode.
+        if (event.type === 'turn_stopped') {
+          this.onStreamEvent({
+            type: 'tips',
+            conversation_id: this.conversationId,
+            msg_id: `turn_stopped_${randomUUID()}`,
+            data: { content: event.message, type: 'warning' },
+          });
+          return;
         }
 
         if (!this.onSignalEvent) return;

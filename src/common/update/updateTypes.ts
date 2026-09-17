@@ -118,7 +118,11 @@ export type AutoUpdateInstallFailedReason =
   // %ProgramFiles% and needs administrator rights. On a standard account UAC
   // raises a credential prompt the user cannot satisfy, so the install can
   // never succeed - say so instead of re-offering it forever (#492).
-  | 'needs-admin';
+  | 'needs-admin'
+  // macOS: the running bundle fails `codesign --verify` (something rewrote a
+  // file inside it), so Squirrel.Mac would refuse the update. Reinstalling from
+  // the DMG is the only way back.
+  | 'damaged-bundle';
 
 export interface AutoUpdateProgress {
   bytesPerSecond: number;

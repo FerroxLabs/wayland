@@ -196,6 +196,17 @@ const setLinuxPlatform = () => {
   Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
 };
 
+describe('createGenericSpawnConfig - OfficeCLI self-update stays off', () => {
+  it('spawns agents with the enhanced env, so OFFICECLI_SKIP_UPDATE=1 reaches every tool they run', async () => {
+    const { getEnhancedEnv } = await import('@process/utils/shellEnv');
+    vi.mocked(getEnhancedEnv).mockReturnValueOnce({ PATH: '/usr/bin', OFFICECLI_SKIP_UPDATE: '1' });
+
+    const config = createGenericSpawnConfig('/bundled/fuigo', '/cwd', ['agent', 'stdio'], { FOO: 'bar' });
+
+    expect(config.options.env?.OFFICECLI_SKIP_UPDATE).toBe('1');
+  });
+});
+
 describe('createGenericSpawnConfig - Windows path handling', () => {
   let originalPlatform: PropertyDescriptor | undefined;
 
