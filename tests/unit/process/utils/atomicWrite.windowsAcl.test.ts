@@ -55,9 +55,15 @@ const setPlatform = (value: NodeJS.Platform) => {
   Object.defineProperty(process, 'platform', { value, configurable: true });
 };
 
+/** `whoami /user /fo csv /nh` output shape, measured on Windows 11. */
+const USER_SID = 'S-1-5-21-1111111111-2222222222-3333333333-1001';
+const whoamiThenIcacls = (cmd: string) =>
+  String(cmd).endsWith('whoami.exe') ? `"host\\user","${USER_SID}"\r\n` : undefined;
+
 beforeEach(() => {
   tmpDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'rt-s1-'));
   execFileSyncMock.mockReset();
+  execFileSyncMock.mockImplementation(whoamiThenIcacls);
   spawnMock.mockClear();
   spawnCalls.length = 0;
 });
@@ -113,7 +119,10 @@ describe('writeFileAtomic - RT-S1 secret confidentiality', () => {
     for (const call of icaclsCalls) {
       expect(call.args).toContain('/inheritance:r');
       expect(call.args).toContain('/grant:r');
-      expect(call.args).toContain('*S-1-3-4:F');
+      // The USER, not OWNER RIGHTS: an elevated write is owned by Administrators,
+      // and OWNER RIGHTS would then lock the same user's normal launch out.
+      expect(call.args).toContain(`*${USER_SID}:F`);
+      expect(call.args).not.toContain('*S-1-3-4:F');
     }
     // One call targets a .tmp- sibling, one targets the final path.
     expect(icaclsCalls.some((c) => c.args[0].includes('.tmp-'))).toBe(true);
@@ -140,7 +149,8 @@ describe('writeFileSyncAtomic - RT-S1 secret confidentiality', () => {
     for (const call of icaclsCalls) {
       const args = call[1] as string[];
       expect(args).toContain('/inheritance:r');
-      expect(args).toContain('*S-1-3-4:F');
+      expect(args).toContain(`*${USER_SID}:F`);
+      expect(args).not.toContain('*S-1-3-4:F');
     }
   });
 
@@ -149,5 +159,34 @@ describe('writeFileSyncAtomic - RT-S1 secret confidentiality', () => {
     const target = path.join(tmpDir, 'sync-plain.txt');
     writeFileSyncAtomic(target, 'not-secret', 'utf-8');
     expect(execFileSyncMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('Windows DACL grantee', () => {
+  it('resolves the SID with System32 whoami, not whatever whoami is first on PATH', () => {
+    setPlatform('win32');
+    writeFileSyncAtomic(path.join(tmpDir, 'sid.txt'), 'secret', { mode: 0o600 });
+
+    // Git's usr\bin precedes System32 on Wayland's PATH; its GNU whoami rejects /user.
+    const whoamiCalls = execFileSyncMock.mock.calls.filter((c) => String(c[0]).includes('whoami'));
+    for (const call of whoamiCalls) {
+      expect(String(call[0])).toMatch(/[\\/]System32[\\/]whoami\.exe$/i);
+      expect(call[1]).toEqual(['/user', '/fo', 'csv', '/nh']);
+    }
+  });
+
+  it('falls back to OWNER RIGHTS only when the user SID cannot be resolved', async () => {
+    vi.resetModules();
+    execFileSyncMock.mockImplementation((cmd: string) => {
+      if (String(cmd).endsWith('whoami.exe')) throw new Error('whoami unavailable');
+      return undefined;
+    });
+    const fresh = await import('../../../../src/process/utils/atomicWrite');
+    setPlatform('win32');
+    fresh.writeFileSyncAtomic(path.join(tmpDir, 'fallback.txt'), 'secret', { mode: 0o600 });
+
+    const icaclsCalls = execFileSyncMock.mock.calls.filter((c) => c[0] === 'icacls');
+    expect(icaclsCalls.length).toBe(2);
+    for (const call of icaclsCalls) expect(call[1]).toContain('*S-1-3-4:F');
   });
 });

@@ -15,15 +15,18 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { IMcpServer } from '@/common/config/storage';
 
-const { handleAddMcpServer, login, messageSuccess, messageError, testMcpConnection } = vi.hoisted(() => ({
-  handleAddMcpServer: vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
-  login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string }>>(),
-  messageSuccess: vi.fn<(msg: string) => void>(),
-  messageError: vi.fn<(msg: string) => void>(),
-  // The redesigned api-key install path runs a real connection test before
-  // toasting success and enabling the server; default it to a passing probe.
-  testMcpConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true, tools: [] } }),
-}));
+const { handleAddMcpServer, handleToggleMcpServer, login, messageSuccess, messageError, testMcpConnection } =
+  vi.hoisted(() => ({
+    handleAddMcpServer:
+      vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
+    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean, revision?: number) => Promise<IMcpServer | false>>(),
+    login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string }>>(),
+    messageSuccess: vi.fn<(msg: string) => void>(),
+    messageError: vi.fn<(msg: string) => void>(),
+    // The redesigned api-key install path runs a real connection test before
+    // toasting success and enabling the server; default it to a passing probe.
+    testMcpConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true, tools: [] } }),
+  }));
 
 // The api-key save+connect flow probes the server through the IPC bridge.
 // Partial-mock so the bridge's other exports stay intact; only the MCP
@@ -96,7 +99,7 @@ vi.mock('@renderer/hooks/mcp', () => ({
     handleBatchImportMcpServers: vi.fn().mockResolvedValue([]),
     handleEditMcpServer: vi.fn().mockResolvedValue(undefined),
     handleDeleteMcpServer: vi.fn().mockResolvedValue(undefined),
-    handleToggleMcpServer: vi.fn().mockResolvedValue(undefined),
+    handleToggleMcpServer,
   }),
   useMcpConnection: () => ({
     testingServers: {},
@@ -138,6 +141,8 @@ function renderDetail() {
 beforeEach(() => {
   hookState.mcpServers = [];
   handleAddMcpServer.mockReset();
+  handleToggleMcpServer.mockReset();
+  handleToggleMcpServer.mockResolvedValue(false);
   login.mockReset();
   messageSuccess.mockReset();
   messageError.mockReset();
@@ -209,6 +214,47 @@ test('Install click calls handleAddMcpServer with library source + libraryEntryI
 
   // Publication/readiness messaging is covered by the transaction tests. This
   // test owns the catalog-to-declaration contract only.
+});
+
+// #1375: publishing to every agent takes 15-45 s and the record only turns
+// enabled at the end, so the card read "Off" for the whole enable window.
+test('shows Connecting, not Off, while an enable is still publishing', async () => {
+  hookState.mcpServers = [
+    {
+      id: 'mcp_existing',
+      name: BRAVE_ENTRY_ID,
+      enabled: false,
+      status: 'disconnected',
+      lastConnected: 1,
+      transport: { type: 'stdio', command: 'npx', args: ['brave-search-mcp'] },
+      originalJson: '{}',
+      createdAt: 1,
+      updatedAt: 1,
+      source: 'library',
+      libraryEntryId: BRAVE_ENTRY_ID,
+    },
+  ];
+  let finishPublication!: (value: IMcpServer | false) => void;
+  handleToggleMcpServer.mockReturnValueOnce(
+    new Promise((resolve) => {
+      finishPublication = resolve;
+    })
+  );
+
+  renderDetail();
+  expect(await screen.findByText('Off')).toBeInTheDocument();
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole('switch'));
+  });
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_existing', true, undefined);
+  expect(screen.getByText('Connecting…')).toBeInTheDocument();
+  expect(screen.queryByText('Off')).not.toBeInTheDocument();
+
+  await act(async () => {
+    finishPublication(false);
+  });
+  expect(await screen.findByText('Off')).toBeInTheDocument();
 });
 
 test('shows the installed lifecycle (Remove, no Install CTA) when already in mcpServers', async () => {

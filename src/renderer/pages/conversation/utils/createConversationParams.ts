@@ -21,6 +21,7 @@ import {
   getConversationTypeForBackend,
 } from '@/common/utils/buildAgentConversationParams';
 import type { AvailableAgent } from '@/renderer/utils/model/agentTypes';
+import { loadFuigoNewChatModel } from '@/renderer/utils/model/fuigoNewChatModel';
 import { getAgentModes } from '@/renderer/utils/model/agentModes';
 
 type ModePreference = {
@@ -62,7 +63,15 @@ async function resolvePreferredMode(backend: string): Promise<string | undefined
   return undefined;
 }
 
-async function resolvePreferredAcpModelId(backend: string): Promise<string | undefined> {
+async function resolvePreferredAcpModelId(backend: string, assistantId?: string): Promise<string | undefined> {
+  // The bundled engine has its own order (explicit pick > assistant model >
+  // Flux Reasoning > first BYOK model), shared with the Guid page. Its cached
+  // model and the flux-auto toggle default below are exactly what put new
+  // Fuigo chats on Flux Auto.
+  if (backend === 'fuigo') {
+    return loadFuigoNewChatModel({ assistantId });
+  }
+
   const acpConfig = await ConfigStorage.get('acp.config');
   const backendConfig = acpConfig?.[backend as AcpBackend] as { preferredModelId?: string } | undefined;
   const preferredModelId = backendConfig?.preferredModelId;
@@ -196,7 +205,8 @@ export async function buildCliAgentParams(
 ): Promise<ICreateConversationParams> {
   const type = getConversationTypeForBackend(agent.backend);
   const preferredMode = await resolvePreferredMode(agent.backend);
-  const preferredAcpModelId = type === 'acp' ? await resolvePreferredAcpModelId(agent.backend) : undefined;
+  const preferredAcpModelId =
+    type === 'acp' ? await resolvePreferredAcpModelId(agent.backend, agent.customAgentId) : undefined;
 
   let model: TProviderWithModel;
   if (type === 'gemini') {
@@ -246,7 +256,8 @@ export async function buildPresetAssistantParams(
 
   const type = getConversationTypeForBackend(presetAgentType);
   const preferredMode = await resolvePreferredMode(presetAgentType);
-  const preferredAcpModelId = type === 'acp' ? await resolvePreferredAcpModelId(presetAgentType) : undefined;
+  const preferredAcpModelId =
+    type === 'acp' ? await resolvePreferredAcpModelId(presetAgentType, customAgentId) : undefined;
   const model = type === 'gemini' ? await resolveGeminiModel() : ({} as TProviderWithModel);
 
   return buildAgentConversationParams({
