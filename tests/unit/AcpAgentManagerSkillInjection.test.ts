@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Track calls to prepareFirstMessageWithSkillsIndex
-const { mockPrepareFirstMessage, mockAgentSendMessage } = vi.hoisted(() => ({
-  mockPrepareFirstMessage: vi.fn(async (content: string) => ({ content: `[injected] ${content}`, loadedSkills: [] })),
+// Track calls to buildFirstMessageRulesWithSkillsIndex
+const { mockPrepareFirstMessage, mockAgentSendMessage, mockConsumePendingSessionSkills } = vi.hoisted(() => ({
+  mockPrepareFirstMessage: vi.fn(async (_config: unknown) => ({ rules: '[injected]', loadedSkills: [] })),
   mockAgentSendMessage: vi.fn(async () => ({ success: true })),
+  mockConsumePendingSessionSkills: vi.fn(async (_conversationId: string) => ''),
 }));
 
 // --- Module mocks ---
@@ -129,7 +130,8 @@ vi.mock('@process/utils/initAgent', () => ({
 }));
 
 vi.mock('@process/task/agentUtils', () => ({
-  prepareFirstMessageWithSkillsIndex: mockPrepareFirstMessage,
+  buildFirstMessageRulesWithSkillsIndex: mockPrepareFirstMessage,
+  consumePendingSessionSkills: mockConsumePendingSessionSkills,
   buildSystemInstructions: vi.fn(async () => undefined),
   buildTurnSkillContext: vi.fn(async () => ({ advert: '', autoLoaded: [] })),
   resolveCapabilitiesManifest: vi.fn(async () => undefined),
@@ -220,10 +222,11 @@ describe('AcpAgentManager - first-message skill injection', () => {
     expect(sentContent).toContain('[User Request]');
   });
 
-  it('does not inject the skills index for fuigo: skills reach it natively via session/new pluginDirs', async () => {
+  it('sends a fuigo first message WITHOUT the rules: they ride session/new _meta.rules instead', async () => {
     // Real hasNativeSkillSupport from acpTypes (AcpAgentManager imports it from
-    // there, not from initAgent). With the index in, a default Concierge first
-    // turn was 28,875 bytes and tripped Fuigo's 25,000-byte prompt offload.
+    // there, not from initAgent). In the message, the persona alone put a
+    // Smart Trader first turn at 36,180 bytes - over Fuigo's 25,000-byte
+    // prompt offload, so the model's first act was `read_file prompt_0.txt`.
     const manager = createManager({
       backend: 'fuigo',
       customWorkspace: false,
@@ -237,10 +240,83 @@ describe('AcpAgentManager - first-message skill injection', () => {
     const sentContent = mockAgentSendMessage.mock.calls[0][0].content as string;
     expect(sentContent).not.toContain('[Available Skills]');
     expect(sentContent).not.toContain('[Skills Location]');
-    // The persona / rules wrapper is unchanged on the native path.
-    expect(sentContent).toContain('[Assistant Rules');
-    expect(sentContent).toContain('You are Concierge.');
-    expect(sentContent).toContain('[User Request]\nSay hi');
+    expect(sentContent).not.toContain('[Assistant Rules');
+    expect(sentContent).not.toContain('You are Concierge.');
+    expect(sentContent).not.toContain('Team Mode');
+    // Only the per-turn Output Directive may precede the user's own text.
+    expect(sentContent.endsWith('\n\nSay hi')).toBe(true);
+    expect(sentContent.replace(/^\[Output Directive\][\s\S]*?\[\/Output Directive\]\n\n/, '')).toBe('Say hi');
+
+    // ...and the same rules are what the session is created with.
+    const rules = await (
+      manager as unknown as { buildFuigoSessionRules(d: unknown): Promise<string> }
+    ).buildFuigoSessionRules({ backend: 'fuigo' });
+    expect(rules).toContain('You are Concierge.');
+    expect(rules).not.toContain('[User Request]');
+  });
+
+  it("puts turn-1 session skills into a NEW fuigo session's rules, never into a resumed one", async () => {
+    mockConsumePendingSessionSkills.mockResolvedValue('[Skill added to this chat: concierge]\nHow-to body');
+    const manager = createManager({ backend: 'fuigo', customWorkspace: false, presetContext: 'You are Concierge.' });
+    const build = (d: unknown) =>
+      (manager as unknown as { buildFuigoSessionRules(d: unknown): Promise<string> }).buildFuigoSessionRules(d);
+
+    const created = await build({ backend: 'fuigo' });
+    expect(created).toContain('You are Concierge.');
+    expect(created).toContain('[Skill added to this chat: concierge]');
+    expect(mockConsumePendingSessionSkills).toHaveBeenCalledWith('test-conv');
+
+    // Fuigo ignores rules on session/load, so a pending skill consumed here
+    // would be marked injected and silently lost - it must stay per-turn.
+    mockConsumePendingSessionSkills.mockClear();
+    const resumed = await build({ backend: 'fuigo', acpSessionId: '01a09d0b-1a6c-7ee3-94da-d873016bff1e' });
+    expect(resumed).not.toContain('[Skill added to this chat');
+    expect(mockConsumePendingSessionSkills).not.toHaveBeenCalled();
+    mockConsumePendingSessionSkills.mockResolvedValue('');
+  });
+
+  // Fuigo 1.0.16 drops `<human_rules>` from the system prompt on any
+  // session/set_model that changes the model (measured live: chat history
+  // 40,580 -> 9,780 B, persona word forgotten, still gone after session/load).
+  it('re-sends the rules on the next fuigo turn after a model switch dropped them, then stops', async () => {
+    const manager = createManager({ backend: 'fuigo', customWorkspace: false, presetContext: 'You are Smart Trader.' });
+    (manager as unknown as { fuigoRulesStale: boolean }).fuigoRulesStale = true;
+
+    await sendFirstMessage(manager, 'research MAs');
+    const resent = mockAgentSendMessage.mock.calls[0][0].content as string;
+    expect(resent).toContain('[Assistant Rules - You MUST follow these instructions]\nYou are Smart Trader.');
+    expect(resent).toContain('[User Request]\nresearch MAs');
+    expect((manager as unknown as { fuigoRulesStale: boolean }).fuigoRulesStale).toBe(false);
+
+    await manager.sendMessage({ content: 'and HMA?', msg_id: 'msg-2' });
+    const next = mockAgentSendMessage.mock.calls[1][0].content as string;
+    expect(next).not.toContain('[Assistant Rules');
+    expect(next.endsWith('and HMA?')).toBe(true);
+  });
+
+  it('marks the fuigo rules stale when set_model really changes the live model, not on a same-model set', async () => {
+    const manager = createManager({ backend: 'fuigo', customWorkspace: false, presetContext: 'You are Smart Trader.' });
+    let live = 'flux-auto';
+    const agent = {
+      sendMessage: mockAgentSendMessage,
+      on: vi.fn().mockReturnThis(),
+      getModelInfo: vi.fn(() => ({ currentModelId: live, availableModels: [] })),
+      setModelByConfigOption: vi.fn(async (id: string) => {
+        live = id;
+        return { currentModelId: id, availableModels: [] };
+      }),
+    };
+    const internals = manager as unknown as Record<string, unknown>;
+    internals.agent = agent;
+    internals.bootstrap = Promise.resolve(agent);
+    internals.computeFluxRouting = vi.fn(async () => ({ routing: 'unknown' }));
+
+    await manager.setModel('flux-auto');
+    expect(internals.fuigoRulesStale).toBe(false);
+
+    await manager.setModel('flux-reasoning');
+    expect(agent.setModelByConfigOption).toHaveBeenLastCalledWith('flux-reasoning');
+    expect(internals.fuigoRulesStale).toBe(true);
   });
 
   it('falls back to prompt injection for supported backend WITH customWorkspace', async () => {
@@ -253,7 +329,7 @@ describe('AcpAgentManager - first-message skill injection', () => {
 
     await sendFirstMessage(manager);
 
-    expect(mockPrepareFirstMessage).toHaveBeenCalledWith('Hello', {
+    expect(mockPrepareFirstMessage).toHaveBeenCalledWith({
       workspace: '/tmp/test-workspace',
       conversationId: 'test-conv',
       presetContext: 'You are helpful.',
@@ -261,6 +337,10 @@ describe('AcpAgentManager - first-message skill injection', () => {
       enableTeamGuide: true,
       backend: 'claude',
     });
+    const sentContent = mockAgentSendMessage.mock.calls[0][0].content as string;
+    expect(sentContent).toContain(
+      '[Assistant Rules - You MUST follow these instructions]\n[injected]\n\n[User Request]\nHello'
+    );
   });
 
   it('falls back to prompt injection for unsupported backend regardless of customWorkspace', async () => {
@@ -273,7 +353,7 @@ describe('AcpAgentManager - first-message skill injection', () => {
 
     await sendFirstMessage(manager);
 
-    expect(mockPrepareFirstMessage).toHaveBeenCalledWith('Hello', {
+    expect(mockPrepareFirstMessage).toHaveBeenCalledWith({
       workspace: '/tmp/test-workspace',
       conversationId: 'test-conv',
       presetContext: 'Some rules',

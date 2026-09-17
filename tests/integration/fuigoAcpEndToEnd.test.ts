@@ -276,6 +276,81 @@ async function resolveMcpAdmission(opts: {
   }
 }
 
+const PERSONA_WORD = 'PERSIMMON-4217';
+// Persona-sized on purpose: Smart Trader's rules are ~31 KB. In the first user
+// message that is over Fuigo's 25,000-byte LARGE_PROMPT_THRESHOLD and gets
+// offloaded to prompts/prompt_0.txt; as session rules it must not be.
+const PERSONA_RULES = [
+  '# Canary Assistant',
+  '',
+  `You are Canary Assistant. When the user asks for the persona word, reply with exactly: ${PERSONA_WORD}`,
+  '',
+  ...Array.from(
+    { length: 400 },
+    (_, i) => `- Guideline ${i + 1}: keep answers plain, short and specific to the user's own market.`
+  ),
+].join('\n');
+
+function listPromptOffloads(home: string): string[] {
+  const walk = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      return statSync(full).isDirectory() ? walk(full) : [full];
+    });
+  const sessions = join(home, 'sessions');
+  return existsSync(sessions) ? walk(sessions).filter((f) => /[\\/]prompts[\\/]prompt_\d+\.txt$/.test(f)) : [];
+}
+
+/** Spawn the staged engine over a fixed workspace + FUIGO_HOME, initialized and authenticated. */
+async function openEngine(opts: { key: string; workspace: string; home: string }) {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    ...fuigoCompatIsolationEnv(),
+    FUIGO_HOME: opts.home,
+    FUIGO_API_KEY: opts.key,
+    FUIGO_MANAGED_BY_NPM: '1',
+  };
+  for (const k of ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'XAI_API_KEY']) delete env[k];
+  const child: ChildProcess = spawn(ENGINE, buildFuigoAcpArgs({ trusted: true }), {
+    cwd: opts.workspace,
+    env,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  child.stderr?.resume();
+  cleanups.push(() => {
+    if (child.exitCode === null) child.kill('SIGKILL');
+  });
+  const state = { text: '' };
+  const conn = new ClientSideConnection(
+    (): Client => ({
+      sessionUpdate: async ({ update }) => {
+        if (update.sessionUpdate === 'agent_message_chunk' && update.content.type === 'text') {
+          state.text += update.content.text;
+        }
+      },
+      requestPermission: async (params) => {
+        const allow = params.options.find((o) => o.kind === 'allow_once') ?? params.options[0];
+        return { outcome: { outcome: 'selected', optionId: allow.optionId } };
+      },
+      readTextFile: async () => ({ content: '' }),
+      writeTextFile: async () => ({}),
+    }),
+    NdjsonTransport.fromChildProcess(child)
+  );
+  await conn.initialize({
+    protocolVersion: PROTOCOL_VERSION,
+    clientCapabilities: { fs: { readTextFile: true, writeTextFile: true } },
+    _meta: { clientIdentifier: 'wayland-desktop', clientType: 'desktop' },
+  });
+  await conn.authenticate({ methodId: 'fuigo.api_key' });
+  const ask = async (sessionId: string, text: string) => {
+    state.text = '';
+    const result = await conn.prompt({ sessionId, prompt: [{ type: 'text', text }] });
+    return { text: state.text, stopReason: result.stopReason };
+  };
+  return { child, conn, ask };
+}
+
 describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)', () => {
   const key = readKey();
 
@@ -333,6 +408,84 @@ describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)
     },
     180_000
   );
+
+  it('applies the assistant persona from _meta.rules with no prompt offload, and keeps it across a kill + session/load', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'fuigo-e2e-ws-'));
+    const home = mkdtempSync(join(tmpdir(), 'fuigo-e2e-home-'));
+    cleanups.push(() => rmSync(workspace, { recursive: true, force: true }));
+    cleanups.push(() => rmSync(home, { recursive: true, force: true }));
+    ensureFuigoHome(home);
+    expect(Buffer.byteLength(PERSONA_RULES)).toBeGreaterThan(25_000);
+    // The model rides _meta: a model-changing set_model would strip the rules (next case).
+    const meta = buildFuigoSessionMetadata({
+      nonInteractive: true,
+      pluginDirs: [],
+      rules: PERSONA_RULES,
+      modelId: MODEL,
+    });
+    const ASK_PERSONA = 'What is the persona word? Reply with only the persona word, nothing else. Do not use tools.';
+
+    const first = await openEngine({ key: key!, workspace, home });
+    const { sessionId } = await first.conn.newSession({ cwd: workspace, mcpServers: [], _meta: meta });
+    const created = await first.ask(sessionId, ASK_PERSONA);
+    expect(created.stopReason).toBe('end_turn');
+    expect(created.text).toContain(PERSONA_WORD);
+    expect(listPromptOffloads(home)).toEqual([]);
+
+    // What the idle reaper / an app restart does: the process dies, the next
+    // turn respawns it and resumes the stored session by id.
+    first.child.kill('SIGKILL');
+    await new Promise((resolve) => first.child.once('exit', resolve));
+
+    const second = await openEngine({ key: key!, workspace, home });
+    await second.conn.loadSession({ sessionId, cwd: workspace, mcpServers: [], _meta: meta });
+    const resumed = await second.ask(sessionId, `New question. ${ASK_PERSONA}`);
+    expect(resumed.stopReason).toBe('end_turn');
+    expect(resumed.text).toContain(PERSONA_WORD);
+    expect(listPromptOffloads(home)).toEqual([]);
+    second.child.kill('SIGTERM');
+  }, 300_000);
+
+  // Fuigo defect (1.0.16): a set_model that changes the model rebuilds the
+  // harness and the `<human_rules>` block is gone from the stored system
+  // message - which is why Desktop re-sends the rules on the next turn after a
+  // switch (AcpAgentManager.markFuigoRulesStale). No prompt: costs no tokens.
+  // When this starts failing, Fuigo keeps rules across a switch and that
+  // Desktop re-send can go.
+  it('drops _meta.rules from the stored system message when set_model changes the model', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'fuigo-e2e-ws-'));
+    const home = mkdtempSync(join(tmpdir(), 'fuigo-e2e-home-'));
+    cleanups.push(() => rmSync(workspace, { recursive: true, force: true }));
+    cleanups.push(() => rmSync(home, { recursive: true, force: true }));
+    ensureFuigoHome(home);
+    const history = (): string => {
+      const walk = (dir: string): string[] =>
+        readdirSync(dir).flatMap((name) => {
+          const full = join(dir, name);
+          return statSync(full).isDirectory() ? walk(full) : [full];
+        });
+      const file = walk(join(home, 'sessions')).find((f) => f.endsWith('chat_history.jsonl'));
+      return file ? readFileSync(file, 'utf8') : '';
+    };
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 1_500));
+    const engine = await openEngine({ key: key!, workspace, home });
+    const meta = buildFuigoSessionMetadata({
+      nonInteractive: true,
+      pluginDirs: [],
+      rules: PERSONA_RULES,
+      modelId: 'flux-fast',
+    });
+    const { sessionId } = await engine.conn.newSession({ cwd: workspace, mcpServers: [], _meta: meta });
+    await settle();
+    expect(history()).toContain('<human_rules>');
+    await engine.conn.unstable_setSessionModel({ sessionId, modelId: 'flux-fast' });
+    await settle();
+    expect(history()).toContain('<human_rules>');
+    await engine.conn.unstable_setSessionModel({ sessionId, modelId: 'flux-reasoning' });
+    await settle();
+    expect(history()).not.toContain('<human_rules>');
+    engine.child.kill('SIGTERM');
+  }, 60_000);
 
   // A Wayland connector is published into the user's ~/.claude.json under the
   // same name Desktop forwards on session/new. With FUIGO_CLAUDE_MCPS_ENABLED=0

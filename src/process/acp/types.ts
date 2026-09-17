@@ -195,6 +195,10 @@ export type SessionSignal =
   // loadSession succeeded; host should drop any speculative replay it armed.
   | { type: 'session_loaded' }
   | { type: 'auth_required'; auth: AuthRequiredData }
+  // A timeout stopped the turn (idle silence, or one tool past its ceiling) and
+  // `session/cancel` was sent. A stop, not an error: the host shows `message`
+  // in the thread and the turn ends through its normal cancelled response.
+  | { type: 'turn_stopped'; message: string }
   | { type: 'error'; message: string; recoverable: boolean };
 
 // ─── Callbacks (Session → Application) ──────────────────────────
