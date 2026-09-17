@@ -17,6 +17,35 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
 /**
+ * One PowerShell start-up costs ~0.5-2s on a healthy box and far more on a
+ * loaded one, so every CLI the cheap `where` pass missed is probed in a SINGLE
+ * process. Probing each CLI separately (the pre-0.13.1 shape) meant ~20
+ * concurrent PowerShell spawns during start-up: on a slow Windows machine they
+ * all hit their individual timeout at once, starving window creation and
+ * outliving shutdown.
+ */
+const POWERSHELL_PROBE_TIMEOUT_MS = 15000;
+
+/**
+ * PowerShell one-liner that echoes each command it can resolve. `commands` are
+ * pre-validated against /^[a-zA-Z0-9_.-]+$/ by the callers, so single-quoting
+ * cannot break out of the array literal.
+ */
+function powerShellProbeScript(commands: string[]): string {
+  const list = commands.map((cmd) => `'${cmd}'`).join(',');
+  return `$ErrorActionPreference='SilentlyContinue'; foreach ($c in @(${list})) { if (Get-Command -All $c) { Write-Output $c } }`;
+}
+
+/** Keep only echoed names we actually asked about (ignore stray PowerShell noise). */
+function parsePowerShellProbeOutput(stdout: string, requested: string[]): string[] {
+  const asked = new Set(requested);
+  return stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => asked.has(line));
+}
+
+/**
  * ACP agent detector - discovers ACP protocol agents from two sources:
  *
  * **Builtin agents** - Well-known CLI tools (claude, qwen, goose, etc.) defined
@@ -76,6 +105,11 @@ class AcpDetector {
     return this.wslAvailable;
   }
 
+  /** Argument vector for the batched PowerShell probe (async/`safeExecFile` form). */
+  private powerShellProbeArgs(commands: string[]): string[] {
+    return ['-NoProfile', '-NonInteractive', '-Command', powerShellProbeScript(commands)];
+  }
+
   /** Check if a single CLI command is available on the system PATH (sync). */
   isCliAvailable(cliCommand: string): boolean {
     return this.batchCheckCliAvailabilitySync([cliCommand]).has(cliCommand);
@@ -120,22 +154,7 @@ class AcpDetector {
           await safeExecFile('where', [cmd], { timeout: 3000, env: this.enhancedEnv });
           return cmd;
         } catch (err) {
-          console.warn(`[AcpDetector] 'where ${cmd}' failed, trying PowerShell:`, (err as Error).message);
-        }
-        try {
-          await safeExecFile(
-            'powershell',
-            [
-              '-NoProfile',
-              '-NonInteractive',
-              '-Command',
-              `Get-Command -All ${cmd} | Select-Object -First 1 | Out-Null`,
-            ],
-            { timeout: 5000, env: this.enhancedEnv }
-          );
-          return cmd;
-        } catch (err) {
-          console.warn(`[AcpDetector] PowerShell Get-Command '${cmd}' also failed:`, (err as Error).message);
+          console.warn(`[AcpDetector] 'where ${cmd}' failed, deferring to PowerShell:`, (err as Error).message);
           return null;
         }
       })
@@ -145,6 +164,20 @@ class AcpDetector {
         .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && r.value !== null)
         .map((r) => r.value)
     );
+
+    // Everything `where` missed goes to ONE PowerShell process, not one each.
+    const missedByWhere = safe.filter((cmd) => !found.has(cmd));
+    if (missedByWhere.length > 0) {
+      try {
+        const { stdout } = await safeExecFile('powershell', this.powerShellProbeArgs(missedByWhere), {
+          timeout: POWERSHELL_PROBE_TIMEOUT_MS,
+          env: this.enhancedEnv,
+        });
+        for (const cmd of parsePowerShellProbeOutput(stdout, missedByWhere)) found.add(cmd);
+      } catch (err) {
+        console.warn('[AcpDetector] batched PowerShell Get-Command failed:', (err as Error).message);
+      }
+    }
 
     // CLIs installed inside WSL are invisible to the Windows PATH (`where`/
     // PowerShell only see Windows executables). Probe the WSL login-shell PATH
@@ -207,6 +240,7 @@ class AcpDetector {
     const whichCommand = isWindows ? 'where' : 'which';
     const found = new Set<string>();
 
+    const missedByWhich: string[] = [];
     for (const cmd of safe) {
       try {
         execSync(`${whichCommand} ${cmd}`, { encoding: 'utf-8', stdio: 'pipe', timeout: 3000, env: this.enhancedEnv });
@@ -216,16 +250,25 @@ class AcpDetector {
         if (!isWindows) continue;
         console.warn(`[AcpDetector] sync 'where ${cmd}' failed:`, (err as Error).message);
       }
+      missedByWhich.push(cmd);
+    }
+
+    // One PowerShell process for every miss, not one per CLI: this runs on the
+    // main thread, so N spawns x PowerShell start-up stalled window creation.
+    if (missedByWhich.length > 0) {
       try {
-        execSync(
-          `powershell -NoProfile -NonInteractive -Command "Get-Command -All ${cmd} | Select-Object -First 1 | Out-Null"`,
-          { encoding: 'utf-8', stdio: 'pipe', timeout: 5000, env: this.enhancedEnv }
+        const out = execSync(
+          `powershell -NoProfile -NonInteractive -Command "${powerShellProbeScript(missedByWhich)}"`,
+          { encoding: 'utf-8', stdio: 'pipe', timeout: POWERSHELL_PROBE_TIMEOUT_MS, env: this.enhancedEnv }
         );
-        found.add(cmd);
-        continue;
+        for (const cmd of parsePowerShellProbeOutput(out, missedByWhich)) found.add(cmd);
       } catch (err) {
-        console.warn(`[AcpDetector] sync PowerShell '${cmd}' failed:`, (err as Error).message);
+        console.warn('[AcpDetector] sync batched PowerShell probe failed:', (err as Error).message);
       }
+    }
+
+    for (const cmd of missedByWhich) {
+      if (found.has(cmd)) continue;
       // WSL-installed CLIs are invisible to the Windows PATH; probe the WSL
       // login-shell PATH - but only when a usable distro exists, so a WSL-less
       // box does not pay a synchronous wsl.exe spawn per missing CLI (#258).
