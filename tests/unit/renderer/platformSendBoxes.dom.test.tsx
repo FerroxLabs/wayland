@@ -382,6 +382,11 @@ vi.mock('react-i18next', () => ({
 }));
 
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
+import {
+  CHAT_CONTINUE_EVENT,
+  CHAT_RETRY_EVENT,
+  CONTINUE_DIRECTIVE,
+} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 import GeminiSendBox from '@/renderer/pages/conversation/platforms/gemini/GeminiSendBox';
 import OpenClawSendBox from '@/renderer/pages/conversation/platforms/openclaw/OpenClawSendBox';
 import RemoteSendBox from '@/renderer/pages/conversation/platforms/remote/RemoteSendBox';
@@ -669,6 +674,61 @@ describe('platform send box queue integration', () => {
     });
 
     expect(queueSpies.resetActiveExecution).toHaveBeenCalledWith('stop');
+  });
+
+  // Retry / Continue on a Fuigo (ACP) chat: only Core's send box listened, so a
+  // failed Fuigo turn could not be retried and Continue did nothing.
+  describe('ACP Retry and Continue', () => {
+    const dispatch = (type: string, detail: unknown) => window.dispatchEvent(new CustomEvent(type, { detail }));
+
+    it('Retry re-sends the turn into the same conversation without taking staged attachments', async () => {
+      mockDraftData.uploadFile = ['C:/workspace/uploads/next-message.png'];
+      render(<AcpSendBox conversation_id='conv-acp' backend='fuigo' />);
+
+      dispatch(CHAT_RETRY_EVENT, { conversationId: 'conv-acp', text: 'summarise the brief' });
+
+      await waitFor(() => expect(mockAcpSendInvoke).toHaveBeenCalledTimes(1));
+      expect(mockAcpSendInvoke).toHaveBeenCalledWith({
+        input: 'summarise the brief',
+        msg_id: 'uuid-1',
+        conversation_id: 'conv-acp',
+        files: [],
+      });
+      expect(mockClearFiles).not.toHaveBeenCalled();
+    });
+
+    it('Continue sends the continuation directive, not the original prompt', async () => {
+      render(<AcpSendBox conversation_id='conv-acp' backend='fuigo' />);
+
+      dispatch(CHAT_CONTINUE_EVENT, { conversationId: 'conv-acp' });
+
+      await waitFor(() => expect(mockAcpSendInvoke).toHaveBeenCalledTimes(1));
+      expect(mockAcpSendInvoke).toHaveBeenCalledWith(
+        expect.objectContaining({ input: CONTINUE_DIRECTIVE, conversation_id: 'conv-acp', files: [] })
+      );
+    });
+
+    it('ignores Retry and Continue aimed at another conversation, and an id-less Continue', async () => {
+      render(<AcpSendBox conversation_id='conv-acp' backend='fuigo' />);
+
+      dispatch(CHAT_RETRY_EVENT, { conversationId: 'conv-other', text: 'not mine' });
+      dispatch(CHAT_CONTINUE_EVENT, { conversationId: 'conv-other' });
+      dispatch(CHAT_CONTINUE_EVENT, {});
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockAcpSendInvoke).not.toHaveBeenCalled();
+      expect(queueSpies.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('queues a Retry behind a turn that is still running', async () => {
+      mockShouldEnqueueConversationCommand.mockReturnValue(true);
+      render(<AcpSendBox conversation_id='conv-acp' backend='fuigo' />);
+
+      dispatch(CHAT_RETRY_EVENT, { conversationId: 'conv-acp', text: 'try again' });
+
+      await waitFor(() => expect(queueSpies.enqueue).toHaveBeenCalledWith({ input: 'try again', files: [] }));
+      expect(mockAcpSendInvoke).not.toHaveBeenCalled();
+    });
   });
 
   it('uses display message for ACP attachments so chat history can retain uploaded images', async () => {

@@ -632,6 +632,24 @@ export async function prepareFirstMessageWithSkillsIndex(
   content: string,
   config: FirstMessageConfig
 ): Promise<{ content: string; loadedSkills: SkillIndex[] }> {
+  const { rules, loadedSkills } = await buildFirstMessageRulesWithSkillsIndex(config);
+  if (rules.length === 0) {
+    return { content, loadedSkills };
+  }
+  return {
+    content: `[Assistant Rules - You MUST follow these instructions]\n${rules}\n\n[User Request]\n${content}`,
+    loadedSkills,
+  };
+}
+
+/**
+ * The rules body `prepareFirstMessageWithSkillsIndex` wraps around the first
+ * user message, on its own - for an engine that takes it on a session-level
+ * channel instead (Fuigo `_meta.rules`). '' when there is nothing to inject.
+ */
+export async function buildFirstMessageRulesWithSkillsIndex(
+  config: FirstMessageConfig
+): Promise<{ rules: string; loadedSkills: SkillIndex[] }> {
   const instructions: string[] = [];
   let loadedSkills: SkillIndex[] = [];
 
@@ -727,18 +745,12 @@ If you find yourself about to escalate scheduling outside of Wayland or use a no
   // Prepend Wayland Constitution + optional specialist overlay above the
   // existing rules content. Composer returns '' when no Constitution exists,
   // preserving the previous "skip rules block entirely" behaviour.
-  const systemInstructions = composePrompt({
+  const rules = composePrompt({
     assistantId: config.presetAssistantId,
     basePrompt,
     conversationId: config.conversationId,
   }).text;
-  if (systemInstructions.length === 0) {
-    return { content, loadedSkills };
-  }
-  return {
-    content: `[Assistant Rules - You MUST follow these instructions]\n${systemInstructions}\n\n[User Request]\n${content}`,
-    loadedSkills,
-  };
+  return { rules, loadedSkills };
 }
 
 /**

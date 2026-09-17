@@ -62,7 +62,7 @@ if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
 }
 
 import './process/utils/configureConsoleLog';
-import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen, session } from 'electron';
+import { app, BrowserWindow, dialog, nativeImage, net, powerMonitor, protocol, screen, session } from 'electron';
 import log from 'electron-log';
 import fixPath from 'fix-path';
 import * as fs from 'fs';
@@ -950,6 +950,11 @@ const handleAppReady = async (): Promise<void> => {
     mark('initializeProcess');
   } catch (error) {
     console.error('Failed to initialize process:', error);
+    // Otherwise the app exits with no window at all. This failure is one the
+    // user can repair (see initStorage loadSync), so tell them how.
+    if ((error as { code?: unknown } | null)?.code === 'WAYLAND_STORAGE_ACCESS_DENIED') {
+      dialog.showErrorBox('Wayland could not start', (error as Error).message);
+    }
     app.exit(1);
     return;
   }
@@ -1710,10 +1715,12 @@ async function performBeforeQuitCleanup(): Promise<void> {
   // installing at an uncoordinated moment, we install here, after cleanup, in a
   // controlled order. No-op unless an update was downloaded AND it is safe to
   // apply (installOnQuitIfReady honours the #575/#286 block). Non-force-exit so
-  // it can't race the cleanup we just awaited.
+  // it can't race the cleanup we just awaited. AWAITED: on macOS it keeps the
+  // process alive until Squirrel.Mac holds the update and has asked to relaunch;
+  // quitting sooner killed Squirrel mid-transfer and nothing ever installed.
   try {
     const { autoUpdaterService } = await import('./process/services/autoUpdaterService');
-    autoUpdaterService.installOnQuitIfReady();
+    await autoUpdaterService.installOnQuitIfReady();
   } catch (err) {
     recordPackageSmokeEvent('cleanup-failed', { stage: 'update-install', reason: 'rejected' });
     console.warn('[Wayland] on-quit update install step failed (ignored):', err);

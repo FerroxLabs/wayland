@@ -218,6 +218,57 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     });
   });
 
+  it('groups Fuigo BYOK entries under their own heading when Flux is NOT connected', async () => {
+    // A machine whose only provider is a local Ollama: no Flux tiers, and the
+    // local model must still read as the user's own and be sent verbatim.
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: {
+        modelInfo: {
+          currentModelId: 'byok/ollama-local/qwen3:8b',
+          currentModelLabel: 'qwen3:8b · Ollama Local',
+          availableModels: [
+            { id: 'grok-4.6', label: 'grok-4.6' },
+            { id: 'byok/ollama-local/qwen3:8b', label: 'qwen3:8b · Ollama Local' },
+            { id: 'byok/openai/gpt-4o', label: 'gpt-4o · OpenAI' },
+          ],
+          canSwitch: true,
+          source: 'models',
+          sourceDetail: 'acp-models',
+        },
+      },
+    });
+    ipcMock.registryList.mockResolvedValue([]);
+
+    renderSelector(<AcpModelSelector conversationId='conv-6' backend='fuigo' />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('qwen3:8b · Ollama Local').length).toBeGreaterThan(0);
+    });
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(screen.getByText('gpt-4o · OpenAI')).toBeTruthy();
+    });
+    expect(screen.queryByText('Flux Auto')).toBeNull();
+    const byokHeading = screen.getByText('conversation.welcome.byokModelsGroupLabel');
+    const nativeHeading = screen.getByText('conversation.welcome.nativeModelsGroupLabel');
+    expect(
+      byokHeading.compareDocumentPosition(screen.getByText('gpt-4o · OpenAI')) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      screen.getByText('gpt-4o · OpenAI').compareDocumentPosition(nativeHeading) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      nativeHeading.compareDocumentPosition(screen.getByText('grok-4.6')) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByText('gpt-4o · OpenAI'));
+    await waitFor(() => {
+      expect(ipcMock.setModel).toHaveBeenCalledWith({ conversationId: 'conv-6', modelId: 'byok/openai/gpt-4o' });
+    });
+  });
+
   it('selecting a Flux model sets the chat model id to the flux id', async () => {
     ipcMock.getModelInfo.mockResolvedValue(NATIVE_INFO);
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);

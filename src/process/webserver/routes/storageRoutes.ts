@@ -9,6 +9,7 @@ import fsPromises from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import multer from 'multer';
+import { lazyTempDiskStorage } from './uploadTempStorage';
 import { apiRateLimiter, authRateLimiter } from '../middleware/security';
 import { requireDestructive } from './configWriteGuards';
 import { computeUsage, invalidateUsageCache } from '@process/storage/computeUsage';
@@ -23,7 +24,7 @@ const MAX_RESTORE_ZIP_BYTES = 1024 * 1024 * 1024;
 
 /** Restore upload: disk storage so a large zip is streamed to a temp file, not buffered in memory. */
 const uploadRestore = multer({
-  storage: multer.diskStorage({ destination: os.tmpdir() }),
+  storage: lazyTempDiskStorage(os.tmpdir()),
   limits: { fileSize: MAX_RESTORE_ZIP_BYTES, files: 1 },
 });
 

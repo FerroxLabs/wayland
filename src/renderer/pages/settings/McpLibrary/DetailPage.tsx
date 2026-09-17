@@ -163,6 +163,10 @@ export function DetailPage() {
   const [tab, setTab] = useState<Tab | null>(null);
   const [env, setEnv] = useState<Record<string, string>>({});
   const [installing, setInstalling] = useState(false);
+  // Publishing a connector to every agent takes 15-45 s, and the record only
+  // turns enabled once that lands. While it runs the card says Connecting, not
+  // Off (#1375).
+  const [enabling, setEnabling] = useState(false);
   const [byoModal, setByoModal] = useState<{
     visible: boolean;
     server: IMcpServer | null;
@@ -257,6 +261,15 @@ export function DetailPage() {
     }
   };
 
+  const enableServer = async (serverId: string, expectedRevision?: number) => {
+    setEnabling(true);
+    try {
+      return await crud.handleToggleMcpServer(serverId, true, expectedRevision);
+    } finally {
+      setEnabling(false);
+    }
+  };
+
   /**
    * Finish the OAuth flow once login() returns success:
    *  - flip the server.enabled bit (the consent IS the affirmative action,
@@ -265,7 +278,7 @@ export function DetailPage() {
    */
   const finishOAuthSuccess = async (server: IMcpServer) => {
     if (!server.enabled) {
-      const published = await crud.handleToggleMcpServer(server.id, true);
+      const published = await enableServer(server.id);
       if (!published) return;
     }
     message.success(
@@ -342,7 +355,7 @@ export function DetailPage() {
       });
       if (!probedServer) return;
       if (!probedServer.enabled) {
-        const published = await crud.handleToggleMcpServer(server.id, true, probedServer.updatedAt);
+        const published = await enableServer(server.id, probedServer.updatedAt);
         if (!published) return;
       }
       message.success(
@@ -575,7 +588,7 @@ export function DetailPage() {
   // declaration revision returned by that publication.
   const reconnect = () => {
     if (!installedServer) return;
-    void crud.handleToggleMcpServer(installedServer.id, true).then(async (publishedServer) => {
+    void enableServer(installedServer.id).then(async (publishedServer) => {
       if (publishedServer) await conn.handleTestMcpConnection(publishedServer);
     });
   };
@@ -810,7 +823,9 @@ export function DetailPage() {
         {disabled ? (
           <div className={styles.statusLine}>
             <span className={`${styles.dot} ${styles.dotOff}`} />
-            {t('mcpLibrary.detail.off', 'Off')}
+            {installing || enabling
+              ? t('mcpLibrary.detail.connecting', 'Connecting…')
+              : t('mcpLibrary.detail.off', 'Off')}
           </div>
         ) : uiStatus === 'reachable' ? (
           <StatusChip status='reachable' />
@@ -830,7 +845,9 @@ export function DetailPage() {
           <span className={styles.ctrlKey}>{t('mcpLibrary.detail.enabled', 'Enabled')}</span>
           <Switch
             checked={installedServer.enabled === true}
-            onChange={(v) => void crud.handleToggleMcpServer(installedServer.id, v)}
+            onChange={(v) =>
+              void (v ? enableServer(installedServer.id) : crud.handleToggleMcpServer(installedServer.id, false))
+            }
           />
         </div>
         <div className={styles.lifecycle}>

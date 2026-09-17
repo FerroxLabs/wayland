@@ -510,26 +510,29 @@ const AcpModelSelector: React.FC<{
   // with the Flux tiers at the top (selecting one routes the chat through Flux)
   // and the agent's own native models below, unchanged. This wraps all native
   // states (null / read-only / switchable) so Flux is always selectable here.
+  // The bundled Fuigo engine advertises the user's own connected providers
+  // as `byok/<provider>/<model>` entries (Desktop writes them into its
+  // managed config); list those under their own heading, ahead of the
+  // engine's catalog, so a key the user added is one click away. Flux or not:
+  // a machine whose only provider is a local Ollama has no Flux tiers, and its
+  // models still belong under the user's own heading.
+  const advertised = modelInfo?.availableModels ?? [];
+  const byokModels = advertised.filter((m) => m.id.startsWith('byok/'));
+  const nativeModels = advertised.filter((m) => !m.id.startsWith('byok/'));
+  const renderModelItem = (model: { id: string; label: string }) => (
+    <Menu.Item
+      key={model.id}
+      className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
+      onClick={() => handleSelectModel(model.id)}
+    >
+      <div className='flex items-center gap-8px w-full'>
+        {healthDot(model.id)}
+        <span>{model.label}</span>
+      </div>
+    </Menu.Item>
+  );
+
   if (showFlux) {
-    // The bundled Fuigo engine advertises the user's own connected providers
-    // as `byok/<provider>/<model>` entries (Desktop writes them into its
-    // managed config); list those under their own heading, ahead of the
-    // engine's catalog, so a key the user added is one click away.
-    const advertised = modelInfo?.availableModels ?? [];
-    const byokModels = advertised.filter((m) => m.id.startsWith('byok/'));
-    const nativeModels = advertised.filter((m) => !m.id.startsWith('byok/'));
-    const renderModelItem = (model: { id: string; label: string }) => (
-      <Menu.Item
-        key={model.id}
-        className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
-        onClick={() => handleSelectModel(model.id)}
-      >
-        <div className='flex items-center gap-8px w-full'>
-          {healthDot(model.id)}
-          <span>{model.label}</span>
-        </div>
-      </Menu.Item>
-    );
     return (
       <Dropdown
         trigger='click'
@@ -674,32 +677,18 @@ const AcpModelSelector: React.FC<{
           flyoutDroplist
         ) : (
           <Menu>
-            {modelInfo.availableModels.map((model) => {
-              // Get model health status
-              const providerConfig = modelConfig?.find((p) => p.platform?.includes(backend || ''));
-              const healthStatus = providerConfig?.modelHealth?.[model.id]?.status || 'unknown';
-              const healthColor =
-                healthStatus === 'healthy'
-                  ? 'bg-green-500'
-                  : healthStatus === 'unhealthy'
-                    ? 'bg-red-500'
-                    : 'bg-gray-400';
-
-              return (
-                <Menu.Item
-                  key={model.id}
-                  className={model.id === modelInfo.currentModelId ? 'bg-2!' : ''}
-                  onClick={() => handleSelectModel(model.id)}
-                >
-                  <div className='flex items-center gap-8px w-full'>
-                    {healthStatus !== 'unknown' && (
-                      <div className={`w-6px h-6px rounded-full shrink-0 ${healthColor}`} />
-                    )}
-                    <span>{model.label}</span>
-                  </div>
-                </Menu.Item>
-              );
-            })}
+            {byokModels.length > 0
+              ? [
+                  <Menu.ItemGroup key='byok' title={t('conversation.welcome.byokModelsGroupLabel')}>
+                    {byokModels.map(renderModelItem)}
+                  </Menu.ItemGroup>,
+                  nativeModels.length > 0 && (
+                    <Menu.ItemGroup key='native' title={t('conversation.welcome.nativeModelsGroupLabel')}>
+                      {nativeModels.map(renderModelItem)}
+                    </Menu.ItemGroup>
+                  ),
+                ]
+              : modelInfo.availableModels.map(renderModelItem)}
           </Menu>
         )
       }

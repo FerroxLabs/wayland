@@ -251,6 +251,61 @@ describe('ExecutionSpine', () => {
     expect(run.lifecycle).not.toBe('running');
   });
 
+  // Sean's first Fuigo chat: a staged-skill read was refused by the fs guard
+  // (#1376) and the header read "failed · The run stopped before it finished"
+  // for the remaining minutes of a turn that was still working.
+  it('keeps the live bar running, not failed, after a tool fails mid-turn', () => {
+    const tool = (id: string, status: string, title: string) => ({
+      id,
+      conversation_id: 'ff8881cd',
+      type: 'acp_tool_call',
+      position: 'left',
+      content: { sessionId: '', update: { sessionUpdate: 'tool_call', toolCallId: id, status, title, kind: 'read' } },
+    });
+    const messages = [
+      {
+        id: 'user',
+        conversation_id: 'ff8881cd',
+        type: 'text',
+        position: 'right',
+        content: { content: 'research MAs' },
+      },
+      tool('prompt', 'completed', 'Read `prompt_0.txt`'),
+      tool('list', 'completed', 'List `/Users/seandonahoe/.wayland/fuigo-temp-1789341140262`'),
+      tool('skill', 'failed', 'Read `.wayland/skills/rebel-trader-rules/SKILL.md`'),
+      tool('search', 'in_progress', 'Web search: "Hull moving average"'),
+    ] as TMessage[];
+    const renderSpine = (turnActive: boolean) =>
+      render(
+        <WorkbenchHost conversationId='ff8881cd'>
+          <MessageListProvider value={messages}>
+            <ExecutionSpine
+              backend='acp'
+              conversationId='ff8881cd'
+              workspaceId='workspace-1'
+              agentId='fuigo'
+              turnActive={turnActive}
+            >
+              <div>conversation</div>
+            </ExecutionSpine>
+          </MessageListProvider>
+        </WorkbenchHost>
+      );
+
+    const { unmount } = renderSpine(true);
+    const thread = screen.getByTestId('execution-thread-summary');
+    expect(thread.dataset.lifecycle).toBe('running');
+    expect(thread.textContent).not.toContain('The run stopped before it finished');
+    expect(thread.textContent).not.toContain('failed');
+    unmount();
+
+    // The same transcript once the turn is over, ending in the refused read's
+    // successor completing: a clean turn settles and the bar stands down.
+    messages[4] = tool('search', 'completed', 'Web search: "Hull moving average"') as TMessage;
+    renderSpine(false);
+    expect(screen.queryByTestId('execution-thread-summary')).toBeNull();
+  });
+
   // #610's obligation is the ADAPTER's, not the rail's: the spine's canonical
   // run carries the real invocation, so a credential must already be masked by
   // the time any renderer builds a label out of it
