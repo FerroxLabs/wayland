@@ -443,7 +443,7 @@ function requestJson(url, timeoutMs = 5_000) {
   });
 }
 
-function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 15_000) {
+function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 30_000) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(webSocketUrl);
     const timer = setTimeout(() => {

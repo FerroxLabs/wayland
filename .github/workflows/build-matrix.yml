@@ -45,8 +45,10 @@ permissions:
 env:
   # CI runners (notably windows-11-arm) can be an order of magnitude slower than
   # a developer box: a silent install alone has taken 397s. The smoke harness's
-  # 45s readiness default is a cliff there, not a signal. See #1397.
-  WAYLAND_SMOKE_TIMEOUT_MS: '180000'
+  # 45s readiness default is a cliff there, not a signal. Measured on
+  # windows-11-arm: 392s installer, and a single PowerShell that could not
+  # start inside 15s. See #1397, #1398.
+  WAYLAND_SMOKE_TIMEOUT_MS: '600000'
   # Exact FerroxLabs/waylandmcp commit whose four @wayland MCP connectors are
   # bundled into this build. Pinned, not floating, so the installer's connector
   # sources have a recorded identity (#940). Keep byte-identical across all four
