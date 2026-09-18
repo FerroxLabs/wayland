@@ -25,6 +25,10 @@ on:
         default: false
 
 env:
+  # CI runners (notably windows-11-arm) can be an order of magnitude slower than
+  # a developer box: a silent install alone has taken 397s. The smoke harness's
+  # 45s readiness default is a cliff there, not a signal. See #1397.
+  WAYLAND_SMOKE_TIMEOUT_MS: '180000'
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
   # Exact FerroxLabs/waylandmcp commit whose four @wayland MCP connectors are
   # bundled into this build. Pinned, not floating, so the installer's connector

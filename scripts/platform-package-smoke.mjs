@@ -130,9 +130,9 @@ export function parseArgs(argv, cwd = process.cwd()) {
   if (candidateStateFile && (!/^sha256:[a-f0-9]{64}$/.test(candidateStateDigest || '') || githubOutput)) {
     throw new Error(`${TAG} smoke mode requires --candidate-state-digest and forbids --github-output`);
   }
-  const timeoutMs = Number(values.get('--timeout-ms') || 45_000);
-  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1_000 || timeoutMs > 180_000) {
-    throw new Error(`${TAG} --timeout-ms must be an integer from 1000 through 180000`);
+  const timeoutMs = Number(values.get('--timeout-ms') || process.env.WAYLAND_SMOKE_TIMEOUT_MS || 45_000);
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1_000 || timeoutMs > 600_000) {
+    throw new Error(`${TAG} --timeout-ms must be an integer from 1000 through 600000`);
   }
   return {
     outDir: path.resolve(cwd, values.get('--out')),
@@ -421,7 +421,7 @@ export function parseOptionalCapabilityStates(lines) {
   );
 }
 
-function requestJson(url, timeoutMs = 1_500) {
+function requestJson(url, timeoutMs = 5_000) {
   return new Promise((resolve, reject) => {
     const request = http.get(url, { timeout: timeoutMs }, (response) => {
       let body = '';
@@ -443,7 +443,7 @@ function requestJson(url, timeoutMs = 1_500) {
   });
 }
 
-function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 5_000) {
+function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 15_000) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(webSocketUrl);
     const timer = setTimeout(() => {

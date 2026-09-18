@@ -302,6 +302,56 @@ afterEach(() => {
 });
 
 describe('platform package smoke contract', () => {
+  /**
+   * The readiness window is a cliff, not a signal: five v0.13.1 release-run legs
+   * failed with "Electron renderer did not become ready" on runners where the
+   * silent install alone took 397s. CI raises it via WAYLAND_SMOKE_TIMEOUT_MS;
+   * an explicit --timeout-ms still wins, and a developer box keeps the short
+   * default so a genuinely broken build fails fast.
+   */
+  describe('readiness window', () => {
+    const base = [
+      '--out',
+      'out',
+      '--target-platform',
+      'win32',
+      '--target-arch',
+      'arm64',
+      '--release-track',
+      'stable',
+      '--candidate-state-file',
+      'candidate-state.json',
+      '--candidate-state-digest',
+      `sha256:${'a'.repeat(64)}`,
+    ];
+
+    afterEach(() => {
+      delete process.env.WAYLAND_SMOKE_TIMEOUT_MS;
+    });
+
+    it('defaults to 45s when nothing overrides it', () => {
+      delete process.env.WAYLAND_SMOKE_TIMEOUT_MS;
+      expect(parseArgs([...base]).timeoutMs).toBe(45_000);
+    });
+
+    it('honours WAYLAND_SMOKE_TIMEOUT_MS so CI can widen the window', () => {
+      process.env.WAYLAND_SMOKE_TIMEOUT_MS = '180000';
+      expect(parseArgs([...base]).timeoutMs).toBe(180_000);
+    });
+
+    it('lets an explicit --timeout-ms beat the environment', () => {
+      process.env.WAYLAND_SMOKE_TIMEOUT_MS = '180000';
+      expect(parseArgs([...base, '--timeout-ms', '60000']).timeoutMs).toBe(60_000);
+    });
+
+    it('still rejects a nonsense window from either source', () => {
+      process.env.WAYLAND_SMOKE_TIMEOUT_MS = '999999999';
+      expect(() => parseArgs([...base])).toThrow('--timeout-ms must be an integer');
+      delete process.env.WAYLAND_SMOKE_TIMEOUT_MS;
+      expect(() => parseArgs([...base, '--timeout-ms', '10'])).toThrow('--timeout-ms must be an integer');
+    });
+  });
+
   it('requires explicit target, output, and candidate state without hidden skip switches', () => {
     expect(() => parseArgs(['--out', 'out'])).toThrow('required argument missing');
     expect(() =>

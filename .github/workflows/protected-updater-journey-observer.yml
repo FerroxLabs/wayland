@@ -1,4 +1,10 @@
 name: Protected native updater journey observer
+
+env:
+  # CI runners (notably windows-11-arm) can be an order of magnitude slower than
+  # a developer box: a silent install alone has taken 397s. The smoke harness's
+  # 45s readiness default is a cliff there, not a signal. See #1397.
+  WAYLAND_SMOKE_TIMEOUT_MS: '180000'
 run-name: protected-updater-observer candidate=${{ inputs.candidate_commit }} producer=${{ inputs.producer_run_id }} attempt=${{ inputs.producer_run_attempt }}
 
 on:
