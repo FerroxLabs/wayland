@@ -108,10 +108,13 @@ class AgentRegistry {
    * Detect non-ACP CLI agents (openclaw-gateway) via CLI availability.
    * Uses the same `which`/`where` check as AcpDetector.
    */
-  private detectOtherCliAgents(): DetectedAgent[] {
+  private async detectOtherCliAgents(): Promise<DetectedAgent[]> {
     const agents: DetectedAgent[] = [];
 
-    if (acpDetector.isCliAvailable('openclaw')) {
+    // Async, not `isCliAvailable`: that runs execSync on the main thread, and a
+    // single missing CLI held it for 15 s on win-arm64 (#1410).
+    const available = await acpDetector.batchCheckCliAvailability(['openclaw']);
+    if (available.has('openclaw')) {
       agents.push({
         id: 'openclaw-gateway',
         name: 'OpenClaw Gateway',
@@ -322,7 +325,7 @@ class AgentRegistry {
     this.extensionAgents = extensionAgents;
     this.remoteAgents = remoteAgents;
     this.customAgents = customAgents;
-    this.otherAgents = this.detectOtherCliAgents();
+    this.otherAgents = await this.detectOtherCliAgents();
     this.managedAgents = this.loadManagedAgents();
     this.merge();
   }
@@ -383,7 +386,7 @@ class AgentRegistry {
 
       const oldBuiltins = this.builtinAgents.map((a) => a.backend);
       this.builtinAgents = await acpDetector.detectBuiltinAgents();
-      this.otherAgents = this.detectOtherCliAgents();
+      this.otherAgents = await this.detectOtherCliAgents();
       const newBuiltins = this.builtinAgents.map((a) => a.backend);
       this.merge();
 

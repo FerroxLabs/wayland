@@ -154,4 +154,27 @@ describe('AcpDetector Windows probe batching', () => {
     const psCalls = seen.filter((c) => c.startsWith('powershell '));
     expect(psCalls).toHaveLength(1);
   });
+
+  // #1410: the sync path runs execSync on the Electron main thread, so its
+  // ceiling IS the UI freeze. It inherited the async path's 15s budget, and a
+  // single missing CLI held win-arm64's main thread for the full 15s twice in a
+  // row, stalling the CDP endpoint and failing the packaged smoke both times.
+  it('caps the sync PowerShell probe well below the async ceiling', async () => {
+    const options: Array<Record<string, unknown>> = [];
+    execSyncMock.mockImplementation((cmd: string, opts: Record<string, unknown>) => {
+      if (cmd.startsWith('powershell ')) {
+        options.push(opts);
+        return 'goose\n';
+      }
+      if (cmd.startsWith('where ')) throw new Error('not found');
+      throw new Error('wsl.exe: no installed distributions');
+    });
+
+    const detector = await freshDetector();
+    detector.isCliAvailable('goose');
+
+    expect(options).toHaveLength(1);
+    // Anything at or above the async 15s ceiling is a UI freeze of that length.
+    expect(options[0].timeout).toBeLessThanOrEqual(3000);
+  });
 });

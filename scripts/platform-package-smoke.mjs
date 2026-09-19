@@ -443,7 +443,14 @@ function requestJson(url, timeoutMs = 5_000) {
   });
 }
 
-function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 30_000) {
+// 30 s was measured against x64 runners. On win-arm64 the installer alone takes
+// 400 s and start-up agent detection holds the main thread long enough that a
+// single Runtime.evaluate cannot be answered inside 30 s, which failed the smoke
+// twice at the v0.13.2 rehearsal. The real guard is the overall readiness
+// window (WAYLAND_SMOKE_TIMEOUT_MS); this per-command cap only exists to turn a
+// dead socket into a readable error, so it can afford to be generous. The
+// main-thread stall itself is fixed separately in AcpDetector (#1410).
+function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 90_000) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(webSocketUrl);
     const timer = setTimeout(() => {

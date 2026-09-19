@@ -27,6 +27,15 @@ import { getEnhancedEnv } from '@process/utils/shellEnv';
 const POWERSHELL_PROBE_TIMEOUT_MS = 15000;
 
 /**
+ * The synchronous probe path runs on the Electron main thread, so its ceiling
+ * is what the UI freezes for when PowerShell is slow to answer. It gets a much
+ * smaller budget than the async path: a win-arm64 runner blocked here for the
+ * full 15 s on a single missing CLI, which stalled the CDP endpoint (served by
+ * the browser process) and failed the packaged smoke twice in a row (#1410).
+ */
+const SYNC_POWERSHELL_PROBE_TIMEOUT_MS = 3000;
+
+/**
  * PowerShell one-liner that echoes each command it can resolve. `commands` are
  * pre-validated against /^[a-zA-Z0-9_.-]+$/ by the callers, so single-quoting
  * cannot break out of the array literal.
@@ -259,7 +268,7 @@ class AcpDetector {
       try {
         const out = execSync(
           `powershell -NoProfile -NonInteractive -Command "${powerShellProbeScript(missedByWhich)}"`,
-          { encoding: 'utf-8', stdio: 'pipe', timeout: POWERSHELL_PROBE_TIMEOUT_MS, env: this.enhancedEnv }
+          { encoding: 'utf-8', stdio: 'pipe', timeout: SYNC_POWERSHELL_PROBE_TIMEOUT_MS, env: this.enhancedEnv }
         );
         for (const cmd of parsePowerShellProbeOutput(out, missedByWhich)) found.add(cmd);
       } catch (err) {

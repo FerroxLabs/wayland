@@ -26,6 +26,7 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
     detectCustomAgents: (...args: unknown[]) => mockDetectCustomAgents(...args),
     clearEnvCache: (...args: unknown[]) => mockClearEnvCache(...args),
     isCliAvailable: (...args: unknown[]) => mockIsCliAvailable(...args),
+    batchCheckCliAvailability: async () => new Set<string>(),
   },
 }));
 

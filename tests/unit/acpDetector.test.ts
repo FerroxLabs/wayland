@@ -10,6 +10,9 @@ const mockDetectExtensionAgents = vi.fn(async () => []);
 const mockDetectCustomAgents = vi.fn(async () => []);
 const mockClearEnvCache = vi.fn();
 const mockIsCliAvailable = vi.fn(() => false);
+// AgentRegistry detects openclaw through the async batch API, not the sync
+// one-off, so that detection never runs execSync on the main thread (#1410).
+const mockBatchCheckCliAvailability = vi.fn(async () => new Set<string>());
 
 vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: {
@@ -18,6 +21,7 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
     detectCustomAgents: (...args: unknown[]) => mockDetectCustomAgents(...args),
     clearEnvCache: (...args: unknown[]) => mockClearEnvCache(...args),
     isCliAvailable: (...args: unknown[]) => mockIsCliAvailable(...args),
+    batchCheckCliAvailability: (...args: unknown[]) => mockBatchCheckCliAvailability(...args),
   },
 }));
 
@@ -66,6 +70,7 @@ describe('AgentRegistry', () => {
     mockDetectExtensionAgents.mockResolvedValue([]);
     mockDetectCustomAgents.mockResolvedValue([]);
     mockIsCliAvailable.mockReturnValue(false);
+    mockBatchCheckCliAvailability.mockResolvedValue(new Set<string>());
   });
 
   describe('initialize', () => {

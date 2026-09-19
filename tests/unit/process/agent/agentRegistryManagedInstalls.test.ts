@@ -26,6 +26,7 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: {
     clearEnvCache: vi.fn(),
     isCliAvailable: vi.fn(() => false),
+    batchCheckCliAvailability: vi.fn(async () => new Set<string>()),
     detectBuiltinAgents,
     detectExtensionAgents: vi.fn(async () => []),
     detectCustomAgents: vi.fn(async () => []),
