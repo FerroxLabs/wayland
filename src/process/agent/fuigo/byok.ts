@@ -77,6 +77,29 @@ const DEFAULT_BASE_URL: Record<string, string> = {
 /** Google's OpenAI-compatible Gemini surface; Fuigo appends `/chat/completions`. */
 export const GEMINI_OPENAI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
 /**
+ * Ollama's reasoning switch, as its OpenAI-compatible surface actually spells it.
+ *
+ * The native `think: true|false` field is an `/api/chat` field: it is not
+ * accepted on `/v1/chat/completions`, which is the only surface Fuigo speaks
+ * (`apiBackend: 'chat_completions'`), and Fuigo has no field for it either.
+ * That endpoint takes `reasoning_effort` instead and maps it onto Ollama's own
+ * Think parameter, where `none` is thinking off; with the field absent Ollama
+ * turns thinking on by itself for any model that has it, which is the
+ * complaint. Fuigo's built-in effort menu is the wrong set to offer here -
+ * `minimal` and `xhigh` are not Ollama values - so the entry names Ollama's.
+ */
+const OLLAMA_PROVIDER_IDS: ReadonlySet<string> = new Set(['ollama-local', 'ollama-cloud']);
+const OLLAMA_REASONING_EFFORTS: readonly { value: string; default?: boolean }[] = [
+  { value: 'none' },
+  { value: 'low' },
+  // What Ollama does with no `reasoning_effort` is the model's own default, so
+  // the picker opens on the middle row rather than claiming thinking is off.
+  { value: 'medium', default: true },
+  { value: 'high' },
+  { value: 'max' },
+];
+
+/**
  * A provider's Chat Completions base where it differs from the canonical chat
  * base Desktop's own dispatch uses: Cohere's `/v1` is its native chat API, and
  * `huggingface.co` is the website rather than the inference router.
@@ -210,6 +233,7 @@ export function fuigoByokProvidersFromRows(rows: readonly IProvider[]): FuigoByo
           envKey,
         };
         if (contextWindow) entry.contextWindow = contextWindow;
+        if (registryId && OLLAMA_PROVIDER_IDS.has(registryId)) entry.reasoningEfforts = OLLAMA_REASONING_EFFORTS;
         return entry;
       }),
     });

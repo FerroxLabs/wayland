@@ -215,10 +215,34 @@ describe('local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp)', () =>
             baseUrl: 'http://127.0.0.1:11434/v1',
             apiBackend: 'chat_completions',
             envKey: 'WAYLAND_BYOK_OLLAMA_LOCAL_API_KEY',
+            reasoningEfforts: [
+              { value: 'none' },
+              { value: 'low' },
+              { value: 'medium', default: true },
+              { value: 'high' },
+              { value: 'max' },
+            ],
           },
         ],
       },
     ]);
+  });
+
+  it('offers the effort menu on Ollama only, and only over values Ollama accepts', () => {
+    const efforts = (rows: IProvider[]) =>
+      fuigoByokProvidersFromRows(rows).flatMap((p) => p.entries.map((e) => e.reasoningEfforts));
+
+    // `minimal` and `xhigh` are Fuigo's built-in menu, not Ollama's; offering
+    // them would put a value on the wire that Ollama rejects.
+    expect(efforts([OLLAMA])[0]?.map((o) => o.value)).toEqual(['none', 'low', 'medium', 'high', 'max']);
+    expect(
+      efforts([
+        row({ platform: 'custom', name: 'LM Studio', baseUrl: 'http://localhost:1234/v1', apiKey: '', model: ['q'] }),
+        OPENAI,
+        ANTHROPIC,
+        GEMINI,
+      ])
+    ).toEqual([undefined, undefined, undefined, undefined, undefined]);
   });
 
   it('maps a hand-added keyless LM Studio row on localhost', () => {
@@ -410,6 +434,29 @@ describe('buildFuigoManagedConfig', () => {
     expect(buildFuigoManagedConfig([], { defaultModel: 'byok/ollama-local/qwen3:8b' })).toBe(
       `${FUIGO_MANAGED_CONFIG}\n[models]\ndefault = "byok/ollama-local/qwen3:8b"\n`
     );
+  });
+
+  it('declares the Ollama effort menu without selecting any effort', () => {
+    const [ollama] = fuigoByokProvidersFromRows([OLLAMA]);
+    const toml = buildFuigoManagedConfig(ollama.entries);
+    expect(toml).toContain(
+      'supports_reasoning_effort = true\nreasoning_efforts = [{ value = "none" }, { value = "low" }, { value = "medium", default = true }, { value = "high" }, { value = "max" }]\n'
+    );
+    // The menu is an offer, not a setting: Fuigo sends `reasoning_effort` only
+    // once a session picks a value, so an untouched chat's request body is
+    // byte-for-byte what it was before this existed.
+    expect(toml).not.toMatch(/^reasoning_effort\s*=/m);
+    expect(toml).not.toMatch(/\bthink\b/);
+  });
+
+  it('leaves every non-Ollama entry without an effort menu', () => {
+    const providers = [
+      ...fuigoByokProvidersFromRows([OPENAI, ANTHROPIC, GEMINI, NEW_API]),
+      fuigoAzureByokProvider({ endpoint: 'https://r.openai.azure.com', apiKey: 'azure-secret', models: ['gpt-4o'] })!,
+    ];
+    const toml = buildFuigoManagedConfig(providers.flatMap((p) => p.entries));
+    expect(toml).not.toContain('supports_reasoning_effort');
+    expect(toml).not.toContain('reasoning_efforts');
   });
 
   it('escapes TOML string content', () => {
