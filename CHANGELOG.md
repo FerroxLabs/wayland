@@ -4,6 +4,26 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-09-19
+
+Fresh installs, fixed. A brand-new install can hold a chat, the built-in connectors start on Windows, skills you build reach the next turn, and one agent refusing a connector no longer takes it away from the rest.
+
+### Fixed
+
+- **A brand-new install can hold a chat.** The npm package never shipped the managed OfficeCLI shims, so on a machine that had never run Wayland before, every chat failed at the first tool call. Broken since 0.12.13. (#1316)
+- **Windows: the built-in connectors start again.** The bundled Bun could not read its own files, so every built-in MCP server failed to launch on Windows. The bundled Bun moves to 1.4.2. (#1393, #1154)
+- **Skills you build reach the next chat turn.** A skill built in a chat was written where the engine never looks, and without the header the engine needs to load it, so it silently did nothing. Skills stranded in the old location are moved across on first launch. (#1190)
+- **One agent refusing a connector no longer revokes it from all of them.** Adding an MCP connector failed outright if any single agent rejected it, removing it everywhere. The connector now stays on for the agents that took it, and the card names the ones that did not. (#1196)
+- **Reporting a problem no longer publishes your conversation titles.** A bug report could carry up to eight conversation and workspace names into a public issue. It now reports counts and shapes only. (#1366)
+
+### Added
+
+- **Thinking effort on Ollama models.** Models that report thinking support offer the effort setting; the ones that do not are left alone, because sending it to them breaks the chat. (#1135)
+
+### Security
+
+- **adm-zip 0.6.1.** Clears a high-severity advisory (GHSA-7q85-xj36-vmfc) on archive extraction.
+
 ## [0.13.1] - 2026-09-17
 
 The first week on Fuigo, fixed. Mac updates install again, the first turn of a chat behaves, and the engine moves to Fuigo 1.0.19.
@@ -20,6 +40,7 @@ The first week on Fuigo, fixed. Mac updates install again, the first turn of a c
 - **Retry and Continue work in Fuigo chats.** Both buttons only listened on the engine that was removed in 0.13.0. (#1386)
 - **Provider API keys are no longer stored in plain text on chat rows.** Chats migrated from Wayland Core kept the Flux Router key in the local database's conversations table; migration v60 removes it and it is never written again. Keys were never sent anywhere by this. (#1390)
 - **Windows: the app opens after an elevated run and with TEMP on a missing drive.** A file written while Wayland ran as administrator locked a normal launch out; both failures now start the app and explain the repair. Re-importing an already-installed skill pack shows an error instead of hanging. (#1381)
+- **Windows: the app opens promptly.** Start-up fired one PowerShell probe per agent CLI, around twenty at once; on a busy machine that starved the window and the probes outlived quit. It is one batched probe now. (#1397)
 - **Engines started just by opening a chat are reaped.** Opening an old chat without sending started an engine and its MCP servers that were never stopped; the idle reaper now covers them and stops the whole process tree. (#1392)
 
 ### Added
