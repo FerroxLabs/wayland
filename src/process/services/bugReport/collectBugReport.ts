@@ -14,7 +14,9 @@
  *      the Wayland UI.
  *   2. App + bundled-engine versions and OS/arch, for the environment block.
  *   3. The sanitized `wayland_concierge_diag` overview (already secret-masked) as a
- *      compact, problem-focused markdown block.
+ *      compact, problem-focused markdown block. The body is destined for a PUBLIC
+ *      issue, so no USER-AUTHORED string (task name, project name, chat title)
+ *      goes into it — see `summarizeFlagged` and #1366.
  *
  * Everything is best-effort: a failure in any single step degrades that field
  * rather than throwing, so the user still gets a pre-filled issue.
@@ -36,10 +38,51 @@ const MAX_ERROR_LINES = 8;
 
 const bullet = (text: string): string => `- ${text}`;
 
+/** One flagged item: what KIND of thing it is, and the reason it is flagged. */
+type FlaggedItem = { kind: string; reason: string | null };
+
+/**
+ * Collapse flagged items into "N kinds — reason" bullets, counting the items that
+ * share a reason instead of naming them.
+ *
+ * #1366 / #1292: this block is pasted verbatim into a PUBLIC GitHub issue, and
+ * scheduled-task names and workspace titles (project names, chat titles) are
+ * written BY THE USER. Issue #1292 published a stranger's business calendar
+ * ("Monthly investor update", "Friday pipeline review") and chat titles to the
+ * world. The REASON is the entire debugging signal — the user's own wording never
+ * was — so the title never reaches the body.
+ *
+ * Counting over the whole section rather than a leading slice also makes the
+ * report strictly more truthful than the per-item form it replaces: "8 tasks" is
+ * the real total, where the old loop silently stopped after the first
+ * {@link MAX_ITEMS_PER_SECTION} items. The cap now bounds distinct REASONS, which
+ * is what keeps the assembled URL small.
+ */
+function summarizeFlagged(items: FlaggedItem[]): string[] {
+  const groups = new Map<string, { kind: string; reason: string; count: number }>();
+  for (const { kind, reason } of items) {
+    if (!reason) continue;
+    const key = JSON.stringify([kind, reason]);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, { kind, reason, count: 1 });
+  }
+  return [...groups.values()]
+    .toSorted((a, b) => b.count - a.count || a.reason.localeCompare(b.reason))
+    .slice(0, MAX_ITEMS_PER_SECTION)
+    .map(({ kind, reason, count }) => bullet(`${count} ${kind}${count === 1 ? '' : 's'} — ${reason}`));
+}
+
 /**
  * Render the sanitized diag overview as a concise markdown block that leads with
  * problems (flags, "why not running", errors) — the signal a maintainer needs —
  * rather than dumping the full object.
+ *
+ * Sections whose identifiers the USER authored (scheduled tasks, workspace) are
+ * reported as counts per reason; sections whose identifiers the user did NOT
+ * author (connector names from the MCP catalog, provider ids from the model
+ * registry) still name them, because naming the connector that failed is the
+ * whole point of the section.
  */
 export function formatDiagnostics(overview: ConciergeDiagOverview): string {
   const lines: string[] = [];
@@ -47,11 +90,11 @@ export function formatDiagnostics(overview: ConciergeDiagOverview): string {
   const { scheduledTasks, mcp, providers, workspace, configPaths, recentErrors } = overview;
 
   lines.push(`**Scheduled tasks** (${scheduledTasks.source}): ${scheduledTasks.items.length}`);
-  for (const task of scheduledTasks.items.slice(0, MAX_ITEMS_PER_SECTION)) {
-    if (task.whyNotRunning || task.lastError) {
-      lines.push(bullet(`\`${task.name}\` — ${task.whyNotRunning ?? task.lastError}`));
-    }
-  }
+  lines.push(
+    ...summarizeFlagged(
+      scheduledTasks.items.map((task) => ({ kind: 'task', reason: task.whyNotRunning ?? task.lastError }))
+    )
+  );
 
   lines.push(`**MCP servers** (${mcp.source}): ${mcp.items.length}`);
   for (const server of mcp.items.slice(0, MAX_ITEMS_PER_SECTION)) {
@@ -68,11 +111,7 @@ export function formatDiagnostics(overview: ConciergeDiagOverview): string {
   }
 
   lines.push(`**Workspace** (${workspace.source}): ${workspace.items.length}`);
-  for (const entry of workspace.items.slice(0, MAX_ITEMS_PER_SECTION)) {
-    if (entry.whyProblem) {
-      lines.push(bullet(`\`${entry.name}\` — ${entry.whyProblem}`));
-    }
-  }
+  lines.push(...summarizeFlagged(workspace.items.map((entry) => ({ kind: entry.kind, reason: entry.whyProblem }))));
 
   lines.push('**Config paths**');
   lines.push(bullet(`app: ${configPaths.info.appConfigDir ?? 'unknown'}`));
