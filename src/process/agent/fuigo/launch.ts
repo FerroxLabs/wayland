@@ -80,17 +80,20 @@ export type FuigoByokModelEntry = {
   envHttpHeaders?: Record<string, string>;
   contextWindow?: number;
   /**
-   * The `reasoning_effort` values this endpoint accepts, written as Fuigo's
+   * The `reasoning_effort` values this MODEL accepts, written as Fuigo's
    * `reasoning_efforts` plus `supports_reasoning_effort = true`.
    *
    * Fuigo offers the ACP `reasoning_effort` config option only for a model
    * that declares support (auto-true for `messages`, otherwise off), and only
-   * over the listed values, so a provider whose accepted set differs from
-   * Fuigo's built-in menu must name its own. Nothing here puts the field on
-   * the wire: `reasoning_effort` stays unset until the session picks a value,
-   * and `default` marks only which row the picker shows as current.
+   * over the listed values, so an endpoint whose accepted set differs from
+   * Fuigo's built-in menu must name its own. Set it only where every listed
+   * value is known to succeed on this model: a value the model rejects does
+   * not no-op, it fails the turn. Nothing here puts the field on the wire -
+   * `reasoning_effort` stays unset until the session picks a value - and no
+   * option is marked `default`, which would only preselect a row in the picker
+   * without proving the request behind it works.
    */
-  reasoningEfforts?: readonly { value: string; default?: boolean }[];
+  reasoningEfforts?: readonly string[];
 };
 
 /** TOML basic string: escape the backslash, the quote and control characters. */
@@ -133,11 +136,8 @@ export function buildFuigoManagedConfig(
       out += `context_window = ${e.contextWindow}\n`;
     }
     if (e.reasoningEfforts && e.reasoningEfforts.length > 0) {
-      const options = e.reasoningEfforts.map(
-        (o) => `{ value = ${tomlString(o.value)}${o.default ? ', default = true' : ''} }`
-      );
       out += `supports_reasoning_effort = true\n`;
-      out += `reasoning_efforts = [${options.join(', ')}]\n`;
+      out += `reasoning_efforts = [${e.reasoningEfforts.map(tomlString).join(', ')}]\n`;
     }
   }
   return out;
