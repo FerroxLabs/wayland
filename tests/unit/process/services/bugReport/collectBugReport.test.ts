@@ -76,7 +76,7 @@ describe('formatDiagnostics', () => {
     overview.recentErrors.lines = ['ERROR something broke'];
 
     const out = formatDiagnostics(overview);
-    expect(out).toContain('`nightly` — disabled');
+    expect(out).toContain('1 task — disabled');
     expect(out).toContain('`openai` — auth');
     expect(out).toContain('app: ~/cfg');
     expect(out).toContain('engine: ~/eng');
@@ -89,6 +89,108 @@ describe('formatDiagnostics', () => {
     const out = formatDiagnostics(overview);
     expect(out).toContain('**MCP servers** (db): 1');
     expect(out).not.toContain('`good`');
+  });
+});
+
+/**
+ * #1366: the diagnostics block is pasted verbatim into a PUBLIC GitHub issue.
+ * Issue #1292 shipped a stranger's scheduled-task names and chat titles to the
+ * world through it. Every assertion here is on the USER-AUTHORED string never
+ * appearing anywhere in the report body.
+ */
+describe('formatDiagnostics privacy (#1366)', () => {
+  /** Distinctive enough that an accidental substring match cannot be a coincidence. */
+  const SECRET_TASK = 'Monthly investor update — Northwind acquisition';
+  const SECRET_PROJECT = 'Project Barracuda (unannounced)';
+  const SECRET_CHAT = 'How do I fix my divorce filing paperwork';
+
+  const withUserAuthoredTitles = (): ConciergeDiagOverview => {
+    const overview = emptyOverview();
+    overview.scheduledTasks.items = [
+      {
+        name: SECRET_TASK,
+        enabled: false,
+        nextRunAtMs: null,
+        lastRunAt: null,
+        lastError: null,
+        whyNotRunning: 'This task is turned off (disabled).',
+      },
+    ];
+    overview.workspace.items = [
+      {
+        kind: 'project',
+        name: SECRET_PROJECT,
+        workspace: null,
+        isTemporary: true,
+        whyProblem: 'This project has no persistent workspace folder.',
+      },
+      {
+        kind: 'conversation',
+        name: SECRET_CHAT,
+        workspace: null,
+        isTemporary: true,
+        whyProblem: 'This chat is using a temporary workspace.',
+      },
+    ];
+    return overview;
+  };
+
+  it('never emits a user-authored scheduled-task name', () => {
+    const out = formatDiagnostics(withUserAuthoredTitles());
+    expect(out).not.toContain(SECRET_TASK);
+    expect(out).not.toContain('Northwind');
+  });
+
+  it('never emits a user-authored project name or chat title', () => {
+    const out = formatDiagnostics(withUserAuthoredTitles());
+    expect(out).not.toContain(SECRET_PROJECT);
+    expect(out).not.toContain('Barracuda');
+    expect(out).not.toContain(SECRET_CHAT);
+    expect(out).not.toContain('divorce');
+  });
+
+  it('keeps the reason and the count, which are the debugging signal', () => {
+    const out = formatDiagnostics(withUserAuthoredTitles());
+    expect(out).toContain('1 task — This task is turned off (disabled).');
+    expect(out).toContain('1 project — This project has no persistent workspace folder.');
+    expect(out).toContain('1 conversation — This chat is using a temporary workspace.');
+  });
+
+  it('counts every item sharing a reason, not just the first page of them', () => {
+    const overview = emptyOverview();
+    // 13 tasks, more than MAX_ITEMS_PER_SECTION (8): the old per-item loop sliced
+    // to 8 and under-reported. A count must cover all 13.
+    overview.scheduledTasks.items = Array.from({ length: 13 }, (_, i) => ({
+      name: `secret task ${i}`,
+      enabled: false,
+      nextRunAtMs: null,
+      lastRunAt: null,
+      lastError: null,
+      whyNotRunning: 'This task is turned off (disabled).',
+    }));
+    const out = formatDiagnostics(overview);
+    expect(out).toContain('13 tasks — This task is turned off (disabled).');
+    expect(out).not.toContain('secret task');
+  });
+
+  it('still names MCP connectors and providers, which the user did not author', () => {
+    const overview = emptyOverview();
+    overview.mcp.items = [
+      { name: 'chrome-devtools', enabled: true, status: null, toolCount: 0, lastError: null, flag: 'exposes 0 tools' },
+    ];
+    overview.providers.items = [{ id: 'openai', state: 'error', error: null, flag: 'reconnect' }];
+    const out = formatDiagnostics(overview);
+    expect(out).toContain('`chrome-devtools` — exposes 0 tools');
+    expect(out).toContain('`openai` — reconnect');
+  });
+
+  it('keeps user-authored titles out of the collected report payload', async () => {
+    overviewMock.mockReturnValue(withUserAuthoredTitles());
+    const data = await collectBugReport(null);
+    expect(data.diagnostics).not.toContain(SECRET_TASK);
+    expect(data.diagnostics).not.toContain(SECRET_PROJECT);
+    expect(data.diagnostics).not.toContain(SECRET_CHAT);
+    expect(JSON.stringify(data)).not.toContain('Barracuda');
   });
 });
 
