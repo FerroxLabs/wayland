@@ -115,7 +115,7 @@ beforeEach(() => {
   dbPath = path.join(tmpDir, 'wayland.db');
   fs.writeFileSync(dbPath, '');
   originalBunVersion = process.versions.bun;
-  Object.defineProperty(process.versions, 'bun', { value: '1.3.14', configurable: true, writable: true });
+  Object.defineProperty(process.versions, 'bun', { value: '1.4.2', configurable: true, writable: true });
 });
 
 afterEach(() => {
