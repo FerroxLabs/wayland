@@ -9,6 +9,7 @@ import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import { archiveConfiguredMcpServerHttp } from '@/renderer/services/McpConfigService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { MCP_PUBLICATION_DIVERGENCE_MARKER, retainMcpPublicationReconciliation } from './useMcpConnection';
+import { mcpPublicationGaps } from './useMcpOperations';
 
 function nextMcpRevision(previous?: number): number {
   return Math.max(Date.now(), (previous ?? 0) + 1);
@@ -387,17 +388,36 @@ export const useMcpServerCRUD = (
           : {}),
       };
       let externalMutationAttempted = false;
+      let publicationGaps: string[] = [];
 
       try {
         if (enabled) {
-          // Publish before committing the local enabled state. A failed or
-          // partial publication can therefore never leave a false-green row.
+          // Publish before committing the local enabled state, so a publication
+          // that reaches NO agent can never leave a false-green row.
+          //
+          // A PARTIAL publication does commit, because the agents that took the
+          // connector really do have it and turning the row off would leave
+          // storage claiming the opposite of what those agents carry. What the
+          // row owes the user instead is the gap: the agents that refused are
+          // recorded below as `publicationGaps` (#1196), which outlives the
+          // toast, survives a probe, and is cleared by a later publication that
+          // reaches every agent.
           externalMutationAttempted = true;
-          await syncMcpToAgents(updatedTargetServer, true);
+          publicationGaps = mcpPublicationGaps(await syncMcpToAgents(updatedTargetServer, true));
         } else {
           externalMutationAttempted = true;
           await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
         }
+
+        // Publication truth for the record being committed. A publication that
+        // reached every agent - and a completed removal, which leaves nothing
+        // published anywhere - clears a gap a previous attempt left behind, so
+        // a repaired agent does not keep an answered complaint on the row.
+        const withPublicationGaps = (record: IMcpServer): IMcpServer => {
+          if (publicationGaps.length > 0) return { ...record, publicationGaps };
+          if (record.publicationGaps === undefined) return record;
+          return { ...record, publicationGaps: undefined };
+        };
 
         let committed: IMcpServer | undefined;
         await saveMcpServers((prevServers) => {
@@ -405,8 +425,8 @@ export const useMcpServerCRUD = (
           return prevServers.map((server) => {
             if (server.id !== serverId) return server;
             if (server.updatedAt === targetServer.updatedAt) {
-              committed = updatedTargetServer;
-              return updatedTargetServer;
+              committed = withPublicationGaps(updatedTargetServer);
+              return committed;
             }
             // Publishing to every agent can take 20-40 s. A probe that wrote
             // status in the meantime did not change what was published: retry
@@ -414,14 +434,14 @@ export const useMcpServerCRUD = (
             // publication the user just asked for (#1375). Any other change
             // (an edit, a concurrent toggle) still loses and rolls back below.
             if (!onlyProbeStatusChanged(targetServer, server)) return server;
-            committed = {
+            committed = withPublicationGaps({
               ...server,
               enabled,
               updatedAt: nextMcpRevision(server.updatedAt),
               ...(enabled && server.lastError?.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
                 ? { status: 'disconnected' as const, lastError: undefined }
                 : {}),
-            };
+            });
             return committed;
           });
         });

@@ -45,6 +45,35 @@ interface McpOperationResult {
 /** Comma-joined agent display names, for a sentence the user can act on. */
 const nameList = (results: McpOperationResult[]): string => results.map((r) => r.agent).join(', ');
 
+/**
+ * The agents a publication did NOT reach, each as "<agent>: <reason>", for the
+ * caller to persist on the connector record as `IMcpServer.publicationGaps`.
+ *
+ * A toast disappears. A partial publication has to stay legible to a user who
+ * walked away and came back, so the same per-agent verdicts the toast reads
+ * also become durable row evidence (#1196). Unsupported backends are excluded
+ * here for the same reason they are excluded everywhere else: there was nothing
+ * to publish to them. An agent that timed out counts as a gap - its config was
+ * left unchanged and unverified, so the connector may well be missing there.
+ *
+ * `results` is `unknown` because the publication helpers are typed opaquely at
+ * their call sites; anything that is not a well-formed result list is no
+ * evidence of a gap and yields none.
+ */
+export function mcpPublicationGaps(results: unknown): string[] {
+  if (!Array.isArray(results)) return [];
+  return results
+    .filter(
+      (result): result is McpOperationResult =>
+        typeof result === 'object' &&
+        result !== null &&
+        typeof (result as McpOperationResult).agent === 'string' &&
+        (result as McpOperationResult).unsupported !== true &&
+        (result as McpOperationResult).success !== true
+    )
+    .map((result) => `${result.agent}: ${truncateErrorMessage(result.error || 'publication failed', 80)}`);
+}
+
 interface McpOperationResponse {
   success: boolean;
   data?: {

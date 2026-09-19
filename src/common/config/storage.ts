@@ -907,6 +907,18 @@ export interface IMcpServer {
    * successful connect.
    */
   lastError?: string;
+  /**
+   * Agents that refused the last publication of this declaration, each as
+   * "<agent>: <reason>". Empty/absent means the last publication reached every
+   * agent that could carry it.
+   *
+   * This is PUBLICATION truth and deliberately not `lastError`, which is PROBE
+   * truth: the Installed row prefixes `lastError` with "Probe failed", and a
+   * successful probe clears it. A probe can neither prove nor disprove a
+   * publication gap, so this field survives one and is cleared only by a
+   * publication that reaches every agent, or by disabling the connector (#1196).
+   */
+  publicationGaps?: string[];
   createdAt: number;
   updatedAt: number;
   originalJson: string; // Stores the raw JSON config for accurate display when editing

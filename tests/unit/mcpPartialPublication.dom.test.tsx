@@ -174,6 +174,62 @@ describe('MCP partial publication', () => {
     expect(saved?.status).not.toBe('error');
   });
 
+  it('records the agent that refused it, durably, where a toast cannot survive', async () => {
+    // The toast is gone the moment the user looks away. The row has to be able
+    // to answer "which agents do NOT have this" on its own.
+    bridgeMocks.syncMcpToAgents.mockResolvedValue(PARTIAL_PUBLICATION);
+    const { rendered, store } = renderToggle([makeServer()]);
+
+    await act(async () => {
+      await rendered.result.current.handleToggleMcpServer('mcp_tvcontrol', true);
+    });
+
+    expect(findSaved(store.servers, 'mcp_tvcontrol')?.publicationGaps).toEqual(['qwen:Qwen Code: spawn qwen ENOENT']);
+  });
+
+  it('clears the recorded gap once a later publication reaches every agent', async () => {
+    // A repaired agent must not leave an answered complaint on the row.
+    bridgeMocks.syncMcpToAgents.mockResolvedValue(PARTIAL_PUBLICATION);
+    bridgeMocks.removeMcpFromAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'claude:Claude Code', success: true, outcome: 'applied' as const },
+          { agent: 'fuigo:Fuigo', success: true, outcome: 'applied' as const },
+          { agent: 'qwen:Qwen Code', success: true, outcome: 'applied' as const },
+        ],
+      },
+    });
+    const { rendered, store } = renderToggle([makeServer()]);
+
+    await act(async () => {
+      await rendered.result.current.handleToggleMcpServer('mcp_tvcontrol', true);
+    });
+    expect(findSaved(store.servers, 'mcp_tvcontrol')?.publicationGaps).toHaveLength(1);
+
+    // qwen is fixed; the user turns the connector off and on again.
+    bridgeMocks.syncMcpToAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'claude:Claude Code', success: true, outcome: 'applied' as const },
+          { agent: 'fuigo:Fuigo', success: true, outcome: 'applied' as const },
+          { agent: 'qwen:Qwen Code', success: true, outcome: 'applied' as const },
+        ],
+      },
+    });
+    await act(async () => {
+      await rendered.result.current.handleToggleMcpServer('mcp_tvcontrol', false);
+    });
+    await act(async () => {
+      await rendered.result.current.handleToggleMcpServer('mcp_tvcontrol', true);
+    });
+
+    const repaired = findSaved(store.servers, 'mcp_tvcontrol');
+    expect(repaired?.enabled).toBe(true);
+    expect(repaired?.publicationGaps ?? []).toEqual([]);
+  });
+
   it('still reports a total publication failure and does not enable the connector', async () => {
     // Negative control. Partial tolerance must not be widened into "nothing
     // ever fails": a publication that reached NO agent is still a failure.
