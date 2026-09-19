@@ -767,6 +767,15 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          # The same three vars also sign the binaries we stage into resources/
+          # (bundled-fuigo, bundled-officecli) before packaging, so Smart App
+          # Control does not block them - see scripts/signWindowsStagedBinary.js.
+          # On a release tag that staging must not fall back to unsigned: the
+          # guard above already fails the build when the secret is absent, and
+          # this makes the staging step itself refuse rather than quietly produce
+          # an artifact that only fails on a user's machine.
+          WAYLAND_REQUIRE_WINDOWS_SIGNATURE:
+            ${{ (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')) && '1' || '' }}
           # CI flag & GitHub token / CI 标识与 GitHub Token
           CI: true
           GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}

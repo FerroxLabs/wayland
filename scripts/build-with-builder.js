@@ -22,6 +22,7 @@ const {
   resolveDarwinSigningIdentity,
   darwinSigningIdentifier,
 } = require('./signDarwinStagedBinary');
+const { resolveWindowsSigningCredentials } = require('./signWindowsStagedBinary');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
@@ -1196,6 +1197,14 @@ try {
       // The decision comes from the build environment, never from data inside
       // the package, so it cannot be flipped by editing a manifest.
       ...(packagePlatforms[0] === 'darwin' && resolveDarwinSigningIdentity() ? ['--require-darwin-signature'] : []),
+      // Same rule on Windows, for a different consequence: an unsigned bundled
+      // executable has nothing to fail at package time, and then Smart App
+      // Control blocks it on the user's machine. If this build had a Trusted
+      // Signing credential then every win32 binary we stage was signed above, so
+      // the gate must REFUSE an unsigned one rather than fall back to accepting
+      // raw upstream bytes. The decision comes from the build environment, never
+      // from data inside the package.
+      ...(packagePlatforms[0] === 'win32' && resolveWindowsSigningCredentials() ? ['--require-windows-signature'] : []),
     ],
     { stdio: 'inherit', env: process.env }
   );

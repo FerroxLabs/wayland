@@ -3,6 +3,7 @@ const path = require('node:path');
 const authority = require('./authority.json');
 const { download, decode, digest, TARGETS } = require('../../src/process/agent/fuigo/distribution.cjs');
 const { signDarwinStagedBinary, darwinSigningIdentifier } = require('../signDarwinStagedBinary');
+const { signWindowsStagedBinary } = require('../signWindowsStagedBinary');
 async function prepareFuigo({
   platform = process.platform,
   arch = process.arch,
@@ -23,6 +24,9 @@ async function prepareFuigo({
       identifier: darwinSigningIdentifier(decoded.name, decoded.binarySha256),
       label: `Fuigo ${runtime}`,
     });
+  // Both signatures are applied BEFORE stagedSha256 is taken below, so the
+  // receipt describes the bytes we actually ship.
+  if (platform === 'win32') signWindowsStagedBinary(file, { label: `Fuigo ${runtime}` });
   for (const [name, bytes] of decoded.notices) {
     const dest = path.join(dir, 'notices', name.slice('package/'.length));
     fs.mkdirSync(path.dirname(dest), { recursive: true });
