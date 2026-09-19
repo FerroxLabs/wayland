@@ -10,5 +10,16 @@
     "bun-windows-x64.zip": "sha256:0a0620930b6675d7ba440e81f4e0e00d3cfbe096c4b140d3fff02205e9e18922",
     "bun-windows-x64-baseline.zip": "sha256:538f9c846355d9e847b2671bc00c47da4229a0befb24df3282b739770f3b475f",
     "bun-windows-aarch64.zip": "sha256:89841f5a57f2348b67ec0839b718f4bf4ea7d07c371c9ba4b77b6c790f918953"
+  },
+  "1.4.2": {
+    "bun-darwin-aarch64.zip": "sha256:90987a3a16d7db556d886ac3d551e7b6d3edf0a1cf43acaed622e8676be1d12f",
+    "bun-darwin-x64-baseline.zip": "sha256:bad5bbd6cf14d0980d115f5954c9ff904df619d5e994d2da1ffccd3f316300b0",
+    "bun-darwin-x64.zip": "sha256:80520d7e17526308c9185d261679ac6d27798d3803a0e9f7ff9121ab8affb012",
+    "bun-linux-aarch64.zip": "sha256:54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7",
+    "bun-linux-x64-baseline.zip": "sha256:c678040f14fe0440eb839d37cbd0ce4c051a32da72806ac97de6a6aab6bf728f",
+    "bun-linux-x64.zip": "sha256:36368faef7527875d5ffa52e53cd48021741f2a83eb6208a8dd64068d422a913",
+    "bun-windows-aarch64.zip": "sha256:a7a16b876a305fd1029c66dbd27007b4f6112ae896532f675878731a21e50cfd",
+    "bun-windows-x64-baseline.zip": "sha256:78c221c2376f79731ccf4e4af0b3bb46d81fefa3296c5abee09ad8a1b21e68c6",
+    "bun-windows-x64.zip": "sha256:ce4c17497b2f29712a99d3d53f028de28cd42e3bacb8589599e7f000e49b6405"
   }
 }
