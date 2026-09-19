@@ -1701,7 +1701,20 @@ export async function runSmoke(options, dependencies = {}) {
       if (options.targetPlatform === 'darwin' && child.exitCode === null && child.signalCode === null) {
         child.kill('SIGTERM');
       }
-      const shutdown = await waitForExitImpl(child, 10_000);
+      // #1398/#1399 scaled the READINESS window off WAYLAND_SMOKE_TIMEOUT_MS
+      // because win-arm64 runners are several times slower than the x64 ones
+      // this harness was measured on. The exit budget never got the same
+      // treatment and stayed a flat 10 s. On a runner whose silent install takes
+      // 436 s rather than 173 s, that is roughly four normal-speed seconds for
+      // before-quit and will-quit to finish, and the v0.13.2 rehearsal failed
+      // "packaged app did not shut down cleanly" twice inside it.
+      //
+      // This tolerates slow teardown ONLY. The survivor assertion below is
+      // unchanged and still fires on a leaked tree, so a process that never
+      // exits still fails - it just gets a deadline proportional to how slow the
+      // caller already declared this environment to be.
+      const exitTimeoutMs = Math.min(Math.max(Math.round(options.timeoutMs / 10), 10_000), 120_000);
+      const shutdown = await waitForExitImpl(child, exitTimeoutMs);
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
       processMonitor = null;

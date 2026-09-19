@@ -1559,6 +1559,27 @@ describe('runSmoke hostile orchestration', () => {
     expect(leaked.child.kill).toHaveBeenCalledWith('SIGKILL');
   });
 
+  // The readiness window scales off WAYLAND_SMOKE_TIMEOUT_MS (#1398/#1399); the
+  // exit budget stayed a flat 10s and failed "did not shut down cleanly" twice on
+  // win-arm64, where the silent install alone takes 436s against 173s on x64.
+  it('scales the exit budget with the declared smoke timeout', async () => {
+    const slow = smokeHarness();
+    slow.options.timeoutMs = 600_000;
+    const waitForExit = vi.fn(async () => ({ code: 0, signal: null }));
+    slow.dependencies.cdpCommand = vi.fn(async () => ({}));
+    await runSmoke(slow.options, { ...slow.dependencies, waitForExit }).catch(() => undefined);
+    expect(waitForExit).toHaveBeenCalled();
+    expect(waitForExit.mock.calls[0][1]).toBe(60_000);
+
+    // A default-speed caller keeps the original floor, so local runs are unchanged.
+    const quick = smokeHarness();
+    quick.options.timeoutMs = 45_000;
+    const quickWait = vi.fn(async () => ({ code: 0, signal: null }));
+    quick.dependencies.cdpCommand = vi.fn(async () => ({}));
+    await runSmoke(quick.options, { ...quick.dependencies, waitForExit: quickWait }).catch(() => undefined);
+    expect(quickWait.mock.calls[0][1]).toBe(10_000);
+  });
+
   it('fails an otherwise green smoke when isolated-state cleanup fails', async () => {
     const harness = smokeHarness();
     await expect(
