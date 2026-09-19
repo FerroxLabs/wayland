@@ -84,11 +84,20 @@ vi.mock('@process/services/skills/SkillQuarantine', () => ({
   SkillQuarantine: { quarantineFromMemory: vi.fn(async () => '/fake/quarantine') },
 }));
 vi.mock('@process/services/skills/agentProfileImport', () => ({ importAgentProfile: vi.fn() }));
-vi.mock('@process/task/AcpSkillManager', () => ({ parseFrontmatter: vi.fn() }));
+// NOT mocked away: `withSkillFrontmatter` decides "is this body already usable"
+// by calling the REAL `parseFrontmatter`, which is the whole point - a stub
+// would let this test pass while the readers still refused the file. Only the
+// extension registry is stubbed, the one heavy import AcpSkillManager pulls in
+// that the mocked initStorage does not already cover.
+vi.mock('@process/extensions', () => ({
+  ExtensionRegistry: { getInstance: () => ({ getSkills: () => [] }) },
+}));
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: h.ProcessConfig,
   getAssistantsDir: vi.fn(() => '/fake/assistants'),
   getSkillsDir: vi.fn(() => h.skillsDir),
+  getBuiltinSkillsCopyDir: vi.fn(() => `${h.skillsDir}-builtin`),
+  getAutoSkillsDir: vi.fn(() => `${h.skillsDir}-builtin/_builtin`),
 }));
 vi.mock('@process/extensions/data/bundle-vendored/teamSkillMerge', () => ({ loadTeamSkills: vi.fn() }));
 vi.mock('@process/services/skills/CliSkillDiscovery', () => ({ loadCliSkills: vi.fn(async () => {}) }));

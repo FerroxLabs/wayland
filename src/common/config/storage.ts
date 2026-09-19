@@ -328,6 +328,12 @@ export interface IConfigStorageRefer {
    * and triggered a duplicate-skip warning per pack per launch.
    */
   'migration.legacyBundledExtensionCopiesRemoved'?: boolean;
+  /**
+   * Migration flag: skills stranded in the legacy `~/.wayland/skills` tree have
+   * been COPIED into `getSkillsDir()` (#1190). The legacy copy is left in place
+   * for downgrades; a name already installed is skipped, never overwritten.
+   */
+  'migration.legacySkillsDirCopied'?: boolean;
   /** Migration flag: Electron desktop config has been imported to server config */
   'migration.electronConfigImported'?: boolean;
   /**

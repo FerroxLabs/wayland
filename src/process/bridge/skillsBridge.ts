@@ -8,7 +8,6 @@ import path from 'node:path';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { app, dialog } from 'electron';
 import type { ImportSummary, ImportItemResult } from '@/common/adapter/ipcBridge';
-import type { SkillType } from '@/common/types/skillTypes';
 import { ipcBridge } from '@/common';
 import { exportAssistantToSkillMd } from '@process/services/skills/agentProfileExport';
 import { buildWorkflowExport } from '@process/services/skills/workflowExport';
@@ -18,8 +17,10 @@ import { SkillImport, type ImportResult } from '@process/services/skills/SkillIm
 import { SkillQuarantine } from '@process/services/skills/SkillQuarantine';
 import { importAgentProfile } from '@process/services/skills/agentProfileImport';
 import { enableSkillForCurrentAssistant } from '@process/services/skills/enableSkillForAssistant';
+import { withSkillFrontmatter } from '@process/services/skills/withSkillFrontmatter';
 import { parseFrontmatter } from '@process/task/AcpSkillManager';
 import { ProcessConfig, getAssistantsDir, getSkillsDir } from '@process/utils/initStorage';
+import { runLegacySkillsDirMigration } from '@process/utils/migrations/legacySkillsDirMigration';
 import { loadTeamSkills } from '@process/extensions/data/bundle-vendored/teamSkillMerge';
 import { loadCliSkills } from '@process/services/skills/CliSkillDiscovery';
 import { getDatabase } from '@process/services/database';
@@ -34,32 +35,6 @@ function exportFileSlug(name: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return slug || 'export';
-}
-
-/**
- * Give a builder-authored body the frontmatter every reader requires.
- *
- * `parseFrontmatter` returns null for a document with no `---` block or no
- * `name:`, and `discoverSkills` / `fs.listAvailableSkills` both drop what it
- * refuses. The builder's starter body is plain markdown, so a skill written
- * straight from the Write tab could never be loaded or even ticked in Settings
- * - the name the user typed lived only in the library index (#1190).
- *
- * A body that already carries frontmatter is returned UNTOUCHED: someone who
- * pastes a real SKILL.md has declared its `name:`, and rewriting that would
- * rename their skill behind their back.
- */
-function withSkillFrontmatter(body: string, meta: { name: string; description: string; type: SkillType }): string {
-  if (/^---\s*\n[\s\S]*?\n---/.test(body)) return body;
-  const frontmatter = [
-    '---',
-    `name: ${meta.name}`,
-    `description: ${meta.description.replace(/\r?\n/g, ' ').trim()}`,
-    `type: ${meta.type}`,
-    '---',
-    '',
-  ].join('\n');
-  return `${frontmatter}\n${body}`;
 }
 
 /**
@@ -479,6 +454,24 @@ export function initSkillsBridge(): void {
     }
 
     return { name: kebab, verdict: report.verdict };
+  });
+
+  // One-time: copy skills stranded in the legacy ~/.wayland/skills tree into
+  // getSkillsDir(), so upgrading fixes the skill the user ALREADY made and not
+  // just the next one (#1190). Copies, never moves - see the module header.
+  //
+  // Driven from here rather than from initStorage's migration block, where its
+  // two siblings live, because it needs `parseFrontmatter` to decide whether a
+  // stranded SKILL.md is usable, and AcpSkillManager imports initStorage - the
+  // import would close a module cycle. It follows the same shape as those
+  // siblings otherwise: a module under utils/migrations, an injected store, and
+  // a `migration.*` flag as the gate.
+  //
+  // Fire-and-forget for the same reason as the sweep below: nothing here may
+  // delay boot, and the config-flag gate makes every later launch a no-op with
+  // no filesystem call at all.
+  void runLegacySkillsDirMigration(ProcessConfig).catch((err) => {
+    console.warn('[skillsBridge] legacy skills migration failed', err);
   });
 
   // C4: one-time library sweep on app start. The 2,054 vendored skills seed as
