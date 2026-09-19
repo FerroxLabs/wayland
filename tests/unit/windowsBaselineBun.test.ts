@@ -37,7 +37,7 @@ import verifyPackagedResources = require('../../scripts/verify-packaged-resource
 import bundledBunShasums from '../../scripts/bundled-bun-shasums.json';
 import bundledBunBinaries from '../../scripts/bundled-bun-binaries.json';
 
-const BUN_VERSION = '1.3.14';
+const BUN_VERSION = '1.4.2';
 
 const helpers = prepareBundledBun as unknown as {
   needsBaselineVariant: (platform: string, arch: string) => boolean;

@@ -104,9 +104,9 @@ const TEST_MODELS_AUTHORITY = {
   sha256: crypto.createHash('sha256').update(TEST_MODELS_SNAPSHOT).digest('hex'),
 };
 const BUN_SHA = {
-  arm64: 'd8b96221828ad6f97ac7ac0ab7e95872341af763001e8803e8267652c2652620',
-  x64: '4183df3374623e5bab315c547cfa0974533cd457d86b73b639f7a87974cd6633',
-  baseline: '3e35ad6f53971a9834bf9e6786e2adf72b5f1921cc9a9c5fde073d2972944076',
+  arm64: '90987a3a16d7db556d886ac3d551e7b6d3edf0a1cf43acaed622e8676be1d12f',
+  x64: '80520d7e17526308c9185d261679ac6d27798d3803a0e9f7ff9121ab8affb012',
+  baseline: 'bad5bbd6cf14d0980d115f5954c9ff904df619d5e994d2da1ffccd3f316300b0',
 };
 
 const TEST_OFFICE_SIGNATURE = {
@@ -159,7 +159,7 @@ function testConstitutionAuthority(arch: 'arm64' | 'x64') {
 
 const TEST_BUN_AUTHORITY = {
   contract: 'wayland-bundled-bun-binaries/1.0',
-  '1.3.14': Object.fromEntries(
+  '1.4.2': Object.fromEntries(
     [
       ['bun-darwin-aarch64.zip', 'arm64'],
       ['bun-darwin-x64.zip', 'x64'],
@@ -196,18 +196,18 @@ function writeBunBundle(resources: string, arch: 'arm64' | 'x64'): void {
     const asset = `bun-darwin-${arch === 'arm64' ? 'aarch64' : 'x64'}${baseline ? '-baseline' : ''}.zip`;
     const binaryPath = path.join(root, 'bun');
     writeMachExecutable(binaryPath, arch);
-    const binary = TEST_BUN_AUTHORITY['1.3.14'][asset];
+    const binary = TEST_BUN_AUTHORITY['1.4.2'][asset];
     fs.writeFileSync(
       path.join(root, 'manifest.json'),
       JSON.stringify({
         platform: 'darwin',
         arch,
         variant,
-        version: '1.3.14',
+        version: '1.4.2',
         sourceType: 'download',
         source: {
           asset,
-          url: `https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/${asset}`,
+          url: `https://github.com/oven-sh/bun/releases/download/bun-v1.4.2/${asset}`,
           sha256: baseline ? BUN_SHA.baseline : BUN_SHA[arch],
         },
         binary: { name: 'bun', ...binary },

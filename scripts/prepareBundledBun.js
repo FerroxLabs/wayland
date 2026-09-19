@@ -10,7 +10,7 @@ const CACHE_META_FILE = 'runtime-meta.json';
 // every build must fetch this exact version and verify the SHA-256 against
 // scripts/bundled-bun-shasums.json (which mirrors Bun's official
 // SHASUMS256.txt for this tag). Bump both in lockstep.
-const PINNED_BUN_VERSION = '1.3.14';
+const PINNED_BUN_VERSION = '1.4.2';
 const SHASUMS_FILE = path.resolve(__dirname, 'bundled-bun-shasums.json');
 const BINARY_AUTHORITY_FILE = path.resolve(__dirname, 'bundled-bun-binaries.json');
 

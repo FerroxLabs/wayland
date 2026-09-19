@@ -47,7 +47,7 @@ env:
   # Pinned Bun runtime bundled into the packaged app. Must match
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.
-  WAYLAND_BUN_VERSION: '1.3.14'
+  WAYLAND_BUN_VERSION: '1.4.2'
 
 jobs:
   code-quality:
@@ -250,9 +250,9 @@ jobs:
           #
           # `latest` is what broke v0.12.2: it resolved to 1.3.14 on 2026-08-19 and
           # all six legs passed, then to 1.4.0 on 2026-08-24 and both Windows legs
-          # failed on an unchanged tree. The observers pin '1.3.14'; so does
+          # failed on an unchanged tree. The observers pin '1.4.2'; so does
           # release-acceptance-trust-root.yml and the bundled-bun authority. Match them.
-          bun-version: '1.3.14'
+          bun-version: '1.4.2'
 
       - name: Setup Python
         uses: actions/setup-python@v5
