@@ -872,10 +872,11 @@ describe('real installer extraction and lifecycle evidence', () => {
       releaseTrack: 'stable',
     });
     // NSIS ships only an x86 stub, so win32-arm64 extracts the payload under
-    // emulation. 120s expired on every arm64 release attempt; the budget must
-    // stay well clear of it.
+    // emulation. 120s expired on every arm64 release attempt, then 600s expired
+    // too on the v0.13.2 updater observer; the budget must stay well clear of
+    // both. Completed installs that day ranged 173s to 436s.
     const options = execute.mock.calls[0][2] as { timeout: number };
-    expect(options.timeout).toBeGreaterThanOrEqual(600_000);
+    expect(options.timeout).toBeGreaterThanOrEqual(1_200_000);
   });
 
   it('reports a timed-out Windows install as a budget overrun, not a bare ETIMEDOUT', () => {

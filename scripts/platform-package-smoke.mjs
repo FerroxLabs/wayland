@@ -36,7 +36,12 @@ const VALID_ARCHES = new Set(['x64', 'arm64']);
 //
 // This bounds a slow install, it does not weaken what is being verified: the
 // payload must still install and the app must still boot and shut down cleanly.
-const WINDOWS_SILENT_INSTALL_TIMEOUT_MS = 600_000;
+// 2026-09-19: 600s expired too. The v0.13.2 updater observer's win32-arm64 leg
+// ran the INTACT control installer for the full 600s without finishing, which
+// correctly refused to attribute the corrupted-installer rejection. Completed
+// installs on the same runner pool that day ranged 173s to 436s, so 600s was
+// only about 1.4x the worst success - no margin at all. 1200s is ~2.8x it.
+const WINDOWS_SILENT_INSTALL_TIMEOUT_MS = 1_200_000;
 const VALID_RELEASE_TRACKS = new Set(['stable', 'preview']);
 const INSTALLER_EXTENSIONS = { darwin: '.dmg', linux: '.deb', win32: '.exe' };
 const SMOKE_EVENT_CONTRACT = 'wayland-package-smoke-event/1';
