@@ -197,18 +197,29 @@ describe('useMcpOperations publication evidence', () => {
     });
   });
 
-  it('rejects partial sync so one adapter cannot mint publication truth for all adapters', async () => {
+  /**
+   * A partial publication is PARTIAL, not fatal (#1196).
+   *
+   * This used to reject, and the caller answered a rejection by revoking the
+   * connector from every agent. When the revocation failed for the same reason
+   * the publication did, the connector was left carrying the unrecoverable
+   * "publication rollback incomplete" marker. qwen is a built-in detected
+   * backend whose launcher fails `spawn qwen ENOENT` on Windows (#1306), so a
+   * single broken agent poisoned the connector everywhere else.
+   */
+  it('keeps the publication on the agents that accepted it when one backend refuses', async () => {
     mocks.syncMcpToAgents.mockResolvedValue({
       success: true,
       data: {
         results: [
-          { agent: 'Claude', success: true },
-          { agent: 'Wayland Core', success: false, error: 'profile write failed' },
+          { agent: 'Claude', success: true, outcome: 'applied' },
+          { agent: 'Wayland Core', success: true, outcome: 'applied' },
+          { agent: 'Qwen Code', success: false, outcome: 'failed', error: 'spawn qwen ENOENT' },
         ],
       },
     });
 
-    const server = {
+    const partialServer = {
       id: 'mcp_1',
       name: 'firecrawl',
       enabled: true,
@@ -216,9 +227,15 @@ describe('useMcpOperations publication evidence', () => {
       updatedAt: 1,
       transport: { type: 'stdio' as const, command: 'npx', args: ['firecrawl-mcp'] },
     };
-    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    const { result } = renderHook(() => useMcpOperations([partialServer], message as never));
     await act(async () => {
-      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow('settings.mcpSyncFailedNoAgents');
+      await expect(result.current.syncMcpToAgents(partialServer, true)).resolves.toBeDefined();
     });
+
+    // The refusal is not swallowed: the user is told which agent did not take
+    // the connector and why, through the existing partial-outcome string.
+    expect(message.warning).toHaveBeenCalledWith(
+      expect.objectContaining({ content: expect.stringContaining('Qwen Code: spawn qwen ENOENT') })
+    );
   });
 });

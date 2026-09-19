@@ -269,8 +269,23 @@ export const useMcpOperations = (
         // a typical install detects a dozen of them, so publication "failed"
         // even when all five agents that can carry an MCP server succeeded.
         const publicationResults = (syncResponse.data?.results ?? []).filter((result) => !result.unsupported);
-        const failedPublications = publicationResults.filter((result) => !result.success);
-        if (!syncResponse.success || publicationResults.length === 0 || failedPublications.length > 0) {
+        // A PER-AGENT publication failure is partial, not fatal (#1196).
+        //
+        // Rejecting the whole publication because one backend refused it made
+        // the caller revoke the connector from EVERY agent; when the revocation
+        // then failed for the same reason the backend refused the publication,
+        // the unrecoverable "publication rollback incomplete" marker was
+        // persisted and the connector could not be used anywhere again. One
+        // broken backend is enough to trigger it: qwen is a built-in detected
+        // agent and its launcher fails `spawn qwen ENOENT` on Windows (#1306).
+        //
+        // So the agents that took the declaration keep it. The ones that did
+        // not are named to the user with their reason by
+        // `handleMcpOperationResult` above - the same treatment `unsupported`
+        // backends get, which is why no new UX is needed here. Only a
+        // publication that reached NO agent at all is a failure.
+        const appliedPublications = publicationResults.filter((result) => result.success);
+        if (!syncResponse.success || publicationResults.length === 0 || appliedPublications.length === 0) {
           throw new Error(syncResponse.msg || t('settings.mcpSyncFailedNoAgents'));
         }
         return syncResponse.data?.results ?? [];
