@@ -894,7 +894,60 @@ export async function waitForRendererReady(port, timeoutMs, child, expected) {
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error(`${TAG} Electron renderer did not become ready: ${lastError}`);
+  throw new Error(
+    `${TAG} Electron renderer did not become ready: ${lastError}` + `${await describeReadinessStall(port)}`
+  );
+}
+
+/**
+ * Why a readiness timeout needs more than `lastError`.
+ *
+ * On win32-arm64 the smoke failed this way ten times across v0.13.2 while the
+ * app plainly booted: it created its window, the renderer emitted telemetry,
+ * and then Runtime.evaluate simply never returned. `lastError` says only "CDP
+ * command timed out", which cannot distinguish a blocked RENDERER from a
+ * blocked MAIN process, and that single bit is what four separate fixes were
+ * guessed against.
+ *
+ * So ask the browser endpoint - served by the main process, not the renderer -
+ * whether it still answers. Browser.getVersion returning while Runtime.evaluate
+ * hangs means the renderer is wedged and the main process is fine; both hanging
+ * means the main process is. The target list alongside it says whether the page
+ * still exists at all.
+ *
+ * Every probe here is bounded and swallowed: diagnostics must never change the
+ * failure, only describe it.
+ */
+async function describeReadinessStall(port) {
+  const lines = [];
+  try {
+    const targets = await requestJson(`http://127.0.0.1:${port}/json/list`, 5_000);
+    lines.push(
+      `targets=${targets.length} [${targets
+        .map((t) => `${t.type}:${String(t.url || '<no-url>').slice(0, 60)}`)
+        .join(', ')}]`
+    );
+  } catch (error) {
+    lines.push(`target list unavailable: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  try {
+    const version = await requestJson(`http://127.0.0.1:${port}/json/version`, 5_000);
+    const browserWs = version?.webSocketDebuggerUrl;
+    if (browserWs) {
+      const started = Date.now();
+      await cdpCommand(browserWs, 'Browser.getVersion', {}, 15_000);
+      lines.push(
+        `browser endpoint ANSWERED in ${Date.now() - started}ms - the main process is live, the renderer is wedged`
+      );
+    } else {
+      lines.push('browser endpoint exposed no webSocketDebuggerUrl');
+    }
+  } catch (error) {
+    lines.push(
+      `browser endpoint did NOT answer (${error instanceof Error ? error.message : String(error)}) - the main process is blocked, not the renderer`
+    );
+  }
+  return `\n${TAG} readiness stall diagnostics: ${lines.join(' | ')}`;
 }
 
 function waitForExit(child, timeoutMs) {

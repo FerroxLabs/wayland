@@ -995,6 +995,26 @@ describe('real installer extraction and lifecycle evidence', () => {
     );
   });
 
+  // Ten win32-arm64 readiness timeouts across v0.13.2 all said only "CDP command
+  // timed out", which cannot tell a wedged renderer from a wedged main process.
+  // That missing bit is what four separate fixes were guessed against, so the
+  // failure has to carry it.
+  it('names whether the main process or the renderer is wedged on a readiness timeout', async () => {
+    const child = makeFakeChild();
+    // Nothing is listening on this port, so every probe fails - which is still a
+    // verdict, and the message must say which side it came from.
+    const error = await waitForRendererReady(43124, 500, child, {
+      rendererPath: '/tmp/index.html',
+      smokeMarker: 'a'.repeat(64),
+      releaseIdentity: expectedReleaseIdentity('stable', 'linux', 'x64'),
+    }).catch((err) => err);
+
+    const message = error instanceof Error ? error.message : String(error);
+    expect(message).toContain('did not become ready');
+    expect(message).toContain('readiness stall diagnostics');
+    expect(message).toContain('browser endpoint did NOT answer');
+  });
+
   it('fails readiness immediately for signal-terminated children and rejects occupied CDP ports', async () => {
     const child = makeFakeChild();
     child.signalCode = 'SIGKILL';
