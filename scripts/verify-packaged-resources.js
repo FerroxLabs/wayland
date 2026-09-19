@@ -32,6 +32,7 @@ const {
   isDarwinDeveloperIdSigned,
   darwinSigningIdentifier,
 } = require('./signDarwinStagedBinary');
+const { isWindowsAuthenticodeSigned } = require('./signWindowsStagedBinary');
 const prepareOfficeCli = require('./prepareOfficeCli');
 const bundledBunShasums = require('./bundled-bun-shasums.json');
 const bundledBunBinaries = require('./bundled-bun-binaries.json');
@@ -1112,6 +1113,98 @@ function verifySignalBundle(runtimeDir, targetPlatform, targetArch) {
   );
 }
 
+/**
+ * Decide whether the packaged bytes of a staged binary are the ones we pinned.
+ *
+ * Signing rewrites a binary, so a signed one cannot be compared to its upstream
+ * digest directly. What is compared instead:
+ *
+ *   * the shipped bytes against `stagedSha256`, the digest the staging step took
+ *     AFTER signing - byte identity end to end, never "signed by someone we
+ *     trust";
+ *   * upstream identity separately, by the caller, against the independent pin
+ *     (`manifest.binarySha256 === pin.binarySha256`), which staging verified on
+ *     the downloaded bytes BEFORE signing them;
+ *   * and, when the caller passes a `signedCheck`, that the shipped bytes still
+ *     carry OUR signature.
+ *
+ * `signedCheck` is null for a binary we never sign, and that case is exactly the
+ * pre-existing rule: the staged digest must equal the upstream digest. A build
+ * with no signing credential (local, fork, PR) still stages unsigned and still
+ * passes, until `requireSignature` says this build had credentials and therefore
+ * must not fall back.
+ */
+function verifyStagedBinaryIntegrity({
+  binaryPath,
+  upstreamSha256,
+  stagedSha256,
+  signedCheck = null,
+  requireSignature = false,
+}) {
+  if (!stagedSha256 || sha256File(binaryPath) !== stagedSha256) return false;
+  const stagedUpstreamUntouched = stagedSha256 === upstreamSha256;
+  if (!signedCheck) return stagedUpstreamUntouched;
+  return (!requireSignature && stagedUpstreamUntouched) || signedCheck(binaryPath);
+}
+
+/**
+ * The signature check that applies to a binary we stage and sign ourselves on
+ * this target, or null on a platform where we stage upstream bytes untouched.
+ * darwin binds the signature to the pinned upstream digest through the signing
+ * identifier; Authenticode has no field Invoke-TrustedSigning can put that
+ * digest in, so win32 proves the publisher only and leans on the caller's
+ * separate `manifest.binarySha256 === pin.binarySha256` check for identity.
+ */
+function stagedBinarySignedCheck(targetPlatform, { darwinSignedCheck, windowsSignedCheck, darwinIdentifier }) {
+  if (targetPlatform === 'darwin') return (binaryPath) => darwinSignedCheck(binaryPath, darwinIdentifier);
+  if (targetPlatform === 'win32') return (binaryPath) => windowsSignedCheck(binaryPath);
+  return null;
+}
+
+/**
+ * Exported so the staged-binary signature rules can be driven with fixtures on
+ * any host, the way verifyBunBundle is: a real win32 package cannot be built or
+ * signed outside a release runner, so an inline branch here would have been
+ * reachable only from a Windows release leg.
+ */
+function verifyFuigoBundle(bundleRoot, targetPlatform, targetArch, fuigoPin = fuigoAuthority, options = {}) {
+  const {
+    darwinSignedCheck = isDarwinDeveloperIdSigned,
+    requireDarwinSignature = false,
+    windowsSignedCheck = isWindowsAuthenticodeSigned,
+    requireWindowsSignature = false,
+  } = options;
+  const runtime = `${targetPlatform}-${targetArch}`;
+  const dir = path.join(bundleRoot, runtime);
+  const manifest = readJson(path.join(dir, 'bundle.json'));
+  const name = targetPlatform === 'win32' ? 'fuigo.exe' : 'fuigo';
+  const pin = fuigoPin.platforms[runtime];
+  return Boolean(
+    pin &&
+    manifest?.contract === 'fuigo-bundle/1.0' &&
+    manifest.runtime === runtime &&
+    manifest.version === fuigoPin.version &&
+    manifest.packageIntegrity === pin.integrity &&
+    manifest.binary === name &&
+    // Upstream identity, proven against the independent pin rather than
+    // against the shipped bytes: staging verified this digest on the
+    // downloaded archive BEFORE signing rewrote the binary.
+    manifest.binarySha256 === pin.binarySha256 &&
+    manifest.archiveSha256 === pin.archiveSha256 &&
+    verifyStagedBinaryIntegrity({
+      binaryPath: path.join(dir, name),
+      upstreamSha256: pin.binarySha256,
+      stagedSha256: manifest.stagedSha256,
+      signedCheck: stagedBinarySignedCheck(targetPlatform, {
+        darwinSignedCheck,
+        windowsSignedCheck,
+        darwinIdentifier: darwinSigningIdentifier(name, pin.binarySha256),
+      }),
+      requireSignature: targetPlatform === 'darwin' ? requireDarwinSignature : requireWindowsSignature,
+    })
+  );
+}
+
 function isNonEmpty(
   p,
   kind,
@@ -1131,6 +1224,8 @@ function isNonEmpty(
   verifyCandidateCapabilitySeal = verifyCapabilitySeal,
   darwinSignedCheck = isDarwinDeveloperIdSigned,
   requireDarwinSignature = false,
+  windowsSignedCheck = isWindowsAuthenticodeSigned,
+  requireWindowsSignature = false,
   tvControlAuthority,
   fuigoPin = fuigoAuthority
 ) {
@@ -1251,28 +1346,13 @@ function isNonEmpty(
         isDarwinDeveloperIdSigned,
         failureReasons
       );
-    if (kind === 'fuigo-bundle') {
-      const runtime = `${targetPlatform}-${targetArch}`;
-      const dir = path.join(p, runtime);
-      const manifest = readJson(path.join(dir, 'bundle.json'));
-      const name = targetPlatform === 'win32' ? 'fuigo.exe' : 'fuigo';
-      const pin = fuigoPin.platforms[runtime];
-      return Boolean(
-        pin &&
-        manifest?.contract === 'fuigo-bundle/1.0' &&
-        manifest.runtime === runtime &&
-        manifest.version === fuigoPin.version &&
-        manifest.packageIntegrity === pin.integrity &&
-        manifest.binary === name &&
-        manifest.binarySha256 === pin.binarySha256 &&
-        manifest.archiveSha256 === pin.archiveSha256 &&
-        sha256File(path.join(dir, name)) === manifest.stagedSha256 &&
-        (targetPlatform === 'darwin'
-          ? (!requireDarwinSignature && manifest.stagedSha256 === pin.binarySha256) ||
-            darwinSignedCheck(path.join(dir, name), darwinSigningIdentifier(name, pin.binarySha256))
-          : manifest.stagedSha256 === pin.binarySha256)
-      );
-    }
+    if (kind === 'fuigo-bundle')
+      return verifyFuigoBundle(p, targetPlatform, targetArch, fuigoPin, {
+        darwinSignedCheck,
+        requireDarwinSignature,
+        windowsSignedCheck,
+        requireWindowsSignature,
+      });
     return hasNonHiddenRegularFile(p);
   } catch (error) {
     // A throw here used to vanish into `return false` with no reason at all -
@@ -1300,6 +1380,13 @@ function verifyPackagedResources(options = {}) {
   // one cannot notarize, so accepting it here would only defer the failure.
   // Local and PR builds have no signing identity and stay buildable.
   const requireDarwinSignature = options.requireDarwinSignature ?? argv.includes('--require-darwin-signature');
+  const windowsSignedCheck = options.windowsSignedCheck || isWindowsAuthenticodeSigned;
+  // Release builds must ship Authenticode-signed nested binaries: Smart App
+  // Control checks every executable module, not just the installer, so an
+  // unsigned bundled runtime is blocked on the user's machine no matter how well
+  // the installer is signed. Local and PR builds have no Trusted Signing
+  // credential and stay buildable.
+  const requireWindowsSignature = options.requireWindowsSignature ?? argv.includes('--require-windows-signature');
   const verifyCandidateCapabilitySeal = options.verifyCapabilitySeal || verifyCapabilitySeal;
   const verifyDarwinPackageSignature =
     options.verifyDarwinPackageSignature ||
@@ -1428,6 +1515,8 @@ function verifyPackagedResources(options = {}) {
         verifyCandidateCapabilitySeal,
         darwinSignedCheck,
         requireDarwinSignature,
+        windowsSignedCheck,
+        requireWindowsSignature,
         options.tvControlAuthority,
         options.fuigoAuthority
       );
@@ -1488,6 +1577,11 @@ module.exports = {
   verifyVoiceBundle,
   verifyModelsSnapshot,
   verifyConstitutionFsBundle,
+  // Exported so the staged-binary signature rules can be driven with fixtures on
+  // any host, the way verifyBunBundle is: a real win32 package cannot be built
+  // or signed outside a release runner.
+  verifyStagedBinaryIntegrity,
+  verifyFuigoBundle,
 };
 
 if (require.main === module) {
