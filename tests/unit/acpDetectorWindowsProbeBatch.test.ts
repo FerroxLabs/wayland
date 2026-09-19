@@ -155,6 +155,29 @@ describe('AcpDetector Windows probe batching', () => {
     expect(psCalls).toHaveLength(1);
   });
 
+  // Measured on nine win32-arm64 release legs: the batched probe hit its 15s
+  // ceiling and resolved NOTHING on every one, while detection still reported
+  // the same two agents. Two serialized rounds cost ~30s of start-up for zero
+  // detections, so the ceiling has to stay small enough to fail fast.
+  it('keeps the async PowerShell ceiling small enough to fail fast', async () => {
+    const options: Array<Record<string, unknown>> = [];
+    safeExecFileMock.mockImplementation((file: string, _args: string[], opts: Record<string, unknown>) => {
+      if (file === 'where') return Promise.reject(new Error('not found'));
+      if (file === 'powershell') {
+        options.push(opts);
+        return Promise.resolve({ stdout: '', stderr: '' });
+      }
+      return Promise.reject(new Error('no distro'));
+    });
+
+    const detector = await freshDetector();
+    await detector.detectBuiltinAgents();
+
+    expect(options).toHaveLength(1);
+    // A start-up probe that has not answered in this long will not answer usefully.
+    expect(options[0].timeout).toBeLessThanOrEqual(5000);
+  });
+
   // #1410: the sync path runs execSync on the Electron main thread, so its
   // ceiling IS the UI freeze. It inherited the async path's 15s budget, and a
   // single missing CLI held win-arm64's main thread for the full 15s twice in a

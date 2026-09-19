@@ -24,7 +24,21 @@ import { getEnhancedEnv } from '@process/utils/shellEnv';
  * all hit their individual timeout at once, starving window creation and
  * outliving shutdown.
  */
-const POWERSHELL_PROBE_TIMEOUT_MS = 15000;
+/*
+ * 15000 was chosen to be forgiving. Measured against nine win32-arm64 release
+ * legs on 2026-09-19, it was forgiving of nothing: the batched probe hit its
+ * ceiling and returned NO resolutions on every single one, while detection
+ * reported the same "found 2 agents: Fuigo, Gemini CLI" each time. The probe
+ * cost roughly 30 s of start-up - two serialized 15 s rounds, and agent
+ * detection took ~32 s in every run - and contributed zero detections for it.
+ *
+ * A `powershell -Command Get-Command` that has not answered in 5 s is not going
+ * to answer usefully during start-up. Failing fast costs only the CLIs on a box
+ * where PowerShell needs 5-15 s, which is a box where the old ceiling was
+ * already being hit as often as not, and buys back ~20 s of start-up on every
+ * Windows machine.
+ */
+const POWERSHELL_PROBE_TIMEOUT_MS = 5000;
 
 /**
  * The synchronous probe path runs on the Electron main thread, so its ceiling
