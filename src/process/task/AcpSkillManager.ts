@@ -362,6 +362,17 @@ export class AcpSkillManager {
     // Scan both builtin-skills/ (bundled, non-_builtin) and skills/ (user custom)
     const dirsToScan = [getBuiltinSkillsCopyDir(), this.skillsDir];
 
+    // Names in `enabledSkills` that no DIRECTORY answered to. They are not
+    // typos: `fs.listAvailableSkills` - the list the Settings skill picker
+    // ticks against - returns each skill's FRONTMATTER `name:`, and
+    // `consumePendingSessionSkills` looks that same string up in the
+    // SkillLibrary index. A skill whose folder and `name:` differ is therefore
+    // enabled under one key and discovered under another, which is exactly the
+    // "Discovered 0 optional skills" a user sees after ticking it (#1190).
+    // The second pass below resolves what is left by frontmatter name, so ONE
+    // key works in both lookups.
+    const unresolved = new Set(enabledSkills);
+
     for (const dir of dirsToScan) {
       if (!existsSync(dir)) continue;
 
@@ -379,27 +390,46 @@ export class AcpSkillManager {
           // Only load enabled skills
           if (!enabledSkills.includes(skillName)) continue;
 
+          // A directory match is the ANSWER for this name, loaded or not - so a
+          // skill that resolves today can never be re-resolved by the
+          // frontmatter pass to some other folder that merely calls itself this.
+          unresolved.delete(skillName);
+
           // Skip if already discovered (builtin-skills/ takes precedence)
           if (this.skills.has(skillName)) continue;
 
-          const skillFile = path.join(dir, skillName, 'SKILL.md');
-          if (!existsSync(skillFile)) continue;
+          const loaded = await this.readSkillDir(dir, skillName);
+          if (loaded) this.skills.set(skillName, loaded);
+        }
+      } catch (error) {
+        console.error(`[AcpSkillManager] Failed to discover skills in ${dir}:`, error);
+      }
+    }
 
-          try {
-            const content = await fs.readFile(skillFile, 'utf-8');
-            const parsed = parseFrontmatter(content);
+    // Second pass: match what is left against each skill's own `name:`. Runs
+    // only when a name went unresolved, so the common case reads no extra file.
+    for (const dir of dirsToScan) {
+      if (unresolved.size === 0) break;
+      if (!existsSync(dir)) continue;
 
-            // Skip skills with unparseable or nameless frontmatter
-            if (!parsed) continue;
+      try {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
 
-            this.skills.set(skillName, {
-              name: parsed.name,
-              description: parsed.description || `Skill: ${skillName}`,
-              location: skillFile,
-            });
-          } catch (error) {
-            console.warn(`[AcpSkillManager] Failed to load skill ${skillName}:`, error);
-          }
+        for (const entry of entries) {
+          if (unresolved.size === 0) break;
+          if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
+
+          const skillName = entry.name;
+          if (skillName === '_builtin') continue;
+          // Already settled by the directory pass, either way.
+          if (enabledSkills.includes(skillName)) continue;
+          if (this.skills.has(skillName)) continue;
+
+          const loaded = await this.readSkillDir(dir, skillName);
+          if (!loaded || !unresolved.has(loaded.name)) continue;
+
+          unresolved.delete(loaded.name);
+          this.skills.set(skillName, loaded);
         }
       } catch (error) {
         console.error(`[AcpSkillManager] Failed to discover skills in ${dir}:`, error);
@@ -409,6 +439,32 @@ export class AcpSkillManager {
     console.log(`[AcpSkillManager] Discovered ${this.skills.size} optional skills`);
 
     this.initialized = true;
+  }
+
+  /**
+   * Read one skill directory's SKILL.md into a definition, or null when the
+   * file is missing, unreadable, or its frontmatter carries no name.
+   */
+  private async readSkillDir(dir: string, skillName: string): Promise<SkillDefinition | null> {
+    const skillFile = path.join(dir, skillName, 'SKILL.md');
+    if (!existsSync(skillFile)) return null;
+
+    try {
+      const content = await fs.readFile(skillFile, 'utf-8');
+      const parsed = parseFrontmatter(content);
+
+      // Skip skills with unparseable or nameless frontmatter
+      if (!parsed) return null;
+
+      return {
+        name: parsed.name,
+        description: parsed.description || `Skill: ${skillName}`,
+        location: skillFile,
+      };
+    } catch (error) {
+      console.warn(`[AcpSkillManager] Failed to load skill ${skillName}:`, error);
+      return null;
+    }
   }
 
   /**
