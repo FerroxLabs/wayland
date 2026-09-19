@@ -75,7 +75,7 @@ jobs:
       - name: Setup pinned untrusted candidate toolchain
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.3.14
+          bun-version: 1.4.2
 
       - name: Install exact candidate dependencies without credentials
         working-directory: candidate

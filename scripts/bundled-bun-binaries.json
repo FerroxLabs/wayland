@@ -37,5 +37,43 @@
       "size": 94583896,
       "sha256": "c48ea01208766207606927a320d640371140dca51e9963367779b32d18460716"
     }
+  },
+  "1.4.2": {
+    "bun-darwin-aarch64.zip": {
+      "size": 61884464,
+      "sha256": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+    },
+    "bun-darwin-x64-baseline.zip": {
+      "size": 69333264,
+      "sha256": "2fa513af22ac59e03aae640cad302e73cb1ddb0f6398501e2ddccf7dcd613596"
+    },
+    "bun-darwin-x64.zip": {
+      "size": 69333264,
+      "sha256": "2fa513af22ac59e03aae640cad302e73cb1ddb0f6398501e2ddccf7dcd613596"
+    },
+    "bun-linux-aarch64.zip": {
+      "size": 79420872,
+      "sha256": "616f267a34278ff5ac282df37ffdfba1d7141f4f6926bca99af2cd6ef3ad32b1"
+    },
+    "bun-linux-x64-baseline.zip": {
+      "size": 79500640,
+      "sha256": "a83d263767d839e4d2649ca8e35d07159c7afc99afdc96d731ced29e056dda0c"
+    },
+    "bun-linux-x64.zip": {
+      "size": 79500640,
+      "sha256": "a83d263767d839e4d2649ca8e35d07159c7afc99afdc96d731ced29e056dda0c"
+    },
+    "bun-windows-aarch64.zip": {
+      "size": 77589080,
+      "sha256": "3d7e98d3201c55c3bde6c069a5dfa0d34da9edc9145187c76594f685f8aa54c6"
+    },
+    "bun-windows-x64-baseline.zip": {
+      "size": 86096984,
+      "sha256": "15277c59ccd6c6c20f8dc9716c2b59c1776320d606b6a8658f70be8799519ca4"
+    },
+    "bun-windows-x64.zip": {
+      "size": 86096984,
+      "sha256": "15277c59ccd6c6c20f8dc9716c2b59c1776320d606b6a8658f70be8799519ca4"
+    }
   }
 }
