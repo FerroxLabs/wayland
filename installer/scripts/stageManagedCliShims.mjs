@@ -38,9 +38,12 @@ export function stageManagedCliShims(appDir, payloadDir) {
     if (!existsSync(shipped)) {
       throw new Error(`managed OfficeCLI shim not copied into the payload: ${name}`);
     }
-    // The POSIX shim is rejected by the guard without the executable bit; the
-    // .cmd one is launched by cmd.exe and does not carry one.
-    if (name !== 'officecli.cmd' && (statSync(shipped).mode & 0o111) === 0) {
+    // The POSIX shim is rejected by the runtime guard without its executable
+    // bit; the .cmd one is launched by cmd.exe and does not carry one.
+    // NTFS has no POSIX mode bits, so a Windows build host cannot express or
+    // observe this - asserting it there fails every time and proves nothing.
+    // The payload that ships to POSIX users is built on POSIX.
+    if (process.platform !== 'win32' && name !== 'officecli.cmd' && (statSync(shipped).mode & 0o111) === 0) {
       throw new Error(`managed OfficeCLI shim lost its executable bit in the payload: ${name}`);
     }
   }

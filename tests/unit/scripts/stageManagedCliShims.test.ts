@@ -62,6 +62,8 @@ describe('managed OfficeCLI shim staging', () => {
     stageManagedCliShims(app, payload);
 
     const mode = fs.statSync(path.join(payload, 'resources', 'managed-cli-shims', 'officecli')).mode;
+    // Same reason as above: only POSIX carries the bit through the copy.
+    if (process.platform === 'win32') return;
     expect(mode & 0o111).not.toBe(0);
   });
 
@@ -71,14 +73,19 @@ describe('managed OfficeCLI shim staging', () => {
     expect(() => stageManagedCliShims(app, payload)).toThrow(/missing in source/);
   });
 
-  it('refuses a source shim that is not executable, since the guard would reject it', () => {
-    const { app, payload } = tmpTree();
-    // A checkout that lost the mode bit (a zip round-trip, a Windows checkout)
-    // copies cleanly and then fails the guard at runtime. Catch it at build time.
-    fs.chmodSync(path.join(app, 'resources', 'managed-cli-shims', 'officecli'), 0o644);
+  // NTFS carries no POSIX mode bits: a Windows host can neither create the
+  // condition nor observe it, so this case only means something on POSIX.
+  it.skipIf(process.platform === 'win32')(
+    'refuses a source shim that is not executable, since the guard would reject it',
+    () => {
+      const { app, payload } = tmpTree();
+      // A checkout that lost the mode bit (a zip round-trip, a Windows checkout)
+      // copies cleanly and then fails the guard at runtime. Catch it at build time.
+      fs.chmodSync(path.join(app, 'resources', 'managed-cli-shims', 'officecli'), 0o644);
 
-    expect(() => stageManagedCliShims(app, payload)).toThrow(/executable bit/);
-  });
+      expect(() => stageManagedCliShims(app, payload)).toThrow(/executable bit/);
+    }
+  );
 
   it('reports the shim that failed to copy rather than shipping a partial set', () => {
     const { app, payload } = tmpTree();
