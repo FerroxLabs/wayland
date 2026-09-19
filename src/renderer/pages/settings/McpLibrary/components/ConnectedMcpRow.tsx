@@ -72,6 +72,15 @@ const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onEnable, onReco
             {t('mcpLibrary.connected.probeFailed', 'Probe failed: {{error}}', { error: server.lastError })}
           </div>
         )}
+        {/* Publication truth, shown whatever the probe says: a reachable server
+            can still be missing from an agent that refused it (#1196). */}
+        {(server.publicationGaps?.length ?? 0) > 0 && (
+          <div className={styles.error}>
+            {t('mcpLibrary.connected.publicationGaps', 'Not published to {{gaps}}', {
+              gaps: server.publicationGaps?.join(', '),
+            })}
+          </div>
+        )}
       </div>
 
       {!isExtension && (

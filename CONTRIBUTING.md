@@ -74,6 +74,29 @@ A PR that fixes a genuine issue cleanly and passes this list will be merged
 quickly. A PR that expands functionality, or touches anything in Tier 4, will be
 held or declined no matter how well written it is. That is by design.
 
+## Referring to issues in the engine repo
+
+Wayland and `wayland-core` are one product in two repositories, and GitHub gets
+cross-repo references wrong in two silent ways:
+
+- A bare `#123` **always** resolves against the repo you are writing in. In a
+  Wayland PR it points at a Wayland item, never at the engine issue you meant.
+- A closing keyword (`Closes` / `Fixes` / `Resolves`) only auto-closes issues in
+  the **same** repository as the pull request. On a cross-repo reference GitHub
+  ignores the keyword without a word, so the PR merges green and the issue stays
+  open.
+
+So, in any issue or PR body:
+
+- Write an engine reference in full: **`FerroxLabs/wayland-core#123`**.
+- Do **not** put a closing keyword in front of a cross-repo reference. Mention it
+  plainly (`Addresses FerroxLabs/wayland-core#123`) and close it by hand, or move
+  the fix into the repo that owns the issue.
+
+The `cross-repo-refs` job in `.github/workflows/pr-checks.yml` enforces this via
+`scripts/lint-cross-repo-refs.mjs`. It fails only on references that provably
+cannot work, names the line, and re-runs when you edit the description.
+
 ## Trademark
 
 "Wayland" and the Wayland marks are trademarks of Ferrox Labs. The AGPL covers

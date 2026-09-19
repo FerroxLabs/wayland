@@ -127,7 +127,10 @@ describe('the toast tells the truth about what happened', () => {
     });
 
     const { toasts, ops } = harness();
-    await expect(ops.syncMcpToAgents(server)).rejects.toThrow();
+    // Partial, not fatal: Claude Code keeps the connector Qwen Code refused
+    // (#1196). What this test is about is the sentence the user reads, and
+    // that sentence is unchanged.
+    await expect(ops.syncMcpToAgents(server)).resolves.toBeDefined();
 
     const warn = toasts.find((entry) => entry.level === 'warning');
     expect(warn?.content).toContain('settings.mcpAgentsFailed');

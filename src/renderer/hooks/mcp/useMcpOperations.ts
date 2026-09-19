@@ -45,6 +45,35 @@ interface McpOperationResult {
 /** Comma-joined agent display names, for a sentence the user can act on. */
 const nameList = (results: McpOperationResult[]): string => results.map((r) => r.agent).join(', ');
 
+/**
+ * The agents a publication did NOT reach, each as "<agent>: <reason>", for the
+ * caller to persist on the connector record as `IMcpServer.publicationGaps`.
+ *
+ * A toast disappears. A partial publication has to stay legible to a user who
+ * walked away and came back, so the same per-agent verdicts the toast reads
+ * also become durable row evidence (#1196). Unsupported backends are excluded
+ * here for the same reason they are excluded everywhere else: there was nothing
+ * to publish to them. An agent that timed out counts as a gap - its config was
+ * left unchanged and unverified, so the connector may well be missing there.
+ *
+ * `results` is `unknown` because the publication helpers are typed opaquely at
+ * their call sites; anything that is not a well-formed result list is no
+ * evidence of a gap and yields none.
+ */
+export function mcpPublicationGaps(results: unknown): string[] {
+  if (!Array.isArray(results)) return [];
+  return results
+    .filter(
+      (result): result is McpOperationResult =>
+        typeof result === 'object' &&
+        result !== null &&
+        typeof (result as McpOperationResult).agent === 'string' &&
+        (result as McpOperationResult).unsupported !== true &&
+        (result as McpOperationResult).success !== true
+    )
+    .map((result) => `${result.agent}: ${truncateErrorMessage(result.error || 'publication failed', 80)}`);
+}
+
 interface McpOperationResponse {
   success: boolean;
   data?: {
@@ -269,8 +298,23 @@ export const useMcpOperations = (
         // a typical install detects a dozen of them, so publication "failed"
         // even when all five agents that can carry an MCP server succeeded.
         const publicationResults = (syncResponse.data?.results ?? []).filter((result) => !result.unsupported);
-        const failedPublications = publicationResults.filter((result) => !result.success);
-        if (!syncResponse.success || publicationResults.length === 0 || failedPublications.length > 0) {
+        // A PER-AGENT publication failure is partial, not fatal (#1196).
+        //
+        // Rejecting the whole publication because one backend refused it made
+        // the caller revoke the connector from EVERY agent; when the revocation
+        // then failed for the same reason the backend refused the publication,
+        // the unrecoverable "publication rollback incomplete" marker was
+        // persisted and the connector could not be used anywhere again. One
+        // broken backend is enough to trigger it: qwen is a built-in detected
+        // agent and its launcher fails `spawn qwen ENOENT` on Windows (#1306).
+        //
+        // So the agents that took the declaration keep it. The ones that did
+        // not are named to the user with their reason by
+        // `handleMcpOperationResult` above - the same treatment `unsupported`
+        // backends get, which is why no new UX is needed here. Only a
+        // publication that reached NO agent at all is a failure.
+        const appliedPublications = publicationResults.filter((result) => result.success);
+        if (!syncResponse.success || publicationResults.length === 0 || appliedPublications.length === 0) {
           throw new Error(syncResponse.msg || t('settings.mcpSyncFailedNoAgents'));
         }
         return syncResponse.data?.results ?? [];

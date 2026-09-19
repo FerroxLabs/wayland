@@ -43,6 +43,7 @@ import { isFluxProviderRow } from '@/common/config/imageModels';
 import { LOCAL_KEYLESS_PLACEHOLDER } from '@/common/utils/keylessLocalCredential';
 import { isGoogleApisHost, isLocalBaseUrl } from '@/common/utils/urlValidation';
 import { getDatabase } from '@process/services/database';
+import { ollamaThinkingModels } from '@process/providers/local/ollamaCapabilities';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { CHAT_START_BASE_URL } from '@process/providers/ipc/modelRegistryIpc';
 import { selectMirrorModelIds } from '@process/providers/legacyModelConfigBridge';
@@ -76,6 +77,30 @@ const DEFAULT_BASE_URL: Record<string, string> = {
 };
 /** Google's OpenAI-compatible Gemini surface; Fuigo appends `/chat/completions`. */
 export const GEMINI_OPENAI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai';
+/**
+ * Ollama's reasoning switch, as its OpenAI-compatible surface actually spells it.
+ *
+ * The native `think: true|false` field is an `/api/chat` field: it is not
+ * accepted on `/v1/chat/completions`, which is the only surface Fuigo speaks
+ * (`apiBackend: 'chat_completions'`), and Fuigo has no field for it either.
+ * That endpoint takes `reasoning_effort` instead and maps it onto Ollama's own
+ * Think parameter, where `none` is thinking off; with the field absent Ollama
+ * turns thinking on by itself for any model that has it, which is the
+ * complaint.
+ *
+ * Only `byok/ollama-local/...` is eligible. The capability has to be READ from
+ * the daemon (`ollamaThinkingModels`), and `/api/show` is a loopback endpoint
+ * on that daemon; Ollama Cloud is the same wire but not the same question, so
+ * it is left out rather than guessed at.
+ */
+const OLLAMA_LOCAL_ENTRY_PREFIX = 'byok/ollama-local/';
+/**
+ * Ollama's own value set. Fuigo's built-in fallback menu offers `minimal` and
+ * `xhigh`, which Ollama names nowhere; the whole list is offered only for a
+ * model that reports `thinking`, where every value is one Ollama accepts.
+ */
+const OLLAMA_REASONING_EFFORTS: readonly string[] = ['none', 'low', 'medium', 'high', 'max'];
+
 /**
  * A provider's Chat Completions base where it differs from the canonical chat
  * base Desktop's own dispatch uses: Cohere's `/v1` is its native chat API, and
@@ -270,6 +295,46 @@ async function readAzureByokProvider(): Promise<FuigoByokProvider | undefined> {
   return fuigoAzureByokProvider({ endpoint, apiKey, models });
 }
 
+/** What answers "which of these models can think"; injectable so tests need no daemon. */
+export type OllamaThinkingProbe = (rootUrl: string, models: readonly string[]) => Promise<ReadonlySet<string>>;
+
+/**
+ * Give the effort menu to the local Ollama models that report `thinking`, and
+ * to no others.
+ *
+ * Offering it per provider is wrong: on a model without thinking, every value
+ * but `none` fails the turn (measured, see `ollamaCapabilities.ts`), and
+ * qwen2.5 and llama3.2 - both non-thinking - are what people actually run. So
+ * the daemon is asked, and anything short of a clear yes leaves the model with
+ * no option at all: absent is today's behaviour, an option that errors is not.
+ *
+ * Mutates the entries in place. One `ollama-local` row can exist at most (the
+ * mapper dedupes on the provider slug) and it is an `openai-compatible` row, so
+ * all its entries share one base URL; the daemon root is that base without the
+ * OpenAI-compatible `/v1` suffix.
+ */
+export async function attachOllamaReasoningEfforts(
+  providers: readonly FuigoByokProvider[],
+  probe: OllamaThinkingProbe = ollamaThinkingModels
+): Promise<void> {
+  const entries = providers.flatMap((p) => p.entries).filter((e) => e.id.startsWith(OLLAMA_LOCAL_ENTRY_PREFIX));
+  if (entries.length === 0) return;
+  const rootUrl = entries[0].baseUrl.replace(/\/v1\/?$/, '');
+  let thinking: ReadonlySet<string>;
+  try {
+    thinking = await probe(
+      rootUrl,
+      entries.map((e) => e.model)
+    );
+  } catch (error) {
+    console.warn('[fuigo/byok] asking Ollama which models think failed:', error);
+    return;
+  }
+  for (const entry of entries) {
+    if (thinking.has(entry.model)) entry.reasoningEfforts = OLLAMA_REASONING_EFFORTS;
+  }
+}
+
 export async function readFuigoByokProviders(): Promise<FuigoByokProvider[]> {
   const raw = await ProcessConfig.get('model.config');
   const providers = fuigoByokProvidersFromRows(Array.isArray(raw) ? (raw as IProvider[]) : []);
@@ -279,6 +344,7 @@ export async function readFuigoByokProviders(): Promise<FuigoByokProvider[]> {
   } catch (error) {
     console.warn('[fuigo/byok] reading the Azure connection failed:', error);
   }
+  await attachOllamaReasoningEfforts(providers);
   return providers;
 }
 

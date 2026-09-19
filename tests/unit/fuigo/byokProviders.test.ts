@@ -16,9 +16,11 @@ import type { IProvider } from '@/common/config/storage';
 import { LOCAL_KEYLESS_PLACEHOLDER } from '@/common/utils/keylessLocalCredential';
 import {
   GEMINI_OPENAI_BASE_URL,
+  attachOllamaReasoningEfforts,
   fuigoAzureByokProvider,
   fuigoByokProvidersFromRows,
   fuigoByokSpawnPlan,
+  type FuigoByokProvider,
 } from '@process/agent/fuigo/byok';
 import { FUIGO_MANAGED_CONFIG, buildFuigoManagedConfig } from '@process/agent/fuigo/launch';
 
@@ -221,6 +223,13 @@ describe('local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp)', () =>
     ]);
   });
 
+  it('never offers an effort menu from the row alone: thinking is read from the daemon', () => {
+    const efforts = fuigoByokProvidersFromRows([OLLAMA, OPENAI, ANTHROPIC, GEMINI]).flatMap((p) =>
+      p.entries.map((e) => e.reasoningEfforts)
+    );
+    expect(efforts).toEqual([undefined, undefined, undefined, undefined, undefined]);
+  });
+
   it('maps a hand-added keyless LM Studio row on localhost', () => {
     const [p] = fuigoByokProvidersFromRows([
       row({
@@ -240,6 +249,79 @@ describe('local OpenAI-compatible servers (Ollama, LM Studio, llama.cpp)', () =>
       row({ platform: 'custom', name: 'vLLM', baseUrl: 'http://127.0.0.1:8000/v1', apiKey: 'vllm-token' }),
     ]);
     expect(p.apiKey).toBe('vllm-token');
+  });
+});
+
+const OLLAMA_MIXED = row({
+  id: 'row-ollama-mixed',
+  platform: 'openai-compatible',
+  name: 'Ollama Local',
+  baseUrl: '',
+  apiKey: '',
+  // qwen3 thinks; qwen2.5 and llama3.2 do not, and are what people run.
+  model: ['qwen3:8b', 'qwen2.5:0.5b', 'llama3.2:3b'],
+  __waylandModelRegistryBridge: 'v2:ollama-local',
+});
+
+const effortsById = (providers: FuigoByokProvider[]) =>
+  Object.fromEntries(providers.flatMap((p) => p.entries).map((e) => [e.id, e.reasoningEfforts]));
+
+/**
+ * Measured against a live daemon (0.34.1) on the non-thinking `qwen2.5:0.5b`,
+ * POST /v1/chat/completions: `reasoning_effort: "none"` answers 200, while
+ * low / medium / high / max - and minimal / xhigh - all fail the turn with
+ * "does not support thinking". So the menu may only reach a model the daemon
+ * reports as thinking-capable, and anything less than a clear yes offers
+ * nothing.
+ */
+describe('attachOllamaReasoningEfforts', () => {
+  it('gives the menu to a thinking-capable model and to no other', async () => {
+    const providers = fuigoByokProvidersFromRows([OLLAMA_MIXED, OPENAI]);
+    const seen: { rootUrl: string; models: readonly string[] }[] = [];
+    await attachOllamaReasoningEfforts(providers, async (rootUrl, models) => {
+      seen.push({ rootUrl, models });
+      return new Set(['qwen3:8b']);
+    });
+
+    expect(effortsById(providers)).toEqual({
+      'byok/ollama-local/qwen3:8b': ['none', 'low', 'medium', 'high', 'max'],
+      'byok/ollama-local/qwen2.5:0.5b': undefined,
+      'byok/ollama-local/llama3.2:3b': undefined,
+      'byok/openai/gpt-4o': undefined,
+    });
+    // `/api/show` is a native endpoint on the daemon root, not on the
+    // OpenAI-compatible `/v1` base, and only Ollama models are asked about.
+    expect(seen).toEqual([{ rootUrl: 'http://127.0.0.1:11434', models: ['qwen3:8b', 'qwen2.5:0.5b', 'llama3.2:3b'] }]);
+  });
+
+  it('offers nothing when the daemon reports no thinking model', async () => {
+    const providers = fuigoByokProvidersFromRows([OLLAMA_MIXED]);
+    await attachOllamaReasoningEfforts(providers, async () => new Set());
+    expect(Object.values(effortsById(providers))).toEqual([undefined, undefined, undefined]);
+  });
+
+  it('offers nothing when the daemon cannot be reached', async () => {
+    const providers = fuigoByokProvidersFromRows([OLLAMA_MIXED]);
+    await expect(
+      attachOllamaReasoningEfforts(providers, async () => {
+        throw new Error('connect ECONNREFUSED 127.0.0.1:11434');
+      })
+    ).resolves.toBeUndefined();
+    expect(Object.values(effortsById(providers))).toEqual([undefined, undefined, undefined]);
+  });
+
+  it('never asks the daemon when no local Ollama model is configured', async () => {
+    const providers = fuigoByokProvidersFromRows([
+      OPENAI,
+      row({ platform: 'custom', name: 'LM Studio', baseUrl: 'http://localhost:1234/v1', apiKey: '', model: ['q'] }),
+    ]);
+    let asked = false;
+    await attachOllamaReasoningEfforts(providers, async () => {
+      asked = true;
+      return new Set(['q']);
+    });
+    expect(asked).toBe(false);
+    expect(Object.values(effortsById(providers))).toEqual([undefined, undefined]);
   });
 });
 
@@ -410,6 +492,32 @@ describe('buildFuigoManagedConfig', () => {
     expect(buildFuigoManagedConfig([], { defaultModel: 'byok/ollama-local/qwen3:8b' })).toBe(
       `${FUIGO_MANAGED_CONFIG}\n[models]\ndefault = "byok/ollama-local/qwen3:8b"\n`
     );
+  });
+
+  it('declares an effort menu without selecting any effort, and marks no default', async () => {
+    const providers = fuigoByokProvidersFromRows([OLLAMA]);
+    await attachOllamaReasoningEfforts(providers, async () => new Set(['qwen3:8b']));
+    const toml = buildFuigoManagedConfig(providers[0].entries);
+    expect(toml).toContain(
+      'supports_reasoning_effort = true\nreasoning_efforts = ["none", "low", "medium", "high", "max"]\n'
+    );
+    // The menu is an offer, not a setting: Fuigo sends `reasoning_effort` only
+    // once a session picks a value, so an untouched chat's request body is
+    // byte-for-byte what it was before this existed. And no row is marked
+    // `default`, which would preselect a value nothing here proves works.
+    expect(toml).not.toMatch(/^reasoning_effort\s*=/m);
+    expect(toml).not.toContain('default = true');
+    expect(toml).not.toMatch(/\bthink\b/);
+  });
+
+  it('writes no effort menu at all when no model reports thinking', () => {
+    const providers = [
+      ...fuigoByokProvidersFromRows([OLLAMA, OPENAI, ANTHROPIC, GEMINI, NEW_API]),
+      fuigoAzureByokProvider({ endpoint: 'https://r.openai.azure.com', apiKey: 'azure-secret', models: ['gpt-4o'] })!,
+    ];
+    const toml = buildFuigoManagedConfig(providers.flatMap((p) => p.entries));
+    expect(toml).not.toContain('supports_reasoning_effort');
+    expect(toml).not.toContain('reasoning_efforts');
   });
 
   it('escapes TOML string content', () => {
