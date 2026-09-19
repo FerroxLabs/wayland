@@ -79,6 +79,21 @@ export type FuigoByokModelEntry = {
   /** Request header → env var carrying its value (Azure's `api-key`); `env_http_headers`, never on disk. */
   envHttpHeaders?: Record<string, string>;
   contextWindow?: number;
+  /**
+   * The `reasoning_effort` values this MODEL accepts, written as Fuigo's
+   * `reasoning_efforts` plus `supports_reasoning_effort = true`.
+   *
+   * Fuigo offers the ACP `reasoning_effort` config option only for a model
+   * that declares support (auto-true for `messages`, otherwise off), and only
+   * over the listed values, so an endpoint whose accepted set differs from
+   * Fuigo's built-in menu must name its own. Set it only where every listed
+   * value is known to succeed on this model: a value the model rejects does
+   * not no-op, it fails the turn. Nothing here puts the field on the wire -
+   * `reasoning_effort` stays unset until the session picks a value - and no
+   * option is marked `default`, which would only preselect a row in the picker
+   * without proving the request behind it works.
+   */
+  reasoningEfforts?: readonly string[];
 };
 
 /** TOML basic string: escape the backslash, the quote and control characters. */
@@ -119,6 +134,10 @@ export function buildFuigoManagedConfig(
     }
     if (typeof e.contextWindow === 'number' && Number.isInteger(e.contextWindow) && e.contextWindow > 0) {
       out += `context_window = ${e.contextWindow}\n`;
+    }
+    if (e.reasoningEfforts && e.reasoningEfforts.length > 0) {
+      out += `supports_reasoning_effort = true\n`;
+      out += `reasoning_efforts = [${e.reasoningEfforts.map(tomlString).join(', ')}]\n`;
     }
   }
   return out;
