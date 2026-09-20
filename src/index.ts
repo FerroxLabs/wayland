@@ -80,6 +80,7 @@ import { hardenUntrustedPreviewSession } from '@process/services/preview/untrust
 import { initializeProcess } from './process';
 import { ProcessConfig } from './process/utils/initStorage';
 import { loadShellEnvironmentAsync, logEnvironmentDiagnostics, mergePaths } from './process/utils/shellEnv';
+import { startMainThreadHeartbeat } from '@process/utils/mainThreadHeartbeat';
 import { initializeAcpDetector, registerWindowMaximizeListeners, disposeAllTeamSessions } from '@process/bridge';
 import './process/bridge/feedbackBridge';
 import { wasLaunchedAtLogin } from '@process/bridge/applicationBridge';
@@ -881,6 +882,7 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
 const handleAppReady = async (): Promise<void> => {
   const t0 = performance.now();
   const mark = (label: string) => console.log(`[Wayland:ready] ${label} +${Math.round(performance.now() - t0)}ms`);
+  startMainThreadHeartbeat();
   mark('start');
 
   if (!app.isPackaged) {
