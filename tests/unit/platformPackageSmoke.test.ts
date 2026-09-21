@@ -1492,6 +1492,42 @@ describe('runSmoke hostile orchestration', () => {
     expect(fs.existsSync(path.join(harness.root, 'user-data'))).toBe(false);
   });
 
+  // A browser that is closing drops its own transport rather than answering, so
+  // a socket close on Browser.close is the NORMAL shutdown path. Before the close
+  // handler existed it surfaced as a timeout and only that spelling was tolerated;
+  // the moment a close settled properly, FOUR platforms that had never failed -
+  // windows-x64, linux-x64, linux-arm64 and macos - failed the v0.13.2 tag on it.
+  it('treats a dropped transport on Browser.close as shutdown, not a fault', async () => {
+    const harness = smokeHarness();
+    harness.dependencies.cdpCommand = vi.fn(async (_url: string, method: string) => {
+      if (method === 'Browser.close') {
+        harness.child.exitCode = 0;
+        harness.child.emit('exit', 0, null);
+        throw new Error(
+          '[platform-package-smoke] CDP socket closed before Browser.close completed: code=1006 reason=<none>'
+        );
+      }
+      return {};
+    });
+
+    await expect(runSmoke(harness.options, harness.dependencies)).resolves.toBeDefined();
+  });
+
+  // The tolerance is for Browser.close ONLY. A dropped transport on any other
+  // command is still a failure, or the close path would swallow a real fault.
+  it('still fails when the transport drops on a command that is not Browser.close', async () => {
+    const harness = smokeHarness();
+    harness.dependencies.cdpCommand = vi.fn(async () => {
+      throw new Error(
+        '[platform-package-smoke] CDP socket closed before Runtime.evaluate completed: code=1006 reason=<none>'
+      );
+    });
+
+    await expect(runSmoke(harness.options, harness.dependencies)).rejects.toThrow(
+      'CDP socket closed before Runtime.evaluate'
+    );
+  });
+
   it('keeps structured failure authority after diagnostic output exceeds the ring buffer', async () => {
     const harness = smokeHarness();
     harness.dependencies.cdpCommand = vi.fn(async () => {

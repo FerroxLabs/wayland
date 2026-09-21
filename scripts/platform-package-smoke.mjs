@@ -1761,7 +1761,14 @@ export async function runSmoke(options, dependencies = {}) {
         await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 20_000);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        if (!/timed out: Browser\.close/.test(message)) throw error;
+        // A browser that is closing drops its own transport rather than
+        // answering, so a socket close here is the NORMAL shutdown path, not a
+        // fault. Before the close handler existed that arrived as a timeout, so
+        // this guard only knew that spelling; once a close settles properly it
+        // has to be accepted too, or every platform fails the moment shutdown
+        // works correctly. Accepting it initiates nothing on its own - the exit
+        // code, the event ledger and the survivor sweep below still decide.
+        if (!/(timed out: Browser\.close|CDP socket closed before Browser\.close)/.test(message)) throw error;
         // Deliberately not the verifier's logger: those lines are parsed for optional
         // capability states and must carry nothing else.
         console.log(`${TAG} Browser.close was not acknowledged; falling through to the exit and shutdown checks`);
