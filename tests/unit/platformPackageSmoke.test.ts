@@ -40,6 +40,7 @@ import {
   verifyPackageSmokeEventLedger,
   verifyShutdownEvidence,
   waitForRendererReady,
+  cdpCommand,
 } from '../../scripts/platform-package-smoke.mjs';
 
 const require = createRequire(import.meta.url);
@@ -993,6 +994,45 @@ describe('real installer extraction and lifecycle evidence', () => {
     expect(() => resolveInstalledCandidate(root, 'linux', 'x64', 'stable')).toThrow(
       'escapes its private installation root'
     );
+  });
+
+  // A CLOSE IS NOT AN ERROR, and without a handler it was not an anything: the
+  // promise never settled and burned the whole timeout. That made a refused
+  // attach indistinguishable from a wedged app for eleven win32-arm64 runs.
+  // Reproduced verbatim before the fix - close(1000) and close(1008) both came
+  // back as "CDP command timed out" after the full cap.
+  it('settles when the CDP socket is closed instead of burning the timeout', async () => {
+    const { WebSocketServer } = await import('ws');
+    const server = new WebSocketServer({ port: 0 });
+    await new Promise((resolve) => server.once('listening', resolve));
+    server.on('connection', (socket) => socket.close(1008, 'target busy'));
+    const url = `ws://127.0.0.1:${(server.address() as { port: number }).port}/devtools/page/x`;
+
+    const started = Date.now();
+    const error = await cdpCommand(url, 'Runtime.evaluate', {}, 10_000).catch((err) => err);
+    const elapsed = Date.now() - started;
+    server.close();
+
+    expect(String(error)).toContain('CDP socket closed before Runtime.evaluate');
+    expect(String(error)).toContain('1008');
+    expect(String(error)).toContain('target busy');
+    // The point is that it does NOT wait for the cap.
+    expect(elapsed).toBeLessThan(2_000);
+  });
+
+  // A genuine no-reply must still read as a timeout, or the new close path would
+  // paper over the very thing the smoke exists to catch.
+  it('still reports a silent CDP peer as a timeout', async () => {
+    const { WebSocketServer } = await import('ws');
+    const server = new WebSocketServer({ port: 0 });
+    await new Promise((resolve) => server.once('listening', resolve));
+    server.on('connection', () => undefined);
+    const url = `ws://127.0.0.1:${(server.address() as { port: number }).port}/devtools/page/x`;
+
+    const error = await cdpCommand(url, 'Runtime.evaluate', {}, 600).catch((err) => err);
+    server.close();
+
+    expect(String(error)).toContain('CDP command timed out');
   });
 
   // Ten win32-arm64 readiness timeouts across v0.13.2 all said only "CDP command

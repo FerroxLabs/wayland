@@ -455,19 +455,40 @@ function requestJson(url, timeoutMs = 5_000) {
 // window (WAYLAND_SMOKE_TIMEOUT_MS); this per-command cap only exists to turn a
 // dead socket into a readable error, so it can afford to be generous. The
 // main-thread stall itself is fixed separately in AcpDetector (#1410).
-function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 90_000) {
+export function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 90_000) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(webSocketUrl);
     const timer = setTimeout(() => {
       socket.terminate();
       reject(new Error(`${TAG} CDP command timed out: ${method}`));
     }, timeoutMs);
+    let settled = false;
     const finish = (callback, value) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       socket.close();
       callback(value);
     };
     socket.once('error', (error) => finish(reject, error));
+    // A close is NOT an error, and without this handler it was not an anything:
+    // the promise simply never settled and burned the whole timeout. Reproduced
+    // verbatim against this helper - a server that accepts then closes with code
+    // 1000 or 1008 and no error frame produced "CDP command timed out" after the
+    // full cap, which is byte-identical to the win32-arm64 release failures. That
+    // made a refused attach indistinguishable from a wedged app for eleven runs.
+    socket.once('close', (code, reason) =>
+      finish(
+        reject,
+        new Error(
+          `${TAG} CDP socket closed before ${method} completed: code=${code} reason=${String(reason) || '<none>'}`
+        )
+      )
+    );
+    // An upgrade that is refused outright answers with HTTP, not a socket error.
+    socket.on('unexpected-response', (_request, response) =>
+      finish(reject, new Error(`${TAG} CDP upgrade refused for ${method}: HTTP ${response.statusCode}`))
+    );
     socket.once('open', () => socket.send(JSON.stringify({ id: 1, method, params })));
     socket.on('message', (raw) => {
       let message;
