@@ -547,14 +547,37 @@ export function _win32TableCommands(stdout: string): string[] {
 const WIN32_TABLE_TTL_MS = 1_000;
 const WIN32_ENUM_TIMEOUT_MS = 1_500;
 let win32TableCache: { at: number; stdout: string } | null = null;
+let win32TableInFlight: Promise<string> | null = null;
 
 async function win32ProcessTable(now: number = Date.now()): Promise<string> {
   if (win32TableCache && now - win32TableCache.at < WIN32_TABLE_TTL_MS) {
     return win32TableCache.stdout;
   }
-  const stdout = await rawWin32ProcessTable();
-  win32TableCache = { at: now, stdout };
-  return stdout;
+  // SINGLE FLIGHT, and it is the whole point of the TTL above.
+  //
+  // A cache that is only written when the first call FINISHES does nothing for
+  // callers that arrive while it is still running, and the caller that matters
+  // is exactly that: `killAllAgentChildren` reaps every registered child with
+  // Promise.allSettled, so N children reach this line in the same tick, all miss
+  // the cache, and all spawn their own PowerShell. The comment above already
+  // claims "a teardown killing N children pays for ONE PowerShell" - under
+  // concurrency it paid N.
+  //
+  // Measured cost of that herd: on a Windows CI runner the enumerations blew the
+  // 1500ms timeout, every plan fell back to a blind taskkill, and the 2s
+  // before-quit budget for the whole step was gone. The app wrote cleanup-failed
+  // and the v0.13.2 updater observer refused the release on win32-x64 twice.
+  if (win32TableInFlight) return win32TableInFlight;
+  const pending = rawWin32ProcessTable()
+    .then((stdout) => {
+      win32TableCache = { at: Date.now(), stdout };
+      return stdout;
+    })
+    .finally(() => {
+      if (win32TableInFlight === pending) win32TableInFlight = null;
+    });
+  win32TableInFlight = pending;
+  return pending;
 }
 
 async function collectWin32KillPlan(rootPid: number): Promise<Win32KillPlan> {
@@ -582,11 +605,27 @@ async function rawWin32ProcessTable(): Promise<string> {
 }
 
 const authenticodeCache = new Map<string, boolean>();
+// Same herd, same fix: every child being reaped resolves the SAME exempt paths
+// at the same instant, and a cache written on completion cannot deduplicate a
+// call that has not completed yet.
+const authenticodeInFlight = new Map<string, Promise<boolean>>();
 
 /** Valid Authenticode signature? Anything else - unsigned, tampered, error - is false. */
 async function verifyAuthenticode(absPath: string): Promise<boolean> {
   const cached = authenticodeCache.get(absPath);
   if (cached !== undefined) return cached;
+  const inFlight = authenticodeInFlight.get(absPath);
+  if (inFlight) return inFlight;
+  const pending = verifyAuthenticodeUncached(absPath);
+  authenticodeInFlight.set(absPath, pending);
+  try {
+    return await pending;
+  } finally {
+    authenticodeInFlight.delete(absPath);
+  }
+}
+
+async function verifyAuthenticodeUncached(absPath: string): Promise<boolean> {
   let ok = false;
   try {
     const { stdout } = await execFile(

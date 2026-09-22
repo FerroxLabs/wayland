@@ -1442,6 +1442,8 @@ async function performBeforeQuitCleanup(): Promise<void> {
   // M17: per-step budget. A single slow step (e.g. WebSocket close) cannot
   // starve later steps. Total ceiling stays at 10s.
   const PER_STEP_TIMEOUT_MS = 2000;
+  // Matches the 5s taskkill timeout killChild already uses on Windows.
+  const WIN32_REAPER_TIMEOUT_MS = 5000;
   const MASTER_TIMEOUT_MS = 10000;
   let cleanupFailed = false;
 
@@ -1666,13 +1668,21 @@ async function performBeforeQuitCleanup(): Promise<void> {
     // alive - e.g. when a per-agent graceful kill was truncated by its 2s budget,
     // or a child was spawned outside a tracked manager - so engine processes
     // never orphan past the app (the "two sets of Wayland" report).
+    //
+    // On Windows this is not a 2s step and never was. `killChild` documents its
+    // own Windows worst case as a 5s taskkill, and it must enumerate the process
+    // table first; a budget smaller than the step's documented worst case is a
+    // budget the step cannot meet. When it elapses the reaper is truncated
+    // mid-kill, which is precisely the orphaning it exists to prevent, and the
+    // app records cleanup-failed - the v0.13.2 updater observer refused
+    // win32-x64 on that twice. The 10s master ceiling still bounds the phase.
     await withTimeout(
       'killAllAgentChildren',
       (async () => {
         if (!mods.agentChildren) return;
         await mods.agentChildren.killAllAgentChildren();
       })(),
-      PER_STEP_TIMEOUT_MS
+      process.platform === 'win32' ? WIN32_REAPER_TIMEOUT_MS : PER_STEP_TIMEOUT_MS
     );
 
     // #645: last-resort terminal-PTY reaper. Runs AFTER the graceful path
