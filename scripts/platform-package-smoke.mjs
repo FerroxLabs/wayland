@@ -1330,6 +1330,36 @@ export function formatDescendantInventory(records, limit = 60) {
   return `${TAG} observed ${records.length} descendant record(s) before shutdown:\n${shown.join('\n')}`;
 }
 
+/**
+ * What was still alive at the moment a smoke FAILED.
+ *
+ * `verifyShutdownEvidence` samples survivors too, but only on the path where the
+ * app has already exited cleanly, so a run that failed earlier threw with no
+ * process evidence whatsoever. Sampling can itself fail on a box that is falling
+ * over - a WMI query on a dying win-arm64 runner is exactly that case - and a
+ * diagnostic must never replace the failure it describes, so it degrades to a
+ * note rather than throwing.
+ */
+export function describeFailureSurvivors(child, records, targetPlatform, dependencies = {}, limit = 20) {
+  const recordAlive = dependencies.processRecordAlive || isSameProcessAlive;
+  const rootRunning = Boolean(child) && child.exitCode === null && child.signalCode === null;
+  const root = rootRunning
+    ? `root pid=${child.pid} STILL RUNNING`
+    : `root pid=${child?.pid ?? '<none>'} exited (code=${child?.exitCode ?? '<none>'}, signal=${child?.signalCode ?? '<none>'})`;
+  let surviving;
+  try {
+    surviving = records.filter((record) => recordAlive(record, targetPlatform, dependencies));
+  } catch (error) {
+    return `\n${TAG} survivors at failure: ${root} | could not sample the tree (${error instanceof Error ? error.message : String(error)})`;
+  }
+  const lines = [
+    `${root} | ${surviving.length} of ${records.length} observed descendant record(s) still alive`,
+    ...surviving.slice(0, limit).map((record) => `  ${describeProcessRecord(record)}`),
+  ];
+  if (surviving.length > limit) lines.push(`  \u2026and ${surviving.length - limit} more still alive`);
+  return `\n${TAG} survivors at failure:\n${lines.join('\n')}`;
+}
+
 export function createProcessMonitor(rootPid, targetPlatform, dependencies = {}) {
   const records = new Map();
   const collect = (includeEnvironment = false) => {
@@ -1799,8 +1829,24 @@ export async function runSmoke(options, dependencies = {}) {
       // unchanged and still fires on a leaked tree, so a process that never
       // exits still fails - it just gets a deadline proportional to how slow the
       // caller already declared this environment to be.
-      const exitTimeoutMs = Math.min(Math.max(Math.round(options.timeoutMs / 10), 10_000), 120_000);
+      //
+      // /10 was the first correction and it is still short. At the 600 s ceiling
+      // it yields 60 s, and win-arm64 then failed inside that budget twice more
+      // (v0.13.2-rehearsal-7 and the v0.13.2 tag), each time with the app's own
+      // heartbeat stopping ~18 s after Browser.close - so it HAD begun to tear
+      // down and simply had not finished. A quarter of the declared budget is
+      // 150 s there and 11 s for a default-speed caller.
+      //
+      // The line logged below records what teardown ACTUALLY cost on a run that
+      // completes, so the next revision of this number comes off a measurement
+      // instead of another inference.
+      const exitTimeoutMs = Math.min(Math.max(Math.round(options.timeoutMs / 4), 10_000), 180_000);
+      const exitRequestedAt = Date.now();
       const shutdown = await waitForExitImpl(child, exitTimeoutMs);
+      console.log(
+        `${TAG} packaged app exited ${Date.now() - exitRequestedAt}ms after the shutdown request ` +
+          `(budget ${exitTimeoutMs}ms)`
+      );
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
       processMonitor = null;
@@ -1877,6 +1923,14 @@ export async function runSmoke(options, dependencies = {}) {
     } catch (error) {
       const observedRecords = processMonitor?.stop() || [];
       processMonitor = null;
+      // The survivor sweep runs only after a clean exit, so until now EVERY
+      // failure threw with the app's log tail and nothing at all about the
+      // process tree - "packaged app did not shut down cleanly" could not say
+      // what was still running. That is the question 18 win-arm64 release
+      // attempts could not answer from a public log. Sampled here, before the
+      // cleanup below kills the tree. Diagnosis only: every verdict is already
+      // decided by the time this runs.
+      const survivors = describeFailureSurvivors(child, observedRecords, options.targetPlatform, dependencies);
       let cleanupError;
       if (child) {
         try {
@@ -1895,6 +1949,7 @@ export async function runSmoke(options, dependencies = {}) {
       throw new Error(
         `${error instanceof Error ? error.message : String(error)}` +
           `${cleanupError ? `; process-tree cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}` : ''}` +
+          `${survivors}` +
           `${logs ? `\n${TAG} tail:\n${logs}` : ''}`
       );
     } finally {

@@ -1666,15 +1666,66 @@ describe('runSmoke hostile orchestration', () => {
     slow.dependencies.cdpCommand = vi.fn(async () => ({}));
     await runSmoke(slow.options, { ...slow.dependencies, waitForExit }).catch(() => undefined);
     expect(waitForExit).toHaveBeenCalled();
-    expect(waitForExit.mock.calls[0][1]).toBe(60_000);
+    // /10 gave 60s here and win-arm64 failed inside it twice more, with the app's
+    // own heartbeat stopping ~18s after Browser.close - teardown in progress, not
+    // a hang. A quarter of the declared budget is 150s.
+    expect(waitForExit.mock.calls[0][1]).toBe(150_000);
 
-    // A default-speed caller keeps the original floor, so local runs are unchanged.
+    // A default-speed caller stays within a few seconds of the original floor,
+    // so a genuinely wedged local build still fails fast.
     const quick = smokeHarness();
     quick.options.timeoutMs = 45_000;
     const quickWait = vi.fn(async () => ({ code: 0, signal: null }));
     quick.dependencies.cdpCommand = vi.fn(async () => ({}));
     await runSmoke(quick.options, { ...quick.dependencies, waitForExit: quickWait }).catch(() => undefined);
-    expect(quickWait.mock.calls[0][1]).toBe(10_000);
+    expect(quickWait.mock.calls[0][1]).toBe(11_250);
+
+    // The ceiling is a ceiling: an absurd declared budget cannot buy an unbounded
+    // wait for a process that never exits.
+    const absurd = smokeHarness();
+    absurd.options.timeoutMs = 600_000 * 10;
+    const absurdWait = vi.fn(async () => ({ code: 0, signal: null }));
+    absurd.dependencies.cdpCommand = vi.fn(async () => ({}));
+    await runSmoke(absurd.options, { ...absurd.dependencies, waitForExit: absurdWait }).catch(() => undefined);
+    expect(absurdWait.mock.calls[0][1]).toBe(180_000);
+  });
+
+  // Every failure path threw with the app's log tail and NOTHING about the
+  // process tree, because the survivor sweep only runs after a clean exit. That
+  // is why 18 win-arm64 attempts could not answer "did it hang, or was it still
+  // tearing down?" from a public log.
+  it('carries process-tree survivors in the failure, not just the app log tail', async () => {
+    const stuck = smokeHarness();
+    stuck.dependencies.cdpCommand = vi.fn(async () => ({}));
+    stuck.dependencies.processRecordAlive = vi.fn(() => true);
+    const waitForExit = vi.fn(async () => {
+      throw new Error('[platform-package-smoke] packaged app did not shut down cleanly');
+    });
+    const error = await runSmoke(stuck.options, { ...stuck.dependencies, waitForExit }).catch(
+      (thrown: unknown) => thrown as Error
+    );
+    expect(error.message).toContain('did not shut down cleanly');
+    expect(error.message).toContain('survivors at failure');
+    expect(error.message).toContain('1 of 1 observed descendant record(s) still alive');
+    expect(error.message).toContain('pid=9001');
+  });
+
+  // A diagnostic must never replace the failure it describes. Sampling the tree
+  // shells out, and the box this matters on is one that is already falling over.
+  it('keeps the real failure when the survivor sample itself fails', async () => {
+    const stuck = smokeHarness();
+    stuck.dependencies.cdpCommand = vi.fn(async () => ({}));
+    stuck.dependencies.processRecordAlive = vi.fn(() => {
+      throw new Error('wmic is not responding');
+    });
+    const waitForExit = vi.fn(async () => {
+      throw new Error('[platform-package-smoke] packaged app did not shut down cleanly');
+    });
+    const error = await runSmoke(stuck.options, { ...stuck.dependencies, waitForExit }).catch(
+      (thrown: unknown) => thrown as Error
+    );
+    expect(error.message).toContain('did not shut down cleanly');
+    expect(error.message).toContain('could not sample the tree (wmic is not responding)');
   });
 
   it('fails an otherwise green smoke when isolated-state cleanup fails', async () => {
