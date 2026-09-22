@@ -230,19 +230,33 @@ win:
     certificateProfileName: ferroxlabs
   # Signed builds now satisfy the Windows auto-update Authenticode check.
   verifyUpdateCodeSignature: true
-  # Do not re-sign the third-party runtimes we bundle. Authenticode signing
-  # rewrites a binary, which destroys the exact upstream bytes that
-  # scripts/verify-packaged-resources.js checks against their pinned release
-  # digests - the 0.12.0 Windows builds failed on precisely that, with
-  # bundled-officecli, bundled-bun and whatsapp-bridge all reported as invalid
-  # after signing.
+  # Do not let electron-builder sign the bundled runtimes here. Authenticode
+  # signing rewrites a binary, and electron-builder signs at PACKAGE time, after
+  # each binary's digest has already been recorded - which destroys the exact
+  # bytes scripts/verify-packaged-resources.js checks. The 0.12.0 Windows builds
+  # failed on precisely that, with bundled-officecli, bundled-bun and
+  # whatsapp-bridge all reported as invalid after signing.
   #
-  # Signing them is also wrong on its own terms: an Authenticode signature says
-  # Ferrox Labs produced this binary, and bun, OfficeCLI and Fuigo are not
-  # ours to vouch for. We pin and verify their published bytes instead. macOS has
-  # always done this through mac.signIgnore above; Windows has no path filter, so
-  # the same exclusions are expressed as negative signExts patterns, which
-  # electron-builder matches with endsWith against the full path.
+  # bundled-fuigo no longer means "deliberately unsigned". As of #914 it IS
+  # signed by us, at STAGE time, by scripts/signWindowsStagedBinary.js - before
+  # its digest is taken, so the staged receipt and the packaged gate compare the
+  # same post-signature bytes. Signing it a SECOND time here is what its lines
+  # below prevent. Smart App Control checks every executable module a process
+  # loads and never lets an unsigned file inherit an installer certificate's
+  # reputation, so leaving the engine unsigned was the block users were hitting.
+  # macOS has done the same thing for the same reason through mac.signIgnore
+  # above; Windows has no path filter, so the exclusions are expressed as
+  # negative signExts patterns, which electron-builder matches with endsWith
+  # against the full path.
+  #
+  # bundled-bun and bundled-officecli are excluded for the ORIGINAL reason and
+  # must stay that way. Bun ships its Windows binaries already Authenticode
+  # signed (DigiCert-issued, Codeblog CORP), so SAC already accepts them and
+  # re-signing would replace the publisher's own attestation with ours. OfficeCLI
+  # ships its Windows binaries unsigned, but they are never executed on Windows:
+  # classifyBundledOfficeCli refuses every non-darwin publisher proof, so
+  # resolveBundledOfficeCliDir returns null and officecli.exe is never put on
+  # PATH or spawned there - nothing for SAC to block.
   #
   # Everything else still signs exactly as before: Wayland.exe, the installer and
   # uninstaller, elevate.exe, the node-pty helpers and 7za.
