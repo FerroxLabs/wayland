@@ -455,12 +455,34 @@ function requestJson(url, timeoutMs = 5_000) {
 // window (WAYLAND_SMOKE_TIMEOUT_MS); this per-command cap only exists to turn a
 // dead socket into a readable error, so it can afford to be generous. The
 // main-thread stall itself is fixed separately in AcpDetector (#1410).
+// ws mirrors the browser constants; naming them keeps the failure line readable.
+const SOCKET_READY_STATES = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
+
 export function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 90_000) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(webSocketUrl);
+    // A timeout that says only "timed out" cannot tell an upgrade that never
+    // completed from a command that was delivered and never answered, and those
+    // are different bugs with different fixes. win32-arm64 has now produced that
+    // bare message on every release attempt while the app itself was provably
+    // alive - 178 heartbeats, zero stalls, all four processes running, and the
+    // DevTools HTTP endpoint still answering /json/list. The trace below is the
+    // difference between the two, recorded as it happens and printed on the
+    // failure that used to say nothing.
+    const started = Date.now();
+    const trace = [];
+    const mark = (event) => trace.push(`${event}@${Date.now() - started}ms`);
     const timer = setTimeout(() => {
+      // readyState is the socket's own answer to "did the upgrade complete":
+      // CONNECTING means it never did, OPEN means it did and the peer went quiet.
+      const readyState = SOCKET_READY_STATES[socket.readyState] ?? String(socket.readyState);
       socket.terminate();
-      reject(new Error(`${TAG} CDP command timed out: ${method}`));
+      reject(
+        new Error(
+          `${TAG} CDP command timed out: ${method} (readyState=${readyState}, ` +
+            `trace=${trace.length ? trace.join(' ') : '<no socket events>'})`
+        )
+      );
     }, timeoutMs);
     let settled = false;
     const finish = (callback, value) => {
@@ -470,27 +492,41 @@ export function cdpCommand(webSocketUrl, method, params = {}, timeoutMs = 90_000
       socket.close();
       callback(value);
     };
-    socket.once('error', (error) => finish(reject, error));
+    socket.once('error', (error) => {
+      mark('error');
+      finish(reject, error);
+    });
     // A close is NOT an error, and without this handler it was not an anything:
     // the promise simply never settled and burned the whole timeout. Reproduced
     // verbatim against this helper - a server that accepts then closes with code
     // 1000 or 1008 and no error frame produced "CDP command timed out" after the
     // full cap, which is byte-identical to the win32-arm64 release failures. That
     // made a refused attach indistinguishable from a wedged app for eleven runs.
-    socket.once('close', (code, reason) =>
-      finish(
+    socket.once('close', (code, reason) => {
+      mark(`close:${code}`);
+      return finish(
         reject,
         new Error(
           `${TAG} CDP socket closed before ${method} completed: code=${code} reason=${String(reason) || '<none>'}`
         )
-      )
-    );
+      );
+    });
     // An upgrade that is refused outright answers with HTTP, not a socket error.
-    socket.on('unexpected-response', (_request, response) =>
-      finish(reject, new Error(`${TAG} CDP upgrade refused for ${method}: HTTP ${response.statusCode}`))
-    );
-    socket.once('open', () => socket.send(JSON.stringify({ id: 1, method, params })));
+    socket.on('unexpected-response', (_request, response) => {
+      mark(`unexpected-response:${response.statusCode}`);
+      finish(reject, new Error(`${TAG} CDP upgrade refused for ${method}: HTTP ${response.statusCode}`));
+    });
+    socket.on('upgrade', (response) => mark(`upgrade:${response.statusCode}`));
+    socket.once('open', () => {
+      mark('open');
+      // The send callback is the only proof the frame left this process. Without
+      // it, "open then silence" and "never actually wrote" look identical.
+      socket.send(JSON.stringify({ id: 1, method, params }), (error) =>
+        mark(error ? `send-failed:${error.message}` : 'send-complete')
+      );
+    });
     socket.on('message', (raw) => {
+      mark('message');
       let message;
       try {
         message = JSON.parse(String(raw));
@@ -964,8 +1000,16 @@ async function describeReadinessStall(port) {
       lines.push('browser endpoint exposed no webSocketDebuggerUrl');
     }
   } catch (error) {
+    // NOT "the main process is blocked". That inference was made once from this
+    // exact symptom and the app's own heartbeat refuted it the same day: 178
+    // ticks, zero stalls, every process alive, /json/list still answering, while
+    // both Browser.getVersion and Runtime.evaluate went unanswered. A dead CDP
+    // channel and a blocked thread are different claims; only the heartbeat in
+    // the app log can tell them apart, so this line points at it instead of
+    // guessing.
     lines.push(
-      `browser endpoint did NOT answer (${error instanceof Error ? error.message : String(error)}) - the main process is blocked, not the renderer`
+      `browser endpoint did NOT answer (${error instanceof Error ? error.message : String(error)}) - ` +
+        `the CDP channel is dead at BOTH targets; read the heartbeat lines in the app tail before concluding the thread is blocked`
     );
   }
   return `\n${TAG} readiness stall diagnostics: ${lines.join(' | ')}`;

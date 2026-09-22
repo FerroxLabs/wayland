@@ -1033,6 +1033,31 @@ describe('real installer extraction and lifecycle evidence', () => {
     server.close();
 
     expect(String(error)).toContain('CDP command timed out');
+    // ...and it must say WHICH silence this is. An accepted upgrade whose peer
+    // never answers is a different bug from a handshake that never completed,
+    // and win32-arm64 produced the bare message on every release attempt while
+    // the app was provably alive, so the two were indistinguishable.
+    expect(String(error)).toContain('readyState=OPEN');
+    expect(String(error)).toMatch(/trace=.*upgrade:101/);
+    expect(String(error)).toMatch(/trace=.*\bopen@/);
+    expect(String(error)).toContain('send-complete');
+  });
+
+  // The other half of the same question: a peer that accepts the TCP connection
+  // and never completes the WebSocket handshake. It has to be distinguishable
+  // from the case above by the socket's own state, not by inference.
+  it('separates an upgrade that never completed from a peer that went quiet', async () => {
+    const net = await import('node:net');
+    const server = net.createServer(() => undefined);
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve as () => void));
+    const url = `ws://127.0.0.1:${(server.address() as { port: number }).port}/devtools/page/x`;
+
+    const error = await cdpCommand(url, 'Runtime.evaluate', {}, 600).catch((err) => err);
+    server.close();
+
+    expect(String(error)).toContain('CDP command timed out');
+    expect(String(error)).toContain('readyState=CONNECTING');
+    expect(String(error)).toContain('<no socket events>');
   });
 
   // Ten win32-arm64 readiness timeouts across v0.13.2 all said only "CDP command
@@ -1053,6 +1078,11 @@ describe('real installer extraction and lifecycle evidence', () => {
     expect(message).toContain('did not become ready');
     expect(message).toContain('readiness stall diagnostics');
     expect(message).toContain('browser endpoint did NOT answer');
+    // And it must NOT claim the main thread is blocked. That inference was drawn
+    // from this exact symptom once and the app's own heartbeat refuted it the
+    // same day, so the line points at the evidence instead of guessing.
+    expect(message).not.toContain('the main process is blocked');
+    expect(message).toContain('read the heartbeat lines');
   });
 
   it('fails readiness immediately for signal-terminated children and rejects occupied CDP ports', async () => {
