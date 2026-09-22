@@ -7,7 +7,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
@@ -1404,11 +1404,47 @@ export function describeFailureSurvivors(child, records, targetPlatform, depende
   return `\n${TAG} survivors at failure:\n${lines.join('\n')}`;
 }
 
+/**
+ * The polling form of `processSnapshot`.
+ *
+ * THIS IS THE WIN32-ARM64 BUG. The monitor below used to call the SYNCHRONOUS
+ * snapshot on a 25 ms interval, and on Windows that snapshot is a PowerShell
+ * + `Get-CimInstance Win32_Process` round trip. On a win-arm64 runner a single
+ * PowerShell takes seconds to start - the app's own detector logs it timing out
+ * at 5000 ms - so the harness spent the entire readiness window with its event
+ * loop blocked inside execFileSync, unable to service the CDP socket it was
+ * waiting on. The socket lifecycle trace measured it directly: a loopback
+ * WebSocket handshake that completed in 44929 ms and a send callback 44761 ms
+ * after that, against a 90 s command budget.
+ *
+ * Nothing was wrong with the app. Every "CDP command timed out" on win32-arm64
+ * was this process starving itself, which is why the failure was always a
+ * timeout and never a socket error, why the app logged 178 heartbeats with zero
+ * stalls through it, and why the one platform with the slowest WMI was the only
+ * platform that failed.
+ */
+export function processSnapshotAsync(targetPlatform, dependencies = {}) {
+  const run = dependencies.execFile || execFile;
+  const options = { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 };
+  const call = (command, args) =>
+    new Promise((resolve, reject) => {
+      run(command, args, options, (error, stdout) => (error ? reject(error) : resolve(stdout)));
+    });
+  if (targetPlatform === 'win32') {
+    return call('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CreationDate,ExecutablePath,Name,CommandLine | ConvertTo-Json -Compress',
+    ]).then(parseWindowsProcesses);
+  }
+  return call('ps', ['-axo', 'pid=,ppid=,lstart=,command=']).then(parsePosixProcesses);
+}
+
 export function createProcessMonitor(rootPid, targetPlatform, dependencies = {}) {
   const records = new Map();
-  const collect = (includeEnvironment = false) => {
+  const ingest = (snapshot) => {
     const scopeTokens = (dependencies.processScopeTokens || []).map((value) => String(value)).filter(Boolean);
-    const snapshot = processSnapshot(targetPlatform, dependencies, includeEnvironment);
     const descendants = descendantsFromSnapshot(rootPid, snapshot);
     const scoped = scopeTokens.length
       ? snapshot.filter(
@@ -1435,15 +1471,45 @@ export function createProcessMonitor(rootPid, targetPlatform, dependencies = {})
       records.set(key, { ...record, matchedBy: how });
     }
   };
+  const collect = (includeEnvironment = false) =>
+    ingest(processSnapshot(targetPlatform, dependencies, includeEnvironment));
+  // One synchronous sweep at construction, so the caller has records before the
+  // app can fork anything. Blocking here is harmless: nothing else is in flight.
   collect();
   // Scope matching catches a packaged child after it reparents or changes its
-  // process group; the short poll bounds the remaining fork/exec observation
-  // window without claiming OS-level containment.
-  const timer = setInterval(collect, dependencies.processMonitorIntervalMs ?? 25);
+  // process group; the poll bounds the remaining fork/exec observation window
+  // without claiming OS-level containment.
+  //
+  // ASYNC AND SELF-RESCHEDULING, NOT setInterval. A synchronous snapshot on a
+  // timer starves the very event loop the caller is using to talk to the app
+  // over CDP, and on win32-arm64 that cost eighteen release attempts (see
+  // processSnapshotAsync). Chaining also means a slow snapshot can never queue
+  // up behind itself: the next poll starts a full interval after the last one
+  // FINISHED.
+  const intervalMs = dependencies.processMonitorIntervalMs ?? (targetPlatform === 'win32' ? 500 : 25);
+  let stopped = false;
+  let timer;
+  const poll = () => {
+    if (stopped) return;
+    Promise.resolve()
+      .then(() => (dependencies.processSnapshotAsync || processSnapshotAsync)(targetPlatform, dependencies))
+      .then(ingest)
+      // A single failed sample is not a verdict. The final sweep in stop() is
+      // synchronous and still throws, so a genuinely broken process table fails
+      // the smoke rather than passing quietly.
+      .catch(() => undefined)
+      .then(() => {
+        if (stopped) return;
+        timer = setTimeout(poll, intervalMs);
+        timer.unref?.();
+      });
+  };
+  timer = setTimeout(poll, intervalMs);
   timer.unref?.();
   return {
     stop() {
-      clearInterval(timer);
+      stopped = true;
+      clearTimeout(timer);
       collect(true);
       return [...records.values()];
     },
